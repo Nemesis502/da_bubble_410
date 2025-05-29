@@ -1,1 +1,16 @@
-/* You can add global styles to this file, and also import other style files */
+$white: #FFFFFF;
+$Bg: #ECEEFE;
+$LigthPurple: #adb0d9;
+$TextGray: #686868;
+$purple1: #444DF2;
+$purple2: #797EF3;
+$purple3: #535AF1;
+$onlineGreen: #92C83E;
+$rosaError: #ed1f78;
+
+
+body {
+    background-color: $Bg;
+    margin: 0;
+    width: 100%;
+}

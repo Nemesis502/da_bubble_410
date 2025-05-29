@@ -1,0 +1,24 @@
+.intro {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: linear-gradient(1.46deg, #313AE6 1.22%, #797EF3 98.76%);
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 263px;
+    height: 69px;
+
+    img {
+        height: 69px;
+        width: 70px;
+    }
+}
+
+.logIn-Section {
+    display: none;
+}
