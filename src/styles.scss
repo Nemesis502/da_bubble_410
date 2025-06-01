@@ -175,6 +175,31 @@
   /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
 }
 
+.nuito20px {
+  font-family: 'Nunito';
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.nuito17px400 {
+  font-family: 'Nunito';
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 120%;
+  letter-spacing: 0;
+  text-align: center;
+
+}
+
+.nuito32px700 {
+  font-family: 'Nunito';
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 120%;
+  letter-spacing: 0;
+  text-align: center;
+}
+
 // Fonts end
 
 $Bg: #ECEEFE;
@@ -192,4 +217,28 @@ body {
   margin: 0;
   width: 100%;
   overflow-x: hidden;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.flex-collum-center {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+:root {
+  --mdc-filled-text-field-container-color: #ECEEFE;
+}
+
+.mdc-floating-label {
+  color: #686868 !important;
 }
