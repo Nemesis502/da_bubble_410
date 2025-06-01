@@ -2,3 +2,14 @@
     margin: 26px 50px;
     width: 310px;
 }
+
+@media (max-width: 360px) {
+    .logo {
+        margin-inline: 5%;
+        width: 200px;
+
+        img {
+            width: 250px;
+        }
+    }
+}
