@@ -21,7 +21,8 @@
     </div>
     <form class="input-container">
       <mat-form-field>
-        <mat-label>Enter your email</mat-label>
+        <mat-label>Deine E-Mail-Adresse</mat-label>
+        <mat-icon matPrefix>mail</mat-icon>
         <input
           matInput
           placeholder="beispielname@email.com"
@@ -34,18 +35,26 @@
         }
       </mat-form-field>
       <mat-form-field>
-        <mat-label>Enter your password</mat-label>
-        <input matInput [type]="hide ? 'password' : 'text'" />
-        <button
-          mat-icon-button
-          matSuffix
-          (click)="hide = !hide"
-          [attr.aria-label]="'Hide password'"
-          [attr.aria-pressed]="hide"
-        >
-          <mat-icon>{{ hide ? "visibility_off" : "visibility" }}</mat-icon>
-        </button>
+        <mat-label>Passwort</mat-label>
+        <mat-icon matPrefix>lock</mat-icon>
+        <input matInput [type]="hide ? 'password' : 'text'" required />
       </mat-form-field>
     </form>
+    <div>
+      <a [routerLink]="['/routePath']">Passwort vergessen</a>
+    </div>
+    <div class="separator">
+      <div class="line"></div>
+      <p>ODER</p>
+      <div class="line"></div>
+    </div>
+    <div>
+      <button><p>Anmelden mit Google</p></button>
+    </div>
+    <div></div>
+    <div>
+      <button>Anmelden</button>
+      <button>Gäste-Login</button>
+    </div>
   </section>
 </section>

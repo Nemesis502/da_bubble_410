@@ -1,5 +1,14 @@
 @import "./../../../styles.scss";
 
+.nuito32px700 {
+    font-family: 'Nunito';
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 120%;
+    letter-spacing: 0;
+    text-align: center;
+}
+
 .intro {
     position: fixed;
     display: flex;
@@ -58,6 +67,8 @@
 
     h1 {
         color: black;
+        margin: 0;
+        font-weight: 500;
     }
 }
 
@@ -67,6 +78,7 @@
     margin: 30px 13px 0 13px;
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 20px;
 
     h2 {
@@ -83,23 +95,46 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 0 20px 0 20px;
 }
 
 .input-title {
     padding: 35px 20px 0 20px;
     margin-bottom: 20px;
     gap: 15px;
+
+
 }
 
-.mat-form-field {
+mat-form-field {
+    width: 100%;
+
+    mat-icon,
     mat-label {
         color: $TextGray;
     }
 
-    input::placeholder {
-        color: $TextGray;
+    input.mat-mdc-input-element::placeholder {
+        color: $TextGray !important;
     }
 }
+
+
+.separator {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    padding: 0 20px 0 20px;
+
+    div {
+        width: 100%;
+        border: 1px solid $LigthPurple;
+        height: 0;
+    }
+}
+
+.line {}
 
 
 
