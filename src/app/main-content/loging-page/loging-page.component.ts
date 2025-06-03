@@ -5,13 +5,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDividerModule } from '@angular/material/divider';
 import { merge } from 'rxjs';
 import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-loging-page',
   standalone: true,
-  imports: [MatFormFieldModule, MatInputModule, FormsModule, ReactiveFormsModule, MatIconModule, MatButtonModule, RouterLink],
+  imports: [MatDividerModule, MatFormFieldModule, MatInputModule, FormsModule, ReactiveFormsModule, MatIconModule, MatButtonModule, RouterLink],
   templateUrl: './loging-page.component.html',
   styleUrl: './loging-page.component.scss',
   encapsulation: ViewEncapsulation.None

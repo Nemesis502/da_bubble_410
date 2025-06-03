@@ -1,13 +1,13 @@
 <div class="intro hidden">
   <div class="flex-collum-center logo-intro-container">
     <div class="title nuito20px"><h1>DABubble</h1></div>
-    <img src="./../../../assets/img/Logo.png" alt="" />
+    <img src="./../../../assets/img/logo.png" alt="" />
   </div>
 </div>
 
 <section class="flex-collum-center logIn-Section">
   <div class="logo-container">
-    <img src="./../../../assets/img/Logo.png" alt="" />
+    <img src="./../../../assets/img/logo.png" alt="" />
     <div class="nuito20px"><h1>DABubble</h1></div>
   </div>
 
@@ -40,21 +40,38 @@
         <input matInput [type]="hide ? 'password' : 'text'" required />
       </mat-form-field>
     </form>
-    <div>
-      <a [routerLink]="['/routePath']">Passwort vergessen</a>
+    <div class="password-forget-container">
+      <a class="figtree17px400" [routerLink]="['/routePath']"
+        >Passwort vergessen?</a
+      >
     </div>
     <div class="separator">
       <div class="line"></div>
-      <p>ODER</p>
-      <div class="line"></div>
+      <div class="or-container">
+        <p class="nuito17px400">ODER</p>
+      </div>
     </div>
-    <div>
-      <button><p>Anmelden mit Google</p></button>
+    <div class="login-google-container">
+      <button>
+        <img src="./../../assets/img/google.png" alt="" />
+        <p class="nuito17px400">Anmelden mit Google</p>
+      </button>
     </div>
-    <div></div>
-    <div>
-      <button>Anmelden</button>
-      <button>Gäste-Login</button>
+    <div class="button-container">
+      <button mat-flat-button class="nuito17px400 h49px login-button">
+        Anmelden
+      </button>
+      <button mat-stroked-button class="nuito17px400 h49px second-button">
+        Gäste-Login
+      </button>
     </div>
   </section>
+  <div class="flex-collum-center newUser-container">
+    <p class="nuito17px400">Neu bei DABubble?</p>
+    <a routerLink="singIn">
+      <button mat-stroked-button class="nuito17px400 second-button">
+        Konto erstellen
+      </button>
+    </a>
+  </div>
 </section>
