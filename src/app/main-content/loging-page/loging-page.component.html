@@ -24,6 +24,7 @@
         <mat-label>Deine E-Mail-Adresse</mat-label>
         <mat-icon matPrefix>mail</mat-icon>
         <input
+          class="inputfield"
           matInput
           placeholder="beispielname@email.com"
           [formControl]="email"
@@ -37,11 +38,16 @@
       <mat-form-field>
         <mat-label>Passwort</mat-label>
         <mat-icon matPrefix>lock</mat-icon>
-        <input matInput [type]="hide ? 'password' : 'text'" required />
+        <input
+          class="inputfield"
+          matInput
+          [type]="hide ? 'password' : 'text'"
+          required
+        />
       </mat-form-field>
     </form>
     <div class="password-forget-container">
-      <a class="figtree17px400" [routerLink]="['/routePath']"
+      <a class="figtree17px400" routerLink="/"
         >Passwort vergessen?</a
       >
     </div>
@@ -58,10 +64,10 @@
       </button>
     </div>
     <div class="button-container">
-      <button mat-flat-button class="nuito17px400 h49px login-button">
+      <button mat-flat-button class="nuito18px700 h49px login-button">
         Anmelden
       </button>
-      <button mat-stroked-button class="nuito17px400 h49px second-button">
+      <button mat-stroked-button class="nuito18px700 h49px second-button">
         Gäste-Login
       </button>
     </div>

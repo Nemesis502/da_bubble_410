@@ -1,1 +1,67 @@
-<p>sing-in-page works!</p>
+<section class="flex-collum-center logIn-Section">
+  <div class="logo-container">
+    <img src="./../../../assets/img/logo.png" alt="" />
+    <div class="nuito20px"><h1>DABubble</h1></div>
+  </div>
+
+  <section class="input-section">
+    <div class="flex-collum-center input-title">
+      <div>
+        <img routerLink="/" src="./../../../../assets/img/back.png" alt="" />
+        <h2 class="nuito32px700">Konto erstellen</h2>
+      </div>
+      <p class="nuito17px400">
+        Mit deinem Namen und deiner E-Mail-Adresse hast du dein neues
+        DABubble-Konto.
+      </p>
+    </div>
+    <form class="input-container">
+      <mat-form-field>
+        <mat-label>Name und Nachname</mat-label>
+        <mat-icon matPrefix>person</mat-icon>
+        <input
+          class="inputfield"
+          matInput
+          [formControl]="text"
+          (blur)="updateErrorMessageName()"
+          required
+        />
+        @if (text.invalid) {
+        <mat-error>{{ errorMessageName }}</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Deine E-Mail-Adresse</mat-label>
+        <mat-icon matPrefix>mail</mat-icon>
+        <input
+          class="inputfield"
+          matInput
+          placeholder="beispielname@email.com"
+          [formControl]="email"
+          (blur)="updateErrorMessageEmail()"
+          required
+        />
+        @if (email.invalid) {
+        <mat-error>{{ errorMessageEmail }}</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Passwort</mat-label>
+        <mat-icon matPrefix>lock</mat-icon>
+        <input
+          class="inputfield"
+          matInput
+          [type]="hide ? 'password' : 'text'"
+          required
+        />
+      </mat-form-field>
+      <div class="button-container">
+        <a routerLink="chooseAvatar">
+          <button mat-flat-button class="nuito18px700 h49px login-button">
+            Weiter
+          </button>
+        </a>
+      </div>
+    </form>
+  </section>
+</section>

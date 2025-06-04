@@ -1,0 +1,40 @@
+@use "./../../../styles.scss" as *;
+
+@keyframes nameToRight {
+    from {
+        transform: translateX(-192px);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes imgToLeft {
+    from {
+        transform: translateX(74px);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeout {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    90% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 0;
+        display: none;
+    }
+}

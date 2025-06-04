@@ -14,7 +14,9 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [MatDividerModule, MatFormFieldModule, MatInputModule, FormsModule, ReactiveFormsModule, MatIconModule, MatButtonModule, RouterLink],
   templateUrl: './loging-page.component.html',
-  styleUrl: './loging-page.component.scss',
+  styleUrls: ['./loging-page.component.scss',
+    './loging-page.component-media-query.scss'
+  ],
   encapsulation: ViewEncapsulation.None
 })
 export class LogingPageComponent {

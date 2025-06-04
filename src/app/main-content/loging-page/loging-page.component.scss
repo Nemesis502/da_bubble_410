@@ -40,7 +40,8 @@
 }
 
 .logIn-Section {
-    margin-top: 92px;
+    // margin: 92px 30px 0 30px;
+    margin: 92px 16px 0 16px;
 }
 
 .logo-container {
@@ -67,11 +68,15 @@
 .input-section {
     border-radius: 30px;
     background-color: white;
-    margin: 30px 13px 30px 13px;
+    // margin: 30px 13px 30px 13px;
+    margin: 30px 0 30px 0;
     display: flex;
     flex-direction: column;
     align-items: center;
+    box-sizing: border-box;
     gap: 20px;
+    width: 100%;
+    max-width: 606px;
 
     h2 {
         margin: 0;
@@ -88,6 +93,9 @@
     flex-direction: column;
     align-items: center;
     padding: 0 20px 0 20px;
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 500px;
 }
 
 
@@ -96,6 +104,9 @@
     padding: 35px 20px 0 20px;
     margin-bottom: 20px;
     gap: 15px;
+    width: 100%;
+    max-width: 486px;
+    box-sizing: border-box;
 }
 
 mat-form-field {
@@ -113,10 +124,10 @@ mat-form-field {
     .mat-mdc-form-field-focus-overlay {
         border-radius: 100px;
     }
+}
 
-    .mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-text-field__input {
-        color: black;
-    }
+.inputfield {
+    color: black !important;
 }
 
 .password-forget-container {
@@ -139,6 +150,7 @@ mat-form-field {
     justify-content: center;
     position: relative;
     width: 100%;
+    max-width: 500px;
     box-sizing: border-box;
     padding: 0 20px 0 20px;
     margin-bottom: 20px;
@@ -164,6 +176,8 @@ mat-form-field {
 .login-google-container {
     box-sizing: border-box;
     width: 100%;
+    max-width: 500px;
+    max-height: 60px;
     padding: 0 20px 0 20px;
     display: flex;
     justify-content: center;
@@ -182,6 +196,7 @@ mat-form-field {
 
         p {
             color: $purple1;
+            font-size: 16px !important;
         }
     }
 
@@ -193,16 +208,16 @@ mat-form-field {
 .button-container {
     display: flex;
     flex-direction: row;
-    gap: 20px;
+    justify-content: center;
+    gap: 5px;
     margin: 20px 0 35px 0;
+    width: 100%;
+    max-width: 320px;
 }
 
 .login-button,
 .second-button {
     border-radius: 25px !important;
-    line-height: 100% !important;
-    font-size: 18px !important;
-    font-weight: 700 !important;
 }
 
 .login-button {
