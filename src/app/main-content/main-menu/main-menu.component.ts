@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-main-menu',
@@ -12,12 +14,18 @@ import { MatIconModule } from '@angular/material/icon';
     CommonModule,
     FormsModule,
     MatInputModule,
+    MatButtonModule,
     MatFormFieldModule,
-    MatIconModule
+    MatIconModule,
+    MatSelectModule
   ],
   templateUrl: './main-menu.component.html',
   styleUrl: './main-menu.component.scss'
 })
 export class MainMenuComponent {
+  isChannelTitleHovered = false;
+  isChannelHovered = false;
+  isChannelAddHovered = false;
+  showChannels = true;
   searchTerm: string = '';
 }

@@ -1,14 +1,65 @@
 <section class="header">
-    <img src="./assets/img/logo-name.png" alt="Logo und Name">
+    <img class="logo-name" src="./assets/img/logo-name.png" alt="Logo und Name">
     <button><img src="./assets/img/avatar/3.png" alt="Avatar"></button>
 </section>
 <section class="menu">
     <section class="menu-item">
-        <form class="example-form">
-            <mat-form-field appearance="fill" class="example-full-width">
+        <form class="search-form">
+            <mat-form-field appearance="fill" class="search-full-width">
                 <input matInput placeholder="Gehe zu..." [(ngModel)]="searchTerm" name="searchTerm" />
                 <mat-icon matSuffix>search</mat-icon>
             </mat-form-field>
         </form>
+
+        <section class="menu-list">
+            <section class="channels">
+                <div class="channel-header">
+                    <div class="channel-title" (click)="showChannels = !showChannels"
+                        (mouseenter)="isChannelTitleHovered = true" (mouseleave)="isChannelTitleHovered = false">
+                        @if (showChannels) {
+                        <img class="arrow-down"
+                            [src]="isChannelTitleHovered ? './assets/img/menu/arrow-down-hover.png' : './assets/img/menu/arrow-down.png'"
+                            alt="">
+                        } @else {
+                        <img class="arrow-right"
+                            [src]="isChannelTitleHovered ? './assets/img/menu/arrow-right-hover.png' : './assets/img/menu/arrow-right.png'"
+                            alt="">
+                        }
+                        <img [src]="isChannelTitleHovered ? './assets/img/menu/channel-img-hover.png' : './assets/img/menu/channel-img.png'"
+                            alt="">
+                        <h2 class="nuito20px">Channels</h2>
+                    </div>
+                    <button matMiniFab aria-label="Add Channel" class="add-btn">
+                        <mat-icon fontIcon="add"></mat-icon>
+                    </button>
+                </div>
+                @if(showChannels) {
+                <div class="channel-list">
+                    <!-- @for (item of items; track $index) { -->
+                    <div class="channel-item" (mouseenter)="isChannelHovered = true"
+                        (mouseleave)="isChannelHovered = false">
+                        <img [src]="isChannelHovered ? './assets/img/menu/tag-hover.png' : './assets/img/menu/tag.png'"
+                            alt="">
+                        <p class="nuito17px400">Entwicklerteam</p>
+                    </div>
+                    <div class="channel-item" (mouseenter)="isChannelHovered = true"
+                        (mouseleave)="isChannelHovered = false">
+                        <img [src]="isChannelHovered ? './assets/img/menu/tag-hover.png' : './assets/img/menu/tag.png'"
+                            alt="">
+                        <p class="nuito17px400">Office-team</p>
+                    </div>
+                    <!-- } -->
+                    <div class="channel-item channel-item-add" (mouseenter)="isChannelAddHovered = true"
+                        (mouseleave)="isChannelAddHovered = false">
+                        <img src="./assets/img/menu/add.png" alt="">
+                        <p class="nuito17px400">Channel hinzufügen</p>
+                    </div>
+                </div>
+                }
+            </section>
+            <section class="direct-message">
+
+            </section>
+        </section>
     </section>
 </section>
