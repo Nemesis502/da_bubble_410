@@ -1,0 +1,143 @@
+@use "./../../../styles.scss" as *;
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 16px;
+  padding-right: 16px;
+  height: 80px;
+
+  button {
+    border: 0;
+    background-color: transparent;
+    height: 62px;
+    cursor: pointer;
+    padding: 0px;
+  }
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  p {
+    margin-bottom: 0px;
+    margin-left: 10px;
+  }
+  img {
+    height: 50px;
+    width: 50px;
+  }
+}
+
+.profile-btn {
+  img {
+    height: 60px;
+    width: 60px;
+  }
+}
+
+.mat-icon-top {
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.chat-header {
+  box-shadow: 0 4px 6px -4px rgba(0, 0, 0, 0.2);
+  background-color: white;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  button {
+    border: 0;
+    cursor: pointer;
+  }
+
+  .channel-button {
+    background-color: transparent;
+    display: flex;
+    margin-left: 16px;
+    align-items: center;
+    .mat-icon {
+      font-size: 16px !important;
+    }
+    .channel-name {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    p {
+      margin-bottom: 0px;
+    }
+  }
+
+  .add-user-button {
+    background-color: $Bg;
+    margin-right: 16px;
+    border-radius: 40px;
+    width: 34px;
+    height: 34px;
+    .mat-icon {
+      font-size: 16px !important;
+    }
+  }
+}
+
+.chat-body {
+  background-color: white;
+  height: auto;
+}
+
+.chat-interface {
+  background-color: white;
+  margin-left: 16px;
+  margin-right: 16px;
+  margin-bottom: 30px;
+  position: absolute;
+  bottom: 0;
+  width: calc(100% - 32px);
+  border-radius: 30px;
+  height: 145px;
+
+  .chat-card {
+    background-color: white !important;
+    border-radius: 20px;
+    height: 145px;
+  }
+
+  textarea{
+    border:0;
+    height:auto;
+    margin-top: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+
+  .chat-buttons {
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    button {
+      border: 0;
+      cursor: pointer;
+      background-color: transparent;
+    }
+    .buttons-left{
+      font-size: 24px !important;
+      .mat-icon{
+        color: gray;
+      }
+    }
+    .button-right{
+      .mat-icon{
+        color: $purple1
+      }
+    }
+  }
+}
