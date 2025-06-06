@@ -8,5 +8,5 @@ export const routes: Routes = [
     { path: '', component: LogingPageComponent },
     { path: 'singIn', component: SingInPageComponent },
     { path: 'singIn/chooseAvatar', component: ChooseAvatarPageComponent },
-    {path: 'chat', component: ChatTemplateComponent}
+    { path: 'chat', component: ChatTemplateComponent }
 ];

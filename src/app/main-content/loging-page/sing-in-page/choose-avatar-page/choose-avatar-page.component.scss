@@ -1,5 +1,10 @@
 @use "./../../../../../styles.scss" as *;
 
+.logIn-Section {
+    // margin: 92px 30px 0 30px;
+    margin: 87px 16px 0 16px;
+}
+
 .logo-container {
     display: flex;
     align-items: center;
@@ -96,9 +101,32 @@ form {
     margin: 30px 0 30px 0;
     width: 100%;
     max-width: 320px;
+    box-sizing: border-box;
 }
 
 .login-button {
     border-radius: 25px !important;
     background-color: $purple1 !important;
+}
+
+.overlay {
+    width: 100%;
+    position: relative;
+    margin-bottom: 30px;
+    height: 70px;
+    overflow-x: hidden;
+}
+
+.creation-container {
+    height: 70px;
+    width: 270px;
+    background-color: $purple1;
+    border-radius: 30px 30px 0 30px;
+    position: absolute;
+    left: 283px;
+
+    h2 {
+        color: white;
+        margin: 0;
+    }
 }
