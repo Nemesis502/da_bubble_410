@@ -1,5 +1,11 @@
 @use "./../../../styles.scss" as *;
-
+.comp-body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  margin: 0;
+  background-color: white !important;
+}
 .header {
   display: flex;
   justify-content: space-between;
@@ -7,7 +13,7 @@
   padding-left: 16px;
   padding-right: 16px;
   height: 80px;
-
+  background-color: $Bg;
   button {
     border: 0;
     background-color: transparent;
@@ -30,12 +36,12 @@
   }
 }
 
-.profile-btn {
+
   img {
     height: 60px;
     width: 60px;
   }
-}
+
 
 .mat-icon-top {
   font-size: 12px;
@@ -49,6 +55,7 @@
   box-shadow: 0 4px 6px -4px rgba(0, 0, 0, 0.2);
   background-color: white;
   height: 60px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -87,18 +94,12 @@
   }
 }
 
-.chat-body {
-  background-color: white;
-  height: auto;
-}
-
 .chat-interface {
   background-color: white;
   margin-left: 16px;
   margin-right: 16px;
   margin-bottom: 30px;
-  position: absolute;
-  bottom: 0;
+  flex-shrink: 0;
   width: calc(100% - 32px);
   border-radius: 30px;
   height: 145px;
@@ -107,14 +108,33 @@
     background-color: white !important;
     border-radius: 20px;
     height: 145px;
+    border: 1px solid $LightPurple;
+    transition: border-color 0.3s ease;
+    &:hover,
+    &:focus-within {
+      border-color: $purple1;
+    }
   }
 
-  textarea{
-    border:0;
-    height:auto;
+  textarea {
+    border: 0;
+    height: 100%;
     margin-top: 20px;
     margin-left: 20px;
     margin-right: 20px;
+    margin-bottom: 52px;
+    font-family: "Nunito" !important;
+    font-size: 16px;
+    border: none;
+    outline: none;
+    resize: none;
+    box-shadow: none;
+  }
+
+  textarea:focus {
+    border: none;
+    outline: none;
+    box-shadow: none;
   }
 
   .chat-buttons {
@@ -122,22 +142,85 @@
     bottom: 0;
     display: flex;
     width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
     justify-content: space-between;
     button {
       border: 0;
       cursor: pointer;
       background-color: transparent;
     }
-    .buttons-left{
+    .buttons-left {
       font-size: 24px !important;
-      .mat-icon{
+      .mat-icon {
         color: gray;
+        border-radius: 50%;
+        padding: 6px;
+        &:hover {
+          background-color: lightgray;
+          color: $purple1;
+        }
+
+        &:active {
+          background-color: lightgray;
+          color: $purple1;
+        }
       }
     }
-    .button-right{
-      .mat-icon{
-        color: $purple1
+    .button-right {
+      .mat-icon {
+        color: $purple1;
+        &:hover {
+          color: $purple2;
+        }
+
+        &:active {
+          color: $purple2;
+        }
       }
     }
+  }
+}
+
+//Massage SCSS
+
+.chat-body {
+  margin-top: 10px;
+  margin-left: 16px;
+  margin-right: 16px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-grow: 1;
+  overflow-y: scroll;
+  width: calc(100% - 32px);
+  .msg {
+    width: 100%;
+  }
+}
+
+.msg-header {
+  height: 35px;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  span {
+    height: 1px;
+    width: 100%;
+    background-color: $LightPurple;
+  }
+  p {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    z-index: 1;
+    border: 1px solid $LightPurple;
+    border-radius: 20px;
+    padding: 2px 10px;
+    white-space: nowrap;
   }
 }
