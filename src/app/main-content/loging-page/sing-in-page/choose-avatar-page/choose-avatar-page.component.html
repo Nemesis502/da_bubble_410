@@ -34,7 +34,7 @@
         </div>
       </div>
       <div class="button-container">
-        <a routerLink="chooseAvatar">
+        <a (click)="sendNewProfil()">
           <button mat-flat-button class="nuito18px700 h49px login-button">
             Weiter
           </button>
@@ -42,9 +42,14 @@
       </div>
     </form>
   </section>
-  <div class="overlay">
-    <div class="creation-container flex-collum-center">
-      <h2>Konto erfolgreich erstellt!</h2>
+  <div *ngIf="animation" class="overlay">
+    <div class="creation-container">
+      <div
+        [ngClass]="{ 'animation-RightToLeft': animation }"
+        class="creation-content flex-collum-center"
+      >
+        <h2>Konto erfolgreich erstellt!</h2>
+      </div>
     </div>
   </div>
 </section>

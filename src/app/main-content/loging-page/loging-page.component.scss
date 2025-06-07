@@ -117,12 +117,13 @@ mat-form-field {
         color: $TextGray;
     }
 
-    input.mat-mdc-input-element::placeholder {
-        color: $TextGray !important;
+    .mat-mdc-text-field-wrapper {
+        border-radius: 100px ;
     }
 
-    .mat-mdc-form-field-focus-overlay {
-        border-radius: 100px;
+
+    input.mat-mdc-input-element::placeholder {
+        color: $TextGray !important;
     }
 }
 
