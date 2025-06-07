@@ -27,5 +27,8 @@ export class MainMenuComponent {
   isChannelHovered = false;
   isChannelAddHovered = false;
   showChannels = true;
+  isDirectMessageTitleHovered = false;
+  showDirectMessages = true;
+
   searchTerm: string = '';
 }

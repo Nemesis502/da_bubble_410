@@ -1,4 +1,4 @@
-<section class="header">
+<section class="main-header">
     <img class="logo-name" src="./assets/img/logo-name.png" alt="Logo und Name">
     <button><img src="./assets/img/avatar/3.png" alt="Avatar"></button>
 </section>
@@ -13,8 +13,8 @@
 
         <section class="menu-list">
             <section class="channels">
-                <div class="channel-header">
-                    <div class="channel-title" (click)="showChannels = !showChannels"
+                <div class="header">
+                    <div class="title" (click)="showChannels = !showChannels"
                         (mouseenter)="isChannelTitleHovered = true" (mouseleave)="isChannelTitleHovered = false">
                         @if (showChannels) {
                         <img class="arrow-down"
@@ -58,7 +58,60 @@
                 }
             </section>
             <section class="direct-message">
-
+                <div class="header">
+                    <div class="title" (click)="showDirectMessages = !showDirectMessages"
+                        (mouseenter)="isDirectMessageTitleHovered = true"
+                        (mouseleave)="isDirectMessageTitleHovered = false">
+                        @if (showDirectMessages) {
+                        <img class="arrow-down"
+                            [src]="isDirectMessageTitleHovered ? './assets/img/menu/arrow-down-hover.png' : './assets/img/menu/arrow-down.png'"
+                            alt="">
+                        } @else {
+                        <img class="arrow-right"
+                            [src]="isDirectMessageTitleHovered ? './assets/img/menu/arrow-right-hover.png' : './assets/img/menu/arrow-right.png'"
+                            alt="">
+                        }
+                        <img [src]="isDirectMessageTitleHovered ? './assets/img/menu/account-img-hover.png' : './assets/img/menu/account-img.png'"
+                            alt="">
+                        <h2 class="nuito20px">Direktnachrichten</h2>
+                    </div>
+                </div>
+                @if(showDirectMessages) {
+                <div class="message-list">
+                    <!-- @for (item of items; track $index) { -->
+                    <div class="message-item">
+                        <img class="avatar-img" src="./assets/img/avatar/3.png"
+                            alt="">
+                        <p class="nuito17px400">Frederik Beck (Du)</p>
+                    </div>
+                    <div class="message-item">
+                        <img class="avatar-img" src="./assets/img/avatar/5.png"
+                            alt="">
+                        <p class="nuito17px400">Sofia Müller</p>
+                    </div>
+                    <div class="message-item">
+                        <img class="avatar-img" src="./assets/img/avatar/6.png"
+                            alt="">
+                        <p class="nuito17px400">Noah Braun</p>
+                    </div>
+                    <div class="message-item">
+                        <img class="avatar-img" src="./assets/img/avatar/1.png"
+                            alt="">
+                        <p class="nuito17px400">Elise Roth</p>
+                    </div>
+                    <div class="message-item">
+                        <img class="avatar-img" src="./assets/img/avatar/2.png"
+                            alt="">
+                        <p class="nuito17px400">Elias Neumann</p>
+                    </div>
+                    <div class="message-item">
+                        <img class="avatar-img" src="./assets/img/avatar/4.png"
+                            alt="">
+                        <p class="nuito17px400">Steffen Hoffmann</p>
+                    </div>
+                    <!-- } -->
+                </div>
+                }
             </section>
         </section>
     </section>

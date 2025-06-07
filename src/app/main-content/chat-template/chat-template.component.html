@@ -1,3 +1,4 @@
+<div class="comp-body">
 <section class="header">
   <button class="back-btn nuito18px700">
     <mat-icon class="mat-icon-top" fontIcon="arrow_back_ios_new"></mat-icon>
@@ -18,10 +19,27 @@
     <mat-icon class="mat-icon-top" fontIcon="person_add_alt"></mat-icon>
   </button>
 </section>
-<section class="chat-body"></section>
+<section class="chat-body">
+  <div class="msg">
+    <div class="msg-header">
+      <span></span>
+      <p>Example, Date</p>
+    </div>
+    <div class="msg-avatar"><img src="./assets/img/avatar/2.png" alt=""></div>
+    <div class="msg-main">
+      <div class="msg-info">
+        <p>Example Name</p>
+        <p>12:00 Uhr</p>
+      </div>
+      <div class="msg-content"></div>
+      <div class="msg-answers"></div>
+      <div class="msg-reactions"></div>
+    </div>
+  </div>
+</section>
 <section class="chat-interface">
   <mat-card class="chat-card" appearance="outlined">
-    <textarea name="" id="chat-field" placeholder="Nachricht an Entwicklerteam"></textarea>
+    <textarea name="" id="chat-field" placeholder="Nachricht an #Entwicklerteam"></textarea>
     <mat-card-actions class="chat-buttons">
       <div class="buttons-left">
         <button><mat-icon fontIcon="insert_emoticon"></mat-icon></button> 
@@ -33,3 +51,4 @@
     </mat-card-actions>
   </mat-card>
 </section>
+</div>
