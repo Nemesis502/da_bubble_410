@@ -13,10 +13,6 @@
     color: black !important;
 }
 
-::ng-deep .mat-icon {
-    color: $TextGray !important;
-}
-
 :host ::ng-deep .mat-mdc-form-field .mdc-line-ripple {
     display: none !important;
 }
@@ -68,6 +64,7 @@
 
         .mat-icon {
             padding: 0;
+            color: $TextGray;
         }
     }
 }
@@ -78,7 +75,7 @@
     gap: 30px;
     padding: 5%;
     max-height: 89%;
-    }
+}
 
 .channels {
     display: flex;
@@ -104,15 +101,9 @@
             h2 {
                 color: currentColor;
             }
-        }
 
-        .arrow-down {
-            width: 10px;
-            height: 10px;
-
-            img {
-                width: 10px !important;
-                height: 7px !important;
+            .mat-icon {
+                color: currentColor;
             }
         }
 
@@ -150,9 +141,10 @@
         align-items: center;
         gap: 10px;
         margin: 16px;
+        padding-left: 16px;
         height: 33px;
-        cursor: pointer;
         border-radius: 42px;
+        cursor: pointer;
 
         p {
             margin: 0;
@@ -189,12 +181,13 @@
         gap: 10px;
         margin: 16px;
         margin-bottom: 0;
+        padding: 6px 0 6px 20px;
         height: 58px;
-        cursor: pointer;
         border-radius: 42px;
+        cursor: pointer;
 
-        .avatar-img {
-            width: 50px !important;
+        img {
+            width: 50px;
             height: 50px;
         }
 

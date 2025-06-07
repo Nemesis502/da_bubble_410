@@ -23,11 +23,7 @@ import { MatButtonModule } from '@angular/material/button';
   styleUrl: './main-menu.component.scss'
 })
 export class MainMenuComponent {
-  isChannelTitleHovered = false;
-  isChannelHovered = false;
-  isChannelAddHovered = false;
   showChannels = true;
-  isDirectMessageTitleHovered = false;
   showDirectMessages = true;
 
   searchTerm: string = '';
