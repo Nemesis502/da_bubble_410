@@ -1,0 +1,62 @@
+@use "./../../../../styles.scss" as *;
+
+::ng-deep .bottom-dialog-panel .mat-mdc-dialog-surface.mdc-dialog__surface {
+    border-top-left-radius: 30px !important;
+    border-top-right-radius: 30px !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.18) !important;
+    overflow: hidden;
+    padding: 0;
+    background: white !important;
+}
+
+.menu-dialog {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 18px 36px 32px;
+    background: white;
+
+    .handle {
+        width: 56px;
+        height: 4px;
+        border-radius: 2px;
+        background: #D9D9D9;
+        margin: 16px auto 0;
+    }
+
+    button {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border: 0;
+        padding: 16px 24px;
+        background: transparent;
+        font: inherit;
+        cursor: pointer;
+
+        &:first-of-type {
+            width: 130px;
+        }
+
+        &:last-of-type {
+            width: 175px;
+        }
+
+        mat-icon {
+            font-size: 24px;
+        }
+
+        span {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        &:hover {
+            color: $purple3;
+            background: rgba(0, 0, 0, .04);
+            border-radius: 30px;
+        }
+    }
+}

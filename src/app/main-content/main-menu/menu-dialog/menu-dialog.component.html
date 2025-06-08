@@ -1,0 +1,12 @@
+<mat-card class="menu-dialog">
+    <div class="handle" aria-hidden="true"></div>
+    <button (mouseenter)="isProfilHovered = true" (mouseleave)="isProfilHovered = false" aria-label="Profil öffnen">
+        <img [src]="isProfilHovered ? './assets/img/menu/account-img-hover.png' : './assets/img/menu/account-img.png'"
+            alt="Symbol für Profil" />
+        <span>Profil</span>
+    </button>
+    <button aria-label="Ausloggen" (click)="logout()">
+        <mat-icon fontIcon="logout" aria-hidden="true"></mat-icon>
+        <span>Ausloggen</span>
+    </button>
+</mat-card>
