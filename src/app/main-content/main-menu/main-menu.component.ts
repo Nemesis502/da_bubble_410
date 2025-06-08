@@ -24,6 +24,7 @@ import { MatButtonModule } from '@angular/material/button';
 })
 export class MainMenuComponent {
   showChannels = true;
+  isDirectMessageTitleHovered = false;
   showDirectMessages = true;
 
   searchTerm: string = '';

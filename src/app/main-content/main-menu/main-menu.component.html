@@ -48,13 +48,16 @@
             </section>
             <section class="direct-message">
                 <div class="header">
-                    <div class="title" (click)="showDirectMessages = !showDirectMessages">
+                    <div class="title" (click)="showDirectMessages = !showDirectMessages"
+                        (mouseenter)="isDirectMessageTitleHovered = true"
+                        (mouseleave)="isDirectMessageTitleHovered = false">
                         @if (showDirectMessages) {
                         <mat-icon fontIcon="arrow_drop_down"></mat-icon>
                         } @else {
                         <mat-icon fontIcon="arrow_right"></mat-icon>
                         }
-                        <mat-icon class="custom-icon" fontIcon="person_outline"></mat-icon>
+                        <img [src]="isDirectMessageTitleHovered ? './assets/img/account-img-hover.png' : './assets/img/account-img.png'"
+                            alt="">
                         <h2 class="nuito20px">Direktnachrichten</h2>
                     </div>
                 </div>
