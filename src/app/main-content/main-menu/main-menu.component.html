@@ -1,46 +1,47 @@
 <section class="main-header">
     <img class="logo-name" src="./assets/img/logo-name.png" alt="Logo und Name">
-    <button><img src="./assets/img/avatar/3.png" alt="Avatar"></button>
+    <button aria-label="Benutzerprofil öffnen">
+        <img src="./assets/img/avatar/3.png" alt="" aria-hidden="true">
+    </button>
 </section>
 <section class="menu">
     <section class="menu-item">
-        <form class="search-form">
+        <form class="search-form" role="search">
             <mat-form-field appearance="fill" class="search-full-width">
-                <input matInput placeholder="Gehe zu..." [(ngModel)]="searchTerm" name="searchTerm" />
-                <mat-icon matSuffix>search</mat-icon>
+                <input matInput placeholder="Gehe zu..." [(ngModel)]="searchTerm" name="searchTerm"
+                    aria-label="Suchfeld Gehe zu" />
+                <mat-icon matSuffix aria-hidden="true">search</mat-icon>
             </mat-form-field>
         </form>
-
         <section class="menu-list">
             <section class="channels">
                 <div class="header">
-                    <div class="title" (click)="showChannels = !showChannels">
-                        @if (showChannels) {
-                        <mat-icon fontIcon="arrow_drop_down"></mat-icon>
-                        } @else {
-                        <mat-icon fontIcon="arrow_right"></mat-icon>
-                        }
-                        <mat-icon fontIcon="">workspaces_outline</mat-icon>
+                    <button type="button" class="title" (click)="showChannels = !showChannels"
+                        [attr.aria-expanded]="showChannels" aria-controls="channel-list"
+                        aria-label="Channels ein- oder ausklappen">
+                        <mat-icon fontIcon="{{ showChannels ? 'arrow_drop_down' : 'arrow_right' }}"
+                            aria-hidden="true"></mat-icon>
+                        <mat-icon fontIcon="workspaces_outline" aria-hidden="true"></mat-icon>
                         <h2 class="nuito20px">Channels</h2>
-                    </div>
-                    <button matMiniFab aria-label="Add Channel" class="add-btn">
-                        <mat-icon fontIcon="add"></mat-icon>
+                    </button>
+                    <button matMiniFab aria-label="Channel hinzufügen" class="add-btn">
+                        <mat-icon mat-icon-button fontIcon="add"></mat-icon>
                     </button>
                 </div>
                 @if(showChannels) {
-                <div class="channel-list">
+                <div class="channel-list" id="channel-list">
                     <!-- @for (item of items; track $index) { -->
                     <div class="channel-item">
-                        <mat-icon fontIcon="numbers"></mat-icon>
+                        <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
                         <p class="nuito17px400">Entwicklerteam</p>
                     </div>
                     <div class="channel-item">
-                        <mat-icon fontIcon="numbers"></mat-icon>
-                        <p class="nuito17px400">Office-team</p>
+                        <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
+                        <p class="nuito17px400">Office-Team</p>
                     </div>
                     <!-- } -->
                     <div class="channel-item channel-item-add">
-                        <mat-icon fontIcon="add_circle_outline"></mat-icon>
+                        <mat-icon fontIcon="add_circle_outline" aria-hidden="true"></mat-icon>
                         <p class="nuito17px400">Channel hinzufügen</p>
                     </div>
                 </div>
@@ -48,50 +49,52 @@
             </section>
             <section class="direct-message">
                 <div class="header">
-                    <div class="title" (click)="showDirectMessages = !showDirectMessages"
+                    <button type="button" class="title" (click)="showDirectMessages = !showDirectMessages"
                         (mouseenter)="isDirectMessageTitleHovered = true"
-                        (mouseleave)="isDirectMessageTitleHovered = false">
-                        @if (showDirectMessages) {
-                        <mat-icon fontIcon="arrow_drop_down"></mat-icon>
-                        } @else {
-                        <mat-icon fontIcon="arrow_right"></mat-icon>
-                        }
-                        <img [src]="isDirectMessageTitleHovered ? './assets/img/account-img-hover.png' : './assets/img/account-img.png'"
-                            alt="">
+                        (mouseleave)="isDirectMessageTitleHovered = false" [attr.aria-expanded]="showDirectMessages"
+                        aria-controls="direct-messages" aria-label="Direktnachrichten ein- oder ausklappen">
+                        <mat-icon fontIcon="{{ showDirectMessages ? 'arrow_drop_down' : 'arrow_right' }}"
+                            aria-hidden="true"></mat-icon>
+                        <img [src]="isDirectMessageTitleHovered
+                      ? './assets/img/menu/account-img-hover.png'
+                      : './assets/img/menu/account-img.png'" alt="Symbol für Direktnachrichten" />
                         <h2 class="nuito20px">Direktnachrichten</h2>
-                    </div>
+                    </button>
                 </div>
                 @if(showDirectMessages) {
-                <div class="message-list">
+                <div class="message-list" id="direct-messages">
                     <!-- @for (item of items; track $index) { -->
                     <div class="message-item">
-                        <img src="./assets/img/avatar/3.png" alt="">
+                        <img src="./assets/img/avatar/3.png" alt="Avatar von Frederik Beck (Du)" />
                         <p class="nuito17px400">Frederik Beck (Du)</p>
                     </div>
                     <div class="message-item">
-                        <img src="./assets/img/avatar/5.png" alt="">
+                        <img src="./assets/img/avatar/5.png" alt="Avatar von Sofia Müller" />
                         <p class="nuito17px400">Sofia Müller</p>
                     </div>
                     <div class="message-item">
-                        <img src="./assets/img/avatar/6.png" alt="">
+                        <img src="./assets/img/avatar/6.png" alt="Avatar von Noah Braun" />
                         <p class="nuito17px400">Noah Braun</p>
                     </div>
                     <div class="message-item">
-                        <img src="./assets/img/avatar/1.png" alt="">
+                        <img src="./assets/img/avatar/1.png" alt="Avatar von Elise Roth" />
                         <p class="nuito17px400">Elise Roth</p>
                     </div>
                     <div class="message-item">
-                        <img src="./assets/img/avatar/2.png" alt="">
+                        <img src="./assets/img/avatar/2.png" alt="Avatar von Elias Neumann" />
                         <p class="nuito17px400">Elias Neumann</p>
                     </div>
                     <div class="message-item">
-                        <img src="./assets/img/avatar/4.png" alt="">
+                        <img src="./assets/img/avatar/4.png" alt="Avatar von Steffen Hoffmann" />
                         <p class="nuito17px400">Steffen Hoffmann</p>
                     </div>
                     <!-- } -->
                 </div>
                 }
             </section>
+            <button class="new-chat-btn" mat-icon-button aria-label="Neuen Chat starten">
+                <img src="./assets/img/menu/new-chat-white.png" alt="" aria-hidden="true" />
+            </button>
         </section>
     </section>
 </section>
