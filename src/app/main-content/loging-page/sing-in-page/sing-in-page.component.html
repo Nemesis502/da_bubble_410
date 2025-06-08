@@ -52,15 +52,22 @@
           class="inputfield"
           matInput
           [type]="hide ? 'password' : 'text'"
+          [formControl]="password"
+          (blur)="updateErrorMessagePassword()"
           required
         />
+        @if (password.invalid) {
+        <mat-error>{{ errorMessagePassword }}</mat-error>
+        }
       </mat-form-field>
       <div class="button-container">
-        <a routerLink="chooseAvatar">
-          <button mat-flat-button class="nuito18px700 h49px login-button">
-            Weiter
-          </button>
-        </a>
+        <button
+          (click)="checkFormular()"
+          mat-flat-button
+          class="nuito18px700 h49px login-button"
+        >
+          Weiter
+        </button>
       </div>
     </form>
   </section>
