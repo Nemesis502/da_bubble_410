@@ -28,14 +28,13 @@ import { MenuDialogComponent } from './menu-dialog/menu-dialog.component';
 })
 export class MainMenuComponent {
   showChannels = true;
-  isDirectMessageTitleHovered = false;
   showDirectMessages = true;
 
   searchTerm: string = '';
 
   readonly dialog = inject(MatDialog);
 
-  openDialog(): void {
+  openMenuDialog(): void {
     this.dialog.open(MenuDialogComponent, {
       position: { bottom: '0' },
       maxWidth: '100vw',

@@ -1,8 +1,7 @@
 <mat-card class="menu-dialog">
     <div class="handle" aria-hidden="true"></div>
-    <button (mouseenter)="isProfilHovered = true" (mouseleave)="isProfilHovered = false" aria-label="Profil öffnen">
-        <img [src]="isProfilHovered ? './assets/img/menu/account-img-hover.png' : './assets/img/menu/account-img.png'"
-            alt="Symbol für Profil" />
+    <button aria-label="Profil öffnen" (click)="openProfileDialog()">
+        <mat-icon fontSet="material-icons-outlined">account_circle</mat-icon>
         <span>Profil</span>
     </button>
     <button aria-label="Ausloggen" (click)="logout()">

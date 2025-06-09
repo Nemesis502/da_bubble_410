@@ -1,0 +1,132 @@
+@use "./../../../styles.scss" as *;
+
+::ng-deep .bottom-dialog-panel .mat-mdc-dialog-surface.mdc-dialog__surface {
+    border-radius: 30px;
+    box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.18) !important;
+    overflow: hidden;
+    padding: 0;
+    background: white !important;
+}
+
+.profil-dialog {
+    display: flex;
+    flex-direction: column;
+    gap: 38px;
+    background-color: white;
+    padding-bottom: 32px;
+    border-radius: 30px;
+}
+
+.title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 32px;
+    padding: 0px 20px;
+    width: calc(83vw - 40px);
+}
+
+.profil-image {
+    display: flex;
+    justify-content: center;
+
+    img {
+        width: 200px;
+        border-radius: 100%;
+    }
+}
+
+.profil-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.profil-name {
+    display: flex;
+    align-items: center;
+    margin-top: 0;
+
+    .edit-button {
+        width: 30px;
+        height: 30px;
+        min-width: 30px;
+        min-height: 30px;
+        padding: 0;
+        border-radius: 50%;
+        background-color: $Bg;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    mat-icon {
+        color: #1C1B1F;
+        font-size: 18px;
+        margin: 0;
+    }
+}
+
+.profil-status {
+    display: flex;
+    align-items: center;
+    color: $onlineGreen;
+    padding: 0 20px;
+
+    mat-icon {
+        background-color: $onlineGreen;
+        font-size: 16px;
+        margin-right: 10px;
+        border-radius: 50%;
+        width: 14px;
+        height: 14px;
+    }
+
+    span {
+        font-size: 20px;
+        font-weight: 400;
+    }
+}
+
+.profil-email {
+    display: flex;
+    flex-direction: column;
+
+    .profil-email-title {
+        display: flex;
+        align-items: center;
+        font-family: 'Nunito';
+        font-size: 20px;
+        font-weight: 700;
+        color: black;
+        margin-bottom: 10px;
+        padding-left: 20px;
+
+        mat-icon {
+            margin-right: 10px;
+        }
+    }
+
+    .profil-email-address {
+        font-family: 'Nunito';
+        font-size: 18px;
+        font-weight: 400;
+        padding-left: 55px;
+    }
+}
+
+.profil-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .profil-message-button {
+        width: 164px;
+        height: 49px;
+        background-color: $purple1;
+        border-radius: 30px;
+        font-family: 'Nunito';
+        font-size: 18px;
+        font-weight: 700;
+    }
+}

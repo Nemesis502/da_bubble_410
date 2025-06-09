@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
+import { ProfilDialogComponent } from '../../../shared/profil-dialog/profil-dialog.component';
 
 @Component({
   selector: 'app-menu-dialog',
@@ -21,7 +22,15 @@ export class MenuDialogComponent {
 
   isProfilHovered = false;
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, private dialogRef: MatDialogRef<MenuDialogComponent>) { }
+
+  openProfileDialog() {
+    this.closeDialog();
+    this.dialog.open(ProfilDialogComponent, {
+      maxWidth: '90vw',
+      panelClass: 'bottom-dialog-panel'
+    });
+  }
 
   logout() {
     this.router.navigate(['']);
@@ -29,6 +38,6 @@ export class MenuDialogComponent {
   }
 
   closeDialog() {
-    this.dialog.closeAll();
+    this.dialogRef.close();
   }
 }
