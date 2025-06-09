@@ -1,54 +1,92 @@
 <div class="comp-body">
-<section class="header">
-  <button (click)="navigateToMain()" class="back-btn nuito18px700">
-    <mat-icon class="mat-icon-top" fontIcon="arrow_back_ios_new"></mat-icon>
-    <img src="./assets/img/workspace-logo.png" />
-    <p>Devspace</p>
-  </button>
-  <button class="profile-btn">
-    <img src="./assets/img/avatar/3.png" alt="Avatar" />
-  </button>
-</section>
-<section class="chat-header">
-  <button class="channel-button">
-    <p class="nuito18px700">#</p>
-    <p class="channel-name nuito18px700">Entwicklerteam</p>
-    <mat-icon class="mat-icon-top" fontIcon="keyboard_arrow_down"></mat-icon>
-  </button>
-  <button class="add-user-button">
-    <mat-icon class="mat-icon-top" fontIcon="person_add_alt"></mat-icon>
-  </button>
-</section>
-<section class="chat-body">
-  <div class="msg">
-    <div class="msg-header">
-      <span></span>
-      <p>Example, Date</p>
-    </div>
-    <div class="msg-avatar"><img src="./assets/img/avatar/2.png" alt=""></div>
-    <div class="msg-main">
-      <div class="msg-info">
-        <p>Example Name</p>
-        <p>12:00 Uhr</p>
+  <section class="header">
+    <button (click)="navigateToMain()" class="back-btn nuito18px700">
+      <mat-icon class="mat-icon-top" fontIcon="arrow_back_ios_new"></mat-icon>
+      <img src="./assets/img/workspace-logo.png" />
+      <p>Devspace</p>
+    </button>
+    <button class="profile-btn">
+      <img src="./assets/img/avatar/3.png" alt="Avatar" />
+    </button>
+  </section>
+  <section class="chat-header">
+    <button class="channel-button">
+      <p class="nuito18px700">#</p>
+      <p class="channel-name nuito18px700">Entwicklerteam</p>
+      <mat-icon class="mat-icon-top" fontIcon="keyboard_arrow_down"></mat-icon>
+    </button>
+    <button class="add-user-button">
+      <mat-icon class="mat-icon-top" fontIcon="person_add_alt"></mat-icon>
+    </button>
+  </section>
+  <section class="chat-body">
+    <div class="msg">
+      <div class="msg-header">
+        <span></span>
+        <p>Example, Date</p>
       </div>
-      <div class="msg-content"></div>
-      <div class="msg-answers"></div>
-      <div class="msg-reactions"></div>
-    </div>
-  </div>
-</section>
-<section class="chat-interface">
-  <mat-card class="chat-card" appearance="outlined">
-    <textarea name="" id="chat-field" placeholder="Nachricht an #Entwicklerteam"></textarea>
-    <mat-card-actions class="chat-buttons">
-      <div class="buttons-left">
-        <button><mat-icon fontIcon="insert_emoticon"></mat-icon></button> 
-        <button><mat-icon fontIcon="alternate_email"></mat-icon></button>
+      <div class="msg-body">
+        <div class="msg-avatar">
+          <img src="./assets/img/avatar/2.png" alt="" />
+        </div>
+        <div class="msg-main">
+          <div class="msg-info">
+            <p class="chatter-name nuito18px700">Example Name</p>
+            <p class="msg-time">12:00 Uhr</p>
+          </div>
+          <div class="msg-content">
+              <p class="msg-text">
+                Example Message! Lorem ipsum dolor sit amet consectetur
+                adipisicing elit. 
+              </p>
+          </div>
+          <div class="msg-answers"><button>2 Antworten</button><p class="answer-time">Letzte Antwort 12:05</p></div>
+          <div class="msg-reactions"></div>
+        </div>
       </div>
-      <div class="button-right">
+    </div>
+        <div class="msg-own">
+      <div class="msg-header">
+        <span></span>
+        <p>Example, Date</p>
+      </div>
+      <div class="msg-own-body">
+        <div class="msg-avatar">
+          <img src="./assets/img/avatar/2.png" alt="" />
+        </div>
+        <div class="msg-own-main">
+          <div class="msg-own-info">
+            <p class="chatter-name nuito18px700">User Name</p>
+            <p class="msg-time">12:00 Uhr</p>
+          </div>
+          <div class="msg-own-content">
+              <p class="msg-text">
+                Example Message! Lorem ipsum dolor sit amet consectetur
+                adipisicing elit. 
+              </p>
+          </div>
+          <div class="msg-own-answers"><button>2 Antworten</button><p class="answer-time">Letzte Antwort 12:05</p></div>
+          <div class="msg-reactions"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="chat-interface">
+    <mat-card class="chat-card" appearance="outlined">
+      <textarea
+        name=""
+        id="chat-field"
+        placeholder="Nachricht an #Entwicklerteam"
+      ></textarea>
+      <mat-card-actions class="chat-buttons">
+        <div class="buttons-left">
+          <button><mat-icon fontIcon="insert_emoticon"></mat-icon></button>
+          <button><mat-icon fontIcon="alternate_email"></mat-icon></button>
+        </div>
+        <div class="button-right">
           <button><mat-icon fontIcon="send"></mat-icon></button>
-      </div>
-    </mat-card-actions>
-  </mat-card>
-</section>
+        </div>
+      </mat-card-actions>
+    </mat-card>
+  </section>
 </div>

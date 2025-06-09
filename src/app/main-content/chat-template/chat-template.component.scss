@@ -36,12 +36,10 @@
   }
 }
 
-
-  img {
-    height: 60px;
-    width: 60px;
-  }
-
+img {
+  height: 60px;
+  width: 60px;
+}
 
 .mat-icon-top {
   font-size: 12px;
@@ -180,10 +178,11 @@
 //Massage SCSS
 
 .chat-body {
-  margin-top: 10px;
-  margin-left: 16px;
-  margin-right: 16px;
-  margin-bottom: 10px;
+  padding-top: 10px;
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-bottom: 10px;
+  flex-direction: column;
   display: flex;
   flex-grow: 1;
   overflow-y: scroll;
@@ -219,3 +218,121 @@
     white-space: nowrap;
   }
 }
+
+.msg-body {
+  display: flex;
+  padding-top: 10px;
+}
+
+.msg-own-body {
+  display: flex;
+  padding-top: 10px;
+  flex-direction: row-reverse;
+}
+
+.msg-info {
+  display: flex;
+  align-items: center;
+}
+
+.msg-own-info {
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+}
+
+.msg-main {
+  margin-left: 16px;
+}
+
+.msg-own-main {
+  margin-right: 16px;
+}
+
+.msg-time {
+  margin-left: 20px;
+  margin-right: 20px;
+  font-family: "nunito";
+  font-weight: 400;
+  font-size: 14px;
+  color: #686868;
+}
+
+.msg-content {
+  background-color: $Bg;
+  padding: 15px;
+  border-radius: 20px;
+  border-top-left-radius: 0;
+  .msg-text {
+    font-family: "nunito";
+    font-weight: 400;
+    font-size: 17px;
+    padding-bottom: 0px;
+    margin-bottom: 0px;
+  }
+}
+
+.msg-own-content {
+  background-color: $purple2;
+  padding: 15px;
+  border-radius: 20px;
+  border-top-right-radius: 0;
+    .msg-text {
+    font-family: "nunito";
+    font-weight: 400;
+    font-size: 17px;
+    padding-bottom: 0px;
+    margin-bottom: 0px;
+    color: white;
+  }
+}
+
+.msg-answers {
+  display: flex;
+  margin-top: 8px;
+  align-items: center;
+  padding-bottom: 20px;
+  button {
+    background-color: transparent;
+    border: none;
+    font-family: "nunito";
+    font-size: 18px;
+    font-weight: 400;
+    color: $purple3;
+    padding: 0px;
+  }
+  .answer-time {
+    margin-left: 20px;
+    font-family: "nunito";
+    font-weight: 400;
+    font-size: 14px;
+    color: #686868;
+    margin-bottom: 0px;
+  }
+}
+
+.msg-own-answers {
+  display: flex;
+  margin-top: 8px;
+  align-items: center;
+  padding-bottom: 20px;
+  justify-content: flex-end;
+  button {
+    background-color: transparent;
+    border: none;
+    font-family: "nunito";
+    font-size: 18px;
+    font-weight: 400;
+    color: $purple3;
+    padding: 0px;
+  }
+  .answer-time {
+    margin-left: 20px;
+    font-family: "nunito";
+    font-weight: 400;
+    font-size: 14px;
+    color: #686868;
+    margin-bottom: 0px;
+  }
+}
+
