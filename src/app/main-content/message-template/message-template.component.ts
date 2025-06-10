@@ -45,55 +45,11 @@ export class MessageTemplateComponent {
   ];
 
   currentUser: string = 'user2';
-  selectedMessage: any = null;
-  popupPosition: { top: string; left: string } | null = null;
-  popupType: 'own' | 'other' | null = null;
+selectedMessage: any = null; // Or appropriate type if defined
 
-  onMsgClick(message: any, event: MouseEvent) {
-    this.selectedMessage = this.selectedMessage === message ? null : message;
-    if (this.selectedMessage) {
-      const targetElement = event.currentTarget as HTMLElement;
-      const rect = targetElement.getBoundingClientRect();
+onMessageClick(message: any) {
+  this.selectedMessage = this.selectedMessage === message ? null : message;
+}
 
-      this.popupType = 'other';
-      this.popupPosition = {
-        top: `${rect.top + 15}px`,
-        left: `${rect.left + rect.width / 2}px`,
-      };
-    } else {
-      this.popupType = null;
-      this.popupPosition = null;
-    }
-    event.stopPropagation();
-  }
 
-  onMsgClickForOwnMessage(message: any, event: MouseEvent) {
-    this.selectedMessage = this.selectedMessage === message ? null : message;
-    if (this.selectedMessage) {
-      const targetElement = event.currentTarget as HTMLElement;
-      const rect = targetElement.getBoundingClientRect();
-
-      this.popupType = 'own';
-      this.popupPosition = {
-        top: `${rect.top + 15}px`,
-        left: `${rect.left + rect.width / 2 -30}px`,
-      };
-    } else {
-      this.popupType = null;
-      this.popupPosition = null;
-    }
-    event.stopPropagation();
-  }
-
-  replyToMessage(message: any) {
-    console.log('Replying to:', message);
-  }
-
-  editMessage(message: any) {
-    console.log('Editing:', message);
-  }
-
-  deleteMessage(message: any) {
-    console.log('Deleting:', message);
-  }
 }

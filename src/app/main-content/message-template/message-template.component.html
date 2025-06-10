@@ -1,24 +1,26 @@
+
 <div
   *ngFor="let message of messages"
+  (click)="selectedMessage = message"
 >
-  <!-- Check if the message belongs to the current user -->
   <ng-container *ngIf="message.id === currentUser; else otherMessage">
-    <!-- Own message template -->
-    <div 
-      class="msg-own"
-      (click)="onMsgClickForOwnMessage(message, $event)"
-    >
+    <div class="msg-own">
       <div class="msg-header">
         <span></span>
         <p>{{ message.date }}</p>
       </div>
-      <div [ngClass]="{ 'msg-own-active': selectedMessage === message }" class="msg-own-body">
+      <div
+        [ngClass]="{ 'msg-own-active': selectedMessage === message }"
+        class="msg-own-body"
+      >
         <div class="msg-avatar">
           <img [src]="message.avatar" alt="" />
         </div>
         <div class="msg-own-main">
           <div class="msg-own-info">
-            <button class="chatter-name nuito18px700">{{ message.name }}</button>
+            <button class="chatter-name nuito18px700">
+              {{ message.name }}
+            </button>
             <p class="msg-time">{{ message.time }}</p>
           </div>
           <div class="msg-own-content">
@@ -31,26 +33,35 @@
           <div class="msg-reactions"></div>
         </div>
       </div>
+      <div class="popup-menu-own" [class.active]="selectedMessage === message">
+        <button>Icon</button>
+        <button>Icon</button>
+        <button>
+          <img src="./assets/img/icons/add_reaction.png" alt="" />
+        </button>
+        <button><img src="./assets/img/icons/comment.png" alt="" /></button>
+        <button><img src="./assets/img/icons/answer.png" alt="" /></button>
+      </div>
     </div>
   </ng-container>
-
-  <!-- Other user's message template -->
   <ng-template #otherMessage>
-    <div
-      class="msg"
-      (click)="onMsgClick(message, $event)"
-    >
+    <div class="msg">
       <div class="msg-header">
         <span></span>
         <p>{{ message.date }}</p>
       </div>
-      <div [ngClass]="{ 'msg-active': selectedMessage === message }" class="msg-body">
+      <div
+        [ngClass]="{ 'msg-active': selectedMessage === message }"
+        class="msg-body"
+      >
         <div class="msg-avatar">
           <img [src]="message.avatar" alt="" />
         </div>
         <div class="msg-main">
           <div class="msg-info">
-            <button class="chatter-name nuito18px700">{{ message.name }}</button>
+            <button class="chatter-name nuito18px700">
+              {{ message.name }}
+            </button>
             <p class="msg-time">{{ message.time }}</p>
           </div>
           <div class="msg-content">
@@ -63,35 +74,14 @@
           <div class="msg-reactions"></div>
         </div>
       </div>
+      <div class="popup-menu" [class.active]="selectedMessage === message">
+        <button>Icon</button>
+        <button>Icon</button>
+        <button>
+          <img src="./assets/img/icons/add_reaction.png" alt="" />
+        </button>
+        <button><img src="./assets/img/icons/comment.png" alt="" /></button>
+      </div>
     </div>
   </ng-template>
-</div>
-
-<!-- Popup for other messages -->
-<div
-  *ngIf="selectedMessage && popupType === 'other'"
-  class="popup-menu"
-  [style.top]="popupPosition?.top"
-  [style.left]="popupPosition?.left"
-  [style.transform]="'translateX(-50%)'"
->
-<button>Icon</button>
-<button>Icon</button>
-<button><img src="./assets/img/icons/add_reaction.png" alt=""></button>
-<button><img src="./assets/img/icons/comment.png" alt=""></button>
-</div>
-
-<!-- Popup for own messages -->
-<div
-  *ngIf="selectedMessage && popupType === 'own'"
-  class="popup-menu-own"
-   [style.top]="popupPosition?.top"
-  [style.left]="popupPosition?.left"
-  [style.transform]="'translateX(-50%)'"
->
-<button>Icon</button>
-<button>Icon</button>
-<button><img src="./assets/img/icons/add_reaction.png" alt=""></button>
-<button><img src="./assets/img/icons/comment.png" alt=""></button>
-<button><img src="./assets/img/icons/answer.png" alt=""></button>
 </div>
