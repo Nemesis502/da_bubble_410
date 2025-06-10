@@ -167,9 +167,16 @@
   background-color: $Bg;
 }
 
-.popup-menu,
-.popup-menu-own {
-  position: fixed; /* Fixed positioning relative to the viewport */
+.msg,
+.msg-own {
+  position: relative;
+}
+
+.popup-menu {
+  position: absolute;
+  bottom: 65%; 
+  left: 40%;
+  transform: translateX(-10%);
   background: white;
   border: 1px solid #ccc;
   border-radius: 30px;
@@ -181,8 +188,10 @@
   align-items: center;
   padding-left: 20px;
   padding-right: 15px;
-  transform: translateX(-50%);
-  button {
+  visibility: hidden; 
+  opacity: 0;
+  transition: opacity 0.2s, visibility 0.2s;
+      button {
     border: none;
     background-color: transparent;
     height: 40px;
@@ -191,4 +200,55 @@
     display: flex;
     align-items: center;
   }
+}
+
+.popup-menu.active,
+.popup-menu-own.active {
+  visibility: visible;
+  opacity: 1;
+}
+
+.popup-menu-own {
+  position: absolute;
+  bottom: 68%; 
+  right: 40%;
+  transform: translateX(10%);
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 30px;
+  border-bottom-right-radius: 0px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+  padding-right: 15px;
+  visibility: hidden; 
+  opacity: 0;
+  transition: opacity 0.2s, visibility 0.2s;
+      button {
+    border: none;
+    background-color: transparent;
+    height: 40px;
+    width: 40px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+@media (min-width: 650px) {
+.popup-menu {
+  bottom: 65%; 
+  left: 70%;
+  transform: translateX(-10%);
+
+}
+
+.popup-menu-own {
+  bottom: 65%; 
+  right: 70%;
+  transform: translateX(10%)
+}
 }
