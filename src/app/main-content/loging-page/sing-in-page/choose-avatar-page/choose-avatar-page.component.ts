@@ -16,16 +16,63 @@ import { Router, RouterLink } from '@angular/router';
   styleUrl: './choose-avatar-page.component.scss'
 })
 export class ChooseAvatarPageComponent {
-  constructor(private renderer: Renderer2, private router: Router) { }
   animation = false;
+  userName = '';
+  userEmail = '';
+  userPassword = '';
+  imgId = 0;
+
+  imgArray = [
+    {
+      id: 1
+    },
+    {
+      id: 2
+    },
+    {
+      id: 3
+    },
+    {
+      id: 4
+    },
+    {
+      id: 5
+    },
+    {
+      id: 6
+    },
+  ]
+
+  constructor(private renderer: Renderer2, private router: Router) {
+    const navigation = this.router.getCurrentNavigation();
+    console.log(navigation?.extras.state);
+    const state = navigation?.extras.state as {
+      singName: string;
+      singEmail: string;
+      singPassword: string;
+    };
+    if (state) {
+      this.userName = state.singName ?? '';
+      this.userEmail = state.singEmail ?? '';
+      this.userPassword = state.singPassword ?? '';
+    }
+  }
+
+  chooseImg(id: number) {
+    this.imgId = id;
+  }
 
   sendNewProfil() {
-    this.animation = true;
-    this.renderer.setStyle(document.body, 'overflow', 'hidden');
-    setTimeout(() => {
-      this.router.navigate(['/']);
-      this.renderer.removeStyle(document.body, 'overflow');
-    }, 2000);
+    console.log('userName:', this.userName);
+    console.log('Email:', this.userEmail);
+    console.log('Password:', this.userPassword);
+    console.log('Bild:', this.imgId);
 
+    // this.animation = true;
+    // this.renderer.setStyle(document.body, 'overflow', 'hidden');
+    // setTimeout(() => {
+    //   this.router.navigate(['/']);
+    //   this.renderer.removeStyle(document.body, 'overflow');
+    // }, 2000);
   }
 }

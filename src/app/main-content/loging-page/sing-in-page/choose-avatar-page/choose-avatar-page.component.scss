@@ -28,7 +28,6 @@
 
 .input-title {
     padding: 35px 20px 0 20px;
-    margin-bottom: 20px;
     gap: 15px;
     width: 100%;
     max-width: 486px;
@@ -76,6 +75,29 @@
 .avatar-container,
 .choose-container {
     justify-items: unset;
+
+    h2 {
+        color: black;
+    }
+}
+
+.choosed-avatar {
+    display: flex;
+    height: 160px;
+    width: 160px;
+    justify-content: center;
+    align-items: center;
+
+    img {
+        height: 120px;
+        width: 120px;
+
+        &:hover {
+            border: 8px #e6e6e6 solid;
+            border-radius: 100px;
+            cursor: pointer;
+        }
+    }
 }
 
 .img-container {
@@ -84,6 +106,20 @@
     justify-content: center;
     flex-wrap: wrap;
     gap: 4px;
+}
+
+.avatars {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 56px;
+    height: 56px;
+
+    >img {
+        cursor: pointer;
+        height: 48px;
+        width: 48px;
+    }
 }
 
 form {

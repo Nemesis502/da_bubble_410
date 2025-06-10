@@ -17,19 +17,25 @@
     </div>
     <form class="input-container">
       <div class="flex-collum-center avatar-container">
-        <div>
-          <img src="./../../../../../assets/img/avatar/Profile.png" alt="" />
+        <div class="choosed-avatar">
+          <img
+            src="./../../../../../assets/img/avatar/{{ imgId }}.png"
+            alt=""
+          />
         </div>
         <div class="flex-collum-center choose-container">
-          <h2>Frededrik Beck</h2>
+          <h2>{{ userName }}</h2>
           <p>Choose your avatar....</p>
           <div class="img-container">
-            <img src="./../../../../../assets/img/avatar/1.png" alt="" />
-            <img src="./../../../../../assets/img/avatar/2.png" alt="" />
-            <img src="./../../../../../assets/img/avatar/3.png" alt="" />
-            <img src="./../../../../../assets/img/avatar/4.png" alt="" />
-            <img src="./../../../../../assets/img/avatar/5.png" alt="" />
-            <img src="./../../../../../assets/img/avatar/6.png" alt="" />
+            @for (img of imgArray; track imgArray){
+            <div class="avatars">
+              <img
+                (click)="chooseImg(img.id)"
+                src="./../../../../../assets/img/avatar/{{ img.id }}.png"
+                alt=""
+              />
+            </div>
+            }
           </div>
         </div>
       </div>

@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "DaBubble_410": {
+    "dabubble-410": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -63,10 +63,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "DaBubble_410:build:production"
+              "buildTarget": "dabubble-410:build:production"
             },
             "development": {
-              "buildTarget": "DaBubble_410:build:development"
+              "buildTarget": "dabubble-410:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -74,7 +74,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "DaBubble_410:build"
+            "buildTarget": "dabubble-410:build"
           }
         },
         "test": {

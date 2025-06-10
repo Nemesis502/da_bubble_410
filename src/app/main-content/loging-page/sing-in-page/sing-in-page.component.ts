@@ -77,8 +77,13 @@ export class SingInPageComponent {
     this.updateErrorMessagePassword();
     if (this.text.valid && this.email.valid && this.password.valid) {
       console.log("Text" + this.text.value, "Email" + this.email.value, "Password" + this.password.value);
-
-      // this.router.navigate(['singIn/chooseAvatar']);
+      this.router.navigate(['singIn/chooseAvatar'], {
+        state: {
+          singName: this.text.value,
+          singEmail: this.email.value,
+          singPassword: this.password.value
+        }
+      });
     }
   }
 }
