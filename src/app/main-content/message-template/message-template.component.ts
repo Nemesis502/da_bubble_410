@@ -76,7 +76,7 @@ export class MessageTemplateComponent {
       this.popupType = 'own';
       this.popupPosition = {
         top: `${rect.top + 15}px`,
-        left: `${rect.left + rect.width / 2}px`,
+        left: `${rect.left + rect.width / 2 -30}px`,
       };
     } else {
       this.popupType = null;
