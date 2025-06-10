@@ -1,0 +1,96 @@
+<div
+  *ngFor="let message of messages"
+>
+  <!-- Check if the message belongs to the current user -->
+  <ng-container *ngIf="message.id === currentUser; else otherMessage">
+    <!-- Own message template -->
+    <div 
+      class="msg-own"
+      (click)="onMsgClickForOwnMessage(message, $event)"
+    >
+      <div class="msg-header">
+        <span></span>
+        <p>{{ message.date }}</p>
+      </div>
+      <div class="msg-own-body">
+        <div class="msg-avatar">
+          <img [src]="message.avatar" alt="" />
+        </div>
+        <div class="msg-own-main">
+          <div class="msg-own-info">
+            <button class="chatter-name nuito18px700">{{ message.name }}</button>
+            <p class="msg-time">{{ message.time }}</p>
+          </div>
+          <div class="msg-own-content">
+            <p class="msg-text">{{ message.text }}</p>
+          </div>
+          <div class="msg-own-answers">
+            <button>{{ message.answersCount }} Antworten</button>
+            <p class="answer-time">{{ message.lastAnswerTime }}</p>
+          </div>
+          <div class="msg-reactions"></div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Other user's message template -->
+  <ng-template #otherMessage>
+    <div
+      class="msg"
+      (click)="onMsgClick(message, $event)"
+      [ngClass]="{ 'msg-active': selectedMessage === message }"
+    >
+      <div class="msg-header">
+        <span></span>
+        <p>{{ message.date }}</p>
+      </div>
+      <div class="msg-body">
+        <div class="msg-avatar">
+          <img [src]="message.avatar" alt="" />
+        </div>
+        <div class="msg-main">
+          <div class="msg-info">
+            <button class="chatter-name nuito18px700">{{ message.name }}</button>
+            <p class="msg-time">{{ message.time }}</p>
+          </div>
+          <div class="msg-content">
+            <p class="msg-text">{{ message.text }}</p>
+          </div>
+          <div class="msg-answers">
+            <button>{{ message.answersCount }} Antworten</button>
+            <p class="answer-time">{{ message.lastAnswerTime }}</p>
+          </div>
+          <div class="msg-reactions"></div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</div>
+
+<!-- Popup for other messages -->
+<div
+  *ngIf="selectedMessage && popupType === 'other'"
+  class="popup-menu"
+  [style.top]="popupPosition?.top"
+  [style.left]="popupPosition?.left"
+  [style.transform]="'translateX(-50%)'"
+>
+<button>Icon</button>
+<button>Icon</button>
+<button><mat-icon class="interaction-icon inverted" fontIcon="add_reaction"></mat-icon></button>
+</div>
+
+<!-- Popup for own messages -->
+<div
+  *ngIf="selectedMessage && popupType === 'own'"
+  class="popup-menu-own"
+   [style.top]="popupPosition?.top"
+  [style.left]="popupPosition?.left"
+  [style.transform]="'translateX(-50%)'"
+>
+<button>Icon</button>
+<button>Icon</button>
+<button><mat-icon class="material-symbols-outlined" fontIcon="add_reaction">add_reaction</mat-icon></button>
+<button>Edit</button>
+</div>

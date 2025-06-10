@@ -2,15 +2,18 @@ import { Component } from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import {MatCardModule} from '@angular/material/card';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { MessageTemplateComponent } from '../message-template/message-template.component';
 
 @Component({
   selector: 'app-chat-template',
   standalone: true,
-  imports: [MatIconModule, MatCardModule],
+  imports: [MatIconModule, MatCardModule, CommonModule, MessageTemplateComponent],
   templateUrl: './chat-template.component.html',
   styleUrl: './chat-template.component.scss'
 })
 export class ChatTemplateComponent {
+
   constructor(private router: Router) {}
 
   navigateToMain() {
