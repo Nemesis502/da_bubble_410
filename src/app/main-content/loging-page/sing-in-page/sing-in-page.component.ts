@@ -75,12 +75,15 @@ export class SingInPageComponent {
     this.updateErrorMessageName();
     this.updateErrorMessageEmail();
     this.updateErrorMessagePassword();
+
+
     if (this.text.valid && this.email.valid && this.password.valid) {
       console.log("Text" + this.text.value, "Email" + this.email.value, "Password" + this.password.value);
+      let lowerCaseEmail = this.email.value?.trim().toLocaleLowerCase();
       this.router.navigate(['singIn/chooseAvatar'], {
         state: {
           singName: this.text.value,
-          singEmail: this.email.value,
+          singEmail: lowerCaseEmail,
           singPassword: this.password.value
         }
       });

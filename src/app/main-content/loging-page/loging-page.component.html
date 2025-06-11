@@ -1,4 +1,4 @@
-<div class="intro">
+<div class="intro hidden">
   <div class="flex-collum-center logo-intro-container">
     <div class="title nuito20px"><h1>DABubble</h1></div>
     <img src="./../../../assets/img/logo.png" alt="" />
@@ -41,15 +41,14 @@
         <input
           class="inputfield"
           matInput
+          [formControl]="password"
           [type]="hide ? 'password' : 'text'"
           required
         />
       </mat-form-field>
     </form>
     <div class="password-forget-container">
-      <a class="figtree17px400" routerLink="/"
-        >Passwort vergessen?</a
-      >
+      <a class="figtree17px400" routerLink="/">Passwort vergessen?</a>
     </div>
     <div class="separator">
       <div class="line"></div>
@@ -64,7 +63,11 @@
       </button>
     </div>
     <div class="button-container">
-      <button mat-flat-button class="nuito18px700 h49px login-button">
+      <button
+        (click)="checkValideLogIn()"
+        mat-flat-button
+        class="nuito18px700 h49px login-button"
+      >
         Anmelden
       </button>
       <button mat-stroked-button class="nuito18px700 h49px second-button">

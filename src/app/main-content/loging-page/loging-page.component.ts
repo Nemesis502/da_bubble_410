@@ -8,11 +8,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { merge } from 'rxjs';
 import { RouterLink } from '@angular/router';
+import { UserService } from '../../firebase-service/user.services';
+import { User } from '../../interfaces/user.interface';
+import { CommonModule } from '@angular/common';
+import { AuthService } from '../../firebase-service/auth.service';
 
 @Component({
   selector: 'app-loging-page',
   standalone: true,
-  imports: [MatDividerModule, MatFormFieldModule, MatInputModule, FormsModule, ReactiveFormsModule, MatIconModule, MatButtonModule, RouterLink],
+  imports: [CommonModule, MatDividerModule, MatFormFieldModule, MatInputModule, FormsModule, ReactiveFormsModule, MatIconModule, MatButtonModule, RouterLink],
   templateUrl: './loging-page.component.html',
   styleUrls: ['./loging-page.component.scss',
     './loging-page.component-media-query.scss'
@@ -21,11 +25,12 @@ import { RouterLink } from '@angular/router';
 })
 export class LogingPageComponent {
   email = new FormControl('', [Validators.required, Validators.email]);
+  password = new FormControl('', Validators.required);
   hide = true;
 
   errorMessage = '';
 
-  constructor() {
+  constructor(private userService: UserService, private authService: AuthService) {
     merge(this.email.statusChanges, this.email.valueChanges)
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.updateErrorMessage());
@@ -39,5 +44,24 @@ export class LogingPageComponent {
     } else {
       this.errorMessage = '';
     }
+  }
+
+  getUserList(): User[] {
+    return this.userService.allUsers;
+  }
+
+  checkValideLogIn() {
+    const email = this.email.value?.trim().toLowerCase() || '';
+    const password = this.password.value || '';
+    
+    this.authService.login(email, password)
+      .then((userCredential) => {
+        console.log("Erfolgreich eingeloggt:", userCredential.user);
+        // Navigation, Token speichern etc.
+      })
+      .catch((error) => {
+        console.error("Login fehlgeschlagen:", error.message);
+        // Fehler anzeigen (z. B. falsches Passwort)
+      });
   }
 }

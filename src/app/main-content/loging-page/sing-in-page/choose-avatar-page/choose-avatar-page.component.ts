@@ -47,7 +47,6 @@ export class ChooseAvatarPageComponent {
   ]
 
   constructor(private renderer: Renderer2, private router: Router, private userService: UserService) {
-
     const navigation = this.router.getCurrentNavigation();
     console.log(navigation?.extras.state);
     const state = navigation?.extras.state as {

@@ -23,7 +23,7 @@ export class UserService {
             this.allUsers = [];
             list.forEach(element => {
                 console.log(element.id);
-                // this.allUsers.push(this.setUserObject(element.data(), element.id));
+                this.allUsers.push(this.setUserObject(element.data(), element.id));
             })
         })
     }
@@ -40,4 +40,14 @@ export class UserService {
         return collection(this.firestore, 'users');
     }
 
+    setUserObject(obj: any, id: string): User {
+        return {
+            id: id || "",
+            userName: obj.userName || "",
+            email: obj.userEmail || "",
+            password: obj.password || "",
+            profilePic: obj.imgId || 0,
+            status: obj.status || false,
+        }
+    }
 }
