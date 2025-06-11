@@ -45,7 +45,7 @@ export class MessageTemplateComponent {
   ];
 
   currentUser: string = 'user2';
-selectedMessage: any = null; 
+selectedMessage: any = null; // Or appropriate type if defined
 
 onMessageClick(message: any) {
   this.selectedMessage = this.selectedMessage === message ? null : message;
