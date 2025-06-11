@@ -67,11 +67,6 @@ export class ChooseAvatarPageComponent {
   }
 
   sendNewProfil() {
-    console.log('userName:', this.userName);
-    console.log('Email:', this.userEmail);
-    console.log('Password:', this.userPassword);
-    console.log('Bild:', this.imgId);
-
     let newUser: User = {
       userName: this.userName,
       email: this.userEmail,
@@ -80,12 +75,15 @@ export class ChooseAvatarPageComponent {
       status: false,
     }
     this.userService.addUser(newUser)
+    this.returnToStart();
+  }
 
-    // this.animation = true;
-    // this.renderer.setStyle(document.body, 'overflow', 'hidden');
-    // setTimeout(() => {
-    //   this.router.navigate(['/']);
-    //   this.renderer.removeStyle(document.body, 'overflow');
-    // }, 2000);
+  returnToStart() {
+    this.animation = true;
+    this.renderer.setStyle(document.body, 'overflow', 'hidden');
+    setTimeout(() => {
+      this.router.navigate(['/']);
+      this.renderer.removeStyle(document.body, 'overflow');
+    }, 2000);
   }
 }
