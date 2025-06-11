@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { ProfilEditDialogComponent } from './profil-edit-dialog/profil-edit-dialog.component';
 
 @Component({
   selector: 'app-profil-dialog',
@@ -18,11 +19,21 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './profil-dialog.component.scss'
 })
 export class ProfilDialogComponent {
-  isUser = false;
+  readonly dialog = inject(MatDialog);
+
+  isUser = true;
 
   constructor(private dialogRef: MatDialogRef<ProfilDialogComponent>) { }
 
   onClose() {
     this.dialogRef.close();
+  }
+
+  openProfilEditDialog() {
+    this.onClose();
+    this.dialog.open(ProfilEditDialogComponent, {
+      maxWidth: '90vw',
+      panelClass: 'bottom-dialog-panel'
+    });
   }
 }

@@ -14,7 +14,7 @@
         <div class="title profil-name">
             <span class="nuito32px700">Frederik Beck</span>
             @if (isUser) {
-            <button mat-button class="edit-button" aria-label="Profil bearbeiten">
+            <button mat-button class="edit-button" aria-label="Profil bearbeiten" (click)="openProfilEditDialog()">
                 <mat-icon fontSet="material-icons-outlined">edit</mat-icon>
             </button>
             }

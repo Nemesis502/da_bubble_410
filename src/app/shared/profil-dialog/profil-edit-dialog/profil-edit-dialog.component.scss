@@ -1,0 +1,107 @@
+@use "./../../../../styles.scss" as *;
+
+::ng-deep .bottom-dialog-panel .mat-mdc-dialog-surface.mdc-dialog__surface {
+    border-radius: 30px;
+    box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+    padding: 0;
+    background: white;
+}
+
+::ng-deep .mat-mdc-form-field-subscript-wrapper,
+.mat-mdc-form-field-bottom-align {
+    display: none;
+}
+
+::ng-deep.mdc-line-ripple,
+.mdc-line-ripple--active {
+    display: none;
+}
+
+::ng-deep .mdc-text-field {
+    padding-right: 20px;
+}
+
+.profil-edit-dialog {
+    display: flex;
+    flex-direction: column;
+    gap: 38px;
+    background-color: white;
+    padding-bottom: 32px;
+    border-radius: 30px;
+}
+
+.title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 32px;
+    padding: 0px 20px;
+    width: calc(83vw - 40px);
+}
+
+.profil-image {
+    display: flex;
+    justify-content: center;
+
+    img {
+        width: 200px;
+        border-radius: 100%;
+    }
+}
+
+
+.profil-name {
+    .profil-name-headline {
+        display: flex;
+        align-items: center;
+        padding: 0px 20px;
+
+        span {
+            font-family: "Nunito";
+            font-size: 20px;
+            font-weight: 700;
+            padding: 3px 0 0 20px;
+        }
+    }
+
+    .profil-name-field {
+        width: calc(100% - 16px);
+
+        input {
+            font-family: "Nunito";
+            font-size: 18px;
+            font-weight: 500;
+            border: 1px solid $LightPurple;
+            border-radius: 30px;
+            padding: 8px 0 8px 16px;
+        }
+    }
+}
+
+.cancel-save-btn {
+    display: flex;
+    justify-content: space-evenly;
+
+    .cancel {
+        width: 141px;
+        height: 49px;
+        background-color: white;
+        color: $purple1;
+        border: 1px solid $purple1;
+    }
+
+    .save {
+        width: 133px;
+        height: 49px;
+        background-color: $purple1;
+        color: white;
+    }
+
+    .btn {
+        border-radius: 30px;
+        font-family: 'Nunito';
+        font-size: 18px;
+        font-weight: 700;
+    }
+}

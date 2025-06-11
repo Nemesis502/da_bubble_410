@@ -35,12 +35,12 @@
       </div>
       <div class="popup-menu-own" [class.active]="selectedMessage === message">
         <button>Icon</button>
-        <button>Icon</button>
+        <button></button>
         <button>
-          <img src="./assets/img/icons/add_reaction.png" alt="" />
+        <mat-icon fontSet="material-icons-outlined">add_reaction</mat-icon>
         </button>
-        <button><img src="./assets/img/icons/comment.png" alt="" /></button>
-        <button><img src="./assets/img/icons/answer.png" alt="" /></button>
+       <button><mat-icon fontSet="material-icons-outlined">message</mat-icon></button>
+        <button><mat-icon fontSet="material-icons-outlined">more_vert</mat-icon></button>
       </div>
     </div>
   </ng-container>
@@ -77,10 +77,10 @@
       <div class="popup-menu" [class.active]="selectedMessage === message">
         <button>Icon</button>
         <button>Icon</button>
-        <button>
-          <img src="./assets/img/icons/add_reaction.png" alt="" />
+         <button>
+        <mat-icon fontSet="material-icons-outlined">add_reaction</mat-icon>
         </button>
-        <button><img src="./assets/img/icons/comment.png" alt="" /></button>
+       <button><mat-icon fontSet="material-icons-outlined">message</mat-icon></button>
       </div>
     </div>
   </ng-template>
