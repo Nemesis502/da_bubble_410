@@ -30,26 +30,30 @@
 }
 
 .msg-body {
-    padding-left: 16px;
+  padding-left: 16px;
   padding-right: 16px;
   display: flex;
-  padding-top: 10px;
+  padding-top: 8px;
 }
 
 .msg-own-body {
-    padding-left: 16px;
+  padding-left: 16px;
   padding-right: 16px;
   display: flex;
-  padding-top: 10px;
+  padding-top: 8px;
   flex-direction: row-reverse;
 }
 
 .msg-info {
   display: flex;
   align-items: center;
+  margin-bottom: 10px;
+  button {
+    padding: 0px;
+  }
 }
 
-.chatter-name{
+.chatter-name {
   background-color: transparent;
   border: none;
 }
@@ -58,6 +62,7 @@
   display: flex;
   align-items: center;
   flex-direction: row-reverse;
+  margin-bottom: 10px;
 }
 
 .msg-main {
@@ -71,6 +76,7 @@
 .msg-time {
   margin-left: 20px;
   margin-right: 20px;
+  margin-bottom: 0px;
   font-family: "nunito";
   font-weight: 400;
   font-size: 14px;
@@ -97,7 +103,7 @@
   padding: 15px;
   border-radius: 20px;
   border-top-right-radius: 0;
-    .msg-text {
+  .msg-text {
     font-family: "nunito";
     font-weight: 400;
     font-size: 17px;
@@ -157,13 +163,13 @@
 }
 
 .msg-active {
-  background-color: $Bg; 
-  .msg-content{
+  background-color: $Bg;
+  .msg-content {
     background-color: white;
   }
 }
 
-.msg-own-active{
+.msg-own-active {
   background-color: $Bg;
 }
 
@@ -174,7 +180,7 @@
 
 .popup-menu {
   position: absolute;
-  bottom: 65%; 
+  bottom: 65%;
   left: 40%;
   transform: translateX(-10%);
   background: white;
@@ -188,10 +194,10 @@
   align-items: center;
   padding-left: 20px;
   padding-right: 15px;
-  visibility: hidden; 
+  visibility: hidden;
   opacity: 0;
   transition: opacity 0.2s, visibility 0.2s;
-      button {
+  button {
     border: none;
     background-color: transparent;
     height: 40px;
@@ -210,7 +216,7 @@
 
 .popup-menu-own {
   position: absolute;
-  bottom: 68%; 
+  bottom: 68%;
   right: 40%;
   transform: translateX(10%);
   background: white;
@@ -224,10 +230,10 @@
   align-items: center;
   padding-left: 20px;
   padding-right: 15px;
-  visibility: hidden; 
+  visibility: hidden;
   opacity: 0;
   transition: opacity 0.2s, visibility 0.2s;
-      button {
+  button {
     border: none;
     background-color: transparent;
     height: 40px;
@@ -239,16 +245,23 @@
 }
 
 @media (min-width: 650px) {
-.popup-menu {
-  bottom: 65%; 
-  left: 70%;
-  transform: translateX(-10%);
+  .popup-menu {
+    bottom: 65%;
+    left: 70%;
+    transform: translateX(-10%);
+  }
 
+  .popup-menu-own {
+    bottom: 65%;
+    right: 70%;
+    transform: translateX(10%);
+  }
 }
 
-.popup-menu-own {
-  bottom: 65%; 
-  right: 70%;
-  transform: translateX(10%)
-}
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 24
 }
