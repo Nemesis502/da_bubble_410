@@ -6,14 +6,51 @@
 </section>
 <section class="menu">
     <section class="menu-item">
+        @if (isSearchActive) {
+        <section class="search-header">
+            <span class="nuito18px700">
+                Suche
+            </span>
+            <button mat-icon-button aria-label="Suche beenden" (click)="closeSearch()">
+                <mat-icon fontIcon="close" aria-label="Suche beenden" (click)="closeSearch()"></mat-icon>
+            </button>
+        </section>
+        }
         <form class="search-form" role="search">
             <mat-form-field appearance="fill" class="search-full-width">
                 <input matInput placeholder="Gehe zu..." [(ngModel)]="searchTerm" name="searchTerm"
-                    aria-label="Suchfeld Gehe zu" />
+                    aria-label="Suchfeld Gehe zu" (ngModelChange)="updateFilteredResults()" />
                 <mat-icon matSuffix aria-hidden="true">search</mat-icon>
             </mat-form-field>
         </form>
         <section class="menu-list">
+            @if (isSearchActive) {
+            @if (filteredChannels.length > 0) {
+            <section class="channels">
+                <div class="channel-list" id="channel-list">
+                    @for (channel of filteredChannels; track channel) {
+                    <div class="channel-item">
+                        <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
+                        <p class="nuito17px400">{{ channel }}</p>
+                    </div>
+                    }
+                </div>
+            </section>
+            }
+            @if (filteredDirectMessages.length > 0) {
+            <section class="direct-message">
+                <div class="message-list" id="direct-messages">
+                    @for (user of filteredDirectMessages; track user.name) {
+                    <div class="message-item">
+                        <img src="./assets/img/avatar/{{ user.img }}" alt="Avatar von {{ user.name }}" />
+                        <p class="nuito17px400">{{ user.name }}</p>
+                    </div>
+                    }
+                </div>
+            </section>
+            }
+            }
+            @if (!isSearchActive) {
             <section class="channels">
                 <div class="header">
                     <button type="button" class="title" (click)="showChannels = !showChannels"
@@ -28,9 +65,8 @@
                         <mat-icon mat-icon-button fontIcon="add"></mat-icon>
                     </button>
                 </div>
-                @if(showChannels) {
+                @if (showChannels) {
                 <div class="channel-list" id="channel-list">
-                    <!-- @for (item of items; track $index) { -->
                     <div class="channel-item">
                         <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
                         <p class="nuito17px400">Entwicklerteam</p>
@@ -39,7 +75,6 @@
                         <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
                         <p class="nuito17px400">Office-Team</p>
                     </div>
-                    <!-- } -->
                     <div class="channel-item channel-item-add">
                         <mat-icon fontIcon="add_circle_outline" aria-hidden="true"></mat-icon>
                         <p class="nuito17px400">Channel hinzufügen</p>
@@ -58,37 +93,18 @@
                         <h2 class="nuito20px">Direktnachrichten</h2>
                     </button>
                 </div>
-                @if(showDirectMessages) {
+                @if (showDirectMessages) {
                 <div class="message-list" id="direct-messages">
-                    <!-- @for (item of items; track $index) { -->
+                    @for (user of directMessageData.getDirectMessages(); track user.name) {
                     <div class="message-item">
-                        <img src="./assets/img/avatar/3.png" alt="Avatar von Frederik Beck (Du)" />
-                        <p class="nuito17px400">Frederik Beck (Du)</p>
+                        <img src="./assets/img/avatar/{{ user.img }}" alt="Avatar von {{ user.name }}" />
+                        <p class="nuito17px400">{{ user.name }}</p>
                     </div>
-                    <div class="message-item">
-                        <img src="./assets/img/avatar/5.png" alt="Avatar von Sofia Müller" />
-                        <p class="nuito17px400">Sofia Müller</p>
-                    </div>
-                    <div class="message-item">
-                        <img src="./assets/img/avatar/6.png" alt="Avatar von Noah Braun" />
-                        <p class="nuito17px400">Noah Braun</p>
-                    </div>
-                    <div class="message-item">
-                        <img src="./assets/img/avatar/1.png" alt="Avatar von Elise Roth" />
-                        <p class="nuito17px400">Elise Roth</p>
-                    </div>
-                    <div class="message-item">
-                        <img src="./assets/img/avatar/2.png" alt="Avatar von Elias Neumann" />
-                        <p class="nuito17px400">Elias Neumann</p>
-                    </div>
-                    <div class="message-item">
-                        <img src="./assets/img/avatar/4.png" alt="Avatar von Steffen Hoffmann" />
-                        <p class="nuito17px400">Steffen Hoffmann</p>
-                    </div>
-                    <!-- } -->
+                    }
                 </div>
                 }
             </section>
+            }
             <button class="new-chat-btn" mat-icon-button aria-label="Neuen Chat starten">
                 <img src="./assets/img/menu/new-chat-white.png" alt="" aria-hidden="true" />
             </button>
