@@ -48,6 +48,12 @@
     height: calc(100% - 8.5%);
 }
 
+.search-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .search-form {
     margin-block: 16px;
     border: 1px solid;

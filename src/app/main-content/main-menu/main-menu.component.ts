@@ -9,6 +9,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
 import { MenuDialogComponent } from './menu-dialog/menu-dialog.component';
+import { SearchService } from '../../shared/services/search.service';
+import { ChannelsDirectMessageService, DirectMessage } from '../../shared/services/channels-direct-message.service';
 
 @Component({
   selector: 'app-main-menu',
@@ -27,12 +29,21 @@ import { MenuDialogComponent } from './menu-dialog/menu-dialog.component';
   styleUrl: './main-menu.component.scss'
 })
 export class MainMenuComponent {
+  readonly dialog = inject(MatDialog);
+  readonly searchService = inject(SearchService);
+  readonly directMessageData = inject(ChannelsDirectMessageService);
+
   showChannels = true;
   showDirectMessages = true;
 
   searchTerm: string = '';
 
-  readonly dialog = inject(MatDialog);
+  filteredChannels: string[] = [];
+  filteredDirectMessages: DirectMessage[] = [];
+
+  constructor() {
+    this.updateFilteredResults();
+  }
 
   openMenuDialog(): void {
     this.dialog.open(MenuDialogComponent, {
@@ -42,5 +53,40 @@ export class MainMenuComponent {
       height: '210px',
       panelClass: 'bottom-dialog-panel'
     });
+  }
+
+  updateFilteredResults(): void {
+    const term = this.searchTerm.trim().toLowerCase();
+
+    if (term.startsWith('#')) {
+      const query = term.slice(1);
+      this.filteredChannels = this.searchService
+        .filterChannels(query)
+        .filter(c => c.toLowerCase().startsWith(query));
+      this.filteredDirectMessages = [];
+    } else if (term.startsWith('@')) {
+      const query = term.slice(1);
+      this.filteredDirectMessages = this.searchService
+        .filterDirectMessages(query)
+        .filter(dm => dm.name.toLowerCase().startsWith(query));
+      this.filteredChannels = [];
+    } else {
+      this.filteredChannels = this.searchService
+        .filterChannels(term)
+        .filter(c => c.toLowerCase().startsWith(term));
+
+      this.filteredDirectMessages = this.searchService
+        .filterDirectMessages(term)
+        .filter(dm => dm.name.toLowerCase().startsWith(term));
+    }
+  }
+
+  get isSearchActive(): boolean {
+    return this.searchTerm.trim().length > 0;
+  }
+
+  closeSearch(): void {
+    this.searchTerm = '';
+    this.updateFilteredResults();
   }
 }
