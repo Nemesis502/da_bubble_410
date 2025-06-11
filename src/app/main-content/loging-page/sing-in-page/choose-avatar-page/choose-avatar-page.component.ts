@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Renderer2 } from '@angular/core';
+import { Component, inject, Renderer2 } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
@@ -7,6 +7,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
+import { User } from '../../../../interfaces/user.interface';
+import { UserService } from '../../../../firebase-service/user.services';
 
 @Component({
   selector: 'app-choose-avatar-page',
@@ -21,6 +23,7 @@ export class ChooseAvatarPageComponent {
   userEmail = '';
   userPassword = '';
   imgId = 0;
+
 
   imgArray = [
     {
@@ -43,7 +46,8 @@ export class ChooseAvatarPageComponent {
     },
   ]
 
-  constructor(private renderer: Renderer2, private router: Router) {
+  constructor(private renderer: Renderer2, private router: Router, private userService: UserService) {
+
     const navigation = this.router.getCurrentNavigation();
     console.log(navigation?.extras.state);
     const state = navigation?.extras.state as {
@@ -67,6 +71,15 @@ export class ChooseAvatarPageComponent {
     console.log('Email:', this.userEmail);
     console.log('Password:', this.userPassword);
     console.log('Bild:', this.imgId);
+
+    let newUser: User = {
+      userName: this.userName,
+      email: this.userEmail,
+      password: this.userPassword,
+      profilePic: this.imgId,
+      status: false,
+    }
+    this.userService.addUser(newUser)
 
     // this.animation = true;
     // this.renderer.setStyle(document.body, 'overflow', 'hidden');
