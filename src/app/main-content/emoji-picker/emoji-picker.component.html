@@ -1,0 +1,10 @@
+<div
+  class="emoji-picker-panel"
+  [ngStyle]="{ top: pickerPosition.top + 'px', left: pickerPosition.left + 'px' }"
+>
+  <div class="emoji-list">
+    <button *ngFor="let emoji of emojis" (click)="selectEmoji(emoji)">
+      {{ emoji }}
+    </button>
+  </div>
+</div>

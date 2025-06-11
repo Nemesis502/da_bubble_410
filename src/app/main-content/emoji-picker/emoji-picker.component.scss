@@ -1,0 +1,32 @@
+.emoji-picker-panel {
+  position: absolute;
+  z-index: 1000;
+  width: 204px;
+  height: 250px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  border-bottom-left-radius: 0px;
+  border: 1px solid #e0e0e0;
+  background-color: white;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  overflow-y: auto;
+  max-height: 300px;
+  transform: translateY(-300px);
+  left: 60px !important;
+}
+
+.emoji-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.emoji-list button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+}

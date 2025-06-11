@@ -11,7 +11,7 @@
   </section>
   <section class="chat-header">
     <button class="channel-button">
-      <p class="nuito18px700">#</p>
+        <mat-icon fontSet="material-icons-outlined">numbers</mat-icon>
       <p class="channel-name nuito18px700">Entwicklerteam</p>
       <mat-icon class="mat-icon-top" fontIcon="keyboard_arrow_down"></mat-icon>
     </button>
@@ -31,7 +31,7 @@
       ></textarea>
       <mat-card-actions class="chat-buttons">
         <div class="buttons-left">
-          <button><mat-icon fontIcon="insert_emoticon"></mat-icon></button>
+          <button (click)="toggleEmojiPicker($event)"><mat-icon fontIcon="insert_emoticon"></mat-icon></button>
           <button><mat-icon fontIcon="alternate_email"></mat-icon></button>
         </div>
         <div class="button-right">
@@ -39,5 +39,12 @@
         </div>
       </mat-card-actions>
     </mat-card>
+    <!-- Emoji Picker -->
+  <app-emoji-picker
+    *ngIf="emojiPickerVisible"
+    [pickerPosition]="pickerPosition"
+    (emojiSelected)="addEmoji($event)"
+    (pickerClosed)="emojiPickerVisible = false"
+  ></app-emoji-picker>
   </section>
 </div>
