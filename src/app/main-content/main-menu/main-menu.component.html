@@ -67,14 +67,12 @@
                 </div>
                 @if (showChannels) {
                 <div class="channel-list" id="channel-list">
+                    @for (channel of channelDirectMessageData.getChannels(); track channel) {
                     <div class="channel-item">
                         <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
-                        <p class="nuito17px400">Entwicklerteam</p>
+                        <p class="nuito17px400">{{ channel }}</p>
                     </div>
-                    <div class="channel-item">
-                        <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
-                        <p class="nuito17px400">Office-Team</p>
-                    </div>
+                    }
                     <div class="channel-item channel-item-add">
                         <mat-icon fontIcon="add_circle_outline" aria-hidden="true"></mat-icon>
                         <p class="nuito17px400">Channel hinzufügen</p>
@@ -95,9 +93,10 @@
                 </div>
                 @if (showDirectMessages) {
                 <div class="message-list" id="direct-messages">
-                    @for (user of directMessageData.getDirectMessages(); track user.name) {
+                    @for (user of channelDirectMessageData.getDirectMessages(); track user.name) {
                     <div class="message-item">
                         <img src="./assets/img/avatar/{{ user.img }}" alt="Avatar von {{ user.name }}" />
+                        <div class="status {{ user.status }}"></div>
                         <p class="nuito17px400">{{ user.name }}</p>
                     </div>
                     }

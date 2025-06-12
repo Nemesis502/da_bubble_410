@@ -31,7 +31,7 @@ import { ChannelsDirectMessageService, DirectMessage } from '../../shared/servic
 export class MainMenuComponent {
   readonly dialog = inject(MatDialog);
   readonly searchService = inject(SearchService);
-  readonly directMessageData = inject(ChannelsDirectMessageService);
+  readonly channelDirectMessageData = inject(ChannelsDirectMessageService);
 
   showChannels = true;
   showDirectMessages = true;

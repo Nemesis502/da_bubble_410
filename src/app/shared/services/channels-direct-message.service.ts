@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 export interface DirectMessage {
   name: string;
   img: string;
+  status: string;
 }
 
 @Injectable({
@@ -11,27 +12,33 @@ export interface DirectMessage {
 export class ChannelsDirectMessageService {
   private channels: string[] = [
     'Entwicklerteam',
-    'Office-Team'
+    'Office-Team',
   ];
 
   private directMessages: DirectMessage[] = [{
     name: 'Frederik Beck (Du)',
-    img: '3.png'
+    img: '3.png',
+    status: 'online'
   }, {
     name: 'Sofia Müller',
-    img: '5.png'
+    img: '5.png',
+    status: 'online'
   }, {
     name: 'Noah Braun',
-    img: '6.png'
+    img: '6.png',
+    status: 'online'
   }, {
     name: 'Elise Roth',
-    img: '1.png'
+    img: '1.png',
+    status: 'offline'
   }, {
     name: 'Elias Neumann',
-    img: '2.png'
+    img: '2.png',
+    status: 'online'
   }, {
     name: 'Steffen Hoffmann',
-    img: '4.png'
+    img: '4.png',
+    status: 'online'
   }];
 
   getChannels(): string[] {
