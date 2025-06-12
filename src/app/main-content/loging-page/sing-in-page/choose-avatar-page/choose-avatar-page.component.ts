@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
 import { User } from '../../../../interfaces/user.interface';
 import { UserService } from '../../../../firebase-service/user.services';
+import { AuthService } from '../../../../firebase-service/auth.service';
 
 @Component({
   selector: 'app-choose-avatar-page',
@@ -46,7 +47,7 @@ export class ChooseAvatarPageComponent {
     },
   ]
 
-  constructor(private renderer: Renderer2, private router: Router, private userService: UserService) {
+  constructor(private authService: AuthService, private renderer: Renderer2, private router: Router, private userService: UserService) {
     const navigation = this.router.getCurrentNavigation();
     console.log(navigation?.extras.state);
     const state = navigation?.extras.state as {
@@ -65,15 +66,14 @@ export class ChooseAvatarPageComponent {
     this.imgId = id;
   }
 
-  sendNewProfil() {
+  async sendNewProfil() {
     let newUser: User = {
       userName: this.userName,
-      email: this.userEmail,
-      password: this.userPassword,
       profilePic: this.imgId,
       status: false,
     }
-    this.userService.addUser(newUser)
+    await this.authService.registerUser(this.userEmail, this.userPassword);
+    this.userService.addUser(newUser);
     this.returnToStart();
   }
 

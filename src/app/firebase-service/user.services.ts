@@ -44,8 +44,6 @@ export class UserService {
         return {
             id: id || "",
             userName: obj.userName || "",
-            email: obj.userEmail || "",
-            password: obj.password || "",
             profilePic: obj.imgId || 0,
             status: obj.status || false,
         }

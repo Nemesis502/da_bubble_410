@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { merge } from 'rxjs';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { UserService } from '../../firebase-service/user.services';
 import { User } from '../../interfaces/user.interface';
 import { CommonModule } from '@angular/common';
@@ -30,7 +30,7 @@ export class LogingPageComponent {
 
   errorMessage = '';
 
-  constructor(private userService: UserService, private authService: AuthService) {
+  constructor(private userService: UserService, private authService: AuthService, private router: Router) {
     merge(this.email.statusChanges, this.email.valueChanges)
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.updateErrorMessage());
@@ -53,10 +53,11 @@ export class LogingPageComponent {
   checkValideLogIn() {
     const email = this.email.value?.trim().toLowerCase() || '';
     const password = this.password.value || '';
-    
+
     this.authService.login(email, password)
       .then((userCredential) => {
         console.log("Erfolgreich eingeloggt:", userCredential.user);
+        this.router.navigate(['main']);
         // Navigation, Token speichern etc.
       })
       .catch((error) => {
