@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef,  HostListener  } from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import {MatCardModule} from '@angular/material/card';
 
@@ -44,12 +44,22 @@ export class MessageTemplateComponent {
     },
   ];
 
-  currentUser: string = 'user2';
-selectedMessage: any = null; // Or appropriate type if defined
+currentUser: string = 'user2';
+selectedMessage: any = null; 
 
-onMessageClick(message: any) {
-  this.selectedMessage = this.selectedMessage === message ? null : message;
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const isInsidePopup = target.closest('.popup-menu') || target.closest('.popup-menu-own');
+    if (!isInsidePopup) {
+      this.selectedMessage = null; // Close the popup if click is outside
+    }
+  }
+
+  onMessageClick(message: any, event: MouseEvent) {
+    event.stopPropagation(); // Prevent event bubbling to document
+    this.selectedMessage = this.selectedMessage === message ? null : message;
+  }
 }
 
 
-}

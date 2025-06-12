@@ -1,8 +1,4 @@
-
-<div
-  *ngFor="let message of messages"
-  (click)="selectedMessage = message"
->
+<div *ngFor="let message of messages" (click)="onMessageClick(message, $event)">
   <ng-container *ngIf="message.id === currentUser; else otherMessage">
     <div class="msg-own">
       <div class="msg-header">
@@ -37,10 +33,14 @@
         <button>Icon</button>
         <button></button>
         <button>
-        <mat-icon fontSet="material-icons-outlined">add_reaction</mat-icon>
+          <mat-icon fontSet="material-icons-outlined">add_reaction</mat-icon>
         </button>
-       <button><mat-icon fontSet="material-icons-outlined">message</mat-icon></button>
-        <button><mat-icon fontSet="material-icons-outlined">more_vert</mat-icon></button>
+        <button>
+          <mat-icon fontSet="material-icons-outlined">message</mat-icon>
+        </button>
+        <button>
+          <mat-icon fontSet="material-icons-outlined">more_vert</mat-icon>
+        </button>
       </div>
     </div>
   </ng-container>
@@ -77,10 +77,12 @@
       <div class="popup-menu" [class.active]="selectedMessage === message">
         <button>Icon</button>
         <button>Icon</button>
-         <button>
-        <mat-icon fontSet="material-icons-outlined">add_reaction</mat-icon>
+        <button>
+          <mat-icon fontSet="material-icons-outlined">add_reaction</mat-icon>
         </button>
-       <button><mat-icon fontSet="material-icons-outlined">message</mat-icon></button>
+        <button>
+          <mat-icon fontSet="material-icons-outlined">message</mat-icon>
+        </button>
       </div>
     </div>
   </ng-template>

@@ -19,9 +19,9 @@ export class UserService {
     }
 
     subUserList() {
-        return onSnapshot(this.getUserRef(), (list) => {
+        return onSnapshot(this.getUserRef(), (list: any) => {
             this.allUsers = [];
-            list.forEach(element => {
+            list.forEach((element: { id: string; data: () => any; }) => {
                 console.log(element.id);
                 this.allUsers.push(this.setUserObject(element.data(), element.id));
             })
@@ -30,9 +30,9 @@ export class UserService {
 
     async addUser(item: User) {
         await addDoc(this.getUserRef(), item).catch(
-            (err) => { console.error(err) }
+            (err: any) => { console.error(err) }
         ).then(
-            (docRef) => { console.log("Document written with ID: ", docRef?.id) }
+            (docRef: any) => { console.log("Document written with ID: ", docRef?.id) }
         )
     }
 
