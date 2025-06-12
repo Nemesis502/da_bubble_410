@@ -50,6 +50,15 @@ export class LogingPageComponent {
     return this.userService.allUsers;
   }
 
+  signInWithGoogle() {
+    this.authService.signInWithGoogle().then(user => {
+      // ggf. navigieren oder Daten speichern
+      this.router.navigate(['/main']);
+    }).catch(err => {
+      // Fehlermeldung anzeigen
+    });
+  }
+
   checkValideLogIn() {
     const email = this.email.value?.trim().toLowerCase() || '';
     const password = this.password.value || '';

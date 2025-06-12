@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from '@angular/fire/auth';
+import { Auth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup, signOut } from '@angular/fire/auth';
 
 @Injectable({
     providedIn: 'root'
@@ -14,5 +14,27 @@ export class AuthService {
 
     login(email: string, password: string) {
         return signInWithEmailAndPassword(this.auth, email, password);
+    }
+
+    async signInWithGoogle() {
+        const provider = new GoogleAuthProvider();
+        try {
+            const result = await signInWithPopup(this.auth, provider);
+            const user = result.user;
+            console.log('Google Login erfolgreich:', user);
+            return user;
+        } catch (error) {
+            console.error('Google Login fehlgeschlagen:', error);
+            throw error;
+        }
+    }
+
+    async logout() {
+        try {
+            await signOut(this.auth);
+            console.log('Erfolgreich abgemeldet');
+        } catch (err) {
+            console.error('Fehler beim Logout:', err);
+        }
     }
 }

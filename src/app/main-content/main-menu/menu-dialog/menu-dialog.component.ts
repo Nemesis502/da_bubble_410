@@ -5,6 +5,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { ProfilDialogComponent } from '../../../shared/profil-dialog/profil-dialog.component';
+import { AuthService } from '../../../firebase-service/auth.service';
 
 @Component({
   selector: 'app-menu-dialog',
@@ -22,7 +23,7 @@ export class MenuDialogComponent {
 
   isProfilHovered = false;
 
-  constructor(private router: Router, private dialogRef: MatDialogRef<MenuDialogComponent>) { }
+  constructor(private router: Router, private dialogRef: MatDialogRef<MenuDialogComponent>, private authService: AuthService) { }
 
   openProfileDialog() {
     this.closeDialog();
@@ -33,7 +34,10 @@ export class MenuDialogComponent {
   }
 
   logout() {
-    this.router.navigate(['']);
+    this.authService.logout().then(() => {
+      this.router.navigate(['/']); // oder andere Zielroute
+    });
+
     this.closeDialog();
   }
 
