@@ -11,6 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MenuDialogComponent } from './menu-dialog/menu-dialog.component';
 import { SearchService } from '../../shared/services/search.service';
 import { ChannelsDirectMessageService, DirectMessage } from '../../shared/services/channels-direct-message.service';
+import { FirestoreService } from '../../shared/services/firestore.service';
 
 @Component({
   selector: 'app-main-menu',
@@ -33,16 +34,25 @@ export class MainMenuComponent {
   readonly searchService = inject(SearchService);
   readonly channelDirectMessageData = inject(ChannelsDirectMessageService);
 
+  gastLogin = false;
   showChannels = true;
   showDirectMessages = true;
 
   searchTerm: string = '';
-
+  channels: any[] = [];
+  directMessages: any[] = [];
+  conversations: any[] = [];
   filteredChannels: string[] = [];
   filteredDirectMessages: DirectMessage[] = [];
 
-  constructor() {
+  constructor(private firestoreService: FirestoreService) {
     this.updateFilteredResults();
+  }
+
+  ngOnInit(): void {
+    this.firestoreService.getChannels().subscribe(c => this.channels = c);
+    this.firestoreService.getUsers().subscribe(u => this.directMessages = u); // oder filtern
+    this.firestoreService.getConversations().subscribe(conv => this.conversations = conv);
   }
 
   openMenuDialog(): void {

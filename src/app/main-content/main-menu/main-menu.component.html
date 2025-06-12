@@ -67,11 +67,13 @@
                 </div>
                 @if (showChannels) {
                 <div class="channel-list" id="channel-list">
+                    @if (gastLogin) {
                     @for (channel of channelDirectMessageData.getChannels(); track channel) {
                     <div class="channel-item">
                         <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
                         <p class="nuito17px400">{{ channel }}</p>
                     </div>
+                    }
                     }
                     <div class="channel-item channel-item-add">
                         <mat-icon fontIcon="add_circle_outline" aria-hidden="true"></mat-icon>
@@ -93,6 +95,7 @@
                 </div>
                 @if (showDirectMessages) {
                 <div class="message-list" id="direct-messages">
+                    @if (gastLogin) {
                     @for (user of channelDirectMessageData.getDirectMessages(); track user.name) {
                     <div class="message-item">
                         <img src="./assets/img/avatar/{{ user.img }}" alt="Avatar von {{ user.name }}" />
@@ -100,6 +103,7 @@
                         <p class="nuito17px400">{{ user.name }}</p>
                     </div>
                     }
+                    } 
                 </div>
                 }
             </section>
