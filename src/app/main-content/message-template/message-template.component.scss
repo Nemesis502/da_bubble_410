@@ -30,14 +30,14 @@
 }
 
 .msg-body {
-    padding-left: 16px;
+  padding-left: 16px;
   padding-right: 16px;
   display: flex;
   padding-top: 10px;
 }
 
 .msg-own-body {
-    padding-left: 16px;
+  padding-left: 16px;
   padding-right: 16px;
   display: flex;
   padding-top: 10px;
@@ -47,9 +47,14 @@
 .msg-info {
   display: flex;
   align-items: center;
+  padding-bottom: 8px;
+  button{
+    padding-left: 0px;
+    padding-right: 0px;
+  }
 }
 
-.chatter-name{
+.chatter-name {
   background-color: transparent;
   border: none;
 }
@@ -58,6 +63,11 @@
   display: flex;
   align-items: center;
   flex-direction: row-reverse;
+  padding-bottom: 8px;
+    button{
+    padding-left: 0px;
+    padding-right: 0px;
+  }
 }
 
 .msg-main {
@@ -71,6 +81,8 @@
 .msg-time {
   margin-left: 20px;
   margin-right: 20px;
+  margin-bottom: 0px;
+  padding-bottom: 0px;
   font-family: "nunito";
   font-weight: 400;
   font-size: 14px;
@@ -97,7 +109,7 @@
   padding: 15px;
   border-radius: 20px;
   border-top-right-radius: 0;
-    .msg-text {
+  .msg-text {
     font-family: "nunito";
     font-weight: 400;
     font-size: 17px;
@@ -157,13 +169,13 @@
 }
 
 .msg-active {
-  background-color: $Bg; 
-  .msg-content{
+  background-color: $Bg;
+  .msg-content {
     background-color: white;
   }
 }
 
-.msg-own-active{
+.msg-own-active {
   background-color: $Bg;
 }
 
@@ -174,11 +186,11 @@
 
 .popup-menu {
   position: absolute;
-  bottom: 65%; 
+  bottom: 65%;
   left: 40%;
   transform: translateX(-10%);
   background: white;
-  border: 1px solid #ADB0D9;
+  border: 1px solid #adb0d9;
   border-radius: 30px;
   border-bottom-right-radius: 0px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
@@ -188,10 +200,11 @@
   align-items: center;
   padding-left: 20px;
   padding-right: 15px;
-  visibility: hidden; 
+  visibility: hidden;
   opacity: 0;
   transition: opacity 0.2s, visibility 0.2s;
-      button {
+  button {
+    font-size: 20px;
     border: none;
     background-color: transparent;
     height: 40px;
@@ -199,6 +212,10 @@
     border-radius: 30px;
     display: flex;
     align-items: center;
+    justify-content: center;
+    &:hover {
+      background-color: lightgray;
+    }
   }
 }
 
@@ -210,11 +227,11 @@
 
 .popup-menu-own {
   position: absolute;
-  bottom: 68%; 
+  bottom: 68%;
   right: 40%;
   transform: translateX(10%);
   background: white;
-  border: 1px solid #ADB0D9;
+  border: 1px solid #adb0d9;
   border-radius: 30px;
   border-bottom-right-radius: 0px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
@@ -224,10 +241,11 @@
   align-items: center;
   padding-left: 20px;
   padding-right: 15px;
-  visibility: hidden; 
+  visibility: hidden;
   opacity: 0;
   transition: opacity 0.2s, visibility 0.2s;
-      button {
+  button {
+    font-size: 20px;
     border: none;
     background-color: transparent;
     height: 40px;
@@ -235,20 +253,23 @@
     border-radius: 30px;
     display: flex;
     align-items: center;
+    justify-content: center;
+    &:hover {
+      background-color: lightgray;
+    }
   }
 }
 
 @media (min-width: 650px) {
-.popup-menu {
-  bottom: 65%; 
-  left: 70%;
-  transform: translateX(-10%);
+  .popup-menu {
+    bottom: 65%;
+    left: 70%;
+    transform: translateX(-10%);
+  }
 
-}
-
-.popup-menu-own {
-  bottom: 65%; 
-  right: 70%;
-  transform: translateX(10%)
-}
+  .popup-menu-own {
+    bottom: 65%;
+    right: 70%;
+    transform: translateX(10%);
+  }
 }

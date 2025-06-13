@@ -1,12 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef,  HostListener  } from '@angular/core';
-import {MatIconModule} from '@angular/material/icon';
-import {MatCardModule} from '@angular/material/card';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  Renderer2,
+  OnDestroy,
+} from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { EmojiPickerComponent } from '../emoji-picker/emoji-picker.component';
 
 @Component({
   selector: 'app-message-template',
   standalone: true,
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, MatIconModule, EmojiPickerComponent],
   templateUrl: './message-template.component.html',
   styleUrl: './message-template.component.scss',
 })
@@ -21,6 +28,7 @@ export class MessageTemplateComponent {
       avatar: './assets/img/avatar/1.png',
       answersCount: 2,
       lastAnswerTime: '12:05 Uhr',
+      reactions: [],
     },
     {
       id: 'user2',
@@ -31,6 +39,7 @@ export class MessageTemplateComponent {
       avatar: './assets/img/avatar/3.png',
       answersCount: 0,
       lastAnswerTime: '12:10 Uhr',
+      reactions: [],
     },
     {
       id: 'user3',
@@ -41,25 +50,81 @@ export class MessageTemplateComponent {
       avatar: './assets/img/avatar/2.png',
       answersCount: 2,
       lastAnswerTime: '12:15 Uhr',
+      reactions: [],
     },
   ];
 
-currentUser: string = 'user2';
-selectedMessage: any = null; 
+  currentUser: string = 'user2';
+  selectedMessage: any = null;
+  emojiPickerVisible = false;
+  pickerPosition = { top: 0, left: 0 };
+  private clickListener: (() => void) | null = null;
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    const target = event.target as HTMLElement;
-    const isInsidePopup = target.closest('.popup-menu') || target.closest('.popup-menu-own');
-    if (!isInsidePopup) {
-      this.selectedMessage = null; // Close the popup if click is outside
+  constructor(private elementRef: ElementRef, private renderer: Renderer2) {
+    this.clickListener = this.renderer.listen(
+      'document',
+      'click',
+      (event: MouseEvent) => {
+        this.handleDocumentClick(event);
+      }
+    );
+  }
+
+  togglePopup(message: any, event: MouseEvent): void {
+    event.stopPropagation();
+    if (this.selectedMessage !== message) {
+      this.closeActiveElements();
+    }
+    this.selectedMessage = message;
+  }
+
+  toggleEmojiPicker(message: any, event: MouseEvent): void {
+    event.stopPropagation();
+    if (this.selectedMessage !== message) {
+      this.closeActiveElements();
+    }
+
+    this.selectedMessage = message;
+    this.emojiPickerVisible = !this.emojiPickerVisible;
+    if (this.emojiPickerVisible) {
+      const buttonRect = (event.target as HTMLElement).getBoundingClientRect();
+      this.pickerPosition = {
+        top: buttonRect.bottom + window.scrollY,
+        left: buttonRect.left + window.scrollX + buttonRect.width / 2,
+      };
+    }
+  }
+
+  handleDocumentClick(event: MouseEvent): void {
+    const popupElement = this.elementRef.nativeElement.querySelector(
+      '.popup-menu, .popup-menu-own'
+    );
+    const emojiPickerElement =
+      this.elementRef.nativeElement.querySelector('app-emoji-picker');
+
+    if (
+      (!popupElement || !popupElement.contains(event.target as Node)) &&
+      (!emojiPickerElement ||
+        !emojiPickerElement.contains(event.target as Node))
+    ) {
+      this.closeActiveElements();
+    }
+  }
+
+  closeActiveElements(): void {
+    this.selectedMessage = null;
+    this.emojiPickerVisible = false;
+  }
+
+  ngOnDestroy(): void {
+    if (this.clickListener) {
+      this.clickListener();
     }
   }
 
   onMessageClick(message: any, event: MouseEvent) {
-    event.stopPropagation(); // Prevent event bubbling to document
+    this.closeActiveElements();
+    event.stopPropagation();
     this.selectedMessage = this.selectedMessage === message ? null : message;
   }
 }
-
-

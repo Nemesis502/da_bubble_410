@@ -344,6 +344,10 @@ body {
   overflow-x: hidden;
 }
 
+button{
+  cursor: pointer;
+}
+
 html,
 body {
   height: 100%;
@@ -367,11 +371,4 @@ body {
 
 .mdc-floating-label {
   color: #686868 !important;
-}
-
-.emoji-picker-panel {
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  border-radius: 20px;
-  border: 1px solid #e0e0e0;
-  background-color: white;
 }
