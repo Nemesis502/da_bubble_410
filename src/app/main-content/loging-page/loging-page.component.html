@@ -43,8 +43,12 @@
           matInput
           [formControl]="password"
           [type]="hide ? 'password' : 'text'"
+          (blur)="updateErrorMessagePassword()"
           required
         />
+        @if (password.invalid) {
+        <mat-error>{{ errorMessagePassword }}</mat-error>
+        }
       </mat-form-field>
     </form>
     <div class="password-forget-container">

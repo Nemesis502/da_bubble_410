@@ -62,31 +62,46 @@ export class SingInPageComponent {
   updateErrorMessagePassword() {
     if (this.password.hasError('required')) {
       this.errorMessagePassword = 'Bitte geben Sie ein Passwort ein';
-    } else {
+    } else if (this.password.hasError('pattern')) {
+      this.errorMessagePassword = 'Passwort muss mindestens 8 Zeichen lang sein, eine Zahl, ein Groß- und Kleinbuchstaben enthalten';
+    }
+    else {
       this.errorMessagePassword = '';
     }
   }
 
   checkFormular() {
-    this.text.markAsTouched();
-    this.email.markAsTouched();
-    this.password.markAsTouched();
-
-    this.updateErrorMessageName();
-    this.updateErrorMessageEmail();
-    this.updateErrorMessagePassword();
-
+    this.markedInputs();
+    this.updateErrorMessage();
 
     if (this.text.valid && this.email.valid && this.password.valid) {
       console.log("Text" + this.text.value, "Email" + this.email.value, "Password" + this.password.value);
       let lowerCaseEmail = this.email.value?.trim().toLocaleLowerCase();
-      this.router.navigate(['singIn/chooseAvatar'], {
-        state: {
-          singName: this.text.value,
-          singEmail: lowerCaseEmail,
-          singPassword: this.password.value
-        }
-      });
+      this.nextPage(lowerCaseEmail)
     }
   }
+
+  markedInputs() {
+    this.text.markAsTouched();
+    this.email.markAsTouched();
+    this.password.markAsTouched();
+  }
+
+  updateErrorMessage() {
+    this.updateErrorMessageName();
+    this.updateErrorMessageEmail();
+    this.updateErrorMessagePassword();
+  }
+
+  nextPage(lowerCaseEmail: string | undefined) {
+    this.router.navigate(['singIn/chooseAvatar'], {
+      state: {
+        singName: this.text.value,
+        singEmail: lowerCaseEmail,
+        singPassword: this.password.value
+      }
+    });
+  }
 }
+
+

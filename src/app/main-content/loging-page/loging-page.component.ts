@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, NgZone, ViewEncapsulation } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
@@ -27,13 +27,19 @@ export class LogingPageComponent {
   email = new FormControl('', [Validators.required, Validators.email]);
   password = new FormControl('', Validators.required);
   hide = true;
+  LogInError = false;
 
   errorMessage = '';
+  errorMessageLogIn = '';
+  errorMessagePassword = ''
 
-  constructor(private userService: UserService, private authService: AuthService, private router: Router) {
+  constructor(private userService: UserService, private authService: AuthService, private router: Router, private zone: NgZone) {
     merge(this.email.statusChanges, this.email.valueChanges)
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.updateErrorMessage());
+    merge(this.password.statusChanges, this.password.valueChanges)
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.updateErrorMessagePassword());
   }
 
   updateErrorMessage() {
@@ -43,6 +49,14 @@ export class LogingPageComponent {
       this.errorMessage = 'Keine gültige E-Mail-Adresse';
     } else {
       this.errorMessage = '';
+    }
+  }
+
+  updateErrorMessagePassword() {
+    if (this.password.hasError('required')) {
+      this.errorMessagePassword = 'Bitte geben Sie ein Passwort ein';
+    } else {
+      this.errorMessagePassword = '';
     }
   }
 
@@ -67,11 +81,21 @@ export class LogingPageComponent {
       .then((userCredential) => {
         console.log("Erfolgreich eingeloggt:", userCredential.user);
         this.router.navigate(['main']);
-        // Navigation, Token speichern etc.
       })
       .catch((error) => {
         console.error("Login fehlgeschlagen:", error.message);
+        this.LogInError = true;
+        this.updateErrorLogIn();
         // Fehler anzeigen (z. B. falsches Passwort)
       });
+  }
+
+  updateErrorLogIn() {
+    if (this.LogInError) {
+      this.password.markAsTouched();
+      this.errorMessagePassword = 'Falsche E-Mail-Adresse oder Passwort';
+    } else {
+      this.errorMessagePassword = '';
+    }
   }
 }
