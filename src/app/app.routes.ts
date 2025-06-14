@@ -5,10 +5,12 @@ import { ChooseAvatarPageComponent } from './main-content/loging-page/sing-in-pa
 import { ChatTemplateComponent } from './main-content/chat-template/chat-template.component';
 import { MainMenuComponent } from './main-content/main-menu/main-menu.component';
 import { LegalNoticeComponent } from './main-content/legal-notice/legal-notice.component';
+import { ResetPasswordComponent } from './main-content/loging-page/reset-password/reset-password.component';
 
 export const routes: Routes = [
     { path: '', component: LogingPageComponent },
     { path: 'singIn', component: SingInPageComponent },
+    { path: 'resetPassword', component: ResetPasswordComponent },
     { path: 'singIn/chooseAvatar', component: ChooseAvatarPageComponent },
     { path: 'chat', component: ChatTemplateComponent },
     { path: 'main', component: MainMenuComponent },
