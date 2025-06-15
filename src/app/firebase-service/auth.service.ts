@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Auth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup, signOut } from '@angular/fire/auth';
+import { Auth, createUserWithEmailAndPassword, GoogleAuthProvider, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, signOut } from '@angular/fire/auth';
 
 @Injectable({
     providedIn: 'root'
@@ -36,5 +36,17 @@ export class AuthService {
         } catch (err) {
             console.error('Fehler beim Logout:', err);
         }
+    }
+
+    async sendNewPasswordLink(email: string) {
+        let result = sendPasswordResetEmail(this.auth, email)
+            .then(() => {
+                console.log(result);
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                // ..
+            });
     }
 }

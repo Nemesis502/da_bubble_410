@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Renderer2 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
 import { merge } from 'rxjs';
+import { AuthService } from '../../../firebase-service/auth.service';
 
 @Component({
   selector: 'app-reset-password',
@@ -20,8 +21,9 @@ import { merge } from 'rxjs';
 export class ResetPasswordComponent {
   email = new FormControl('', [Validators.required, Validators.email]);
   errorMessageEmail = '';
-  
-  constructor(private router: Router) {
+  animation = false;
+
+  constructor(private authService: AuthService, private renderer: Renderer2, private router: Router) {
     merge(this.email.statusChanges, this.email.valueChanges)
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.updateErrorMessageEmail());
@@ -37,5 +39,22 @@ export class ResetPasswordComponent {
     }
   }
 
-  checkFormular() { }
+  async checkFormular() {
+    if (this.email.valid) {
+      await this.authService.sendNewPasswordLink(this.email.value!)
+      this.successfullAnimation()
+    } else {
+      this.email.markAsTouched();
+      this.errorMessageEmail = 'Keine gültige E-Mail-Adresse';
+    }
+  }
+
+  successfullAnimation() {
+    this.animation = true;
+    this.renderer.setStyle(document.body, 'overflow', 'hidden');
+    setTimeout(() => {
+      this.router.navigate(['/']);
+      this.renderer.removeStyle(document.body, 'overflow');
+    }, 2000);
+  }
 }
