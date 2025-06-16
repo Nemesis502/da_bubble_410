@@ -1,4 +1,4 @@
-.emoji-picker-panel {
+.reaction-picker-panel {
   position: absolute;
   z-index: 999;
   width: 204px;
@@ -13,17 +13,17 @@
   padding-left: 15px;
   padding-right: 15px;
   overflow-y: auto;
-  max-height: 150px;
+  max-height: 100px;
   transform: translateY(-200px);
   left: 60px !important;
   scrollbar-width: none;
 }
 
-.emoji-picker-panel::-webkit-scrollbar {
+.reaction-picker-panel::-webkit-scrollbar {
   display: none;
 }
 
-.emoji-list {
+.reaction-list {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;

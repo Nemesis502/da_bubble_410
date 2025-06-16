@@ -35,7 +35,7 @@
       <div class="popup-menu-own" [class.active]="selectedMessage === message">
         <button>✅</button>
         <button>👍</button>
-        <button (click)="toggleEmojiPicker(message, $event)">
+        <button (click)="togglePicker($event)">
           <mat-icon fontSet="material-icons-outlined">add_reaction</mat-icon>
         </button>
         <button>
@@ -45,6 +45,13 @@
           <mat-icon fontSet="material-icons-outlined">more_vert</mat-icon>
         </button>
       </div>
+      <!-- Reaction Picker Component -->
+      <app-reaction-picker
+        *ngIf="pickerVisible"
+        [pickerPosition]="pickerPosition"
+        (emojiSelected)="selectReaction($event)"
+        (pickerClosed)="closeActiveElements()"
+      ></app-reaction-picker>
     </div>
   </ng-container>
 
@@ -84,7 +91,7 @@
       <div class="popup-menu" [class.active]="selectedMessage === message">
         <button>✅</button>
         <button>👍</button>
-        <button (click)="toggleEmojiPicker(message, $event)">
+        <button>
           <mat-icon fontSet="material-icons-outlined">add_reaction</mat-icon>
         </button>
         <button>
@@ -94,9 +101,3 @@
     </div>
   </ng-template>
 </div>
-
-<!-- Emoji Picker -->
-<app-emoji-picker
-  *ngIf="emojiPickerVisible"
-  [pickerPosition]="pickerPosition"
-></app-emoji-picker>

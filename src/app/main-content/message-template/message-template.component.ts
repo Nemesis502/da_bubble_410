@@ -1,23 +1,22 @@
-import { CommonModule } from '@angular/common';
 import {
   Component,
   ElementRef,
-  HostListener,
   Renderer2,
+  HostListener,
   OnDestroy,
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
-import { EmojiPickerComponent } from '../emoji-picker/emoji-picker.component';
+import { ReactionPickerComponent } from '../../reaction-picker/reaction-picker.component';
 
 @Component({
   selector: 'app-message-template',
   standalone: true,
-  imports: [CommonModule, MatIconModule, EmojiPickerComponent],
+  imports: [CommonModule, MatIconModule, ReactionPickerComponent],
   templateUrl: './message-template.component.html',
   styleUrl: './message-template.component.scss',
 })
-export class MessageTemplateComponent {
+export class MessageTemplateComponent implements OnDestroy {
   messages = [
     {
       id: 'user1',
@@ -56,17 +55,15 @@ export class MessageTemplateComponent {
 
   currentUser: string = 'user2';
   selectedMessage: any = null;
-  emojiPickerVisible = false;
-  pickerPosition = { top: 0, left: 0 };
+  pickerVisible: boolean = false;
+  pickerPosition: { top: number; left: number } = { top: 0, left: 0 };
   private clickListener: (() => void) | null = null;
 
   constructor(private elementRef: ElementRef, private renderer: Renderer2) {
     this.clickListener = this.renderer.listen(
       'document',
       'click',
-      (event: MouseEvent) => {
-        this.handleDocumentClick(event);
-      }
+      (event: MouseEvent) => this.handleDocumentClick(event)
     );
   }
 
@@ -78,42 +75,43 @@ export class MessageTemplateComponent {
     this.selectedMessage = message;
   }
 
-  toggleEmojiPicker(message: any, event: MouseEvent): void {
+  togglePicker(event: MouseEvent): void {
+    const button = event.target as HTMLElement;
+    const rect = button.getBoundingClientRect();
+
+    this.pickerPosition = {
+      top: rect.top + window.scrollY + rect.height,
+      left: rect.left + rect.width / 2 - 102, // Center picker (204px wide)
+    };
+
+    this.pickerVisible = !this.pickerVisible;
     event.stopPropagation();
-    if (this.selectedMessage !== message) {
-      this.closeActiveElements();
-    }
-
-    this.selectedMessage = message;
-    this.emojiPickerVisible = !this.emojiPickerVisible;
-    if (this.emojiPickerVisible) {
-      const buttonRect = (event.target as HTMLElement).getBoundingClientRect();
-      this.pickerPosition = {
-        top: buttonRect.bottom + window.scrollY,
-        left: buttonRect.left + window.scrollX + buttonRect.width / 2,
-      };
-    }
   }
 
-  handleDocumentClick(event: MouseEvent): void {
-    const popupElement = this.elementRef.nativeElement.querySelector(
-      '.popup-menu, .popup-menu-own'
-    );
-    const emojiPickerElement =
-      this.elementRef.nativeElement.querySelector('app-emoji-picker');
+handleDocumentClick(event: MouseEvent): void {
+  const popupElement = this.elementRef.nativeElement.querySelector(
+    '.popup-menu, .popup-menu-own'
+  );
+  const pickerElement = this.elementRef.nativeElement.querySelector(
+    '.reaction-picker-panel'
+  );
 
-    if (
-      (!popupElement || !popupElement.contains(event.target as Node)) &&
-      (!emojiPickerElement ||
-        !emojiPickerElement.contains(event.target as Node))
-    ) {
-      this.closeActiveElements();
-    }
+  if (
+    (!popupElement || !popupElement.contains(event.target as Node)) &&
+    (!pickerElement || !pickerElement.contains(event.target as Node))
+  ) {
+    this.closeActiveElements();
   }
+}
 
   closeActiveElements(): void {
     this.selectedMessage = null;
-    this.emojiPickerVisible = false;
+    this.pickerVisible = false;
+  }
+
+  selectReaction(reaction: string): void {
+    console.log('Selected reaction:', reaction);
+    this.pickerVisible = false;
   }
 
   ngOnDestroy(): void {
@@ -122,7 +120,7 @@ export class MessageTemplateComponent {
     }
   }
 
-  onMessageClick(message: any, event: MouseEvent) {
+  onMessageClick(message: any, event: MouseEvent): void {
     this.closeActiveElements();
     event.stopPropagation();
     this.selectedMessage = this.selectedMessage === message ? null : message;
