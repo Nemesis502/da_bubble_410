@@ -289,6 +289,12 @@
   font-weight: bold;
 }
 
+.nuito24px700 {
+  font-family: 'Nunito' !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+}
+
 .nuito17px400 {
   font-family: 'Nunito' !important;
   font-weight: 400 !important;
@@ -296,7 +302,6 @@
   line-height: 120% !important;
   letter-spacing: 0 !important;
   text-align: center !important;
-
 }
 
 .nuito32px700 {
@@ -344,7 +349,7 @@ body {
   overflow-x: hidden;
 }
 
-button{
+button {
   cursor: pointer;
 }
 

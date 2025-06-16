@@ -6,6 +6,8 @@ import { ChatTemplateComponent } from './main-content/chat-template/chat-templat
 import { MainMenuComponent } from './main-content/main-menu/main-menu.component';
 import { LegalNoticeComponent } from './main-content/legal-notice/legal-notice.component';
 import { ResetPasswordComponent } from './main-content/loging-page/reset-password/reset-password.component';
+import { PrivacyPolicyComponent } from './main-content/privacy-policy/privacy-policy.component';
+import { AddChannelDialogComponent } from './main-content/main-menu/add-channel-dialog/add-channel-dialog.component';
 
 export const routes: Routes = [
     { path: '', component: LogingPageComponent },
@@ -14,5 +16,7 @@ export const routes: Routes = [
     { path: 'singIn/chooseAvatar', component: ChooseAvatarPageComponent },
     { path: 'chat', component: ChatTemplateComponent },
     { path: 'main', component: MainMenuComponent },
-    { path: 'legal-notice', component: LegalNoticeComponent },
+    { path: 'legalNotice', component: LegalNoticeComponent },
+    { path: 'privacyPolicy', component: PrivacyPolicyComponent },
+    { path: 'addChannelDialog', component: AddChannelDialogComponent }
 ];

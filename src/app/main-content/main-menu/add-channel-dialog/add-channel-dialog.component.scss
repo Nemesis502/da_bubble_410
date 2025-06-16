@@ -1,0 +1,106 @@
+@use "./../../../../styles.scss" as *;
+
+::ng-deep .mat-mdc-text-field-wrapper {
+    background-color: transparent !important;
+}
+
+::ng-deep .mat-mdc-input-element::placeholder {
+    font-family: 'Nunito' !important;
+    color: $TextGray !important;
+    opacity: 1 !important;
+}
+
+::ng-deep .mat-mdc-input-element {
+    color: black !important;
+}
+
+:host ::ng-deep .mat-mdc-form-field .mdc-line-ripple {
+    display: none !important;
+}
+
+:host ::ng-deep .mat-mdc-form-field-subscript-wrapper,
+:host ::ng-deep .mat-mdc-form-field-bottom-align::before {
+    display: none !important;
+}
+
+.add-channel-dialog {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 40px 20px 40px 20px;
+    width: calc(100% - 40px);
+    height: calc(100% - 80px);
+    background-color: white;
+
+    .nuito17px400,
+    .nuito18px700 {
+        text-align: unset !important;
+    }
+}
+
+.add-channel-header {
+    display: flex;
+    justify-content: space-between;
+
+    mat-icon {
+        color: black;
+    }
+}
+
+.text-form {
+    margin-block: 16px;
+    border: 1px solid;
+    border-color: $LightPurple;
+    border-radius: 42px;
+    color: $TextGray;
+
+    .text-full-width {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        width: calc(100% - 24px);
+        height: 60px;
+
+        mat-icon {
+            color: $TextGray;
+        }
+    }
+}
+
+.new-channel-description {
+    .optional {
+        color: $TextGray;
+        font-weight: 400;
+    }
+
+    textarea {
+        font-family: 'Nunito';
+        border: 1px solid;
+        border-color: $LightPurple;
+        border-radius: 42px;
+        padding: 20px;
+        width: calc(99.5% - 40px);
+        height: 24px;
+        font-size: 18px;
+
+        &:focus-visible {
+            border-color: $purple1 !important;
+            outline: none;
+        }
+    }
+}
+
+.create-new-channel {
+    display: flex;
+    justify-content: end;
+
+    .create-channel-button {
+        width: 125px;
+        height: 49px;
+        background-color: $purple1;
+        border-radius: 30px;
+        font-family: 'Nunito';
+        font-size: 18px;
+        font-weight: 700;
+    }
+}

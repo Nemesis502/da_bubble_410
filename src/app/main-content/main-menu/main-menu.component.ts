@@ -12,6 +12,7 @@ import { MenuDialogComponent } from './menu-dialog/menu-dialog.component';
 import { SearchService } from '../../shared/services/search.service';
 import { ChannelsDirectMessageService } from '../../shared/services/channels-direct-message.service';
 import { FirestoreService } from '../../shared/services/firestore.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-main-menu',
@@ -47,6 +48,8 @@ export class MainMenuComponent implements OnInit {
   channels: any[] = [];
   users: any[] = [];
   directMessages: any[] = [];
+
+  constructor(private router: Router) { }
 
   ngOnInit(): void {
     if (!this.gastLogin) {
@@ -150,5 +153,9 @@ export class MainMenuComponent implements OnInit {
       height: '210px',
       panelClass: 'bottom-dialog-panel'
     });
+  }
+
+  addChannel() {
+    this.router.navigate(['/addChannelDialog']);
   }
 }

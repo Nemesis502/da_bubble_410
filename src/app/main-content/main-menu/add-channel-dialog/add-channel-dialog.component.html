@@ -1,0 +1,32 @@
+<section class="add-channel-dialog">
+    <section class="add-channel-header">
+        <h2 class="nuito24px700">Channel erstellen</h2>
+        <button mat-icon-button aria-label="Channel hinzufügen beenden" [routerLink]="'/main'">
+            <mat-icon fontIcon="close"></mat-icon>
+        </button>
+    </section>
+    <section class="add-channel-description">
+        <p class="nuito17px400">Channels dienen deinem Team zur Kommunikation. Am besten sollten sie themenbezogen sein
+            #marketing zum
+            Beispiel.</p>
+    </section>
+    <section class="new-channel-name">
+        <h3 class="nuito18px700">Channel-Name</h3>
+        <form class="text-form">
+            <mat-form-field appearance="fill" class="text-full-width">
+                <input matInput placeholder="z.B. Kooperationsprojekte" aria-label="Channel-Name" />
+                <mat-icon matPrefix aria-hidden="true" fontIcon="numbers"></mat-icon>
+            </mat-form-field>
+        </form>
+    </section>
+    <section class="new-channel-description">
+        <h3 class="nuito18px700">Beschreibung <span class="optional">(optional)</span></h3>
+        <textarea placeholder="Dein Text hier" cdkTextareaAutosize #autosize="cdkTextareaAutosize"
+            cdkAutosizeMinRows="1" cdkAutosizeMaxRows="10"></textarea>
+    </section>
+    <section class="create-new-channel">
+        <button mat-button class="create-channel-button" aria-label="Channel erstellen">
+            <span>Erstellen</span>
+        </button>
+    </section>
+</section>

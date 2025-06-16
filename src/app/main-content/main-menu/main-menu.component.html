@@ -69,7 +69,7 @@
                         <mat-icon fontIcon="workspaces_outline"></mat-icon>
                         <h2 class="nuito20px">Channels</h2>
                     </button>
-                    <button matMiniFab aria-label="Channel hinzufügen" class="add-btn">
+                    <button class="add-btn" matMiniFab aria-label="Channel hinzufügen" (click)="addChannel()">
                         <mat-icon mat-icon-button fontIcon="add"></mat-icon>
                     </button>
                 </div>
@@ -90,7 +90,7 @@
                     </div>
                     }
                     }
-                    <div class="channel-item channel-item-add">
+                    <div class="channel-item channel-item-add" (click)="addChannel()">
                         <mat-icon fontIcon="add_circle_outline"></mat-icon>
                         <p class="nuito17px400">Channel hinzufügen</p>
                     </div>
