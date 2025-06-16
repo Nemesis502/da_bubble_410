@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,7 +10,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
 import { MenuDialogComponent } from './menu-dialog/menu-dialog.component';
 import { SearchService } from '../../shared/services/search.service';
-import { ChannelsDirectMessageService, DirectMessage } from '../../shared/services/channels-direct-message.service';
+import { ChannelsDirectMessageService } from '../../shared/services/channels-direct-message.service';
 import { FirestoreService } from '../../shared/services/firestore.service';
 
 @Component({
@@ -29,30 +29,117 @@ import { FirestoreService } from '../../shared/services/firestore.service';
   templateUrl: './main-menu.component.html',
   styleUrl: './main-menu.component.scss'
 })
-export class MainMenuComponent {
+export class MainMenuComponent implements OnInit {
   readonly dialog = inject(MatDialog);
   readonly searchService = inject(SearchService);
   readonly channelDirectMessageData = inject(ChannelsDirectMessageService);
+  readonly firestoreService = inject(FirestoreService);
 
   gastLogin = false;
+
   showChannels = true;
   showDirectMessages = true;
 
-  searchTerm: string = '';
-  channels: any[] = [];
-  directMessages: any[] = [];
-  conversations: any[] = [];
-  filteredChannels: string[] = [];
-  filteredDirectMessages: DirectMessage[] = [];
+  searchTerm = '';
+  filteredChannels: any[] = [];
+  filteredDirectMessages: any[] = [];
 
-  constructor(private firestoreService: FirestoreService) {
+  channels: any[] = [];
+  users: any[] = [];
+  directMessages: any[] = [];
+
+  ngOnInit(): void {
+    if (!this.gastLogin) {
+      this.firestoreService.getChannels().subscribe(c => {
+        this.channels = c;
+        this.searchService.setFirestoreChannels(c);
+        console.log('Channels', this.channels);
+
+      });
+
+      this.firestoreService.getUsers().subscribe(u => {
+        this.users = u;
+        this.searchService.setFirestoreUsers(u);
+        console.log('Users', this.users);
+
+      });
+
+      this.firestoreService.getConversations().subscribe(conv => {
+        this.directMessages = conv;
+        console.log('Direktnachrichten', this.directMessages);
+
+      });
+    }
     this.updateFilteredResults();
   }
 
-  ngOnInit(): void {
-    this.firestoreService.getChannels().subscribe(c => this.channels = c);
-    this.firestoreService.getUsers().subscribe(u => this.directMessages = u); // oder filtern
-    this.firestoreService.getConversations().subscribe(conv => this.conversations = conv);
+  get isSearchActive(): boolean {
+    return this.searchTerm.trim().length > 0;
+  }
+
+  updateFilteredResults(): void {
+    const term = this.searchTerm.trim().toLowerCase();
+
+    const isChannelSearch = term.startsWith('#');
+    const isDirectSearch = term.startsWith('@');
+    const query = term.replace(/^[@#]/, '');
+
+    if (this.gastLogin) {
+      this.filterAsGuest(query, isChannelSearch, isDirectSearch);
+    } else {
+      this.filterAsUser(query, isChannelSearch, isDirectSearch);
+    }
+  }
+
+  private filterAsGuest(query: string, isChannel: boolean, isDirect: boolean): void {
+    if (isChannel) {
+      this.filteredChannels = this.channelDirectMessageData
+        .getChannels()
+        .filter(c => c.toLowerCase().startsWith(query));
+      this.filteredDirectMessages = [];
+    } else if (isDirect) {
+      this.filteredDirectMessages = this.channelDirectMessageData
+        .getDirectMessages()
+        .filter(dm => dm.name.toLowerCase().startsWith(query));
+      this.filteredChannels = [];
+    } else {
+      this.filteredChannels = this.channelDirectMessageData
+        .getChannels()
+        .filter(c => c.toLowerCase().startsWith(query));
+
+      this.filteredDirectMessages = this.channelDirectMessageData
+        .getDirectMessages()
+        .filter(dm => dm.name.toLowerCase().startsWith(query));
+    }
+  }
+
+  private filterAsUser(query: string, isChannel: boolean, isDirect: boolean): void {
+    if (isChannel) {
+      this.filteredChannels = this.searchService
+        .filterFirestoreChannels(query)
+        .map(c => c.name)
+        .filter(c => c.toLowerCase().startsWith(query));
+      this.filteredDirectMessages = [];
+    } else if (isDirect) {
+      this.filteredDirectMessages = this.searchService
+        .filterFirestoreDirectMessages(query)
+        .filter(u => u.userName.toLowerCase().startsWith(query));
+      this.filteredChannels = [];
+    } else {
+      this.filteredChannels = this.searchService
+        .filterFirestoreChannels(query)
+        .map(c => c.name)
+        .filter(c => c.toLowerCase().startsWith(query));
+
+      this.filteredDirectMessages = this.searchService
+        .filterFirestoreDirectMessages(query)
+        .filter(u => u.userName.toLowerCase().startsWith(query));
+    }
+  }
+
+  closeSearch(): void {
+    this.searchTerm = '';
+    this.updateFilteredResults();
   }
 
   openMenuDialog(): void {
@@ -63,40 +150,5 @@ export class MainMenuComponent {
       height: '210px',
       panelClass: 'bottom-dialog-panel'
     });
-  }
-
-  updateFilteredResults(): void {
-    const term = this.searchTerm.trim().toLowerCase();
-
-    if (term.startsWith('#')) {
-      const query = term.slice(1);
-      this.filteredChannels = this.searchService
-        .filterChannels(query)
-        .filter(c => c.toLowerCase().startsWith(query));
-      this.filteredDirectMessages = [];
-    } else if (term.startsWith('@')) {
-      const query = term.slice(1);
-      this.filteredDirectMessages = this.searchService
-        .filterDirectMessages(query)
-        .filter(dm => dm.name.toLowerCase().startsWith(query));
-      this.filteredChannels = [];
-    } else {
-      this.filteredChannels = this.searchService
-        .filterChannels(term)
-        .filter(c => c.toLowerCase().startsWith(term));
-
-      this.filteredDirectMessages = this.searchService
-        .filterDirectMessages(term)
-        .filter(dm => dm.name.toLowerCase().startsWith(term));
-    }
-  }
-
-  get isSearchActive(): boolean {
-    return this.searchTerm.trim().length > 0;
-  }
-
-  closeSearch(): void {
-    this.searchTerm = '';
-    this.updateFilteredResults();
   }
 }

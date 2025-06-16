@@ -1,18 +1,16 @@
 <section class="main-header">
-    <img class="logo-name" src="./assets/img/logo-name.png" alt="Logo und Name">
+    <img class="logo-name" src="./assets/img/logo-name.png" alt="Logo und Name" />
     <button aria-label="Menü öffnen" (click)="openMenuDialog()">
-        <img src="./assets/img/avatar/3.png" alt="" aria-hidden="true">
+        <img src="./assets/img/avatar/3.png" alt="" aria-hidden="true" />
     </button>
 </section>
 <section class="menu">
     <section class="menu-item">
         @if (isSearchActive) {
         <section class="search-header">
-            <span class="nuito18px700">
-                Suche
-            </span>
+            <span class="nuito18px700">Suche</span>
             <button mat-icon-button aria-label="Suche beenden" (click)="closeSearch()">
-                <mat-icon fontIcon="close" aria-label="Suche beenden" (click)="closeSearch()"></mat-icon>
+                <mat-icon fontIcon="close"></mat-icon>
             </button>
         </section>
         }
@@ -40,11 +38,22 @@
             @if (filteredDirectMessages.length > 0) {
             <section class="direct-message">
                 <div class="message-list" id="direct-messages">
+                    @if (gastLogin) {
                     @for (user of filteredDirectMessages; track user.name) {
                     <div class="message-item">
                         <img src="./assets/img/avatar/{{ user.img }}" alt="Avatar von {{ user.name }}" />
+                        <div class="status {{ user.status }}"></div>
                         <p class="nuito17px400">{{ user.name }}</p>
                     </div>
+                    }
+                    } @else {
+                    @for (user of filteredDirectMessages; track user.id) {
+                    <div class="message-item">
+                        <img src="./assets/img/avatar/{{ user.profilePic }}.png" alt="Avatar von {{ user.userName }}" />
+                        <div class="status {{ user.status ? 'online' : 'offline' }}"></div>
+                        <p class="nuito17px400">{{ user.userName }}</p>
+                    </div>
+                    }
                     }
                 </div>
             </section>
@@ -56,9 +65,8 @@
                     <button type="button" class="title" (click)="showChannels = !showChannels"
                         [attr.aria-expanded]="showChannels" aria-controls="channel-list"
                         aria-label="Channels ein- oder ausklappen">
-                        <mat-icon fontIcon="{{ showChannels ? 'arrow_drop_down' : 'arrow_right' }}"
-                            aria-hidden="true"></mat-icon>
-                        <mat-icon fontIcon="workspaces_outline" aria-hidden="true"></mat-icon>
+                        <mat-icon fontIcon="{{ showChannels ? 'arrow_drop_down' : 'arrow_right' }}"></mat-icon>
+                        <mat-icon fontIcon="workspaces_outline"></mat-icon>
                         <h2 class="nuito20px">Channels</h2>
                     </button>
                     <button matMiniFab aria-label="Channel hinzufügen" class="add-btn">
@@ -74,9 +82,16 @@
                         <p class="nuito17px400">{{ channel }}</p>
                     </div>
                     }
+                    } @else {
+                    @for (channel of channels; track channel.id) {
+                    <div class="channel-item">
+                        <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
+                        <p class="nuito17px400">{{ channel.name }}</p>
+                    </div>
+                    }
                     }
                     <div class="channel-item channel-item-add">
-                        <mat-icon fontIcon="add_circle_outline" aria-hidden="true"></mat-icon>
+                        <mat-icon fontIcon="add_circle_outline"></mat-icon>
                         <p class="nuito17px400">Channel hinzufügen</p>
                     </div>
                 </div>
@@ -87,8 +102,7 @@
                     <button type="button" class="title" (click)="showDirectMessages = !showDirectMessages"
                         [attr.aria-expanded]="showDirectMessages" aria-controls="direct-messages"
                         aria-label="Direktnachrichten ein- oder ausklappen">
-                        <mat-icon fontIcon="{{ showDirectMessages ? 'arrow_drop_down' : 'arrow_right' }}"
-                            aria-hidden="true"></mat-icon>
+                        <mat-icon fontIcon="{{ showDirectMessages ? 'arrow_drop_down' : 'arrow_right' }}"></mat-icon>
                         <mat-icon fontSet="material-icons-outlined">account_circle</mat-icon>
                         <h2 class="nuito20px">Direktnachrichten</h2>
                     </button>
@@ -103,7 +117,15 @@
                         <p class="nuito17px400">{{ user.name }}</p>
                     </div>
                     }
-                    } 
+                    } @else {
+                    @for (user of users; track user.id) {
+                    <div class="message-item">
+                        <img src="./assets/img/avatar/{{ user.profilePic }}.png" alt="Avatar von {{ user.userName }}" />
+                        <div class="status {{ user.status ? 'online' : 'offline' }}"></div>
+                        <p class="nuito17px400">{{ user.userName }}</p>
+                    </div>
+                    }
+                    }
                 </div>
                 }
             </section>

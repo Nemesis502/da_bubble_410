@@ -178,10 +178,15 @@
     color: $purple3 !important;
 }
 
+.direct-message {
+    height: 45vh;
+    overflow: hidden;
+}
+
 .message-list {
     display: flex;
     flex-direction: column;
-    height: 46vh;
+    height: 40vh;
     overflow-y: scroll;
 
     .message-item {
