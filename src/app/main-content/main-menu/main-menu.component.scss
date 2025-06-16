@@ -28,11 +28,22 @@
     align-items: center;
     margin: 16px;
     width: calc(100% - 32px);
-    height: 80px;
+    height: 48px;
+
+    .logo-name {
+        padding-inline: 6px;
+        width: 161px;
+        height: 45px;
+        object-fit: fill;
+    }
 
     button {
         border: 0;
         background-color: transparent;
+
+        img {
+            width: 50px;
+        }
     }
 }
 
@@ -252,10 +263,4 @@
     width: 60px;
     height: 60px;
 
-}
-
-@media (max-width: 450px) {
-    .logo-name {
-        width: 250px;
-    }
 }
