@@ -31,13 +31,39 @@
             <ng-container
               *ngIf="message.reactions && message.reactions.length > 0"
             >
+              <!-- Render reactions (up to 7 or all, depending on state) -->
               <button
-                *ngFor="let reaction of message.reactions"
+                *ngFor="
+                  let reaction of reactionsExpanded[message.id]
+                    ? message.reactions
+                    : (message.reactions | slice : 0 : 7)
+                "
                 (click)="selectReaction(reaction.reaction, message)"
                 class="reaction"
               >
                 {{ reaction.reaction }} {{ reaction.count }}
+                <!-- Hover Popup -->
+                <div class="reaction-popup">
+                  {{ reaction.count }} people reacted with "{{
+                    reaction.reaction
+                  }}"
+                </div>
               </button>
+
+              <!-- Show more or show less buttons -->
+              <button
+                *ngIf="message.reactions.length > 7"
+                (click)="toggleReactions(message)"
+                class="reaction"
+              >
+                {{
+                  reactionsExpanded[message.id]
+                    ? "Weniger anzeigen"
+                    : "+" + (message.reactions.length - 7) + " weitere"
+                }}
+              </button>
+
+              <!-- Add reaction button -->
               <button class="icon-button">
                 <mat-icon
                   (click)="toggleReactionPicker(message, $event)"
@@ -106,13 +132,38 @@
             <ng-container
               *ngIf="message.reactions && message.reactions.length > 0"
             >
+              <!-- Render reactions (up to 7 or all, depending on state) -->
               <button
-                *ngFor="let reaction of message.reactions"
+                *ngFor="
+                  let reaction of reactionsExpanded[message.id]
+                    ? message.reactions
+                    : (message.reactions | slice : 0 : 7)
+                "
                 (click)="selectReaction(reaction.reaction, message)"
                 class="reaction"
               >
                 {{ reaction.reaction }} {{ reaction.count }}
+                <!-- Hover Popup -->
+                <div class="reaction-popup">
+                <p>{{ reaction.reaction }}</p>
+                <p>hat reagiert</p>
+                <p></p>
+                </div>
               </button>
+
+              <!-- Show more or show less buttons -->
+              <button
+                *ngIf="message.reactions.length > 7"
+                (click)="toggleReactions(message)"
+                class="reaction"
+              >
+                {{
+                  reactionsExpanded[message.id]
+                    ? "Weniger anzeigen"
+                    : "+" + (message.reactions.length - 7) + " weitere"
+                }}
+              </button>
+              <!-- Add reaction button -->
               <button class="icon-button">
                 <mat-icon
                   (click)="toggleReactionPicker(message, $event)"

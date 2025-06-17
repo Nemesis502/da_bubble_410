@@ -16,6 +16,7 @@
     background-color: $LightPurple;
   }
   p {
+    font-family: "Nunito" !important;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -172,6 +173,8 @@
   display: flex;
   flex-direction: row-reverse;
   align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
   .reaction {
     display: inline-block;
     margin-right: 4px;
@@ -180,7 +183,30 @@
     border-radius: 12px;
     font-size: 12px;
     line-height: 1;
+    height: 22px;
     border: 1px solid #adb0d9;
+    font-family: "Nunito" !important;
+    position: relative;
+  }
+  .reaction-popup {
+    position: absolute;
+    bottom: 20px;
+    left: 80%;
+    transform: translateX(-10%);
+    background: $purple1;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+  }
+
+  .reaction:hover .reaction-popup {
+    opacity: 1;
+    visibility: visible;
   }
 }
 
@@ -189,6 +215,8 @@
   font-size: 14px;
   display: flex;
   align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
   .reaction {
     display: inline-block;
     margin-right: 4px;
@@ -198,6 +226,28 @@
     font-size: 12px;
     line-height: 1;
     border: 1px solid #adb0d9;
+    font-family: "Nunito" !important;
+    position: relative;
+  }
+  .reaction-popup {
+    position: absolute;
+    bottom: 20px;
+    left: 80%;
+    transform: translateX(-10%);
+    background: $purple1;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+  }
+
+  .reaction:hover .reaction-popup {
+    opacity: 1;
+    visibility: visible;
   }
 }
 

@@ -30,8 +30,8 @@ export class MessageTemplateComponent implements OnDestroy {
       answersCount: 2,
       lastAnswerTime: '12:05 Uhr',
           reactions: [
-      { reaction: '👍', count: 1 },
-      { reaction: '❤️', count: 2 },
+      { reaction: '👍', count: 1, reactors: ['user1']},
+      { reaction: '❤️', count: 2, reactors: ['user2', 'user1'] },
     ],
     },
     {
@@ -62,6 +62,7 @@ export class MessageTemplateComponent implements OnDestroy {
   selectedMessage: any = null;
   activeReactionPickerId: string | null = null;
   private clickListener: (() => void) | null = null;
+  reactionsExpanded: { [key: string]: boolean } = {}; 
 
   constructor(private elementRef: ElementRef, private renderer: Renderer2) {
     this.clickListener = this.renderer.listen(
@@ -70,6 +71,10 @@ export class MessageTemplateComponent implements OnDestroy {
       (event: MouseEvent) => this.handleDocumentClick(event)
     );
   }
+
+  toggleReactions(message: any): void {
+  this.reactionsExpanded[message.id] = !this.reactionsExpanded[message.id];
+}
 
   handleDocumentClick(event: MouseEvent): void {
     const clickedElement = event.target as Node;
