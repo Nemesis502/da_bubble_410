@@ -7,6 +7,7 @@ export interface Message {
     timestamp: Date;
     senderId: string;
     channelId?: string;
+    receiverId?: string;
     reactions?: Reactions[];
     thread?: Thread[];
 }
