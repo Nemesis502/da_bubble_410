@@ -26,7 +26,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 16px;
+    padding: 16px;
     width: calc(100% - 32px);
     height: 48px;
 
@@ -56,7 +56,7 @@
 .menu-item {
     padding: 5%;
     width: 90%;
-    height: calc(100% - 8.5%);
+    height: 94.9%;
 }
 
 .search-header {
@@ -91,7 +91,7 @@
     flex-direction: column;
     gap: 30px;
     padding: 5%;
-    max-height: 89%;
+    max-height: 87%;
 }
 
 .channels {
@@ -190,14 +190,13 @@
 }
 
 .direct-message {
-    height: 45vh;
     overflow: hidden;
 }
 
 .message-list {
     display: flex;
     flex-direction: column;
-    height: 40vh;
+    height: 42vh;
     overflow-y: scroll;
 
     .message-item {

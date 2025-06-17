@@ -12,17 +12,20 @@
     </section>
     <section class="new-channel-name">
         <h3 class="nuito18px700">Channel-Name</h3>
-        <form class="text-form">
+        <form class="text-form" [class.focused]="channelFocused || channelName">
             <mat-form-field appearance="fill" class="text-full-width">
-                <input matInput placeholder="z.B. Kooperationsprojekte" aria-label="Channel-Name" />
                 <mat-icon matPrefix aria-hidden="true" fontIcon="numbers"></mat-icon>
+                <input matInput placeholder="z.B. Kooperationsprojekte" aria-label="Channel-Name"
+                    [(ngModel)]="channelName" name="channelName" (focus)="channelFocused = true"
+                    (blur)="channelFocused = false" />
             </mat-form-field>
         </form>
     </section>
     <section class="new-channel-description">
         <h3 class="nuito18px700">Beschreibung <span class="optional">(optional)</span></h3>
-        <textarea placeholder="Dein Text hier" cdkTextareaAutosize #autosize="cdkTextareaAutosize"
-            cdkAutosizeMinRows="1" cdkAutosizeMaxRows="10"></textarea>
+        <textarea placeholder="Dein Text hier" [(ngModel)]="channelDescription" #channelDesc="ngModel"
+            [class.focused]="channelDescription || descriptionEl === document.activeElement" #descriptionEl
+            cdkTextareaAutosize cdkAutosizeMinRows="1" cdkAutosizeMaxRows="10"></textarea>
     </section>
     <section class="create-new-channel">
         <button mat-button class="create-channel-button" aria-label="Channel erstellen">
