@@ -4,7 +4,7 @@
   [ngStyle]="{ top: pickerPosition.top + 'px', left: pickerPosition.left + 'px' }"
 >
   <div class="reaction-list">
-   <button *ngFor="let emoji of emojis" (click)="selectReaction(emoji)">
+   <button *ngFor="let emoji of emojis"         (click)="onReactionClick(emoji)">
   {{ emoji }}
 </button>
   </div>

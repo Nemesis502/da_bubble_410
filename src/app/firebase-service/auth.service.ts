@@ -8,8 +8,7 @@ export class AuthService {
     private auth: Auth = inject(Auth);
 
     async registerUser(email: string, password: string) {
-        const cred = await createUserWithEmailAndPassword(this.auth, email, password);
-        console.log(cred.user);
+        await createUserWithEmailAndPassword(this.auth, email, password);
     }
 
     login(email: string, password: string) {
@@ -41,7 +40,7 @@ export class AuthService {
     async sendNewPasswordLink(email: string) {
         let result = sendPasswordResetEmail(this.auth, email)
             .then(() => {
-                console.log(result);
+            
             })
             .catch((error) => {
                 const errorCode = error.code;

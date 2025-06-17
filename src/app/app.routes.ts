@@ -8,11 +8,13 @@ import { LegalNoticeComponent } from './main-content/legal-notice/legal-notice.c
 import { ResetPasswordComponent } from './main-content/loging-page/reset-password/reset-password.component';
 import { PrivacyPolicyComponent } from './main-content/privacy-policy/privacy-policy.component';
 import { AddChannelDialogComponent } from './main-content/main-menu/add-channel-dialog/add-channel-dialog.component';
+import { NewPasswordComponent } from './main-content/loging-page/new-password/new-password.component';
 
 export const routes: Routes = [
     { path: '', component: LogingPageComponent },
     { path: 'singIn', component: SingInPageComponent },
     { path: 'resetPassword', component: ResetPasswordComponent },
+    { path: 'newPassword', component: NewPasswordComponent },
     { path: 'singIn/chooseAvatar', component: ChooseAvatarPageComponent },
     { path: 'chat', component: ChatTemplateComponent },
     { path: 'main', component: MainMenuComponent },
