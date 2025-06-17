@@ -71,6 +71,7 @@ export class ChooseAvatarPageComponent {
       userName: this.userName,
       profilePic: this.imgId,
       status: false,
+      email: this.userEmail
     }
     await this.authService.registerUser(this.userEmail, this.userPassword);
     this.userService.addUser(newUser);
