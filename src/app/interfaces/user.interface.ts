@@ -3,4 +3,5 @@ export interface User {
     userName: string;
     profilePic: number;
     status: boolean;
+    email: string;
 }

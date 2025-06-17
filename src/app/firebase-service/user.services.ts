@@ -46,6 +46,7 @@ export class UserService {
             userName: obj.userName || "",
             profilePic: obj.imgId || 0,
             status: obj.status || false,
+            email: obj.email || "",
         }
     }
 }
