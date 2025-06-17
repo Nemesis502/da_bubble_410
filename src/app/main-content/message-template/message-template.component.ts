@@ -4,6 +4,7 @@ import {
   Renderer2,
   HostListener,
   OnDestroy,
+  ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,6 +18,7 @@ import { ReactionPickerComponent } from '../../reaction-picker/reaction-picker.c
   styleUrl: './message-template.component.scss',
 })
 export class MessageTemplateComponent implements OnDestroy {
+   @ViewChild('reactionPicker', { read: ElementRef }) reactionPicker: ElementRef | null = null;
   messages = [
     {
       id: 'user1',
@@ -27,7 +29,10 @@ export class MessageTemplateComponent implements OnDestroy {
       avatar: './assets/img/avatar/1.png',
       answersCount: 2,
       lastAnswerTime: '12:05 Uhr',
-      reactions: [],
+          reactions: [
+      { reaction: '👍', count: 1 },
+      { reaction: '❤️', count: 2 },
+    ],
     },
     {
       id: 'user2',
@@ -55,8 +60,7 @@ export class MessageTemplateComponent implements OnDestroy {
 
   currentUser: string = 'user2';
   selectedMessage: any = null;
-  pickerVisible: boolean = false;
-  pickerPosition: { top: number; left: number } = { top: 0, left: 0 };
+  activeReactionPickerId: string | null = null;
   private clickListener: (() => void) | null = null;
 
   constructor(private elementRef: ElementRef, private renderer: Renderer2) {
@@ -67,62 +71,56 @@ export class MessageTemplateComponent implements OnDestroy {
     );
   }
 
-  togglePopup(message: any, event: MouseEvent): void {
-    event.stopPropagation();
-    if (this.selectedMessage !== message) {
+  handleDocumentClick(event: MouseEvent): void {
+    const clickedElement = event.target as Node;
+    const isClickInsideComponent = this.elementRef.nativeElement.contains(clickedElement);
+    const isClickInsidePicker =
+      this.reactionPicker && this.reactionPicker.nativeElement.contains(clickedElement);
+
+    if (!isClickInsideComponent && !isClickInsidePicker) {
       this.closeActiveElements();
+      this.closeAllReactionPickers();
     }
-    this.selectedMessage = message;
   }
 
-  togglePicker(event: MouseEvent): void {
-    const button = event.target as HTMLElement;
-    const rect = button.getBoundingClientRect();
-
-    this.pickerPosition = {
-      top: rect.top + window.scrollY + rect.height,
-      left: rect.left + rect.width / 2 - 102, // Center picker (204px wide)
-    };
-
-    this.pickerVisible = !this.pickerVisible;
+  toggleReactionPicker(message: any, event: MouseEvent): void {
     event.stopPropagation();
+    if (this.activeReactionPickerId === message.id) {
+      this.activeReactionPickerId = null;
+    } else {
+      this.closeActiveElements();
+      this.activeReactionPickerId = message.id;
+    }
   }
 
-handleDocumentClick(event: MouseEvent): void {
-  const popupElement = this.elementRef.nativeElement.querySelector(
-    '.popup-menu, .popup-menu-own'
-  );
-  const pickerElement = this.elementRef.nativeElement.querySelector(
-    '.reaction-picker-panel'
-  );
-
-  if (
-    (!popupElement || !popupElement.contains(event.target as Node)) &&
-    (!pickerElement || !pickerElement.contains(event.target as Node))
-  ) {
-    this.closeActiveElements();
+  closeAllReactionPickers(): void {
+    this.activeReactionPickerId = null;
   }
-}
 
   closeActiveElements(): void {
     this.selectedMessage = null;
-    this.pickerVisible = false;
   }
 
-  selectReaction(reaction: string): void {
-    console.log('Selected reaction:', reaction);
-    this.pickerVisible = false;
+selectReaction(reaction: string, message: any): void {
+  const existingReaction = message.reactions.find((r: any) => r.reaction === reaction);
+  if (existingReaction) {
+    existingReaction.count += 1;
+  } else {
+    message.reactions.push({ reaction, count: 1 });
+  }
+
+  this.closeAllReactionPickers();
+}
+  onMessageClick(message: any, event: MouseEvent): void {
+    this.closeAllReactionPickers()
+    this.closeActiveElements();
+    event.stopPropagation();
+    this.selectedMessage = this.selectedMessage === message ? null : message;
   }
 
   ngOnDestroy(): void {
     if (this.clickListener) {
       this.clickListener();
     }
-  }
-
-  onMessageClick(message: any, event: MouseEvent): void {
-    this.closeActiveElements();
-    event.stopPropagation();
-    this.selectedMessage = this.selectedMessage === message ? null : message;
   }
 }

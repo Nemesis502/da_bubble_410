@@ -72,10 +72,12 @@
 
 .msg-main {
   margin-left: 16px;
+  padding-bottom: 20px;
 }
 
 .msg-own-main {
   margin-right: 16px;
+  padding-bottom: 20px;
 }
 
 .msg-time {
@@ -123,7 +125,6 @@
   display: flex;
   margin-top: 8px;
   align-items: center;
-  padding-bottom: 20px;
   button {
     background-color: transparent;
     border: none;
@@ -147,7 +148,6 @@
   display: flex;
   margin-top: 8px;
   align-items: center;
-  padding-bottom: 20px;
   justify-content: flex-end;
   button {
     background-color: transparent;
@@ -165,6 +165,39 @@
     font-size: 14px;
     color: #686868;
     margin-bottom: 0px;
+  }
+}
+
+.msg-reactions-own {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  .reaction {
+    display: inline-block;
+    margin-right: 4px;
+    background-color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    line-height: 1;
+    border: 1px solid #adb0d9;
+  }
+}
+
+.msg-reactions {
+  margin-top: 8px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  .reaction {
+    display: inline-block;
+    margin-right: 4px;
+    background-color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    line-height: 1;
+    border: 1px solid #adb0d9;
   }
 }
 
@@ -216,6 +249,21 @@
     &:hover {
       background-color: lightgray;
     }
+  }
+}
+
+.icon-button {
+  font-size: 20px;
+  border: none;
+  background-color: transparent;
+  height: 40px;
+  width: 40px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &:hover {
+    background-color: lightgray;
   }
 }
 

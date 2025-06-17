@@ -27,16 +27,37 @@
             <button>{{ message.answersCount }} Antworten</button>
             <p class="answer-time">{{ message.lastAnswerTime }}</p>
           </div>
-          <div class="msg-reactions">
-            <!-- Render reactions here if needed -->
+          <div class="msg-reactions-own">
+            <ng-container
+              *ngIf="message.reactions && message.reactions.length > 0"
+            >
+              <button
+                *ngFor="let reaction of message.reactions"
+                (click)="selectReaction(reaction.reaction, message)"
+                class="reaction"
+              >
+                {{ reaction.reaction }} {{ reaction.count }}
+              </button>
+              <button class="icon-button">
+                <mat-icon
+                  (click)="toggleReactionPicker(message, $event)"
+                  fontSet="material-icons-outlined"
+                  >add_reaction</mat-icon
+                >
+              </button>
+            </ng-container>
           </div>
         </div>
       </div>
       <div class="popup-menu-own" [class.active]="selectedMessage === message">
-        <button>✅</button>
-        <button>👍</button>
-        <button (click)="togglePicker($event)">
-          <mat-icon fontSet="material-icons-outlined">add_reaction</mat-icon>
+        <button (click)="selectReaction('✅', message)">✅</button>
+        <button (click)="selectReaction('👍', message)">👍</button>
+        <button>
+          <mat-icon
+            (click)="toggleReactionPicker(message, $event)"
+            fontSet="material-icons-outlined"
+            >add_reaction</mat-icon
+          >
         </button>
         <button>
           <mat-icon fontSet="material-icons-outlined">message</mat-icon>
@@ -47,10 +68,8 @@
       </div>
       <!-- Reaction Picker Component -->
       <app-reaction-picker
-        *ngIf="pickerVisible"
-        [pickerPosition]="pickerPosition"
-        (emojiSelected)="selectReaction($event)"
-        (pickerClosed)="closeActiveElements()"
+        *ngIf="activeReactionPickerId === message.id"
+        (reactionSelected)="selectReaction($event, message)"
       ></app-reaction-picker>
     </div>
   </ng-container>
@@ -84,20 +103,46 @@
             <p class="answer-time">{{ message.lastAnswerTime }}</p>
           </div>
           <div class="msg-reactions">
-            <!-- Render reactions here if needed -->
+            <ng-container
+              *ngIf="message.reactions && message.reactions.length > 0"
+            >
+              <button
+                *ngFor="let reaction of message.reactions"
+                (click)="selectReaction(reaction.reaction, message)"
+                class="reaction"
+              >
+                {{ reaction.reaction }} {{ reaction.count }}
+              </button>
+              <button class="icon-button">
+                <mat-icon
+                  (click)="toggleReactionPicker(message, $event)"
+                  fontSet="material-icons-outlined"
+                  >add_reaction</mat-icon
+                >
+              </button>
+            </ng-container>
           </div>
         </div>
       </div>
       <div class="popup-menu" [class.active]="selectedMessage === message">
-        <button>✅</button>
-        <button>👍</button>
+        <button (click)="selectReaction('✅', message)">✅</button>
+        <button (click)="selectReaction('👍', message)">👍</button>
         <button>
-          <mat-icon fontSet="material-icons-outlined">add_reaction</mat-icon>
+          <mat-icon
+            (click)="toggleReactionPicker(message, $event)"
+            fontSet="material-icons-outlined"
+            >add_reaction</mat-icon
+          >
         </button>
         <button>
           <mat-icon fontSet="material-icons-outlined">message</mat-icon>
         </button>
       </div>
+      <!-- Reaction Picker Component -->
+      <app-reaction-picker
+        *ngIf="activeReactionPickerId === message.id"
+        (reactionSelected)="selectReaction($event, message)"
+      ></app-reaction-picker>
     </div>
   </ng-template>
 </div>

@@ -9,8 +9,7 @@ import { CommonModule } from '@angular/common';
 })
 export class ReactionPickerComponent {
   @Input() pickerPosition: { top: number; left: number } = { top: 0, left: 0 };
-  @Output() emojiSelected = new EventEmitter<string>();
-  @Output() pickerClosed = new EventEmitter<void>();
+  @Output() reactionSelected = new EventEmitter<string>();
 
   emojis: string[] = [
   // Smileys & Emotion
@@ -34,8 +33,7 @@ export class ReactionPickerComponent {
 ];
 
 
-  selectReaction(emoji: string) {
-    this.emojiSelected.emit(emoji); 
+  onReactionClick(reaction: string): void {
+    this.reactionSelected.emit(reaction);
   }
-
 }
