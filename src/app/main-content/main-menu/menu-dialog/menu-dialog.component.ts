@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, Inject, inject } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { ProfilDialogComponent } from '../../../shared/profil-dialog/profil-dialog.component';
@@ -22,8 +22,13 @@ export class MenuDialogComponent {
   readonly dialog = inject(MatDialog);
 
   isProfilHovered = false;
+  isActive = true;
 
-  constructor(private router: Router, private dialogRef: MatDialogRef<MenuDialogComponent>, private authService: AuthService) { }
+  constructor(
+    private router: Router,
+    private dialogRef: MatDialogRef<MenuDialogComponent>,
+    private authService: AuthService,
+    @Inject(MAT_DIALOG_DATA) public data: { source: string }) { }
 
   openProfileDialog() {
     this.closeDialog();
@@ -35,7 +40,7 @@ export class MenuDialogComponent {
 
   logout() {
     this.authService.logout().then(() => {
-      this.router.navigate(['/']); // oder andere Zielroute
+      this.router.navigate(['/']);
     });
 
     this.closeDialog();
@@ -43,5 +48,9 @@ export class MenuDialogComponent {
 
   closeDialog() {
     this.dialogRef.close();
+  }
+
+  toggleActive(isActive: boolean): void {
+    this.isActive = isActive;
   }
 }

@@ -14,9 +14,16 @@
 .menu-dialog {
     display: flex;
     flex-direction: column;
-    gap: 24px;
-    padding: 18px 36px 32px;
+    gap: 25px;
     background: white;
+
+    &.from-main-menu {
+        padding: 30px 26px 30px 26px;
+    }
+
+    &.from-add-channel {
+        padding: 15px 20px 40px 20px;
+    }
 
     .handle {
         width: 56px;
@@ -26,7 +33,7 @@
         margin: 16px auto 0;
     }
 
-    button {
+    .btn {
         display: flex;
         align-items: center;
         gap: 16px;
@@ -34,7 +41,6 @@
         padding: 16px 24px;
         background: transparent;
         font: inherit;
-        cursor: pointer;
 
         &:first-of-type {
             width: 130px;
@@ -58,5 +64,93 @@
             background: rgba(0, 0, 0, .04);
             border-radius: 30px;
         }
+    }
+}
+
+.title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .close-button {
+        border: 0;
+        border-radius: 42px;
+        padding: 8px 8px 4px 8px;
+        background-color: white;
+
+        &:hover {
+            background-color: #D9D9D9;
+        }
+    }
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0;
+    height: 70px;
+    font-weight: 400;
+    font-size: 18px;
+
+    .check-btn-all,
+    .check-btn-people {
+        display: flex;
+        gap: 20px;
+    }
+
+    .check-btn-all {
+        .channel-name {
+            color: $purple3;
+        }
+    }
+
+    .activ {
+        cursor: default;
+    }
+
+    .not-activ {
+        cursor: pointer;
+    }
+}
+
+.radio-icon-wrapper {
+    position: relative;
+    width: 24px;
+    height: 24px;
+
+    mat-icon {
+        position: absolute;
+        top: 0;
+        left: 0;
+        font-size: 24px;
+    }
+
+    .outer {
+        color: $LightPurple;
+    }
+
+    .inner {
+        color: $purple1;
+        font-size: 12px;
+        top: 6.4px;
+        left: 5.7px;
+    }
+}
+
+.create-new-channel {
+    display: flex;
+    justify-content: end;
+
+    .create-channel-button {
+        width: 125px;
+        height: 49px;
+        background-color: $purple1;
+        border: 0;
+        border-radius: 30px;
+        font-family: 'Nunito';
+        font-size: 18px;
+        font-weight: 700;
+        color: white;
     }
 }

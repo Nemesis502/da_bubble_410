@@ -6,6 +6,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { MenuDialogComponent } from '../menu-dialog/menu-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-add-channel-dialog',
@@ -23,9 +25,20 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './add-channel-dialog.component.scss'
 })
 export class AddChannelDialogComponent {
-  document = inject(DOCUMENT);
+  readonly dialog = inject(MatDialog);
+  readonly document = inject(DOCUMENT);
 
   channelName = '';
   channelFocused = false;
   channelDescription = '';
+
+  openAddPeoplMenu(): void {
+    this.dialog.open(MenuDialogComponent, {
+      position: { bottom: '0' },
+      maxWidth: '100vw',
+      width: '100vw',
+      panelClass: 'bottom-dialog-panel',
+      data: { source: 'add-channel' }
+    });
+  }
 }

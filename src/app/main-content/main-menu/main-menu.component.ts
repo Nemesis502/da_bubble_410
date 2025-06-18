@@ -150,8 +150,8 @@ export class MainMenuComponent implements OnInit {
       position: { bottom: '0' },
       maxWidth: '100vw',
       width: '100vw',
-      height: '210px',
-      panelClass: 'bottom-dialog-panel'
+      panelClass: 'bottom-dialog-panel',
+      data: { source: 'main-menu' }
     });
   }
 
