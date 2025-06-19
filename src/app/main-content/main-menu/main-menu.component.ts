@@ -13,6 +13,7 @@ import { SearchService } from '../../shared/services/search.service';
 import { ChannelsDirectMessageService } from '../../shared/services/channels-direct-message.service';
 import { FirestoreService } from '../../shared/services/firestore.service';
 import { Router } from '@angular/router';
+import { AuthService } from '../../firebase-service/auth.service';
 
 @Component({
   selector: 'app-main-menu',
@@ -41,6 +42,9 @@ export class MainMenuComponent implements OnInit {
   showChannels = true;
   showDirectMessages = true;
 
+  currentLoginId = '';
+  currentLoginEmail = '';
+
   searchTerm = '';
   filteredChannels: any[] = [];
   filteredDirectMessages: any[] = [];
@@ -49,7 +53,18 @@ export class MainMenuComponent implements OnInit {
   users: any[] = [];
   directMessages: any[] = [];
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {
+    const navigation = this.router.getCurrentNavigation();
+    const state = navigation?.extras.state as {
+      loginEmail: string;
+      loginId: string;
+    };
+    if (state) {
+      this.currentLoginEmail = state.loginEmail ?? '';
+      this.currentLoginId = state.loginId ?? '';
+    }
+    console.log(this.currentLoginEmail, this.currentLoginId);
+  }
 
   ngOnInit(): void {
     if (!this.gastLogin) {
@@ -71,6 +86,12 @@ export class MainMenuComponent implements OnInit {
       });
     }
     this.updateFilteredResults();
+    // this.getUser(); Bis auf weiteres auskommentiert belassen, prüfen ob die vielen Informationen überhaupt benötigt werden.
+  }
+
+  async getUser() {
+    let user = await this.authService.getCurrentUser()
+    console.log(user);
   }
 
   get isSearchActive(): boolean {

@@ -80,13 +80,19 @@ export class LogingPageComponent {
     this.authService.login(email, password)
       .then((userCredential) => {
         console.log("Erfolgreich eingeloggt:", userCredential.user);
-        this.router.navigate(['main']);
+        this.router.navigate(['main'], {
+          state: {
+            loginEmail: userCredential.user.email,
+            loginId: userCredential.user.uid
+          }
+        }
+
+        );
       })
       .catch((error) => {
         console.error("Login fehlgeschlagen:", error.message);
         this.LogInError = true;
         this.updateErrorLogIn();
-        // Fehler anzeigen (z. B. falsches Passwort)
       });
   }
 
@@ -98,4 +104,5 @@ export class LogingPageComponent {
       this.errorMessagePassword = '';
     }
   }
+
 }

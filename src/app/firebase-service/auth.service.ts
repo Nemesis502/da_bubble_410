@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Auth, createUserWithEmailAndPassword, GoogleAuthProvider, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, signOut } from '@angular/fire/auth';
-import { confirmPasswordReset, updatePassword } from 'firebase/auth';
+import { confirmPasswordReset, getAuth, updatePassword } from 'firebase/auth';
 
 @Injectable({
     providedIn: 'root'
@@ -56,5 +56,16 @@ export class AuthService {
             console.error('Passwort-Zurücksetzen fehlgeschlagen:', error);
             // Fehler anzeigen, z. B. Link abgelaufen, ungültig, etc.
         }
+    }
+
+    async getCurrentUser() {
+        const auth = getAuth();
+        const user = auth.currentUser;
+        if (user) {
+            return user
+        } else {
+            return console.error('No User found')
+        }
+
     }
 }
