@@ -20,7 +20,7 @@
     </button>
   </section>
   <section class="chat-body">
-    <app-message-template></app-message-template>
+    <app-message-template [messages]="messages" [currentUser]="currentUser"></app-message-template>
   </section>
   <section class="chat-interface">
     <mat-card class="chat-card" appearance="outlined">

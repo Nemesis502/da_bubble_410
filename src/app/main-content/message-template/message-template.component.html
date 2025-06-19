@@ -4,7 +4,7 @@
     <div class="msg-own">
       <div class="msg-header">
         <span></span>
-        <p>{{ message.date }}</p>
+        <p>{{ message.formattedTime }}</p>
       </div>
       <div
         [ngClass]="{ 'msg-own-active': selectedMessage === message }"
@@ -16,7 +16,7 @@
         <div class="msg-own-main">
           <div class="msg-own-info">
             <button class="chatter-name nuito18px700">
-              {{ message.name }}
+              {{ message.senderID }}
             </button>
             <p class="msg-time">{{ message.time }}</p>
           </div>
@@ -105,7 +105,7 @@
     <div class="msg">
       <div class="msg-header">
         <span></span>
-        <p>{{ message.date }}</p>
+        <p>{{ message.formattedTime }}</p>
       </div>
       <div
         [ngClass]="{ 'msg-active': selectedMessage === message }"
@@ -117,7 +117,7 @@
         <div class="msg-main">
           <div class="msg-info">
             <button class="chatter-name nuito18px700">
-              {{ message.name }}
+              {{ message.senderID }}
             </button>
             <p class="msg-time">{{ message.time }}</p>
           </div>
@@ -145,9 +145,9 @@
                 {{ reaction.reaction }} {{ reaction.count }}
                 <!-- Hover Popup -->
                 <div class="reaction-popup">
-                <p>{{ reaction.reaction }}</p>
-                <p>hat reagiert</p>
-                <p></p>
+                  <p>{{ reaction.reaction }}</p>
+                  <p>hat reagiert</p>
+                  <p></p>
                 </div>
               </button>
 

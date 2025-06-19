@@ -5,6 +5,9 @@ import {
   HostListener,
   OnDestroy,
   ViewChild,
+  Input, 
+    OnChanges,
+  SimpleChanges
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,48 +20,49 @@ import { ReactionPickerComponent } from '../../reaction-picker/reaction-picker.c
   templateUrl: './message-template.component.html',
   styleUrl: './message-template.component.scss',
 })
-export class MessageTemplateComponent implements OnDestroy {
+export class MessageTemplateComponent implements OnDestroy, OnChanges {
    @ViewChild('reactionPicker', { read: ElementRef }) reactionPicker: ElementRef | null = null;
-  messages = [
-    {
-      id: 'user1',
-      name: 'Example Name',
-      time: '12:00 Uhr',
-      text: 'I created this channel for you!',
-      date: 'Example, Date',
-      avatar: './assets/img/avatar/1.png',
-      answersCount: 2,
-      lastAnswerTime: '12:05 Uhr',
-          reactions: [
-      { reaction: '👍', count: 1, reactors: ['user1']},
-      { reaction: '❤️', count: 2, reactors: ['user2', 'user1'] },
-    ],
-    },
-    {
-      id: 'user2',
-      name: 'Example Name',
-      time: '12:05 Uhr',
-      text: 'Hi! Thanks for creating a Channel for us!',
-      date: 'Example, Date',
-      avatar: './assets/img/avatar/3.png',
-      answersCount: 0,
-      lastAnswerTime: '12:10 Uhr',
-      reactions: [],
-    },
-    {
-      id: 'user3',
-      name: 'Example Name',
-      time: '12:10 Uhr',
-      text: 'Thank you!',
-      date: 'Example, Date',
-      avatar: './assets/img/avatar/2.png',
-      answersCount: 2,
-      lastAnswerTime: '12:15 Uhr',
-      reactions: [],
-    },
-  ];
+  @Input() messages: any[] = [];
+  @Input() currentUser: string = '';
+  // messages = [
+  //   {
+  //     id: 'user1',
+  //     name: 'Example Name',
+  //     time: '12:00 Uhr',
+  //     text: 'I created this channel for you!',
+  //     date: 'Example, Date',
+  //     avatar: './assets/img/avatar/1.png',
+  //     answersCount: 2,
+  //     lastAnswerTime: '12:05 Uhr',
+  //         reactions: [
+  //     { reaction: '👍', count: 1, reactors: ['user1']},
+  //     { reaction: '❤️', count: 2, reactors: ['user2', 'user1'] },
+  //   ],
+  //   },
+  //   {
+  //     id: 'user2',
+  //     name: 'Example Name',
+  //     time: '12:05 Uhr',
+  //     text: 'Hi! Thanks for creating a Channel for us!',
+  //     date: 'Example, Date',
+  //     avatar: './assets/img/avatar/3.png',
+  //     answersCount: 0,
+  //     lastAnswerTime: '12:10 Uhr',
+  //     reactions: [],
+  //   },
+  //   {
+  //     id: 'user3',
+  //     name: 'Example Name',
+  //     time: '12:10 Uhr',
+  //     text: 'Thank you!',
+  //     date: 'Example, Date',
+  //     avatar: './assets/img/avatar/2.png',
+  //     answersCount: 2,
+  //     lastAnswerTime: '12:15 Uhr',
+  //     reactions: [],
+  //   },
+  // ];
 
-  currentUser: string = 'user2';
   selectedMessage: any = null;
   activeReactionPickerId: string | null = null;
   private clickListener: (() => void) | null = null;
@@ -70,6 +74,12 @@ export class MessageTemplateComponent implements OnDestroy {
       'click',
       (event: MouseEvent) => this.handleDocumentClick(event)
     );
+  }
+
+    ngOnChanges(changes: SimpleChanges): void {
+    if (changes['messages']) {
+      console.log('Updated messages:', this.messages);
+    }
   }
 
   toggleReactions(message: any): void {
