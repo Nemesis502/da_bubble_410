@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Renderer2 } from '@angular/core';
+import { Component, inject, Renderer2 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,9 +7,11 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { merge } from 'rxjs';
 import { confirmPasswordValidator } from '../../../shared/services/confirm-password.validator';
+import { Auth } from '@angular/fire/auth';
+import { AuthService } from '../../../firebase-service/auth.service';
 
 @Component({
   selector: 'app-new-password',
@@ -27,47 +29,28 @@ export class NewPasswordComponent {
     password: new FormControl<string>('', [Validators.required, Validators.pattern(this.strongPasswordRegx)]),
     passwordContoll: new FormControl<string>('', [Validators.required]),
   },
-  { validators: confirmPasswordValidator }
+    { validators: confirmPasswordValidator }
   );
-  // password = new FormControl('', [Validators.required, Validators.pattern(this.strongPasswordRegx)]);
-  // passwordContoll = new FormControl('', [Validators.required]);;
+  private route = inject(ActivatedRoute);
+  oobCode: string | null = null;
   errorMessagePassword = '';
   animation = false;
   hide = true;
 
-  constructor(private renderer: Renderer2, private router: Router) {
-    // merge(this.password.statusChanges, this.password.valueChanges)
-    //   .pipe(takeUntilDestroyed())
-    //   .subscribe(() => this.updateErrorMessagePassword());
-    // merge(this.passwordContoll.statusChanges, this.passwordContoll.valueChanges)
-    //   .pipe(takeUntilDestroyed())
-    //   .subscribe(() => this.updateErrorMessagePassword());
+  constructor(private renderer: Renderer2, private router: Router, private authService: AuthService) {
+    this.route.queryParamMap.subscribe(params => {
+      this.oobCode = params.get('oobCode');
+    });
   }
 
-  // updateErrorMessagePassword() {
-  //   if (this.password.hasError('required')) {
-  //     this.errorMessagePassword = 'Bitte geben Sie ein Passwort ein';
-  //   } else if (this.password.hasError('pattern')) {
-  //     this.errorMessagePassword = 'Passwort muss mindestens 8 Zeichen lang sein, eine Zahl, ein Groß- und Kleinbuchstaben enthalten';
-  //   }
-  //   else {
-  //     this.errorMessagePassword = '';
-  //   }
-  // }
-
-  // updateErrorMessagePasswordControll() {
-  //   if (this.password.hasError('required')) {
-  //     this.errorMessagePassword = 'Bitte geben Sie ein Passwort ein';
-  //   } else if (this.password.hasError('pattern')) {
-  //     this.errorMessagePassword = 'Passwort muss mindestens 8 Zeichen lang sein, eine Zahl, ein Groß- und Kleinbuchstaben enthalten';
-  //   }
-  //   else {
-  //     this.errorMessagePassword = '';
-  //   }
-  // }
-
-  checkFormular() {
-
+  async sendNewPassword() {
+    if (!this.oobCode) {
+      console.error('oobCode fehlt.');
+      return;
+    }
+    let newPassword = this.passwordForm.value.password;
+    await this.authService.setNewPassword(this.oobCode, newPassword);
+    this.successfullAnimation();
   }
 
   successfullAnimation() {
