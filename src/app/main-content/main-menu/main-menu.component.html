@@ -84,7 +84,7 @@
                     }
                     } @else {
                     @for (channel of channels; track channel.id) {
-                    <div class="channel-item">
+                    <div class="channel-item" (click)="selectChannel(channel)">
                         <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
                         <p class="nuito17px400">{{ channel.name }}</p>
                     </div>

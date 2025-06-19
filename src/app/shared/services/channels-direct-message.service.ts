@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { BehaviorSubject } from 'rxjs';
 
 export interface DirectMessage {
   name: string;
@@ -40,6 +41,18 @@ export class ChannelsDirectMessageService {
     img: '4.png',
     status: 'online'
   }];
+
+    private selectedChannelSource = new BehaviorSubject<any>(null);
+  selectedChannel$ = this.selectedChannelSource.asObservable();
+
+  setSelectedChannel(channel: any): void {
+    console.log(channel)
+    this.selectedChannelSource.next(channel);
+  }
+
+  getSelectedChannel(): any {
+    return this.selectedChannelSource.value;
+  }
 
   getChannels(): string[] {
     return this.channels;

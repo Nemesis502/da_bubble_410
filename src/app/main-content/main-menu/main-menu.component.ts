@@ -25,10 +25,10 @@ import { Router } from '@angular/router';
     MatFormFieldModule,
     MatIconModule,
     MatSelectModule,
-    MatDividerModule
+    MatDividerModule,
   ],
   templateUrl: './main-menu.component.html',
-  styleUrl: './main-menu.component.scss'
+  styleUrl: './main-menu.component.scss',
 })
 export class MainMenuComponent implements OnInit {
   readonly dialog = inject(MatDialog);
@@ -49,28 +49,25 @@ export class MainMenuComponent implements OnInit {
   users: any[] = [];
   directMessages: any[] = [];
 
-  constructor(private router: Router) { }
+  constructor(private router: Router) {}
 
   ngOnInit(): void {
     if (!this.gastLogin) {
-      this.firestoreService.getChannels().subscribe(c => {
+      this.firestoreService.getChannels().subscribe((c) => {
         this.channels = c;
         this.searchService.setFirestoreChannels(c);
         console.log('Channels', this.channels);
-
       });
 
-      this.firestoreService.getUsers().subscribe(u => {
+      this.firestoreService.getUsers().subscribe((u) => {
         this.users = u;
         this.searchService.setFirestoreUsers(u);
         console.log('Users', this.users);
-
       });
 
-      this.firestoreService.getConversations().subscribe(conv => {
+      this.firestoreService.getConversations().subscribe((conv) => {
         this.directMessages = conv;
         console.log('Direktnachrichten', this.directMessages);
-
       });
     }
     this.updateFilteredResults();
@@ -94,49 +91,57 @@ export class MainMenuComponent implements OnInit {
     }
   }
 
-  private filterAsGuest(query: string, isChannel: boolean, isDirect: boolean): void {
+  private filterAsGuest(
+    query: string,
+    isChannel: boolean,
+    isDirect: boolean
+  ): void {
     if (isChannel) {
       this.filteredChannels = this.channelDirectMessageData
         .getChannels()
-        .filter(c => c.toLowerCase().startsWith(query));
+        .filter((c) => c.toLowerCase().startsWith(query));
       this.filteredDirectMessages = [];
     } else if (isDirect) {
       this.filteredDirectMessages = this.channelDirectMessageData
         .getDirectMessages()
-        .filter(dm => dm.name.toLowerCase().startsWith(query));
+        .filter((dm) => dm.name.toLowerCase().startsWith(query));
       this.filteredChannels = [];
     } else {
       this.filteredChannels = this.channelDirectMessageData
         .getChannels()
-        .filter(c => c.toLowerCase().startsWith(query));
+        .filter((c) => c.toLowerCase().startsWith(query));
 
       this.filteredDirectMessages = this.channelDirectMessageData
         .getDirectMessages()
-        .filter(dm => dm.name.toLowerCase().startsWith(query));
+        .filter((dm) => dm.name.toLowerCase().startsWith(query));
     }
   }
 
-  private filterAsUser(query: string, isChannel: boolean, isDirect: boolean): void {
+  private filterAsUser(
+    query: string,
+    isChannel: boolean,
+    isDirect: boolean
+  ): void {
     if (isChannel) {
       this.filteredChannels = this.searchService
         .filterFirestoreChannels(query)
-        .map(c => c.name)
-        .filter(c => c.toLowerCase().startsWith(query));
+        .map((c) => c.name)
+        .filter((c) => c.toLowerCase().startsWith(query));
       this.filteredDirectMessages = [];
     } else if (isDirect) {
       this.filteredDirectMessages = this.searchService
         .filterFirestoreDirectMessages(query)
-        .filter(u => u.userName.toLowerCase().startsWith(query));
+        .filter((u) => u.userName.toLowerCase().startsWith(query));
       this.filteredChannels = [];
     } else {
       this.filteredChannels = this.searchService
         .filterFirestoreChannels(query)
-        .map(c => c.name)
-        .filter(c => c.toLowerCase().startsWith(query));
+        .map((c) => c.name)
+        .filter((c) => c.toLowerCase().startsWith(query));
 
       this.filteredDirectMessages = this.searchService
         .filterFirestoreDirectMessages(query)
-        .filter(u => u.userName.toLowerCase().startsWith(query));
+        .filter((u) => u.userName.toLowerCase().startsWith(query));
     }
   }
 
@@ -151,11 +156,16 @@ export class MainMenuComponent implements OnInit {
       maxWidth: '100vw',
       width: '100vw',
       panelClass: 'bottom-dialog-panel',
-      data: { source: 'main-menu' }
+      data: { source: 'main-menu' },
     });
   }
 
   addChannel() {
     this.router.navigate(['/addChannelDialog']);
+  }
+
+  selectChannel(channel: any): void {
+    this.channelDirectMessageData.setSelectedChannel(channel);
+    this.router.navigate(['/chat']);
   }
 }

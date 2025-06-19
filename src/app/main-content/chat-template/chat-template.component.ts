@@ -1,4 +1,5 @@
-import { Component, ElementRef, HostListener } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
+import { ChannelsDirectMessageService } from '../../shared/services/channels-direct-message.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { Router } from '@angular/router';
@@ -22,12 +23,28 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './chat-template.component.html',
   styleUrl: './chat-template.component.scss',
 })
-export class ChatTemplateComponent {
+export class ChatTemplateComponent implements OnInit  {
+   selectedChannel: any = null;
   chatMessage: string = '';
   emojiPickerVisible: boolean = false;
   pickerPosition: { top: number; left: number } = { top: 0, left: 0 };
 
-  constructor(private router: Router, private elementRef: ElementRef) {}
+  constructor(private router: Router, private elementRef: ElementRef, private channelService: ChannelsDirectMessageService) {}
+
+ ngOnInit(): void {
+    this.channelService.selectedChannel$.subscribe(channel => {
+      this.selectedChannel = channel;
+      console.log(channel)
+      if (channel) {
+        this.loadMessagesForChannel(channel);
+      }
+    });
+  }
+
+    loadMessagesForChannel(channel: any): void {
+    // Fetch messages for the selected channel from Firestore or the service.
+    console.log('Load messages for channel:', channel);
+  }
 
   navigateToMain() {
     this.router.navigate(['/main']);
