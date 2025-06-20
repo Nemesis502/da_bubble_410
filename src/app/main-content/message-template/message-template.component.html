@@ -1,6 +1,6 @@
 <div *ngFor="let message of messages" (click)="onMessageClick(message, $event)">
   <!-- Own Message -->
-  <ng-container *ngIf="message.id === currentUser; else otherMessage">
+  <ng-container *ngIf="message.senderID === currentUser; else otherMessage">
     <div class="msg-own">
       <div class="msg-header">
         <span></span>
@@ -11,12 +11,12 @@
         class="msg-own-body"
       >
         <div class="msg-avatar">
-          <img [src]="message.avatar" alt="" />
+          <img src="./../../../assets/img/avatar/{{ message.avatar }}.png" alt="" />
         </div>
         <div class="msg-own-main">
           <div class="msg-own-info">
             <button class="chatter-name nuito18px700">
-              {{ message.senderID }}
+              {{ message.username }}
             </button>
             <p class="msg-time">{{ message.time }}</p>
           </div>
@@ -112,12 +112,12 @@
         class="msg-body"
       >
         <div class="msg-avatar">
-          <img [src]="message.avatar" alt="" />
+          <img src="./../../../assets/img/avatar/{{ message.avatar }}.png" alt="" />
         </div>
         <div class="msg-main">
           <div class="msg-info">
             <button class="chatter-name nuito18px700">
-              {{ message.senderID }}
+              {{ message.username }}
             </button>
             <p class="msg-time">{{ message.time }}</p>
           </div>

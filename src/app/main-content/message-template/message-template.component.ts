@@ -23,7 +23,7 @@ import { ReactionPickerComponent } from '../../reaction-picker/reaction-picker.c
 export class MessageTemplateComponent implements OnDestroy, OnChanges {
    @ViewChild('reactionPicker', { read: ElementRef }) reactionPicker: ElementRef | null = null;
   @Input() messages: any[] = [];
-  @Input() currentUser: string = '';
+  @Input() currentUser: string = 'w7dUBSUFSqZAtEy0GtxG';
   // messages = [
   //   {
   //     id: 'user1',

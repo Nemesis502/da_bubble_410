@@ -29,7 +29,7 @@ export class ChatTemplateComponent implements OnInit {
   emojiPickerVisible: boolean = false;
   pickerPosition: { top: number; left: number } = { top: 0, left: 0 };
   messages: any[] = [];
-  currentUser = 'user2';
+  currentUser = 'w7dUBSUFSqZAtEy0GtxG';
 
   constructor(
     private router: Router,
@@ -50,29 +50,16 @@ export class ChatTemplateComponent implements OnInit {
 
 loadMessagesForChannel(channel: any): void {
   if (channel && channel.id) {
-    this.channelService.getMessages(channel.id).subscribe(
+    this.channelService.getEnrichedMessages(channel.id).subscribe(
       (messages) => {
-        console.log('Fetched messages:', messages);
-
-        this.messages = messages.map(message => ({
-          ...message,
-          formattedTime: this.formatTimestamp(message.timestamp)
-        }));
+        console.log('Enriched messages:', messages);
+        this.messages = messages; 
       },
       (error) => {
-        console.error('Error fetching messages:', error);
+        console.error('Error loading enriched messages:', error);
       }
     );
   }
-}
-
-
-formatTimestamp(timestamp: { seconds: number, nanoseconds: number }): string {
-  const date = new Date(timestamp.seconds * 1000);
-  return date.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
 }
 
   navigateToMain() {
