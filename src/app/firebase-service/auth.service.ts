@@ -59,14 +59,4 @@ export class AuthService {
         }
     }
 
-    async getCurrentUser() {
-        const auth = getAuth();
-        const user = auth.currentUser;
-        if (user) {
-            return user
-        } else {
-            return console.error('No User found')
-        }
-
-    }
 }

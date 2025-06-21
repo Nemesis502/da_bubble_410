@@ -14,6 +14,9 @@ import { ChannelsDirectMessageService } from '../../shared/services/channels-dir
 import { FirestoreService } from '../../shared/services/firestore.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../firebase-service/auth.service';
+import { UserService } from '../../firebase-service/user.services';
+import { User } from '../../interfaces/user.interface';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-main-menu',
@@ -51,9 +54,10 @@ export class MainMenuComponent implements OnInit {
 
   channels: any[] = [];
   users: any[] = [];
+  currentUser: User | null = null;
   directMessages: any[] = [];
 
-  constructor(private router: Router, private authService: AuthService) {
+  constructor(private router: Router, private authService: AuthService, private userService: UserService) {
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras.state as {
       loginEmail: string;
@@ -63,12 +67,12 @@ export class MainMenuComponent implements OnInit {
       this.currentLoginEmail = state.loginEmail ?? '';
       this.currentLoginId = state.loginId ?? '';
     }
-    console.log(this.currentLoginEmail, this.currentLoginId);
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     if (!this.gastLogin && this.currentLoginId) {
-      this.getCurrentUserLogIn()
+      await this.getCurrentUserLogIn()
+      console.log('current User', this.currentUser);
     }
     if (!this.gastLogin) {
       this.firestoreService.getChannels().subscribe((c) => {
@@ -89,18 +93,11 @@ export class MainMenuComponent implements OnInit {
       });
     }
     this.updateFilteredResults();
-    // this.getUser(); Bis auf weiteres auskommentiert belassen, prüfen ob die vielen Informationen überhaupt benötigt werden.
   }
 
-  async getUser() {
-    let user = await this.authService.getCurrentUser()
-    console.log(user);
-  }
-
-  getCurrentUserLogIn() {
-    this.firestoreService.getUserById(this.currentLoginId).subscribe(user => {
-      console.log('Angemeldeter Nutzer-Datensatz:', user);
-    });
+  async getCurrentUserLogIn() {
+    let userData = await firstValueFrom(this.firestoreService.getUserById(this.currentLoginId));
+    this.currentUser = this.userService.setUserObject(userData, userData?.id);
   }
 
   get isSearchActive(): boolean {

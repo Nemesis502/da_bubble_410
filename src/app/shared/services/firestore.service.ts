@@ -9,8 +9,6 @@ export class FirestoreService {
 
   getUserById(uid: string) {
     const userDoc = doc(this.firestore, 'users', uid);
-    console.log('UserDoc', userDoc);
-
     return docData(userDoc, { idField: 'id' });
   }
 

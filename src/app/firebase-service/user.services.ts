@@ -30,7 +30,7 @@ export class UserService {
     }
 
     async addUser(uid: string, userData: User) {
-        const userDocRef = doc(this.firestore, 'users', uid); // UID wird zur Dokumenten-ID
+        const userDocRef = doc(this.firestore, 'users', uid);
         await setDoc(userDocRef, userData)
             .then(() => console.log('Benutzer erfolgreich mit UID als ID gespeichert'))
             .catch((err) => console.error('Fehler beim Speichern des Benutzers:', err));
@@ -44,7 +44,7 @@ export class UserService {
         return {
             id: id || "",
             userName: obj.userName || "",
-            profilePic: obj.imgId || 0,
+            profilePic: obj.profilePic || 0,
             status: obj.status || false,
             email: obj.email || "",
         }
