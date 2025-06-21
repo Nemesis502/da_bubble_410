@@ -9,7 +9,8 @@ export class AuthService {
     private auth: Auth = inject(Auth);
 
     async registerUser(email: string, password: string) {
-        await createUserWithEmailAndPassword(this.auth, email, password);
+        let cred = await createUserWithEmailAndPassword(this.auth, email, password);
+        return cred.user.uid;
     }
 
     login(email: string, password: string) {

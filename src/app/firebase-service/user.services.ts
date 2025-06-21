@@ -1,6 +1,7 @@
 import { inject, Injectable } from "@angular/core";
 import { addDoc, collection, Firestore, onSnapshot } from "@angular/fire/firestore";
 import { User } from "../interfaces/user.interface";
+import { doc, setDoc } from "firebase/firestore";
 
 @Injectable({
     providedIn: 'root'
@@ -28,12 +29,11 @@ export class UserService {
         })
     }
 
-    async addUser(item: User) {
-        await addDoc(this.getUserRef(), item).catch(
-            (err: any) => { console.error(err) }
-        ).then(
-            (docRef: any) => { console.log("Document written with ID: ", docRef?.id) }
-        )
+    async addUser(uid: string, userData: User) {
+        const userDocRef = doc(this.firestore, 'users', uid); // UID wird zur Dokumenten-ID
+        await setDoc(userDocRef, userData)
+            .then(() => console.log('Benutzer erfolgreich mit UID als ID gespeichert'))
+            .catch((err) => console.error('Fehler beim Speichern des Benutzers:', err));
     }
 
     getUserRef() {

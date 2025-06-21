@@ -67,14 +67,15 @@ export class ChooseAvatarPageComponent {
   }
 
   async sendNewProfil() {
+    let uid = await this.authService.registerUser(this.userEmail, this.userPassword);
     let newUser: User = {
       userName: this.userName,
       profilePic: this.imgId,
       status: false,
       email: this.userEmail
     }
-    await this.authService.registerUser(this.userEmail, this.userPassword);
-    this.userService.addUser(newUser);
+
+    this.userService.addUser(uid, newUser);
     this.returnToStart();
   }
 

@@ -67,6 +67,9 @@ export class MainMenuComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (!this.gastLogin && this.currentLoginId) {
+      this.getCurrentUserLogIn()
+    }
     if (!this.gastLogin) {
       this.firestoreService.getChannels().subscribe((c) => {
         this.channels = c;
@@ -92,6 +95,12 @@ export class MainMenuComponent implements OnInit {
   async getUser() {
     let user = await this.authService.getCurrentUser()
     console.log(user);
+  }
+
+  getCurrentUserLogIn() {
+    this.firestoreService.getUserById(this.currentLoginId).subscribe(user => {
+      console.log('Angemeldeter Nutzer-Datensatz:', user);
+    });
   }
 
   get isSearchActive(): boolean {
