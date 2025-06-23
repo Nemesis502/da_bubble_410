@@ -10,8 +10,10 @@ import {
   collectionData
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
-import { from } from 'rxjs';
+import { combineLatest, from, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
+import { Message } from '../../interfaces/message.interface';
+import { Reactions } from '../../interfaces/reactions.interface';
 
 
 
@@ -86,31 +88,66 @@ getMessages(channelId: string): Observable<any[]> {
   return collectionData(messagesSubcollection, { idField: 'id' }); 
 }
 
-getEnrichedMessages(channelId: string): Observable<any[]> {
-  return this.getMessages(channelId).pipe(
-    switchMap((messages) => {
-      const enrichedMessages$ = messages.map((message) =>
-        this.getUserDetails(message.senderID).then((userDetails) => ({
-          ...message,
-          formattedTime: this.formatTimestamp(message.timestamp),
-          username: userDetails?.userName || 'Unknown User',
-          avatar: userDetails?.profilePic || 'default-avatar.png',
-        }))
-      );
-
-      return from(Promise.all(enrichedMessages$));
+getReactionsForMessage(channelId: string, messageId: string): Observable<any[]> {
+  const reactionsCollection = collection(this.firestore, `channels/${channelId}/messages/${messageId}/reactions`);
+  return collectionData(reactionsCollection, { idField: 'reactionID' }).pipe(
+    map((reactions) => {
+      return reactions;
+    }),
+    catchError((error) => {
+      return of([]);
     })
   );
 }
 
-private getUserDetails(senderID: string): Promise<any> {
+
+getEnrichedMessages(channelId: string): Observable<any[]> {
+  return this.getMessages(channelId).pipe(
+    switchMap((messages) => {
+      if (!messages.length) {
+        return of([]);
+      }
+
+      const enrichedMessagesObservables = messages.map((message) => {
+        const userDetails$ = this.getUserDetails(message.senderID).pipe(
+          catchError((err) => {
+            console.error('Error loading user details', err);
+            return of(null);
+          })
+        );
+
+        const reactions$ = this.getReactionsForMessage(channelId, message.id).pipe(
+          catchError((err) => {
+            console.error('Error loading reactions', err);
+            return of([]);
+          })
+        );
+
+        return combineLatest([userDetails$, reactions$]).pipe(
+          map(([userDetails, reactions]) => ({
+            ...message,
+            formattedTime: this.formatTimestamp(message.timestamp),
+            username: userDetails?.userName || 'Unknown User',
+            avatar: userDetails?.profilePic || 'default-avatar.png',
+            reactions: reactions || [],
+          }))
+        );
+      });
+
+      return combineLatest(enrichedMessagesObservables);
+    })
+  );
+}
+
+private getUserDetails(senderID: string): Observable<any> {
   const userDocRef = doc(this.firestore, 'users', senderID);
-  return getDoc(userDocRef)
-    .then((docSnapshot) => (docSnapshot.exists() ? docSnapshot.data() : null))
-    .catch((error) => {
+  return from(getDoc(userDocRef)).pipe(
+    map(docSnapshot => (docSnapshot.exists() ? docSnapshot.data() : null)),
+    catchError(error => {
       console.error(`Error fetching user data for ${senderID}:`, error);
-      return null;
-    });
+      return of(null);
+    })
+  );
 }
 
   private formatTimestamp(timestamp: any): string {

@@ -1,4 +1,10 @@
-import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { ChannelsDirectMessageService } from '../../shared/services/channels-direct-message.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -8,6 +14,11 @@ import { MessageTemplateComponent } from '../message-template/message-template.c
 import { EmojiPickerComponent } from '../emoji-picker/emoji-picker.component';
 import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
+
+interface PickerPosition {
+  top: number;
+  left: number;
+}
 
 @Component({
   selector: 'app-chat-template',
@@ -24,12 +35,13 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './chat-template.component.scss',
 })
 export class ChatTemplateComponent implements OnInit {
+  @ViewChild('chatField') chatField!: ElementRef<HTMLTextAreaElement>;
   selectedChannel: any = null;
   chatMessage: string = '';
   emojiPickerVisible: boolean = false;
-  pickerPosition: { top: number; left: number } = { top: 0, left: 0 };
+  pickerPosition: PickerPosition = { top: 0, left: 0 };
   messages: any[] = [];
-  currentUser = 'w7dUBSUFSqZAtEy0GtxG';
+  currentUser: string = 'w7dUBSUFSqZAtEy0GtxG';
 
   constructor(
     private router: Router,
@@ -49,26 +61,25 @@ export class ChatTemplateComponent implements OnInit {
   }
 
 loadMessagesForChannel(channel: any): void {
-  if (channel && channel.id) {
-    this.channelService.getEnrichedMessages(channel.id).subscribe(
-      (messages) => {
-        console.log('Enriched messages:', messages);
-        this.messages = messages; 
+  if (channel?.id) {
+    this.channelService.getEnrichedMessages(channel.id).subscribe({
+      next: (messages) => {
+        this.messages = messages;
       },
-      (error) => {
-        console.error('Error loading enriched messages:', error);
-      }
-    );
+      error: (error) => {
+        console.error('Error loading enriched messages with reactions:', error);
+      },
+    });
   }
 }
 
-  navigateToMain() {
+
+  navigateToMain(): void {
     this.router.navigate(['/main']);
   }
 
-  toggleEmojiPicker(event: MouseEvent) {
+  toggleEmojiPicker(event: MouseEvent): void {
     event.stopPropagation();
-
     this.emojiPickerVisible = !this.emojiPickerVisible;
 
     if (this.emojiPickerVisible) {
@@ -80,14 +91,13 @@ loadMessagesForChannel(channel: any): void {
     }
   }
 
-  addEmoji(emoji: string) {
-    const textarea: HTMLTextAreaElement | null =
-      document.querySelector('#chat-field');
-    if (textarea) {
+  addEmoji(emoji: string): void {
+    if (this.chatField) {
+      const textarea = this.chatField.nativeElement;
       const cursorPos = textarea.selectionStart;
       const textBefore = this.chatMessage.slice(0, cursorPos);
       const textAfter = this.chatMessage.slice(cursorPos);
-      this.chatMessage = textBefore + emoji + textAfter;
+      this.chatMessage = `${textBefore}${emoji}${textAfter}`;
       textarea.focus();
       setTimeout(() => {
         textarea.setSelectionRange(
@@ -98,7 +108,7 @@ loadMessagesForChannel(channel: any): void {
     }
   }
 
-  sendMessage() {
+  sendMessage(): void {
     console.log('Message sent:', this.chatMessage);
     this.chatMessage = '';
   }
@@ -114,6 +124,7 @@ loadMessagesForChannel(channel: any): void {
     if (
       pickerElement &&
       !pickerElement.contains(event.target as Node) &&
+      buttonElement &&
       !buttonElement.contains(event.target as Node)
     ) {
       this.emojiPickerVisible = false;
