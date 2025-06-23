@@ -12,7 +12,8 @@
         <mat-icon fontIcon="logout" aria-hidden="true"></mat-icon>
         <span>Ausloggen</span>
     </button>
-    } @else if (data.source === 'add-channel') {
+    }
+    @else if (data.source === 'add-channel') {
     <mat-card-title class="title">
         <span class="nuito24px700">Leute hinzufügen</span>
         <button mat-icon-button class="close-button" aria-label="Menü zum Leute hinzufügen schließen"
@@ -41,8 +42,44 @@
             <span>Bestimmte Leute hinzufügen</span>
         </div>
     </mat-card-content>
+    @if (!isActive) {
+    <mat-form-field class="add-people-input" appearance="fill">
+        <mat-chip-grid #chipGrid aria-label="Leute hinzufügen">
+            @for (people of peoples(); track people) {
+            <mat-chip-row (removed)="remove(people)" [editable]="true" (edited)="edit(people, $event)">
+                <img class="chip-avatar" [src]="'./assets/img/avatar/' + people.profilePic + '.png'" alt="Avatar" />
+                {{ people.userName }}
+                <button matChipRemove [attr.aria-label]="'remove ' + people.userName">
+                    <mat-icon fontIcon="close"></mat-icon>
+                </button>
+            </mat-chip-row>
+            }
+            <input #inputField placeholder="Name eingeben" [matChipInputFor]="chipGrid"
+                [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="false"
+                (matChipInputTokenEnd)="addFromText($event)" (blur)="onInputBlur()" [(ngModel)]="searchTerm"
+                (ngModelChange)="filterUsers()" [matAutocomplete]="auto" matAutocompletePosition="below" />
+        </mat-chip-grid>
+        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectUser($event.option.value)"
+            (opened)="autocompleteOpened()" (closed)="autocompleteClosed()">
+            @if (searchTerm.length > 0) {
+            @for (user of filteredUsers(); track user.userName) {
+            <mat-option [value]="user">
+                <div class="chip-avatar-wrapper">
+                    <img [src]="'./assets/img/avatar/' + user.profilePic + '.png'"
+                        alt="Avatar von {{ user.userName }}" />
+                    <mat-icon fontIcon="lens" [ngClass]="user.status ? 'online' : 'offline'"
+                        class="status-icon"></mat-icon>
+                </div>
+                {{ user.userName }}
+            </mat-option>
+            }
+            }
+        </mat-autocomplete>
+    </mat-form-field>
+    }
     <mat-card-actions class="create-new-channel">
-        <button mat-button class="create-channel-button" aria-label="Channel erstellen">
+        <button mat-button class="create-channel-button" aria-label="Channel erstellen"
+            [disabled]="peoples().length === 0 && !isActive">
             <span>Erstellen</span>
         </button>
     </mat-card-actions>
