@@ -15,8 +15,9 @@ import { FirestoreService } from '../../shared/services/firestore.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../firebase-service/auth.service';
 import { UserService } from '../../firebase-service/user.services';
-import { User } from '../../interfaces/user.interface';
+import { appUser } from '../../interfaces/user.interface';
 import { firstValueFrom } from 'rxjs';
+import { SessionService } from '../../shared/services/currentUserSession.service';
 
 @Component({
   selector: 'app-main-menu',
@@ -54,10 +55,10 @@ export class MainMenuComponent implements OnInit {
 
   channels: any[] = [];
   users: any[] = [];
-  currentUser: User | null = null;
+  currentUser: appUser | null = null;
   directMessages: any[] = [];
 
-  constructor(private router: Router, private authService: AuthService, private userService: UserService) {
+  constructor(private router: Router, private authService: AuthService, private userService: UserService, private userSession: SessionService) {
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras.state as {
       loginEmail: string;
@@ -67,6 +68,7 @@ export class MainMenuComponent implements OnInit {
       this.currentLoginEmail = state.loginEmail ?? '';
       this.currentLoginId = state.loginId ?? '';
     }
+
   }
 
   async ngOnInit(): Promise<void> {
@@ -96,8 +98,10 @@ export class MainMenuComponent implements OnInit {
   }
 
   async getCurrentUserLogIn() {
+    this.userService.updateUserStatusTrue(this.currentLoginId);
     let userData = await firstValueFrom(this.firestoreService.getUserById(this.currentLoginId));
     this.currentUser = this.userService.setUserObject(userData, userData?.id);
+    this.userSession.setCurrentUser(this.currentUser);
   }
 
   get isSearchActive(): boolean {
@@ -183,7 +187,9 @@ export class MainMenuComponent implements OnInit {
       maxWidth: '100vw',
       width: '100vw',
       panelClass: 'bottom-dialog-panel',
-      data: { source: 'main-menu' },
+      data: {
+        source: 'main-menu',
+      },
     });
   }
 

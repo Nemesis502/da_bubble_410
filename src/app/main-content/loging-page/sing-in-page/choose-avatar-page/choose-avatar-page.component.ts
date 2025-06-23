@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
-import { User } from '../../../../interfaces/user.interface';
+import { appUser } from '../../../../interfaces/user.interface';
 import { UserService } from '../../../../firebase-service/user.services';
 import { AuthService } from '../../../../firebase-service/auth.service';
 
@@ -68,7 +68,7 @@ export class ChooseAvatarPageComponent {
 
   async sendNewProfil() {
     let uid = await this.authService.registerUser(this.userEmail, this.userPassword);
-    let newUser: User = {
+    let newUser: appUser = {
       userName: this.userName,
       profilePic: this.imgId,
       status: false,

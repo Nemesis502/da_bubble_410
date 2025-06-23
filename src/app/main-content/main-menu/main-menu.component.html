@@ -1,138 +1,181 @@
 <section class="main-header">
-    <img class="logo-name" src="./assets/img/logo-name.png" alt="Logo und Name" />
-    <button aria-label="Menü öffnen" (click)="openMenuDialog()">
-        <img src="./assets/img/avatar/3.png" alt="" aria-hidden="true" />
-    </button>
+  <img class="logo-name" src="./assets/img/logo-name.png" alt="Logo und Name" />
+  <button aria-label="Menü öffnen" (click)="openMenuDialog()">
+    <img src="./assets/img/avatar/{{currentUser?.profilePic}}.png" alt="" aria-hidden="true" />
+  </button>
 </section>
 <section class="menu">
-    <section class="menu-item">
-        @if (isSearchActive) {
-        <section class="search-header">
-            <span class="nuito18px700">Suche</span>
-            <button mat-icon-button aria-label="Suche beenden" (click)="closeSearch()">
-                <mat-icon fontIcon="close"></mat-icon>
-            </button>
-        </section>
-        }
-        <form class="search-form" role="search">
-            <mat-form-field appearance="fill" class="search-full-width">
-                <input matInput placeholder="Gehe zu..." [(ngModel)]="searchTerm" name="searchTerm"
-                    aria-label="Suchfeld Gehe zu" (ngModelChange)="updateFilteredResults()" />
-                <mat-icon matSuffix aria-hidden="true">search</mat-icon>
-            </mat-form-field>
-        </form>
-        <section class="menu-list">
-            @if (isSearchActive) {
-            @if (filteredChannels.length > 0) {
-            <section class="channels">
-                <div class="channel-list" id="channel-list">
-                    @for (channel of filteredChannels; track channel) {
-                    <div class="channel-item">
-                        <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
-                        <p class="nuito17px400">{{ channel }}</p>
-                    </div>
-                    }
-                </div>
-            </section>
-            }
-            @if (filteredDirectMessages.length > 0) {
-            <section class="direct-message">
-                <div class="message-list" id="direct-messages">
-                    @if (gastLogin) {
-                    @for (user of filteredDirectMessages; track user.name) {
-                    <div class="message-item">
-                        <img src="./assets/img/avatar/{{ user.img }}" alt="Avatar von {{ user.name }}" />
-                        <div class="status {{ user.status }}"></div>
-                        <p class="nuito17px400">{{ user.name }}</p>
-                    </div>
-                    }
-                    } @else {
-                    @for (user of filteredDirectMessages; track user.id) {
-                    <div class="message-item">
-                        <img src="./assets/img/avatar/{{ user.profilePic }}.png" alt="Avatar von {{ user.userName }}" />
-                        <div class="status {{ user.status ? 'online' : 'offline' }}"></div>
-                        <p class="nuito17px400">{{ user.userName }}</p>
-                    </div>
-                    }
-                    }
-                </div>
-            </section>
-            }
-            }
-            @if (!isSearchActive) {
-            <section class="channels">
-                <div class="header">
-                    <button type="button" class="title" (click)="showChannels = !showChannels"
-                        [attr.aria-expanded]="showChannels" aria-controls="channel-list"
-                        aria-label="Channels ein- oder ausklappen">
-                        <mat-icon fontIcon="{{ showChannels ? 'arrow_drop_down' : 'arrow_right' }}"></mat-icon>
-                        <mat-icon fontIcon="workspaces_outline"></mat-icon>
-                        <h2 class="nuito20px">Channels</h2>
-                    </button>
-                    <button class="add-btn" matMiniFab aria-label="Channel hinzufügen" (click)="addChannel()">
-                        <mat-icon mat-icon-button fontIcon="add"></mat-icon>
-                    </button>
-                </div>
-                @if (showChannels) {
-                <div class="channel-list" id="channel-list">
-                    @if (gastLogin) {
-                    @for (channel of channelDirectMessageData.getChannels(); track channel) {
-                    <div class="channel-item">
-                        <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
-                        <p class="nuito17px400">{{ channel }}</p>
-                    </div>
-                    }
-                    } @else {
-                    @for (channel of channels; track channel.id) {
-                    <div class="channel-item" (click)="selectChannel(channel)">
-                        <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
-                        <p class="nuito17px400">{{ channel.name }}</p>
-                    </div>
-                    }
-                    }
-                    <div class="channel-item channel-item-add" (click)="addChannel()">
-                        <mat-icon fontIcon="add_circle_outline"></mat-icon>
-                        <p class="nuito17px400">Channel hinzufügen</p>
-                    </div>
-                </div>
-                }
-            </section>
-            <section class="direct-message">
-                <div class="header">
-                    <button type="button" class="title" (click)="showDirectMessages = !showDirectMessages"
-                        [attr.aria-expanded]="showDirectMessages" aria-controls="direct-messages"
-                        aria-label="Direktnachrichten ein- oder ausklappen">
-                        <mat-icon fontIcon="{{ showDirectMessages ? 'arrow_drop_down' : 'arrow_right' }}"></mat-icon>
-                        <mat-icon fontSet="material-icons-outlined">account_circle</mat-icon>
-                        <h2 class="nuito20px">Direktnachrichten</h2>
-                    </button>
-                </div>
-                @if (showDirectMessages) {
-                <div class="message-list" id="direct-messages">
-                    @if (gastLogin) {
-                    @for (user of channelDirectMessageData.getDirectMessages(); track user.name) {
-                    <div class="message-item">
-                        <img src="./assets/img/avatar/{{ user.img }}" alt="Avatar von {{ user.name }}" />
-                        <div class="status {{ user.status }}"></div>
-                        <p class="nuito17px400">{{ user.name }}</p>
-                    </div>
-                    }
-                    } @else {
-                    @for (user of users; track user.id) {
-                    <div class="message-item">
-                        <img src="./assets/img/avatar/{{ user.profilePic }}.png" alt="Avatar von {{ user.userName }}" />
-                        <div class="status {{ user.status ? 'online' : 'offline' }}"></div>
-                        <p class="nuito17px400">{{ user.userName }}</p>
-                    </div>
-                    }
-                    }
-                </div>
-                }
-            </section>
-            }
-            <button class="new-chat-btn" mat-icon-button aria-label="Neuen Chat starten">
-                <img src="./assets/img/menu/new-chat-white.png" alt="" aria-hidden="true" />
-            </button>
-        </section>
+  <section class="menu-item">
+    @if (isSearchActive) {
+    <section class="search-header">
+      <span class="nuito18px700">Suche</span>
+      <button
+        mat-icon-button
+        aria-label="Suche beenden"
+        (click)="closeSearch()"
+      >
+        <mat-icon fontIcon="close"></mat-icon>
+      </button>
     </section>
+    }
+    <form class="search-form" role="search">
+      <mat-form-field appearance="fill" class="search-full-width">
+        <input
+          matInput
+          placeholder="Gehe zu..."
+          [(ngModel)]="searchTerm"
+          name="searchTerm"
+          aria-label="Suchfeld Gehe zu"
+          (ngModelChange)="updateFilteredResults()"
+        />
+        <mat-icon matSuffix aria-hidden="true">search</mat-icon>
+      </mat-form-field>
+    </form>
+    <section class="menu-list">
+      @if (isSearchActive) { @if (filteredChannels.length > 0) {
+      <section class="channels">
+        <div class="channel-list" id="channel-list">
+          @for (channel of filteredChannels; track channel) {
+          <div class="channel-item">
+            <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
+            <p class="nuito17px400">{{ channel }}</p>
+          </div>
+          }
+        </div>
+      </section>
+      } @if (filteredDirectMessages.length > 0) {
+      <section class="direct-message">
+        <div class="message-list" id="direct-messages">
+          @if (gastLogin) { @for (user of filteredDirectMessages; track
+          user.name) {
+          <div class="message-item">
+            <img
+              src="./assets/img/avatar/{{ user.img }}"
+              alt="Avatar von {{ user.name }}"
+            />
+            <div class="status {{ user.status }}"></div>
+            <p class="nuito17px400">{{ user.name }}</p>
+          </div>
+          } } @else { @for (user of filteredDirectMessages; track user.id) {
+          <div class="message-item">
+            <img
+              src="./assets/img/avatar/{{ user.profilePic }}.png"
+              alt="Avatar von {{ user.userName }}"
+            />
+            <div class="status {{ user.status ? 'online' : 'offline' }}"></div>
+            <p class="nuito17px400">{{ user.userName }}</p>
+          </div>
+          } }
+        </div>
+      </section>
+      } } @if (!isSearchActive) {
+      <section class="channels">
+        <div class="header">
+          <button
+            type="button"
+            class="title"
+            (click)="showChannels = !showChannels"
+            [attr.aria-expanded]="showChannels"
+            aria-controls="channel-list"
+            aria-label="Channels ein- oder ausklappen"
+          >
+            <mat-icon
+              fontIcon="{{ showChannels ? 'arrow_drop_down' : 'arrow_right' }}"
+            ></mat-icon>
+            <mat-icon fontIcon="workspaces_outline"></mat-icon>
+            <h2 class="nuito20px">Channels</h2>
+          </button>
+          <button
+            class="add-btn"
+            matMiniFab
+            aria-label="Channel hinzufügen"
+            (click)="addChannel()"
+          >
+            <mat-icon mat-icon-button fontIcon="add"></mat-icon>
+          </button>
+        </div>
+        @if (showChannels) {
+        <div class="channel-list" id="channel-list">
+          @if (gastLogin) { @for (channel of
+          channelDirectMessageData.getChannels(); track channel) {
+          <div class="channel-item">
+            <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
+            <p class="nuito17px400">{{ channel }}</p>
+          </div>
+          } } @else { @for (channel of channels; track channel.id) {
+          <div class="channel-item" (click)="selectChannel(channel)">
+            <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
+            <p class="nuito17px400">{{ channel.name }}</p>
+          </div>
+          } }
+          <div class="channel-item channel-item-add" (click)="addChannel()">
+            <mat-icon fontIcon="add_circle_outline"></mat-icon>
+            <p class="nuito17px400">Channel hinzufügen</p>
+          </div>
+        </div>
+        }
+      </section>
+      <section class="direct-message">
+        <div class="header">
+          <button
+            type="button"
+            class="title"
+            (click)="showDirectMessages = !showDirectMessages"
+            [attr.aria-expanded]="showDirectMessages"
+            aria-controls="direct-messages"
+            aria-label="Direktnachrichten ein- oder ausklappen"
+          >
+            <mat-icon
+              fontIcon="{{
+                showDirectMessages ? 'arrow_drop_down' : 'arrow_right'
+              }}"
+            ></mat-icon>
+            <mat-icon fontSet="material-icons-outlined"
+              >account_circle</mat-icon
+            >
+            <h2 class="nuito20px">Direktnachrichten</h2>
+          </button>
+        </div>
+        @if (showDirectMessages) {
+        <div class="message-list" id="direct-messages">
+          @if (gastLogin) { @for (user of
+          channelDirectMessageData.getDirectMessages(); track user.name) {
+          <div class="message-item">
+            <img
+              src="./assets/img/avatar/{{ user.img }}"
+              alt="Avatar von {{ user.name }}"
+            />
+            <div class="status {{ user.status }}"></div>
+            <p class="nuito17px400">{{ user.name }}</p>
+          </div>
+          } } @else { @for (user of users; track user.id) {
+          <div class="message-item">
+            <img
+              src="./assets/img/avatar/{{ user.profilePic }}.png"
+              alt="Avatar von {{ user.userName }}"
+            />
+            <div class="status {{ user.status ? 'online' : 'offline' }}"></div>
+            <p class="nuito17px400">
+              {{ user.userName }} @if (currentUser?.userName == user.userName)
+              {(Du)}
+            </p>
+          </div>
+          } }
+        </div>
+        }
+      </section>
+      }
+      <button
+        class="new-chat-btn"
+        mat-icon-button
+        aria-label="Neuen Chat starten"
+      >
+        <img
+          src="./assets/img/menu/new-chat-white.png"
+          alt=""
+          aria-hidden="true"
+        />
+      </button>
+    </section>
+  </section>
 </section>

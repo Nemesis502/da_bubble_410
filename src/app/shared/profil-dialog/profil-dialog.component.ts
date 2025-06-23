@@ -5,6 +5,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { ProfilEditDialogComponent } from './profil-edit-dialog/profil-edit-dialog.component';
+import { SessionService } from '../services/currentUserSession.service';
+import { appUser } from '../../interfaces/user.interface';
 
 @Component({
   selector: 'app-profil-dialog',
@@ -20,10 +22,12 @@ import { ProfilEditDialogComponent } from './profil-edit-dialog/profil-edit-dial
 })
 export class ProfilDialogComponent {
   readonly dialog = inject(MatDialog);
-
+  currentUser: appUser | null = null;
   isUser = true;
 
-  constructor(private dialogRef: MatDialogRef<ProfilDialogComponent>) { }
+  constructor(private dialogRef: MatDialogRef<ProfilDialogComponent>, private userSession: SessionService) {
+    this.currentUser = this.userSession.getCurrentUser();
+  }
 
   onClose() {
     this.dialogRef.close();
