@@ -11,7 +11,10 @@
         class="msg-own-body"
       >
         <div class="msg-avatar">
-          <img src="./../../../assets/img/avatar/{{ message.avatar }}.png" alt="" />
+          <img
+            src="./../../../assets/img/avatar/{{ message.avatar }}.png"
+            alt=""
+          />
         </div>
         <div class="msg-own-main">
           <div class="msg-own-info">
@@ -31,7 +34,6 @@
             <ng-container
               *ngIf="message.reactions && message.reactions.length > 0"
             >
-              <!-- Render reactions (up to 7 or all, depending on state) -->
               <button
                 *ngFor="
                   let reaction of reactionsExpanded[message.id]
@@ -40,13 +42,14 @@
                 "
                 (click)="selectReaction(reaction.reaction, message)"
                 class="reaction"
+                (mouseover)="showReactorNames(reaction.reactors, $event)"
+                (mouseout)="hideReactorNames()"
               >
                 {{ reaction.reaction }} {{ reaction.count }}
                 <!-- Hover Popup -->
-                <div class="reaction-popup">
-                  {{ reaction.count }} people reacted with "{{
-                    reaction.reaction
-                  }}"
+                <div class="reaction-popup" *ngIf="hoveredReactorNames?.length">
+                  <p>{{ reaction.reaction }}</p>
+                  <p [innerHTML]="formatReactorNames(hoveredReactorNames)"></p>
                 </div>
               </button>
 
@@ -112,7 +115,10 @@
         class="msg-body"
       >
         <div class="msg-avatar">
-          <img src="./../../../assets/img/avatar/{{ message.avatar }}.png" alt="" />
+          <img
+            src="./../../../assets/img/avatar/{{ message.avatar }}.png"
+            alt=""
+          />
         </div>
         <div class="msg-main">
           <div class="msg-info">
@@ -141,12 +147,14 @@
                 "
                 (click)="selectReaction(reaction.reaction, message)"
                 class="reaction"
+                (mouseover)="showReactorNames(reaction.reactors, $event)"
+                (mouseout)="hideReactorNames()"
               >
                 {{ reaction.reaction }} {{ reaction.count }}
                 <!-- Hover Popup -->
-                <div class="reaction-popup">
+                <div class="reaction-popup" *ngIf="hoveredReactorNames">
                   <p>{{ reaction.reaction }}</p>
-                  <p>{{ reaction.reactorName }} hat reagiert</p>
+                  <p [innerHTML]="formatReactorNames(hoveredReactorNames)"></p>
                 </div>
               </button>
 
