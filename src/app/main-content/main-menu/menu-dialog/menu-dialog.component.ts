@@ -20,6 +20,7 @@ import { FirestoreService } from '../../../shared/services/firestore.service';
 import { ChannelsDirectMessageService } from '../../../shared/services/channels-direct-message.service';
 import { Channel } from '../../../interfaces/channel.interface';
 
+
 @Component({
   selector: 'app-menu-dialog',
   standalone: true,
@@ -105,6 +106,8 @@ export class MenuDialogComponent implements OnInit {
     }
   }
 
+
+
   openProfileDialog() {
     this.closeDialog();
     this.dialog.open(ProfilDialogComponent, {
@@ -115,6 +118,7 @@ export class MenuDialogComponent implements OnInit {
   }
 
   logout() {
+    console.log(this.currentUser);
     this.authService.logout().then(() => {
       this.userService.updateUserStatusFalse(this.currentUser?.id!)
       this.router.navigate(['/']);
@@ -236,8 +240,8 @@ export class MenuDialogComponent implements OnInit {
     const newChannel: Channel = {
       name: this.channelName,
       description: this.channelDescription,
-      createdBy: this.currentUser.id!, // ID vom eingeloggten User
-      members: this.peoples().map(u => u.id!) // IDs der Mitglieder
+      createdBy: this.currentUser.id!,
+      members: this.peoples().map(u => u.id!)
     };
 
     try {

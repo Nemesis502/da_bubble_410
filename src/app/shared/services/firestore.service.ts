@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { collection, collectionData, docData, Firestore, addDoc, doc } from '@angular/fire/firestore';
+import { collection, collectionData, docData, Firestore } from '@angular/fire/firestore';
+import { addDoc, doc, onSnapshot } from 'firebase/firestore';
 import { Observable } from 'rxjs';
 import { Channel } from '../../interfaces/channel.interface';
 
@@ -9,6 +10,7 @@ export class FirestoreService {
 
   getUserById(uid: string) {
     const userDoc = doc(this.firestore, 'users', uid);
+    console.log('userDoc:', userDoc);
     return docData(userDoc, { idField: 'id' });
   }
 
@@ -30,5 +32,15 @@ export class FirestoreService {
   addChannel(channel: Channel) {
     const ref = collection(this.firestore, 'channels');
     return addDoc(ref, channel);
+  }
+
+  synFirebase(uid: string) {
+    return onSnapshot(doc(this.firestore, 'users', uid), (doc) => {
+      console.log('current Data:', doc.data);
+    })
+  }
+
+  getUserDocRef(uid: string) {
+    return doc(this.firestore, 'users', uid);
   }
 }

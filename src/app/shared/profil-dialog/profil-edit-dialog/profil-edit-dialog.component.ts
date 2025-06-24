@@ -31,7 +31,6 @@ export class ProfilEditDialogComponent {
 
   constructor(private dialogRef: MatDialogRef<ProfilEditDialogComponent>, private userSession: SessionService, private userService: UserService) {
     this.currentUser = this.userSession.getCurrentUser();
-    console.log(this.currentUser);
   }
 
   onClose() {
