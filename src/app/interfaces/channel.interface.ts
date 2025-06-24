@@ -1,7 +1,7 @@
 import { Message } from "./message.interface";
 
 export interface Channel {
-    ChannelId?: string;
+    channelId?: string;
     name: string;
     description: string;
     createdBy: string;

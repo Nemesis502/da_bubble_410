@@ -1,4 +1,4 @@
-export interface User {
+export interface appUser {
     id?: string;
     userName: string;
     profilePic: number;

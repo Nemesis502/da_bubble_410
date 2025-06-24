@@ -9,7 +9,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { merge } from 'rxjs';
 import { Router, RouterLink } from '@angular/router';
 import { UserService } from '../../firebase-service/user.services';
-import { User } from '../../interfaces/user.interface';
+import { appUser } from '../../interfaces/user.interface';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../firebase-service/auth.service';
 
@@ -60,9 +60,9 @@ export class LogingPageComponent {
     }
   }
 
-  getUserList(): User[] {
-    return this.userService.allUsers;
-  }
+  // getUserList(): appUser[] {
+  //   return this.userService.allUsers;
+  // }
 
   signInWithGoogle() {
     this.authService.signInWithGoogle().then(user => {

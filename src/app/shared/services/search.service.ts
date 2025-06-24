@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { ChannelsDirectMessageService, DirectMessage } from './channels-direct-message.service';
 import { Channel } from '../../interfaces/channel.interface';
-import { User } from '../../interfaces/user.interface';
+import { appUser } from '../../interfaces/user.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SearchService {
   private firestoreChannels: Channel[] = [];
-  private firestoreUsers: User[] = [];
+  private firestoreUsers: appUser[] = [];
 
   constructor(private data: ChannelsDirectMessageService) { }
 
@@ -30,7 +30,7 @@ export class SearchService {
     this.firestoreChannels = channels;
   }
 
-  setFirestoreUsers(users: User[]) {
+  setFirestoreUsers(users: appUser[]) {
     this.firestoreUsers = users;
   }
 
@@ -41,7 +41,7 @@ export class SearchService {
     );
   }
 
-  filterFirestoreDirectMessages(searchTerm: string): User[] {
+  filterFirestoreDirectMessages(searchTerm: string): appUser[] {
     const query = searchTerm.toLowerCase();
     return this.firestoreUsers.filter(u =>
       u.userName.toLowerCase().includes(query)

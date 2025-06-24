@@ -60,19 +60,24 @@ export class ChatTemplateComponent implements OnInit {
     });
   }
 
-loadMessagesForChannel(channel: any): void {
-  if (channel?.id) {
-    this.channelService.getEnrichedMessages(channel.id).subscribe({
-      next: (messages) => {
-        this.messages = messages;
-      },
-      error: (error) => {
-        console.error('Error loading enriched messages with reactions:', error);
-      },
-    });
+  loadMessagesForChannel(channel: any): void {
+    console.log('Loading messages for channel:', channel);
+    if (channel?.channelId) {
+      this.channelService.getEnrichedMessages(channel.channelId).subscribe({
+        next: (messages) => {
+          this.messages = messages;
+        },
+        error: (error) => {
+          console.error(
+            'Error loading enriched messages with reactions:',
+            error
+          );
+        },
+      });
+    } else {
+      console.warn('Channel ID missing:', channel);
+    }
   }
-}
-
 
   navigateToMain(): void {
     this.router.navigate(['/main']);

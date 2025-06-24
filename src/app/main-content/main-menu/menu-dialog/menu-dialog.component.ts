@@ -7,11 +7,13 @@ import { MatChipsModule, MatChipInputEvent, MatChipEditedEvent } from '@angular/
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { FormsModule } from '@angular/forms';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { User } from '../../../interfaces/user.interface';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ProfilDialogComponent } from '../../../shared/profil-dialog/profil-dialog.component';
 import { AuthService } from '../../../firebase-service/auth.service';
+import { SessionService } from '../../../shared/services/currentUserSession.service';
+import { appUser } from '../../../interfaces/user.interface';
+import { UserService } from '../../../firebase-service/user.services';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { firstValueFrom } from 'rxjs';
 import { FirestoreService } from '../../../shared/services/firestore.service';
@@ -44,10 +46,11 @@ export class MenuDialogComponent implements OnInit {
   readonly channelsDirectMessageService = inject(ChannelsDirectMessageService);
 
   readonly separatorKeysCodes = [ENTER, COMMA] as const;
-  readonly peoples = signal<User[]>([]);
-  readonly allUsers = signal<User[]>([]);
-  readonly filteredUsers = signal<User[]>([]);
+  readonly peoples = signal<appUser[]>([]);
+  readonly allUsers = signal<appUser[]>([]);
+  readonly filteredUsers = signal<appUser[]>([]);
 
+  currentUser: appUser | null = null;
   searchTerm = '';
   isActive = true;
   isProfilHovered = false;
@@ -56,8 +59,10 @@ export class MenuDialogComponent implements OnInit {
 
   constructor(
     private router: Router,
-    @Inject(MAT_DIALOG_DATA) public data: { source: string }
-  ) { }
+    @Inject(MAT_DIALOG_DATA) public data: { source: string }, private userService: UserService, private userSession: SessionService
+  ) {
+    this.currentUser = this.userSession.getCurrentUser();
+  }
 
   async ngOnInit(): Promise<void> {
     await this.loadUsers();
@@ -75,7 +80,7 @@ export class MenuDialogComponent implements OnInit {
       this.filteredUsers.set(guestUsers);
     } else {
       const usersFromFirestore = await firstValueFrom(this.firestoreService.getUsers());
-      const users: User[] = usersFromFirestore.map((u: any) => ({
+      const users: appUser[] = usersFromFirestore.map((u: any) => ({
         userName: u.userName,
         profilePic: u.profilePic,
         status: u.status,
@@ -90,12 +95,14 @@ export class MenuDialogComponent implements OnInit {
     this.closeDialog();
     this.dialog.open(ProfilDialogComponent, {
       maxWidth: '90vw',
-      panelClass: 'bottom-dialog-panel'
+      panelClass: 'bottom-dialog-panel',
+
     });
   }
 
   logout() {
     this.authService.logout().then(() => {
+      this.userService.updateUserStatusFalse(this.currentUser?.id!)
       this.router.navigate(['/']);
     });
     this.closeDialog();
@@ -119,7 +126,7 @@ export class MenuDialogComponent implements OnInit {
     );
   }
 
-  selectUser(user: User) {
+  selectUser(user: appUser) {
     if (!this.peoples().some(p => p.userName === user.userName)) {
       this.peoples.update(peoples => [...peoples, user]);
     }
@@ -167,12 +174,12 @@ export class MenuDialogComponent implements OnInit {
     }, 150);
   }
 
-  remove(people: User): void {
+  remove(people: appUser): void {
     this.peoples.update(peoples => peoples.filter(p => p !== people));
     this.announcer.announce(`Removed ${people.userName}`);
   }
 
-  edit(people: User, event: MatChipEditedEvent) {
+  edit(people: appUser, event: MatChipEditedEvent) {
     const value = event.value.trim();
     if (!value) {
       this.remove(people);
