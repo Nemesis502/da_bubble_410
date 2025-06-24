@@ -62,7 +62,7 @@ export class MenuDialogComponent implements OnInit {
     private router: Router,
     @Inject(MAT_DIALOG_DATA) public data: { source: string }, private userService: UserService, private userSession: SessionService
   ) {
-
+    this.currentUser = this.userSession.getCurrentUser();
   }
 
   async ngOnInit(): Promise<void> {
@@ -104,6 +104,7 @@ export class MenuDialogComponent implements OnInit {
   }
 
   logout() {
+    console.log(this.currentUser);
     this.authService.logout().then(() => {
       this.userService.updateUserStatusFalse(this.currentUser?.id!)
       this.router.navigate(['/']);
