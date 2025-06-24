@@ -46,7 +46,7 @@
     <mat-form-field class="add-people-input" appearance="fill">
         <mat-chip-grid #chipGrid aria-label="Leute hinzufügen">
             @for (people of peoples(); track people) {
-            <mat-chip-row (removed)="remove(people)" [editable]="true" (edited)="edit(people, $event)">
+            <mat-chip-row (removed)="remove(people)">
                 <img class="chip-avatar" [src]="'./assets/img/avatar/' + people.profilePic + '.png'" alt="Avatar" />
                 {{ people.userName }}
                 <button matChipRemove [attr.aria-label]="'remove ' + people.userName">
@@ -79,7 +79,7 @@
     }
     <mat-card-actions class="create-new-channel">
         <button mat-button class="create-channel-button" aria-label="Channel erstellen"
-            [disabled]="peoples().length === 0 && !isActive">
+            [disabled]="peoples().length === 0 && !isActive" (click)="createNewChannel()">
             <span>Erstellen</span>
         </button>
     </mat-card-actions>

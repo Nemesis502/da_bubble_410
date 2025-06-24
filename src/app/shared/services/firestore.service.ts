@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
-import { collection, collectionData, docData, Firestore } from '@angular/fire/firestore';
-import { doc } from 'firebase/firestore';
+import { collection, collectionData, docData, Firestore, addDoc, doc } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
+import { Channel } from '../../interfaces/channel.interface';
 
 @Injectable({ providedIn: 'root' })
 export class FirestoreService {
@@ -25,5 +25,10 @@ export class FirestoreService {
   getConversations(): Observable<any[]> {
     const ref = collection(this.firestore, 'conversations');
     return collectionData(ref, { idField: 'id' });
+  }
+
+  addChannel(channel: Channel) {
+    const ref = collection(this.firestore, 'channels');
+    return addDoc(ref, channel);
   }
 }

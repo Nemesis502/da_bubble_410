@@ -38,7 +38,11 @@ export class AddChannelDialogComponent {
       maxWidth: '100vw',
       width: '100vw',
       panelClass: 'bottom-dialog-panel',
-      data: { source: 'add-channel' }
+      data: {
+        source: 'add-channel',
+        channelName: this.channelName,
+        channelDescription: this.channelDescription
+      }
     });
   }
 }

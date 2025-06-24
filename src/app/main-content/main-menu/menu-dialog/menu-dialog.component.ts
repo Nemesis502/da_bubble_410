@@ -18,6 +18,7 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { firstValueFrom } from 'rxjs';
 import { FirestoreService } from '../../../shared/services/firestore.service';
 import { ChannelsDirectMessageService } from '../../../shared/services/channels-direct-message.service';
+import { Channel } from '../../../interfaces/channel.interface';
 
 @Component({
   selector: 'app-menu-dialog',
@@ -41,7 +42,6 @@ export class MenuDialogComponent implements OnInit {
   readonly dialogRef = inject(MatDialogRef<MenuDialogComponent>);
   readonly authService = inject(AuthService);
   readonly announcer = inject(LiveAnnouncer);
-
   readonly firestoreService = inject(FirestoreService);
   readonly channelsDirectMessageService = inject(ChannelsDirectMessageService);
 
@@ -52,6 +52,8 @@ export class MenuDialogComponent implements OnInit {
 
   currentUser: appUser | null = null;
   searchTerm = '';
+  channelName = '';
+  channelDescription = '';
   isActive = true;
   isProfilHovered = false;
   autocompleteIsOpen = false;
@@ -59,13 +61,24 @@ export class MenuDialogComponent implements OnInit {
 
   constructor(
     private router: Router,
-    @Inject(MAT_DIALOG_DATA) public data: { source: string }, private userService: UserService, private userSession: SessionService
+    @Inject(MAT_DIALOG_DATA)
+    public data: {
+      source: string,
+      channelName?: string,
+      channelDescription?: string
+    },
+    private userService: UserService,
+    private userSession: SessionService
   ) {
     this.currentUser = this.userSession.getCurrentUser();
   }
 
   async ngOnInit(): Promise<void> {
     await this.loadUsers();
+    if (this.data.source === 'add-channel') {
+      this.channelName = this.data.channelName || '';
+      this.channelDescription = this.data.channelDescription || '';
+    }
   }
 
   private async loadUsers(): Promise<void> {
@@ -81,6 +94,7 @@ export class MenuDialogComponent implements OnInit {
     } else {
       const usersFromFirestore = await firstValueFrom(this.firestoreService.getUsers());
       const users: appUser[] = usersFromFirestore.map((u: any) => ({
+        id: u.id,
         userName: u.userName,
         profilePic: u.profilePic,
         status: u.status,
@@ -179,23 +193,6 @@ export class MenuDialogComponent implements OnInit {
     this.announcer.announce(`Removed ${people.userName}`);
   }
 
-  edit(people: appUser, event: MatChipEditedEvent) {
-    const value = event.value.trim();
-    if (!value) {
-      this.remove(people);
-      return;
-    }
-
-    this.peoples.update(peoples => {
-      const index = peoples.indexOf(people);
-      if (index >= 0) {
-        peoples[index].userName = value;
-        return [...peoples];
-      }
-      return peoples;
-    });
-  }
-
   autocompleteOpened() {
     this.autocompleteIsOpen = true;
   }
@@ -218,5 +215,37 @@ export class MenuDialogComponent implements OnInit {
     this.filteredUsers.set(this.allUsers());
 
     setTimeout(() => this.inputField?.nativeElement.focus(), 0);
+  }
+
+  async createNewChannel() {
+    console.log('Channel-Name', this.channelName);
+    console.log('Beschreibung', this.channelDescription);
+    console.log('Erstellt von', this.currentUser);
+    console.log('Mitglieder', this.peoples());
+
+    if (this.isGastLogin) {
+      console.log('Gast-Login: Channel wird nicht gespeichert.');
+      return;
+    }
+
+    if (!this.currentUser) {
+      console.error('Kein eingeloggter User gefunden.');
+      return;
+    }
+
+    const newChannel: Channel = {
+      name: this.channelName,
+      description: this.channelDescription,
+      createdBy: this.currentUser.id!, // ID vom eingeloggten User
+      members: this.peoples().map(u => u.id!) // IDs der Mitglieder
+    };
+
+    try {
+      await this.firestoreService.addChannel(newChannel);
+      console.log('Channel erfolgreich gespeichert.');
+      this.closeDialog();
+    } catch (error) {
+      console.error('Fehler beim Speichern des Channels:', error);
+    }
   }
 }

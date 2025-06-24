@@ -28,7 +28,7 @@
             cdkTextareaAutosize cdkAutosizeMinRows="1" cdkAutosizeMaxRows="10"></textarea>
     </section>
     <section class="create-new-channel">
-        <button mat-button class="create-channel-button" aria-label="Channel erstellen" (click)="openAddPeoplMenu()">
+        <button mat-button class="create-channel-button" aria-label="Channel erstellen" [disabled]="channelName.length === 0" (click)="openAddPeoplMenu()">
             <span>Erstellen</span>
         </button>
     </section>

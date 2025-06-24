@@ -161,6 +161,7 @@
         align-items: center;
         gap: 10px;
         margin: 16px;
+        margin-top: 0;
         padding-left: 16px;
         height: 33px;
         border-radius: 42px;
@@ -171,7 +172,7 @@
         }
 
         &:first-child {
-            margin-bottom: 0;
+            margin-top: 16px;
         }
 
         &:last-child {
