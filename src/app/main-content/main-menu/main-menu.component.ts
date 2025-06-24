@@ -76,20 +76,20 @@ export class MainMenuComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     if (!this.gastLogin && this.currentLoginId) {
       await this.getCurrentUserLogIn()
-      console.log('current User', this.currentUser);
+      // console.log('current User', this.currentUser);
     }
     if (!this.gastLogin) {
       this.firestoreService.getChannels().subscribe((c) => {
         this.channels = c;
         this.searchService.setFirestoreChannels(c);
-        console.log('Channels', this.channels);
+        // console.log('Channels', this.channels);
       });
 
       this.getAllUsers();
 
       this.firestoreService.getConversations().subscribe((conv) => {
         this.directMessages = conv;
-        console.log('Direktnachrichten', this.directMessages);
+        // console.log('Direktnachrichten', this.directMessages);
       });
     }
     this.updateFilteredResults();
@@ -129,7 +129,7 @@ export class MainMenuComponent implements OnInit {
     this.firestoreService.getUsers().subscribe((u) => {
       this.users = u;
       this.searchService.setFirestoreUsers(u);
-      console.log('Users', this.users);
+      // console.log('Users', this.users);
     });
   }
 
