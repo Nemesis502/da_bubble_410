@@ -19,6 +19,7 @@ import { firstValueFrom } from 'rxjs';
 import { FirestoreService } from '../../../shared/services/firestore.service';
 import { ChannelsDirectMessageService } from '../../../shared/services/channels-direct-message.service';
 
+
 @Component({
   selector: 'app-menu-dialog',
   standalone: true,
@@ -61,7 +62,7 @@ export class MenuDialogComponent implements OnInit {
     private router: Router,
     @Inject(MAT_DIALOG_DATA) public data: { source: string }, private userService: UserService, private userSession: SessionService
   ) {
-    this.currentUser = this.userSession.getCurrentUser();
+
   }
 
   async ngOnInit(): Promise<void> {
@@ -90,6 +91,8 @@ export class MenuDialogComponent implements OnInit {
       this.filteredUsers.set(users);
     }
   }
+
+
 
   openProfileDialog() {
     this.closeDialog();

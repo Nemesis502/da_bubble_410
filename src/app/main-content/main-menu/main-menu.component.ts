@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,6 +18,7 @@ import { UserService } from '../../firebase-service/user.services';
 import { appUser } from '../../interfaces/user.interface';
 import { firstValueFrom } from 'rxjs';
 import { SessionService } from '../../shared/services/currentUserSession.service';
+import { onSnapshot } from 'firebase/firestore';
 
 @Component({
   selector: 'app-main-menu',
@@ -57,8 +58,9 @@ export class MainMenuComponent implements OnInit {
   users: any[] = [];
   currentUser: appUser | null = null;
   directMessages: any[] = [];
+  unsubCurrentUser;
 
-  constructor(private router: Router, private authService: AuthService, private userService: UserService, private userSession: SessionService) {
+  constructor(private router: Router, private authService: AuthService, private userService: UserService, private userSession: SessionService, private cdr: ChangeDetectorRef) {
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras.state as {
       loginEmail: string;
@@ -68,7 +70,7 @@ export class MainMenuComponent implements OnInit {
       this.currentLoginEmail = state.loginEmail ?? '';
       this.currentLoginId = state.loginId ?? '';
     }
-
+    this.unsubCurrentUser = this.subCurrentUser();
   }
 
   async ngOnInit(): Promise<void> {
@@ -83,11 +85,7 @@ export class MainMenuComponent implements OnInit {
         console.log('Channels', this.channels);
       });
 
-      this.firestoreService.getUsers().subscribe((u) => {
-        this.users = u;
-        this.searchService.setFirestoreUsers(u);
-        console.log('Users', this.users);
-      });
+      this.getAllUsers();
 
       this.firestoreService.getConversations().subscribe((conv) => {
         this.directMessages = conv;
@@ -104,8 +102,35 @@ export class MainMenuComponent implements OnInit {
     this.userSession.setCurrentUser(this.currentUser);
   }
 
+  subCurrentUser() {
+    let currenUserDocRef = this.firestoreService.getUserDocRef(this.currentLoginId)
+
+    return onSnapshot(currenUserDocRef, (currentUserData) => {
+      let userData = currentUserData.data();
+      if (userData) {
+        let user = this.userService.setUserObject(userData, this.currentLoginId);
+        this.userSession.setCurrentUser(user);
+        this.currentUser = user;
+        this.getAllUsers();
+        this.cdr.detectChanges();
+      }
+    })
+  }
+
+  ngOnDestroy() {
+    this.unsubCurrentUser();
+  }
+
   get isSearchActive(): boolean {
     return this.searchTerm.trim().length > 0;
+  }
+
+  getAllUsers() {
+    this.firestoreService.getUsers().subscribe((u) => {
+      this.users = u;
+      this.searchService.setFirestoreUsers(u);
+      console.log('Users', this.users);
+    });
   }
 
   updateFilteredResults(): void {
