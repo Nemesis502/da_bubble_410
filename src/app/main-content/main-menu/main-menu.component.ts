@@ -18,7 +18,7 @@ import { UserService } from '../../firebase-service/user.services';
 import { appUser } from '../../interfaces/user.interface';
 import { firstValueFrom } from 'rxjs';
 import { SessionService } from '../../shared/services/currentUserSession.service';
-import { loadBundle, onSnapshot } from 'firebase/firestore';
+import { onSnapshot } from 'firebase/firestore';
 
 @Component({
   selector: 'app-main-menu',

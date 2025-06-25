@@ -66,12 +66,18 @@ export class MenuDialogComponent implements OnInit {
     public data: {
       source: string,
       channelName?: string,
-      channelDescription?: string
+      channelDescription?: string,
+      gastLogin?: boolean
     },
     private userService: UserService,
     private userSession: SessionService
   ) {
-    this.currentUser = this.userSession.getCurrentUser();
+    this.isGastLogin = this.data.gastLogin!
+    if (this.isGastLogin = true) {
+      //keine Ahnung was ich bei true passieren lassen soll.
+    } else {
+      this.currentUser = this.userSession.getCurrentUser();
+    }
   }
 
   async ngOnInit(): Promise<void> {
@@ -106,14 +112,11 @@ export class MenuDialogComponent implements OnInit {
     }
   }
 
-
-
   openProfileDialog() {
     this.closeDialog();
     this.dialog.open(ProfilDialogComponent, {
       maxWidth: '90vw',
       panelClass: 'bottom-dialog-panel',
-
     });
   }
 
