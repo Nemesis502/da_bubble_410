@@ -18,7 +18,7 @@ import { UserService } from '../../firebase-service/user.services';
 import { appUser } from '../../interfaces/user.interface';
 import { firstValueFrom } from 'rxjs';
 import { SessionService } from '../../shared/services/currentUserSession.service';
-import { onSnapshot } from 'firebase/firestore';
+import { loadBundle, onSnapshot } from 'firebase/firestore';
 
 @Component({
   selector: 'app-main-menu',
@@ -67,14 +67,19 @@ export class MainMenuComponent implements OnInit {
       loginId: string;
     };
     if (state) {
-      this.currentLoginEmail = state.loginEmail ?? '';
-      this.currentLoginId = state.loginId ?? '';
+      if (state.loginId == "Guest") {
+        this.gastLogin = true;
+        this.loadGuestData()
+      } else {
+        this.loadUserData(state);
+        this.unsubCurrentUser = this.subCurrentUser();
+      }
     }
-    this.unsubCurrentUser = this.subCurrentUser();
   }
 
   async ngOnInit(): Promise<void> {
     if (!this.gastLogin && this.currentLoginId) {
+      console.log("Test");
       await this.getCurrentUserLogIn()
       // console.log('current User', this.currentUser);
     }
@@ -93,6 +98,11 @@ export class MainMenuComponent implements OnInit {
       });
     }
     this.updateFilteredResults();
+  }
+
+  loadUserData(state: { loginEmail: string; loginId: string }) {
+    this.currentLoginEmail = state.loginEmail ?? '';
+    this.currentLoginId = state.loginId ?? '';
   }
 
   async getCurrentUserLogIn() {
@@ -117,8 +127,21 @@ export class MainMenuComponent implements OnInit {
     })
   }
 
+  loadGuestData() {
+    let guestData = {
+      id: 'Guest',
+      userName: "Frederik Beck",
+      profilePic: 3,
+      status: true,
+      email: "email@beispiel.com"
+    }
+    this.currentUser = guestData;
+  }
+
   ngOnDestroy() {
-    this.unsubCurrentUser();
+    if (this.unsubCurrentUser) {
+      this.unsubCurrentUser();
+    }
   }
 
   get isSearchActive(): boolean {

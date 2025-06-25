@@ -85,15 +85,22 @@ export class LogingPageComponent {
             loginEmail: userCredential.user.email,
             loginId: userCredential.user.uid
           }
-        }
-
-        );
+        });
       })
       .catch((error) => {
         console.error("Login fehlgeschlagen:", error.message);
         this.LogInError = true;
         this.updateErrorLogIn();
       });
+  }
+
+  loginGuest() {
+    this.router.navigate(['main'], {
+      state: {
+        loginEmail: "email@beispiel.com",
+        loginId: "Guest"
+      }
+    });
   }
 
   updateErrorLogIn() {
