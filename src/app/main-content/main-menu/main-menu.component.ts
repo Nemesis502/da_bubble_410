@@ -13,7 +13,6 @@ import { SearchService } from '../../shared/services/search.service';
 import { ChannelsDirectMessageService } from '../../shared/services/channels-direct-message.service';
 import { FirestoreService } from '../../shared/services/firestore.service';
 import { Router } from '@angular/router';
-import { AuthService } from '../../firebase-service/auth.service';
 import { UserService } from '../../firebase-service/user.services';
 import { appUser } from '../../interfaces/user.interface';
 import { firstValueFrom } from 'rxjs';
@@ -60,7 +59,7 @@ export class MainMenuComponent implements OnInit {
   directMessages: any[] = [];
   unsubCurrentUser;
 
-  constructor(private router: Router, private authService: AuthService, private userService: UserService, private userSession: SessionService, private cdr: ChangeDetectorRef) {
+  constructor(private router: Router, private userService: UserService, private userSession: SessionService, private cdr: ChangeDetectorRef) {
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras.state as {
       loginEmail: string;
@@ -70,6 +69,7 @@ export class MainMenuComponent implements OnInit {
       if (state.loginId == "Guest") {
         this.gastLogin = true;
         this.loadGuestData()
+        this.userSession.setCurrentUser(this.currentUser!);
       } else {
         this.loadUserData(state);
         this.unsubCurrentUser = this.subCurrentUser();
@@ -158,7 +158,6 @@ export class MainMenuComponent implements OnInit {
 
   updateFilteredResults(): void {
     const term = this.searchTerm.trim().toLowerCase();
-
     const isChannelSearch = term.startsWith('#');
     const isDirectSearch = term.startsWith('@');
     const query = term.replace(/^[@#]/, '');

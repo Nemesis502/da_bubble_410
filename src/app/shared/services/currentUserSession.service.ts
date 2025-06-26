@@ -8,7 +8,11 @@ export class SessionService {
     currentLogingUser$ = this.currentLogingUser.asObservable();
 
     setCurrentUser(currentUser: appUser) {
-        this.currentLogingUser.next(currentUser);
+        if (currentUser.id == 'Guest') {
+            this.currentLogingUser.next(currentUser);
+        } else {
+            this.currentLogingUser.next(currentUser);
+        }
     }
 
     getCurrentUser(): appUser | null {

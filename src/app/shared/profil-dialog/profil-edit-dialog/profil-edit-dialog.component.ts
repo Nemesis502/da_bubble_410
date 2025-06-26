@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, NgModule } from '@angular/core';
+import { ChangeDetectorRef, Component, NgModule } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogRef } from '@angular/material/dialog';
@@ -38,9 +38,14 @@ export class ProfilEditDialogComponent {
   }
 
   saveNewUserName() {
-    this.userService.updateUserName(this.currentUser?.id!, this.newName).then(() =>
-      this.dialogRef.close()
-    )
+    if (this.currentUser?.id == 'Guest') {
+      this.currentUser.userName = this.newName;
+      this.userSession.setCurrentUser(this.currentUser!);
+      this.dialogRef.close();
+    } else {
+      this.userService.updateUserName(this.currentUser?.id!, this.newName).then(() =>
+        this.dialogRef.close()
+      )
+    }
   }
-
 }

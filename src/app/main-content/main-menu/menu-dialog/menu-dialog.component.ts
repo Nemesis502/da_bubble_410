@@ -73,11 +73,7 @@ export class MenuDialogComponent implements OnInit {
     private userSession: SessionService
   ) {
     this.isGastLogin = this.data.gastLogin!
-    if (this.isGastLogin = true) {
-      //keine Ahnung was ich bei true passieren lassen soll.
-    } else {
-      this.currentUser = this.userSession.getCurrentUser();
-    }
+    this.currentUser = this.userSession.getCurrentUser();
   }
 
   async ngOnInit(): Promise<void> {
@@ -121,12 +117,16 @@ export class MenuDialogComponent implements OnInit {
   }
 
   logout() {
-    console.log(this.currentUser);
-    this.authService.logout().then(() => {
-      this.userService.updateUserStatusFalse(this.currentUser?.id!)
+    if (this.currentUser?.id == "Guest") {
       this.router.navigate(['/']);
-    });
-    this.closeDialog();
+      this.closeDialog();
+    } else {
+      this.authService.logout().then(() => {
+        this.userService.updateUserStatusFalse(this.currentUser?.id!)
+        this.router.navigate(['/']);
+      });
+      this.closeDialog();
+    }
   }
 
   closeDialog() {
