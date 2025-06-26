@@ -27,7 +27,7 @@
 <textarea
   [(ngModel)]="chatMessage"
   id="chat-field"
-  placeholder="Nachricht an #Entwicklerteam"
+  placeholder="Nachricht an #{{ selectedChannel?.name }}"
 ></textarea>
       <mat-card-actions class="chat-buttons">
         <div class="buttons-left">
@@ -37,7 +37,7 @@
           <button><mat-icon fontIcon="alternate_email"></mat-icon></button>
         </div>
         <div class="button-right">
-          <button><mat-icon fontIcon="send"></mat-icon></button>
+          <button (click)="sendMessage()"><mat-icon fontIcon="send"></mat-icon></button>
         </div>
       </mat-card-actions>
     </mat-card>

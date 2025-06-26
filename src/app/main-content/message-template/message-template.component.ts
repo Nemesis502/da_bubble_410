@@ -46,11 +46,20 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
     );
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['messages']) {
-      this.transformReactionsToEmoji();
-    }
+ngOnChanges(changes: SimpleChanges): void {
+  if (changes['messages']) {
+    this.sortMessagesByTimestamp();
+    this.transformReactionsToEmoji();
   }
+}
+
+private sortMessagesByTimestamp(): void {
+  this.messages.sort((a, b) => {
+    const timestampA = new Date(a.timestamp).getTime();
+    const timestampB = new Date(b.timestamp).getTime();
+    return timestampA - timestampB; 
+  });
+}
 
 private transformReactionsToEmoji(): void {
   this.messages = this.messages.map((message) => ({

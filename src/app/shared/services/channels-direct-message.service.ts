@@ -155,56 +155,42 @@ export class ChannelsDirectMessageService {
     );
   }
 
-  getEnrichedMessages(channelId: string): Observable<any[]> {
-    return this.getMessages(channelId).pipe(
-      switchMap((messages) => {
-        if (!messages.length) {
-          return of([]);
-        }
+getEnrichedMessages(channelId: string): Observable<any[]> {
+  return this.getMessages(channelId).pipe(
+    switchMap((messages) => {
+      if (!messages.length) {
+        return of([]);
+      }
 
-        const enrichedMessagesObservables = messages.map((message) => {
-          if (!message.senderID) {
-            console.warn('Message without senderID:', message);
-            const userDetails$ = of(null);
-            const reactions$ = this.getReactionsForMessage(
-              channelId,
-              message.id
-            ).pipe(catchError(() => of([])));
+      const enrichedMessagesObservables = messages.map((message) => {
+        const userDetails$ = message.senderID
+          ? this.getUserDetails(message.senderID).pipe(catchError(() => of(null)))
+          : of(null);
+        const reactions$ = this.getReactionsForMessage(channelId, message.id).pipe(catchError(() => of([])));
 
-            return combineLatest([userDetails$, reactions$]).pipe(
-              map(([userDetails, reactions]) => ({
-                ...message,
-                formattedTime: this.formatTimestamp(message.timestamp),
-                username: 'Unknown User',
-                avatar: 'default-avatar.png',
-                reactions: reactions || [],
-              }))
-            );
-          }
+        return combineLatest([userDetails$, reactions$]).pipe(
+          map(([userDetails, reactions]) => ({
+            ...message,
+            formattedTime: this.formatTimestamp(message.timestamp), 
+            username: userDetails?.userName || 'Unknown User',
+            avatar: userDetails?.profilePic || 'default-avatar.png',
+            reactions: reactions || [],
+          }))
+        );
+      });
 
-          const userDetails$ = this.getUserDetails(message.senderID).pipe(
-            catchError(() => of(null))
-          );
-          const reactions$ = this.getReactionsForMessage(
-            channelId,
-            message.id
-          ).pipe(catchError(() => of([])));
-
-          return combineLatest([userDetails$, reactions$]).pipe(
-            map(([userDetails, reactions]) => ({
-              ...message,
-              formattedTime: this.formatTimestamp(message.timestamp),
-              username: userDetails?.userName || 'Unknown User',
-              avatar: userDetails?.profilePic || 'default-avatar.png',
-              reactions: reactions || [],
-            }))
-          );
-        });
-
-        return combineLatest(enrichedMessagesObservables);
-      })
-    );
-  }
+      return combineLatest(enrichedMessagesObservables).pipe(
+        map((enrichedMessages) =>
+          enrichedMessages.sort((a, b) => {
+            const timeA = a.timestamp.seconds || 0;
+            const timeB = b.timestamp.seconds || 0;
+            return timeA - timeB; // Sort by the original timestamp
+          })
+        )
+      );
+    })
+  );
+}
 
   private getUserDetails(senderID: string): Observable<any> {
     if (!senderID) {

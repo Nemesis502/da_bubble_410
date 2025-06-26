@@ -14,6 +14,13 @@ import { MessageTemplateComponent } from '../message-template/message-template.c
 import { EmojiPickerComponent } from '../emoji-picker/emoji-picker.component';
 import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
+import {
+  Firestore,
+  collection,
+  doc,
+  addDoc,
+  serverTimestamp,
+} from '@angular/fire/firestore';
 
 interface PickerPosition {
   top: number;
@@ -46,7 +53,8 @@ export class ChatTemplateComponent implements OnInit {
   constructor(
     private router: Router,
     private elementRef: ElementRef,
-    private channelService: ChannelsDirectMessageService
+    private channelService: ChannelsDirectMessageService,
+    private firestore: Firestore
   ) {}
 
   ngOnInit(): void {
@@ -113,10 +121,33 @@ export class ChatTemplateComponent implements OnInit {
     }
   }
 
-  sendMessage(): void {
-    console.log('Message sent:', this.chatMessage);
-    this.chatMessage = '';
+async sendMessage(): Promise<void> {
+  if (!this.chatMessage.trim() || !this.selectedChannel?.channelId) {
+    console.warn('Message text is empty or channel is not selected.');
+    return;
   }
+
+  try {
+    const messageCollection = collection(
+      this.firestore,
+      `channels/${this.selectedChannel.channelId}/messages`
+    );
+
+    const newMessage = {
+      text: this.chatMessage.trim(),
+      timestamp: serverTimestamp(),
+      senderID: this.currentUser,
+      channelId: this.selectedChannel.channelId,
+    };
+
+    await addDoc(messageCollection, newMessage);
+    console.log('Message sent successfully:', newMessage);
+    this.chatMessage = ''; 
+  } catch (error) {
+    console.error('Error sending message:', error);
+  }
+}
+
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
