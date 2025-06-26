@@ -52,17 +52,26 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
     }
   }
 
-  private transformReactionsToEmoji(): void {
-    this.messages.forEach((message) => {
-      if (Array.isArray(message.reactions)) {
-        this.groupAndCountReactions(message.reactions).then(
-          (groupedReactions) => {
-            message.reactions = groupedReactions;
-          }
-        );
+private transformReactionsToEmoji(): void {
+  this.messages = this.messages.map((message) => ({
+    ...message,
+    reactions: Array.isArray(message.reactions)
+      ? message.reactions.filter((reaction: any) => reaction.reactorID)
+      : [],
+  }));
+
+  this.messages.forEach(async (message) => {
+    if (Array.isArray(message.reactions)) {
+      try {
+        const groupedReactions = await this.groupAndCountReactions(message.reactions);
+        message.reactions = groupedReactions;
+      } catch (error) {
+        console.error('Error processing message reactions:', error);
       }
-    });
-  }
+    }
+  });
+}
+
 
 private async groupAndCountReactions(
   reactions: any[]
@@ -74,7 +83,6 @@ private async groupAndCountReactions(
   for (const reaction of reactions) {
     const emoji = reaction.type;
 
-    // Guard to skip if reactorID is missing or invalid
     if (!reaction.reactorID) {
       console.warn('Skipping reaction with missing reactorID:', reaction);
       continue;
