@@ -361,6 +361,39 @@
   }
 }
 
+.more-vert-popup {
+  position: absolute;
+  top: 100%; /* Position below the button */
+  right: 0; /* Align to the right of the button */
+  background: white;
+  border: 1px solid #adb0d9;
+  border-radius: 30px;
+  border-top-left-radius: 0px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+  padding-right: 15px;
+  padding: 8px;
+  width: auto;
+
+  .popup-item {
+    background: none;
+    border: none;
+    width: auto;
+    text-align: left;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    &:hover {
+      background-color: #f5f5f5;
+    }
+  }
+}  
+
 @media (min-width: 650px) {
   .popup-menu {
     bottom: 65%;

@@ -13,6 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { ReactionPickerComponent } from '../../reaction-picker/reaction-picker.component';
 import { Channel } from '../../interfaces/channel.interface';
 import { ChannelsDirectMessageService } from '../../shared/services/channels-direct-message.service';
+import { formatDate } from '@angular/common';
 
 @Component({
   selector: 'app-message-template',
@@ -46,80 +47,164 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
     );
   }
 
-ngOnChanges(changes: SimpleChanges): void {
-  if (changes['messages']) {
-    this.sortMessagesByTimestamp();
-    this.transformReactionsToEmoji();
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['messages']) {
+      this.sortMessagesByTimestamp();
+      this.transformReactionsToEmoji();
+      this.addDateHeaders(); 
+    }
   }
-}
 
-private sortMessagesByTimestamp(): void {
-  this.messages.sort((a, b) => {
-    const timestampA = new Date(a.timestamp).getTime();
-    const timestampB = new Date(b.timestamp).getTime();
-    return timestampA - timestampB; 
+private addDateHeaders(): void {
+  let lastMessageDate: string | null = null;
+
+  this.messages.forEach((message) => {
+    const messageDate = this.convertTimestampToDate(message.timestamp);
+    const formattedDate = this.getFormattedDate(messageDate);
+
+    if (lastMessageDate !== formattedDate) {
+      message.showDateHeader = true;
+      message.date = formattedDate; 
+      lastMessageDate = formattedDate;
+    } else {
+      message.showDateHeader = false;
+    }
   });
 }
 
-private transformReactionsToEmoji(): void {
-  this.messages = this.messages.map((message) => ({
-    ...message,
-    reactions: Array.isArray(message.reactions)
-      ? message.reactions.filter((reaction: any) => reaction.reactorID)
-      : [],
-  }));
+private getFormattedDate(date: Date): string {
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
 
-  this.messages.forEach(async (message) => {
-    if (Array.isArray(message.reactions)) {
+  if (this.isSameDay(date, today)) {
+    return 'Heute';
+  } else if (this.isSameDay(date, yesterday)) {
+    return 'Gestern';
+  } else {
+    return this.formatOlderDate(date);
+  }
+}
+
+private isSameDay(date1: Date, date2: Date): boolean {
+  return (
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate()
+  );
+}
+
+private formatOlderDate(date: Date): string {
+  const dayNames = [
+    'Sonntag',
+    'Montag',
+    'Dienstag',
+    'Mittwoch',
+    'Donnerstag',
+    'Freitag',
+    'Samstag',
+  ];
+  const monthNames = [
+    'Januar',
+    'Februar',
+    'März',
+    'April',
+    'Mai',
+    'Juni',
+    'Juli',
+    'August',
+    'September',
+    'Oktober',
+    'November',
+    'Dezember',
+  ];
+
+  const weekday = dayNames[date.getDay()];
+  const day = date.getDate();
+  const month = monthNames[date.getMonth()];
+
+  return `${weekday}, ${day}. ${month}`;
+}
+
+  private convertTimestampToDate(timestamp: any): Date {
+  if (timestamp && typeof timestamp.seconds === 'number') {
+    return new Date(timestamp.seconds * 1000); 
+  }
+  console.error('Invalid timestamp:', timestamp);
+  return new Date(0); 
+}
+
+  private sortMessagesByTimestamp(): void {
+    this.messages.sort((a, b) => {
+      const timestampA = new Date(a.timestamp).getTime();
+      const timestampB = new Date(b.timestamp).getTime();
+      return timestampA - timestampB;
+    });
+  }
+
+  private transformReactionsToEmoji(): void {
+    this.messages = this.messages.map((message) => ({
+      ...message,
+      reactions: Array.isArray(message.reactions)
+        ? message.reactions.filter((reaction: any) => reaction.reactorID)
+        : [],
+    }));
+
+    this.messages.forEach(async (message) => {
+      if (Array.isArray(message.reactions)) {
+        try {
+          const groupedReactions = await this.groupAndCountReactions(
+            message.reactions
+          );
+          message.reactions = groupedReactions;
+        } catch (error) {
+          console.error('Error processing message reactions:', error);
+        }
+      }
+    });
+  }
+
+  private async groupAndCountReactions(
+    reactions: any[]
+  ): Promise<{ reaction: string; count: number; reactors: string[] }[]> {
+    const groupedReactions: {
+      [key: string]: { reaction: string; count: number; reactors: string[] };
+    } = {};
+
+    for (const reaction of reactions) {
+      const emoji = reaction.type;
+
+      if (!reaction.reactorID) {
+        console.warn('Skipping reaction with missing reactorID:', reaction);
+        continue;
+      }
+
+      let reactorName: string;
       try {
-        const groupedReactions = await this.groupAndCountReactions(message.reactions);
-        message.reactions = groupedReactions;
+        reactorName = await this.fetchReactorName(reaction.reactorID);
       } catch (error) {
-        console.error('Error processing message reactions:', error);
+        console.error(
+          'Error fetching reactor name for',
+          reaction.reactorID,
+          error
+        );
+        reactorName = 'Unknown User';
+      }
+
+      if (groupedReactions[emoji]) {
+        groupedReactions[emoji].count += 1;
+        groupedReactions[emoji].reactors.push(reactorName);
+      } else {
+        groupedReactions[emoji] = {
+          reaction: emoji,
+          count: 1,
+          reactors: [reactorName],
+        };
       }
     }
-  });
-}
 
-
-private async groupAndCountReactions(
-  reactions: any[]
-): Promise<{ reaction: string; count: number; reactors: string[] }[]> {
-  const groupedReactions: {
-    [key: string]: { reaction: string; count: number; reactors: string[] };
-  } = {};
-
-  for (const reaction of reactions) {
-    const emoji = reaction.type;
-
-    if (!reaction.reactorID) {
-      console.warn('Skipping reaction with missing reactorID:', reaction);
-      continue;
-    }
-
-    let reactorName: string;
-    try {
-      reactorName = await this.fetchReactorName(reaction.reactorID);
-    } catch (error) {
-      console.error('Error fetching reactor name for', reaction.reactorID, error);
-      reactorName = 'Unknown User';
-    }
-
-    if (groupedReactions[emoji]) {
-      groupedReactions[emoji].count += 1;
-      groupedReactions[emoji].reactors.push(reactorName);
-    } else {
-      groupedReactions[emoji] = {
-        reaction: emoji,
-        count: 1,
-        reactors: [reactorName],
-      };
-    }
+    return Object.values(groupedReactions);
   }
-
-  return Object.values(groupedReactions);
-}
-
 
   private fetchReactorName(reactorID: string): Promise<string> {
     return this.directMessageService.fetchReactorName(reactorID);
@@ -222,4 +307,14 @@ private async groupAndCountReactions(
       this.clickListener();
     }
   }
+
+  toggleMoreMenu(message: any, event: Event) {
+  event.stopPropagation(); // prevent bubbling that may close the menu instantly
+  // Close other menus first
+  this.messages.forEach(m => {
+    if (m !== message) m.showMoreMenu = false;
+  });
+  // Toggle clicked message menu
+  message.showMoreMenu = !message.showMoreMenu;
+}
 }

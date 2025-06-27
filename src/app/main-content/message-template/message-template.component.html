@@ -1,9 +1,9 @@
 <div *ngFor="let message of messages" (click)="onMessageClick(message, $event)">
-    <!-- Message Header -->
-        <div class="msg-header"  *ngIf="message.showDateHeader">
-        <span></span>
-        <p>{{ message.date }}</p>
-      </div>
+  <!-- Message Header -->
+  <div class="msg-header" *ngIf="message.showDateHeader">
+    <span></span>
+    <p>{{ message.date }}</p>
+  </div>
   <!-- Own Message -->
   <ng-container *ngIf="message.senderID === currentUser; else otherMessage">
     <div class="msg-own">
@@ -92,9 +92,18 @@
         <button>
           <mat-icon fontSet="material-icons-outlined">message</mat-icon>
         </button>
-        <button>
+        <button (click)="toggleMoreMenu(message, $event)">
           <mat-icon fontSet="material-icons-outlined">more_vert</mat-icon>
         </button>
+
+        <!-- Popup Menu -->
+        <div
+          class="more-vert-popup"
+          *ngIf="message.showMoreMenu"
+          (clickOutside)="message.showMoreMenu = false"
+        >
+          <button >Nachricht bearbeiten</button>
+        </div>
       </div>
       <!-- Reaction Picker Component -->
       <app-reaction-picker
@@ -107,7 +116,6 @@
   <!-- Other Message -->
   <ng-template #otherMessage>
     <div class="msg">
-
       <div
         [ngClass]="{ 'msg-active': selectedMessage === message }"
         class="msg-body"
