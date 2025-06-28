@@ -48,7 +48,8 @@
       </div>
     </form>
   </section>
-  <div *ngIf="animation" class="overlay">
+  @if (animation) {
+  <div class="overlay">
     <div class="creation-container">
       <div
         [ngClass]="{ 'animation-RightToLeft': animation }"
@@ -58,4 +59,5 @@
       </div>
     </div>
   </div>
+  }
 </section>

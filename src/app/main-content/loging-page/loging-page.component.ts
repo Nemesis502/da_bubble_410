@@ -26,18 +26,33 @@ export class LogingPageComponent {
   password = new FormControl('', Validators.required);
   hide = true;
   LogInError = false;
+  showIntro = true;
 
   errorMessage = '';
   errorMessageLogIn = '';
   errorMessagePassword = ''
 
   constructor(private authService: AuthService, private router: Router, private zone: NgZone) {
+    this.checkIfIntroPlayed();
     merge(this.email.statusChanges, this.email.valueChanges)
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.updateErrorMessage());
     merge(this.password.statusChanges, this.password.valueChanges)
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.updateErrorMessagePassword());
+  }
+
+  checkIfIntroPlayed() {
+    let alreadyPlayed = sessionStorage.getItem('introPlayed');
+    if (alreadyPlayed) {
+      this.showIntro = false;
+    } else {
+      this.showIntro = true;
+      setTimeout(() => {
+        sessionStorage.setItem('introPlayed', 'true');
+        this.showIntro = false;
+      }, 5000);
+    }
   }
 
   updateErrorMessage() {
@@ -60,8 +75,16 @@ export class LogingPageComponent {
 
   signInWithGoogle() {
     this.authService.signInWithGoogle().then(user => {
-      // ggf. navigieren oder Daten speichern
-      this.router.navigate(['/main']);
+      console.log("Loging with User: ", user);
+      console.log("Function Work in progess");
+      
+      //  this.router.navigate(['singIn/chooseAvatar'], {
+      //    state: {
+      //      singName: user.displayName,
+      //      singEmail: this.email,
+      //    }
+      //  });
+      // this.router.navigate(['/main']);
     }).catch(err => {
       // Fehlermeldung anzeigen
     });

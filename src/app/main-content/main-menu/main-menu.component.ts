@@ -79,9 +79,8 @@ export class MainMenuComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     if (!this.gastLogin && this.currentLoginId) {
-      console.log("Test");
       await this.getCurrentUserLogIn()
-      // console.log('current User', this.currentUser);
+      console.log('current User', this.currentUser);
     }
     if (!this.gastLogin) {
       this.firestoreService.getChannels().subscribe((c) => {

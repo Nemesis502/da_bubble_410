@@ -1,3 +1,4 @@
+@if (showIntro) {
 <div class="intro">
   <div class="flex-collum-center logo-intro-container">
     <div class="title">
@@ -6,6 +7,7 @@
     <img src="./../../../assets/img/logo.png" alt="" />
   </div>
 </div>
+}
 
 <section class="flex-collum-center logIn-Section">
   <div class="logo-container">
@@ -56,7 +58,9 @@
       </mat-form-field>
     </form>
     <div class="password-forget-container">
-      <a class="figtree17px400" routerLink="resetPassword">Passwort vergessen?</a>
+      <a class="figtree17px400" routerLink="resetPassword"
+        >Passwort vergessen?</a
+      >
     </div>
     <div class="separator">
       <div class="line"></div>
@@ -78,7 +82,11 @@
       >
         Anmelden
       </button>
-      <button (click)="loginGuest()" mat-stroked-button class="nuito18px700 h49px second-button">
+      <button
+        (click)="loginGuest()"
+        mat-stroked-button
+        class="nuito18px700 h49px second-button"
+      >
         Gäste-Login
       </button>
     </div>
