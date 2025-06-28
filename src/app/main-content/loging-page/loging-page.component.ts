@@ -8,8 +8,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { merge } from 'rxjs';
 import { Router, RouterLink } from '@angular/router';
-import { UserService } from '../../firebase-service/user.services';
-import { appUser } from '../../interfaces/user.interface';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../firebase-service/auth.service';
 
@@ -33,7 +31,7 @@ export class LogingPageComponent {
   errorMessageLogIn = '';
   errorMessagePassword = ''
 
-  constructor(private userService: UserService, private authService: AuthService, private router: Router, private zone: NgZone) {
+  constructor(private authService: AuthService, private router: Router, private zone: NgZone) {
     merge(this.email.statusChanges, this.email.valueChanges)
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.updateErrorMessage());
@@ -59,10 +57,6 @@ export class LogingPageComponent {
       this.errorMessagePassword = '';
     }
   }
-
-  // getUserList(): appUser[] {
-  //   return this.userService.allUsers;
-  // }
 
   signInWithGoogle() {
     this.authService.signInWithGoogle().then(user => {
@@ -111,5 +105,4 @@ export class LogingPageComponent {
       this.errorMessagePassword = '';
     }
   }
-
 }

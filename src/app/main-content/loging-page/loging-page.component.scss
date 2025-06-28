@@ -17,9 +17,10 @@
 }
 
 .logo-intro-container {
-    flex-direction: row-reverse;
+    flex-direction: row-reverse !important;
     width: 263px;
     height: 69px;
+    gap: 8px;
 
     img {
         height: 69px;
@@ -31,11 +32,14 @@
 
 .title {
     overflow-x: hidden;
+    height: 35px;
+    text-align: center;
 
     h1 {
         transform: translateX(-192px);
         color: white;
         animation: nameToRight 0.5s 2.5s linear forwards;
+        margin: 0;
     }
 }
 
