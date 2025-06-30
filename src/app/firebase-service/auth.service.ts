@@ -1,12 +1,15 @@
 import { inject, Injectable } from '@angular/core';
 import { Auth, createUserWithEmailAndPassword, GoogleAuthProvider, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, signOut } from '@angular/fire/auth';
+import { Firestore } from '@angular/fire/firestore';
 import { confirmPasswordReset, getAuth, updatePassword } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService {
     private auth: Auth = inject(Auth);
+    firestore: Firestore = inject(Firestore);
 
     async registerUser(email: string, password: string) {
         let cred = await createUserWithEmailAndPassword(this.auth, email, password);
@@ -18,16 +21,22 @@ export class AuthService {
     }
 
     async signInWithGoogle() {
-        const provider = new GoogleAuthProvider();
+        let provider = new GoogleAuthProvider();
         try {
-            const result = await signInWithPopup(this.auth, provider);
-            const user = result.user;
-            console.log('Google Login erfolgreich:', user);
+            let result = await signInWithPopup(this.auth, provider);
+            let user = result.user;
+            // console.log('Google Login erfolgreich:', user);
             return user;
         } catch (error) {
             console.error('Google Login fehlgeschlagen:', error);
             throw error;
         }
+    }
+
+    async checkUserExistsInFirestore(uid: string): Promise<boolean> {
+        let userRef = doc(this.firestore, 'users', uid);
+        let userSnap = await getDoc(userRef);
+        return userSnap.exists();
     }
 
     async logout() {
@@ -45,8 +54,8 @@ export class AuthService {
 
             })
             .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
+                let errorCode = error.code;
+                let errorMessage = error.message;
             });
     }
 

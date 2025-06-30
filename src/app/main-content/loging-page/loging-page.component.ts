@@ -74,19 +74,28 @@ export class LogingPageComponent {
   }
 
   signInWithGoogle() {
-    this.authService.signInWithGoogle().then(user => {
-      console.log("Loging with User: ", user);
-      console.log("Function Work in progess");
-      
-      //  this.router.navigate(['singIn/chooseAvatar'], {
-      //    state: {
-      //      singName: user.displayName,
-      //      singEmail: this.email,
-      //    }
-      //  });
-      // this.router.navigate(['/main']);
+    this.authService.signInWithGoogle().then(async user => {
+      let exists = await this.authService.checkUserExistsInFirestore(user.uid);
+
+      if (exists) {
+        this.router.navigate(['/main'], {
+          state: {
+            loginEmail: user.email,
+            loginId: user.uid
+          }
+        });
+      } else {
+        this.router.navigate(['singIn/chooseAvatar'], {
+          state: {
+            singName: user.displayName,
+            singEmail: user.email,
+            isGoogleLogin: true,
+            googleUid: user.uid,
+          }
+        });
+      }
     }).catch(err => {
-      // Fehlermeldung anzeigen
+      console.error('Google Login fehlgeschlagen:', err);
     });
   }
 

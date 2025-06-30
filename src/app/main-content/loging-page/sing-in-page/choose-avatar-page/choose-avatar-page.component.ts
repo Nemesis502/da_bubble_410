@@ -24,6 +24,10 @@ export class ChooseAvatarPageComponent {
   userEmail = '';
   userPassword = '';
   imgId = 0;
+  uid = '';
+  isGoogleLogin? = false;
+  googleUid? = "";
+  newUser!: appUser;
 
 
   imgArray = [
@@ -53,8 +57,11 @@ export class ChooseAvatarPageComponent {
     const state = navigation?.extras.state as {
       singName: string;
       singEmail: string;
-      singPassword: string;
+      singPassword?: string;
+      isGoogleLogin?: boolean;
+      googleUid?: string;
     };
+    this.setGoogleLogin(state.isGoogleLogin!, state.googleUid!)
     if (state) {
       this.userName = state.singName ?? '';
       this.userEmail = state.singEmail ?? '';
@@ -62,21 +69,49 @@ export class ChooseAvatarPageComponent {
     }
   }
 
+  setGoogleLogin(isGoogleLogin: boolean, googleUid: string) {
+    this.isGoogleLogin = isGoogleLogin ?? false;
+    this.googleUid = googleUid ?? '';
+  }
+
   chooseImg(id: number) {
     this.imgId = id;
   }
 
   async sendNewProfil() {
-    let uid = await this.authService.registerUser(this.userEmail, this.userPassword);
-    let newUser: appUser = {
+    if (this.isGoogleLogin) {
+      this.uid = this.googleUid!;
+      this.userService.addUser(this.uid, this.newUser);
+      this.loginWithGoogle()
+    } else {
+      this.uid = await this.authService.registerUser(this.userEmail, this.userPassword);
+      this.newUser = this.setNewUser();
+      this.userService.addUser(this.uid, this.newUser);
+      this.returnToStart();
+    }
+  }
+
+  setNewUser() {
+    return {
       userName: this.userName,
       profilePic: this.imgId,
       status: false,
       email: this.userEmail
     }
+  }
 
-    this.userService.addUser(uid, newUser);
-    this.returnToStart();
+  loginWithGoogle() {
+    this.animation = true;
+    this.renderer.setStyle(document.body, 'overflow', 'hidden');
+    setTimeout(() => {
+      this.router.navigate(['main'], {
+        state: {
+          loginEmail: this.userEmail,
+          loginId: this.uid
+        }
+      });
+      this.renderer.removeStyle(document.body, 'overflow');
+    }, 2000);
   }
 
   returnToStart() {
