@@ -9,7 +9,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { merge } from 'rxjs';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../firebase-service/auth.service';
+import { AuthService } from '../../shared/services/auth.service';
 
 @Component({
   selector: 'app-loging-page',
@@ -76,7 +76,6 @@ export class LogingPageComponent {
   signInWithGoogle() {
     this.authService.signInWithGoogle().then(async user => {
       let exists = await this.authService.checkUserExistsInFirestore(user.uid);
-
       if (exists) {
         this.router.navigate(['/main'], {
           state: {

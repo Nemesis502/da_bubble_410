@@ -13,7 +13,7 @@ import { SearchService } from '../../shared/services/search.service';
 import { ChannelsDirectMessageService } from '../../shared/services/channels-direct-message.service';
 import { FirestoreService } from '../../shared/services/firestore.service';
 import { Router } from '@angular/router';
-import { UserService } from '../../firebase-service/user.services';
+import { UserService } from '../../shared/services/user.services';
 import { appUser } from '../../interfaces/user.interface';
 import { firstValueFrom } from 'rxjs';
 import { SessionService } from '../../shared/services/currentUserSession.service';
@@ -86,7 +86,7 @@ export class MainMenuComponent implements OnInit {
       this.firestoreService.getChannels().subscribe((c) => {
         this.channels = c;
         this.searchService.setFirestoreChannels(c);
-        // console.log('Channels', this.channels);
+        console.log('Channels', this.channels);
       });
 
       this.getAllUsers();
