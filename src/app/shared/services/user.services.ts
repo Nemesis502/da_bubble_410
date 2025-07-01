@@ -1,6 +1,6 @@
 import { inject, Injectable } from "@angular/core";
-import { addDoc, collection, Firestore, onSnapshot } from "@angular/fire/firestore";
-import { appUser } from "../interfaces/user.interface";
+import { collection, Firestore, onSnapshot } from "@angular/fire/firestore";
+import { appUser } from "../../interfaces/user.interface";
 import { doc, setDoc, updateDoc } from "firebase/firestore";
 
 @Injectable({
@@ -8,26 +8,9 @@ import { doc, setDoc, updateDoc } from "firebase/firestore";
 })
 export class UserService {
     firestore: Firestore = inject(Firestore);
-    // allUsers: User[] = [];
-    // unsubUsers;
 
     constructor() {
-        // this.unsubUsers = this.subUserList();
     }
-
-    // ngOnDestroy() {
-    //     this.unsubUsers();
-    // }
-
-    // subUserList() {
-    //     return onSnapshot(this.getUserRef(), (list: any) => {
-    //         this.allUsers = [];
-    //         list.forEach((element: { id: string; data: () => any; }) => {
-    //             console.log(element.id);
-    //             this.allUsers.push(this.setUserObject(element.data(), element.id));
-    //         })
-    //     })
-    // }
 
     async addUser(uid: string, userData: appUser) {
         const userDocRef = doc(this.firestore, 'users', uid);

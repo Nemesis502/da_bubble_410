@@ -11,7 +11,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { merge } from 'rxjs';
 import { confirmPasswordValidator } from '../../../shared/services/confirm-password.validator';
 import { Auth } from '@angular/fire/auth';
-import { AuthService } from '../../../firebase-service/auth.service';
+import { AuthService } from '../../../shared/services/auth.service';
 
 @Component({
   selector: 'app-new-password',

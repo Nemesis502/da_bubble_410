@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { SessionService } from '../../services/currentUserSession.service';
 import { appUser } from '../../../interfaces/user.interface';
 import { FormsModule } from '@angular/forms';
-import { UserService } from '../../../firebase-service/user.services';
+import { UserService } from '../../services/user.services';
 @Component({
   selector: 'app-profil-edit-dialog',
   standalone: true,

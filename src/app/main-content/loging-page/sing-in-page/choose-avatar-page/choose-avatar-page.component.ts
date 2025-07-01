@@ -8,13 +8,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
 import { appUser } from '../../../../interfaces/user.interface';
-import { UserService } from '../../../../firebase-service/user.services';
-import { AuthService } from '../../../../firebase-service/auth.service';
+import { UserService } from '../../../../shared/services/user.services';
+import { AuthService } from '../../../../shared/services/auth.service';
 
 @Component({
   selector: 'app-choose-avatar-page',
   standalone: true,
-  imports: [CommonModule, MatDividerModule, MatFormFieldModule, MatInputModule, FormsModule, ReactiveFormsModule, MatIconModule, MatButtonModule, RouterLink],
+  imports: [CommonModule, MatDividerModule, MatFormFieldModule, MatInputModule, FormsModule, ReactiveFormsModule, MatIconModule, MatButtonModule],
   templateUrl: './choose-avatar-page.component.html',
   styleUrl: './choose-avatar-page.component.scss'
 })
@@ -81,6 +81,7 @@ export class ChooseAvatarPageComponent {
   async sendNewProfil() {
     if (this.isGoogleLogin) {
       this.uid = this.googleUid!;
+      this.newUser = this.setNewUser();
       this.userService.addUser(this.uid, this.newUser);
       this.loginWithGoogle()
     } else {
@@ -112,6 +113,14 @@ export class ChooseAvatarPageComponent {
       });
       this.renderer.removeStyle(document.body, 'overflow');
     }, 2000);
+  }
+
+  previousPage() {
+    if (this.isGoogleLogin) {
+      this.router.navigate(['/']);
+    } else {
+      this.router.navigate(['/singIn']);
+    }
   }
 
   returnToStart() {
