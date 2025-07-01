@@ -1,0 +1,238 @@
+@use "./../../../styles.scss" as *;
+
+input {
+    border: 0;
+    width: 100%;
+    font-family: 'Nunito';
+    font-size: 18px;
+
+    &:focus-visible {
+        outline: none;
+    }
+
+    &::placeholder {
+        font-family: 'Nunito';
+        font-size: 18px;
+    }
+}
+
+.header {
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 99;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-block: 40px 10px;
+    padding-inline: 16px;
+    background-color: white;
+    box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.08);
+
+    mat-icon {
+        width: 25px;
+        height: 25px;
+    }
+
+    .name {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+
+        h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            font-family: 'Nunito' !important;
+        }
+    }
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    padding: 20px 16px;
+    background-color: white;
+}
+
+.title-with-edit {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .mdc-button {
+        min-width: 0;
+    }
+
+    .mat-mdc-icon-button {
+        border-radius: 50%;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        background-color: $Bg;
+
+        &:disabled {
+            .mat-icon {
+                color: $TextGray !important;
+            }
+        }
+    }
+
+    .mat-icon {
+        margin: 0;
+        margin-top: 3px;
+        width: 24px;
+        height: 24px;
+        font-size: 24px;
+        color: black;
+    }
+}
+
+mat-card {
+    display: flex;
+    gap: 20px;
+    border: 1px solid $LightPurple;
+    border-radius: 20px;
+    background-color: white;
+    font-family: 'Nunito' !important;
+    box-shadow: none;
+
+    mat-card-title {
+        padding: 16px 16px 0;
+    }
+}
+
+mat-card-content {
+    display: flex;
+    align-items: center;
+    width: calc(100% - 32px);
+
+    .nuito18px700 {
+        font-weight: 400 !important;
+        text-align: unset !important;
+    }
+}
+
+textarea,
+.edit-name {
+    display: flex;
+    gap: 5px;
+    border: 1px solid;
+    border-color: $LightPurple;
+    border-radius: 42px;
+    padding: 20px;
+    width: 100%;
+    font-family: 'Nunito';
+    font-size: 18px;
+
+    &:focus-visible {
+        border-color: $purple1 !important;
+        outline: none;
+    }
+}
+
+.line {
+    margin-block: 10px;
+    margin-inline: 16px;
+    height: 1px;
+    background-color: $LightPurple;
+}
+
+.create {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+
+    .nuito18px700 {
+        font-weight: 700 !important;
+    }
+
+    .nuito20px {
+        font-size: 20px !important;
+        font-weight: 400 !important;
+        color: $purple3 !important;
+    }
+}
+
+.members {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    .member-avatar {
+        position: relative;
+        padding: 20px;
+
+        &:first-child {
+            padding-bottom: 0;
+        }
+
+        &.last-avatar {
+            padding-top: 0;
+
+            .status-icon {
+                top: 37px;
+            }
+        }
+
+        img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .status-icon {
+            position: absolute;
+            top: 56px;
+            left: 53px;
+            font-size: 14px;
+            background-color: white;
+            border-radius: 50%;
+            margin: 0;
+            padding: 2px;
+            width: 16px;
+            height: 16px;
+
+            &.online {
+                color: $onlineGreen;
+            }
+
+            &.offline {
+                color: $TextGray;
+            }
+        }
+    }
+}
+
+.add-member-btn {
+    color: black !important;
+
+    .icon-bg {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: $Bg;
+
+        mat-icon {
+            margin: 0;
+            margin-top: 3px;
+            width: 24px;
+            height: 24px;
+            font-size: 18px;
+            color: black;
+        }
+    }
+
+    .mdc-button__label {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding-left: 20px;
+        width: 250px;
+    }
+}

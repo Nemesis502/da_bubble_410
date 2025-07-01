@@ -9,6 +9,7 @@ import { ResetPasswordComponent } from './main-content/loging-page/reset-passwor
 import { PrivacyPolicyComponent } from './main-content/privacy-policy/privacy-policy.component';
 import { AddChannelDialogComponent } from './main-content/main-menu/add-channel-dialog/add-channel-dialog.component';
 import { NewPasswordComponent } from './main-content/loging-page/new-password/new-password.component';
+import { ChannelInfoComponent } from './main-content/channel-info/channel-info.component';
 
 export const routes: Routes = [
     { path: '', component: LogingPageComponent },
@@ -20,5 +21,6 @@ export const routes: Routes = [
     { path: 'main', component: MainMenuComponent },
     { path: 'legalNotice', component: LegalNoticeComponent },
     { path: 'privacyPolicy', component: PrivacyPolicyComponent },
-    { path: 'addChannelDialog', component: AddChannelDialogComponent }
+    { path: 'addChannelDialog', component: AddChannelDialogComponent },
+    { path: 'channel-info/:id', component: ChannelInfoComponent }
 ];

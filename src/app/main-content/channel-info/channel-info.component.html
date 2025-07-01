@@ -1,0 +1,112 @@
+<section class="header">
+    <div class="name">
+        <mat-icon fontIcon="numbers"></mat-icon>
+        <h2>{{ channel?.name }}</h2>
+    </div>
+    <button mat-icon-button aria-label="Schließen" (click)="close()">
+        <mat-icon fontIcon="close"></mat-icon>
+    </button>
+</section>
+<section class="main">
+    <section>
+        <mat-card>
+            <mat-card-title class="title-with-edit">
+                <span class="nuito18px700">Channel-Name</span>
+                @if (!editName) {
+                <button mat-icon-button (click)="editName = !editName" aria-label="Bearbeiten">
+                    <mat-icon fontSet="material-icons-outlined">edit</mat-icon>
+                </button>
+                } @else if (newChannelName.trim().length === 0) {
+                <button mat-icon-button (click)="editName = !editName" aria-label="Bearbeiten schließen">
+                    <mat-icon fontIcon=" close"></mat-icon>
+                </button>
+                } @else {
+                <button mat-icon-button (click)="saveName()" aria-label="Speichern">
+                    <mat-icon fontSet="material-icons-outlined">check_circle</mat-icon>
+                </button>
+                }
+            </mat-card-title>
+            <mat-card-content>
+                @if (!editName) {
+                <mat-icon fontIcon="numbers"></mat-icon>
+                <span class="nuito18px700">{{ channel?.name }}</span>
+                } @else {
+                <div class="edit-name">
+                    <mat-icon fontIcon="numbers"></mat-icon>
+                    <input matInput [(ngModel)]="newChannelName" [value]="channel?.name || ''"
+                        (keydown.enter)="saveName()" placeholder="{{ channel?.name }}" />
+                </div>
+                }
+            </mat-card-content>
+        </mat-card>
+    </section>
+    <section>
+        <mat-card>
+            <mat-card-title class="title-with-edit">
+                <span class="nuito18px700">Beschreibung</span>
+                @if (!editDescription) {
+                <button mat-icon-button (click)="editDescription = !editDescription" aria-label="Bearbeiten">
+                    <mat-icon fontSet="material-icons-outlined">edit</mat-icon>
+                </button>
+                } @else if (newChannelDescription.trim().length === 0) {
+                <button mat-icon-button (click)="editDescription = !editDescription" aria-label="Bearbeiten schließen">
+                    <mat-icon fontIcon=" close"></mat-icon>
+                </button>
+                } @else {
+                <button mat-icon-button (click)="saveDescription()" aria-label="Speichern">
+                    <mat-icon fontSet="material-icons-outlined">check_circle</mat-icon>
+                </button>
+                }
+            </mat-card-title>
+            <mat-card-content class="edit-description">
+                @if (!editDescription) {
+                <span class="nuito18px700">{{ channel?.description || 'Keine Beschreibung' }}</span>
+                }
+                @else {
+                <textarea placeholder="Dein Text hier" [(ngModel)]="newChannelDescription" #channelDesc="ngModel"
+                    [class.focused]="newChannelDescription || descriptionEl === document.activeElement" #descriptionEl
+                    cdkTextareaAutosize cdkAutosizeMinRows="1" cdkAutosizeMaxRows="10"></textarea>
+                }
+            </mat-card-content>
+            <div class="line"></div>
+            <mat-card-content class="create">
+                <span class="nuito18px700">Erstellt von</span>
+                <span class="nuito20px">{{ creatorName || 'Unbekannt' }}</span>
+            </mat-card-content>
+        </mat-card>
+    </section>
+    <section>
+        <mat-card>
+            <mat-card-title>
+                <span class="nuito24px700">
+                    Mitglieder
+                </span>
+            </mat-card-title>
+            <mat-card-content class="members">
+                @for (member of members(); track member.id; let last = $last) {
+                <div class="member-avatar" [class.last-avatar]="last && members().length >= 3">
+                    <img [src]="'./assets/img/avatar/' + member.profilePic + '.png'"
+                        alt="Avatar von {{ member.userName }}" />
+                    <mat-icon fontIcon="lens" [ngClass]="member.status ? 'online' : 'offline'"
+                        class="status-icon"></mat-icon>
+                    <span>
+                        {{ member.userName }}
+                        @if (member.id === currentUser?.id) {
+                        (Du)
+                        }
+                    </span>
+                </div>
+                }
+                <button mat-button class="add-member-btn" (click)="openAddPeopleDialog()">
+                    <div class="icon-bg">
+                        <mat-icon fontSet="material-icons-outlined">person_add</mat-icon>
+                    </div>
+                    Mitglieder hinzufügen
+                </button>
+            </mat-card-content>
+        </mat-card>
+    </section>
+    <button mat-raised-button class="leave-channel-btn" (click)="leaveChannel()">
+        Channel verlassen
+    </button>
+</section>
