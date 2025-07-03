@@ -55,7 +55,7 @@ export class ChatTemplateComponent implements OnInit {
     private elementRef: ElementRef,
     private channelService: ChannelsDirectMessageService,
     private firestore: Firestore
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.channelService.selectedChannel$.subscribe((channel) => {
@@ -121,32 +121,32 @@ export class ChatTemplateComponent implements OnInit {
     }
   }
 
-async sendMessage(): Promise<void> {
-  if (!this.chatMessage.trim() || !this.selectedChannel?.channelId) {
-    console.warn('Message text is empty or channel is not selected.');
-    return;
+  async sendMessage(): Promise<void> {
+    if (!this.chatMessage.trim() || !this.selectedChannel?.channelId) {
+      console.warn('Message text is empty or channel is not selected.');
+      return;
+    }
+
+    try {
+      const messageCollection = collection(
+        this.firestore,
+        `channels/${this.selectedChannel.channelId}/messages`
+      );
+
+      const newMessage = {
+        text: this.chatMessage.trim(),
+        timestamp: serverTimestamp(),
+        senderID: this.currentUser,
+        channelId: this.selectedChannel.channelId,
+      };
+
+      await addDoc(messageCollection, newMessage);
+      console.log('Message sent successfully:', newMessage);
+      this.chatMessage = '';
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
   }
-
-  try {
-    const messageCollection = collection(
-      this.firestore,
-      `channels/${this.selectedChannel.channelId}/messages`
-    );
-
-    const newMessage = {
-      text: this.chatMessage.trim(),
-      timestamp: serverTimestamp(),
-      senderID: this.currentUser,
-      channelId: this.selectedChannel.channelId,
-    };
-
-    await addDoc(messageCollection, newMessage);
-    console.log('Message sent successfully:', newMessage);
-    this.chatMessage = ''; 
-  } catch (error) {
-    console.error('Error sending message:', error);
-  }
-}
 
 
   @HostListener('document:click', ['$event'])
@@ -165,5 +165,15 @@ async sendMessage(): Promise<void> {
     ) {
       this.emojiPickerVisible = false;
     }
+  }
+
+  openChannelInfo(): void {
+    const channelId = this.selectedChannel?.channelId;
+    if (!channelId) {
+      console.warn('Kein Channel ausgewählt');
+      return;
+    }
+
+    this.router.navigate(['/channel-info', channelId]);
   }
 }

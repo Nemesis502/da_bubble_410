@@ -42,4 +42,8 @@ export class FirestoreService {
   getUserDocRef(uid: string) {
     return doc(this.firestore, 'users', uid);
   }
+
+  getChannelDocRef(channelId: string) {
+    return doc(this.firestore, 'channels', channelId);
+  }
 }
