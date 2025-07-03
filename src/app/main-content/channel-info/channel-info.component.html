@@ -83,30 +83,34 @@
                 </span>
             </mat-card-title>
             <mat-card-content class="members">
-                @for (member of members(); track member.id; let last = $last) {
-                <div class="member-avatar" [class.last-avatar]="last && members().length >= 3">
-                    <img [src]="'./assets/img/avatar/' + member.profilePic + '.png'"
-                        alt="Avatar von {{ member.userName }}" />
-                    <mat-icon fontIcon="lens" [ngClass]="member.status ? 'online' : 'offline'"
-                        class="status-icon"></mat-icon>
-                    <span>
-                        {{ member.userName }}
-                        @if (member.id === currentUser?.id) {
-                        (Du)
-                        }
-                    </span>
+                <div class="members-list">
+                    @for (member of members(); track member.id) {
+                    <div class="member-avatar">
+                        <img [src]="'./assets/img/avatar/' + member.profilePic + '.png'"
+                            alt="Avatar von {{ member.userName }}" />
+                        <mat-icon fontIcon="lens" [ngClass]="member.status ? 'online' : 'offline'"
+                            class="status-icon"></mat-icon>
+                        <span class="nuito18px700">
+                            {{ member.userName }}
+                            @if (member.id === currentUser?.id) {
+                            (Du)
+                            }
+                        </span>
+                    </div>
+                    }
                 </div>
-                }
                 <button mat-button class="add-member-btn" (click)="openAddPeopleDialog()">
                     <div class="icon-bg">
                         <mat-icon fontSet="material-icons-outlined">person_add</mat-icon>
                     </div>
-                    Mitglieder hinzufügen
+                    <span class="nuito18px700">
+                        Mitglieder hinzufügen
+                    </span>
                 </button>
             </mat-card-content>
         </mat-card>
     </section>
-    <button mat-raised-button class="leave-channel-btn" (click)="leaveChannel()">
+    <button mat-raised-button class="leave-channel-btn nuito18px700" (click)="leaveChannel()">
         Channel verlassen
     </button>
 </section>
