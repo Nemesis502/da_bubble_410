@@ -155,6 +155,8 @@
 .channel-list {
     display: flex;
     flex-direction: column;
+    height: 10vh;
+    overflow-y: scroll;
 
     .channel-item {
         display: flex;
