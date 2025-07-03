@@ -54,6 +54,7 @@ export class MainMenuComponent implements OnInit {
   filteredDirectMessages: any[] = [];
 
   channels: any[] = [];
+  userChannels: any[] = [];
   users: any[] = [];
   currentUser: appUser | null = null;
   directMessages: any[] = [];
@@ -85,8 +86,11 @@ export class MainMenuComponent implements OnInit {
     if (!this.gastLogin) {
       this.firestoreService.getChannels().subscribe((c) => {
         this.channels = c;
+        this.userChannels = c.filter(channel =>
+          channel.members.includes(this.currentLoginId)
+        );
         this.searchService.setFirestoreChannels(c);
-        console.log('Channels', this.channels);
+        console.log('Channels', this.userChannels);
       });
 
       this.getAllUsers();
