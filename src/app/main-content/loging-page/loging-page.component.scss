@@ -14,6 +14,7 @@
 
 .hidden {
     display: none;
+
 }
 
 .logo-intro-container {
@@ -30,6 +31,11 @@
     }
 }
 
+.header-desktop {
+    margin: 75px 75px 0 75px;
+    display: none;
+}
+
 .title {
     overflow-x: hidden;
     height: 35px;
@@ -44,11 +50,10 @@
 }
 
 .logIn-Section {
-    // margin: 92px 30px 0 30px;
     margin: 92px 16px 0 16px;
 }
 
-.logo-container {
+.logo-container-mobile {
     display: flex;
     align-items: center;
     flex-direction: row;
@@ -65,14 +70,30 @@
     h1 {
         color: black;
         margin: 0;
-        font-weight: 500;
+    }
+}
+
+.logo-container-desktop {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    gap: 13px;
+    box-sizing: border-box;
+
+    img {
+        height: 70px;
+        width: 70px;
+    }
+
+    h1 {
+        color: black;
+        margin: 0;
     }
 }
 
 .input-section {
     border-radius: 30px;
     background-color: white;
-    // margin: 30px 13px 30px 13px;
     margin: 30px 0 30px 0;
     display: flex;
     flex-direction: column;
@@ -102,7 +123,9 @@
     max-width: 500px;
 }
 
-
+.mat-mdc-form-field-has-icon-prefix .mat-mdc-text-field-wrapper {
+    padding-left: 16px !important;
+}
 
 .input-title {
     padding: 35px 20px 0 20px;
@@ -122,7 +145,7 @@ mat-form-field {
     }
 
     .mat-mdc-text-field-wrapper {
-        border-radius: 100px ;
+        border-radius: 100px;
     }
 
 
@@ -193,7 +216,7 @@ mat-form-field {
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        gap: 20px;
+        gap: 15px;
         background-color: $Bg;
         border: 0;
         border-radius: 100px;
@@ -201,7 +224,6 @@ mat-form-field {
 
         p {
             color: $purple1;
-            font-size: 16px !important;
         }
     }
 
@@ -239,12 +261,58 @@ mat-form-field {
     height: 49px !important;
 }
 
-.newUser-container {
-    justify-content: unset;
+.newUser-container-mobile {
+    gap: 20px;
 
     p {
         font-size: 18px !important;
         color: black;
+    }
+}
+
+.newUser-container-desktop {
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+    justify-content: center;
+
+    p {
+        font-size: 18px !important;
+        margin: 0;
+        color: black;
+    }
+
+    button {
+        >span {
+            color: $purple2;
+        }
+
+    }
+}
+
+.creat-account-button {
+    width: 165px;
+    height: 39px !important;
+    padding: 7px 18px !important;
+
+    span {
+        font-weight: 700;
+    }
+
+}
+
+.footer-desktop {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.link-container {
+    a {
+        color: $purple2;
+        text-decoration: none;
     }
 }
 

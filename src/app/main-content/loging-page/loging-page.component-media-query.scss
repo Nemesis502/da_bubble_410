@@ -1,5 +1,47 @@
 @use "./../../../styles.scss" as *;
 
+@media only screen and (min-width: 370px) {
+    .logIn-Section {
+        margin: 92px 30px 0 30px;
+    }
+
+    .input-section {
+        margin: 30px 13px 30px 13px;
+    }
+
+    .login-google-container {
+        button {
+            gap: 20px;
+        }
+    }
+
+    .button-container {
+        gap: 20px;
+    }
+}
+
+@media only screen and (min-width: 600px) {
+
+    .logIn-Section {
+        margin: 11px 30px 0 30px;
+        gap: 65px;
+    }
+
+    .header-desktop {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .logo-container-mobile {
+        display: none;
+    }
+
+    .newUser-container-mobile {
+        display: none;
+    }
+
+}
+
 @keyframes nameToRight {
     from {
         transform: translateX(-192px);
