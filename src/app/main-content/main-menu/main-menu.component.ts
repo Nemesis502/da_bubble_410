@@ -82,11 +82,10 @@ export class MainMenuComponent implements OnInit {
     const sessionUser = this.userSession.getCurrentUser();
 
     if (!this.gastLogin && sessionUser && !this.currentLoginId) {
-      // Fallback für Seiten-Neuladung etc.
       this.currentUser = sessionUser;
       this.currentLoginId = sessionUser.id!;
       this.currentLoginEmail = sessionUser.email!;
-      this.subCurrentUser(); // Synch starten
+      this.subCurrentUser();
     }
 
     if (!this.gastLogin && this.currentLoginId) {
@@ -165,7 +164,6 @@ export class MainMenuComponent implements OnInit {
     this.firestoreService.getUsers().subscribe((u) => {
       this.users = u;
       this.searchService.setFirestoreUsers(u);
-      // console.log('Users', this.users);
     });
   }
 
@@ -180,6 +178,14 @@ export class MainMenuComponent implements OnInit {
     } else {
       this.filterAsUser(query, isChannelSearch, isDirectSearch);
     }
+  }
+
+  get sortedUsers(): appUser[] {
+    if (!this.currentUser) return this.users;
+    return [
+      ...this.users.filter(u => u.id === this.currentUser?.id),
+      ...this.users.filter(u => u.id !== this.currentUser?.id)
+    ];
   }
 
   private filterAsGuest(

@@ -117,7 +117,7 @@
           </div>
           }
           } @else {
-          @for (user of users; track user.id) {
+          @for (user of sortedUsers; track user.id) {
           <div class="message-item">
             <img src="./assets/img/avatar/{{ user.profilePic }}.png" alt="Avatar von {{ user.userName }}" />
             <div class="status {{ user.status ? 'online' : 'offline' }}"></div>
