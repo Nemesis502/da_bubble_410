@@ -34,7 +34,7 @@
     border: 1px solid $LightPurple;
     border-radius: 0 28px 28px 28px !important;
     padding: 4px 0;
-    max-height: 130px;
+    max-height: 130px !important;
     background-color: white !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
@@ -51,9 +51,22 @@
     height: 52px !important;
 }
 
+::ng-deep .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+    background-color: transparent !important;
+}
+
 input {
     font-family: 'Nunito' !important;
     font-size: 18px !important;
+    color: black !important;
+
+    &::placeholder {
+        color: $TextGray !important;
+    }
+}
+
+.mat-mdc-card {
+    box-shadow: none;
 }
 
 .menu-dialog {
@@ -68,6 +81,10 @@ input {
 
     &.from-add-channel {
         padding: 15px 20px 40px 20px;
+    }
+
+    &.from-info-channel {
+        padding: 20px 20px 40px 20px;
     }
 
     .handle {
@@ -183,8 +200,7 @@ input {
 }
 
 .add-people-input {
-    border: 1px solid;
-    border-color: $LightPurple;
+    border: 1px solid $LightPurple;
     border-radius: 42px;
     transition: border-color 0.2s;
 
@@ -208,11 +224,13 @@ input {
     }
 }
 
-.create-new-channel {
+.create-new-channel,
+.add-members {
     display: flex;
     justify-content: end;
 
-    .create-channel-button {
+    .create-channel-btn,
+    .add-members-btn {
         width: 125px;
         height: 49px;
         background-color: $purple1;

@@ -11,15 +11,17 @@ import { Channel } from '../../interfaces/channel.interface';
 import { appUser } from '../../interfaces/user.interface';
 import { firstValueFrom } from 'rxjs';
 import { TextFieldModule } from '@angular/cdk/text-field';
+import { MenuDialogComponent } from '../main-menu/menu-dialog/menu-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-channel-info',
   standalone: true,
   imports: [
-    CommonModule, 
-    MatCardModule, 
-    MatButtonModule, 
-    MatIconModule, 
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
     FormsModule,
     TextFieldModule
   ],
@@ -31,6 +33,7 @@ export class ChannelInfoComponent implements OnInit {
   readonly route = inject(ActivatedRoute);
   readonly router = inject(Router);
   readonly document = inject(DOCUMENT);
+  readonly dialog = inject(MatDialog);
 
   channelId = '';
   channel: Channel | null = null;
@@ -101,7 +104,18 @@ export class ChannelInfoComponent implements OnInit {
   }
 
   openAddPeopleDialog(): void {
-    // Dialog öffnen
+    this.dialog.open(MenuDialogComponent, {
+      position: { bottom: '0' },
+      maxWidth: '100vw',
+      width: '100vw',
+      height: '50vh',
+      panelClass: 'bottom-dialog-panel',
+      data: {
+        source: 'channel-info',
+        channelId: this.channelId,
+        currentUser: this.currentUser
+      }
+    });
   }
 
   async leaveChannel(): Promise<void> {

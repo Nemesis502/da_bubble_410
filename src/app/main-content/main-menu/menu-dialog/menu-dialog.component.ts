@@ -50,8 +50,10 @@ export class MenuDialogComponent implements OnInit {
   readonly peoples = signal<appUser[]>([]);
   readonly allUsers = signal<appUser[]>([]);
   readonly filteredUsers = signal<appUser[]>([]);
+  channelMembers = signal<string[]>([]);
 
   currentUser: appUser | null = null;
+  channelId: string = '';
   searchTerm = '';
   channelName = '';
   channelDescription = '';
@@ -64,6 +66,7 @@ export class MenuDialogComponent implements OnInit {
     private router: Router,
     @Inject(MAT_DIALOG_DATA)
     public data: {
+      channelId: any;
       source: string,
       channelName?: string,
       channelDescription?: string,
@@ -81,6 +84,10 @@ export class MenuDialogComponent implements OnInit {
     if (this.data.source === 'add-channel') {
       this.channelName = this.data.channelName || '';
       this.channelDescription = this.data.channelDescription || '';
+    }
+    if (this.data.source === 'channel-info') {
+      this.channelId = this.data.channelId;
+      await this.loadChannelMembers();
     }
   }
 
@@ -105,6 +112,14 @@ export class MenuDialogComponent implements OnInit {
       }));
       this.allUsers.set(users);
       this.filteredUsers.set(users);
+    }
+  }
+
+  private async loadChannelMembers(): Promise<void> {
+    const channels = await firstValueFrom(this.firestoreService.getChannels());
+    const channel = channels.find(c => c.channelId === this.channelId);
+    if (channel) {
+      this.channelMembers.set(channel.members);
     }
   }
 
@@ -139,16 +154,21 @@ export class MenuDialogComponent implements OnInit {
 
   filterUsers() {
     const query = typeof this.searchTerm === 'string' ? this.searchTerm.toLowerCase() : '';
+    const membersInChannel = this.channelMembers();
     this.filteredUsers.set(
       this.allUsers().filter(user =>
         user.userName.toLowerCase().startsWith(query) &&
-        !this.peoples().some(p => p.userName === user.userName)
+        !this.peoples().some(p => p.userName === user.userName) &&
+        !membersInChannel.includes(user.id!)
       )
     );
   }
 
   selectUser(user: appUser) {
-    if (!this.peoples().some(p => p.userName === user.userName)) {
+    if (
+      !this.peoples().some(p => p.userName === user.userName) &&
+      !this.channelMembers().includes(user.id!)
+    ) {
       this.peoples.update(peoples => [...peoples, user]);
     }
 
@@ -168,7 +188,12 @@ export class MenuDialogComponent implements OnInit {
     if (!value) return;
 
     const match = this.allUsers().find(u => u.userName.toLowerCase() === value.toLowerCase());
-    if (match && !this.peoples().some(p => p.userName === match.userName)) {
+
+    if (
+      match &&
+      !this.peoples().some(p => p.userName === match.userName) &&
+      !this.channelMembers().includes(match.id!)
+    ) {
       this.peoples.update(peoples => [...peoples, match]);
     }
 
@@ -186,7 +211,12 @@ export class MenuDialogComponent implements OnInit {
       if (!val) return;
 
       const match = this.allUsers().find(u => u.userName.toLowerCase() === val.toLowerCase());
-      if (match && !this.peoples().some(p => p.userName === match.userName)) {
+
+      if (
+        match &&
+        !this.peoples().some(p => p.userName === match.userName) &&
+        !this.channelMembers().includes(match.id!)
+      ) {
         this.peoples.update(peoples => [...peoples, match]);
       }
 
@@ -253,6 +283,29 @@ export class MenuDialogComponent implements OnInit {
       this.closeDialog();
     } catch (error) {
       console.error('Fehler beim Speichern des Channels:', error);
+    }
+  }
+
+  async addMembers() {
+    if (this.isGastLogin) {
+      console.log('Gast-Login: Mitglieder werden nicht hinzugefügt.');
+      return;
+    }
+
+    if (!this.currentUser) {
+      console.error('Kein eingeloggter User gefunden.');
+      return;
+    }
+
+    const channelId = this.data.channelId;
+    const membersToAdd = this.peoples().map(u => u.id!);
+
+    try {
+      await this.firestoreService.addMembersToChannel(channelId, membersToAdd);
+      console.log('Mitglieder erfolgreich hinzugefügt.');
+      this.closeDialog();
+    } catch (error: any) {
+      console.error('Fehler beim Hinzufügen der Mitglieder:', error);
     }
   }
 }

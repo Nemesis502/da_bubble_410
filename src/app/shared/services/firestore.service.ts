@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { collection, collectionData, docData, Firestore } from '@angular/fire/firestore';
-import { addDoc, doc, onSnapshot } from 'firebase/firestore';
+import { addDoc, doc, getDoc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { Observable } from 'rxjs';
 import { Channel } from '../../interfaces/channel.interface';
 
@@ -8,6 +8,19 @@ import { Channel } from '../../interfaces/channel.interface';
 export class FirestoreService {
   private firestore = inject(Firestore);
 
+  async addMembersToChannel(channelId: string, newMemberIds: string[]): Promise<void> {
+    const channelRef = this.getChannelDocRef(channelId);
+    const channelSnap = await getDoc(channelRef);
+    const channelData = channelSnap.data();
+
+    if (!channelData) throw new Error('Channel nicht gefunden');
+
+    const existingMembers: string[] = channelData['members'] || [];
+    const updatedMembers = Array.from(new Set([...existingMembers, ...newMemberIds]));
+
+    await updateDoc(channelRef, { members: updatedMembers });
+  }
+  
   getUserById(uid: string) {
     const userDoc = doc(this.firestore, 'users', uid);
     return docData(userDoc, { idField: 'id' });
