@@ -8,14 +8,15 @@ export class SessionService {
     currentLogingUser$ = this.currentLogingUser.asObservable();
 
     setCurrentUser(currentUser: appUser) {
-        if (currentUser.id == 'Guest') {
-            this.currentLogingUser.next(currentUser);
-        } else {
-            this.currentLogingUser.next(currentUser);
-        }
+        this.currentLogingUser.next(currentUser);
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
     }
 
     getCurrentUser(): appUser | null {
+        const local = localStorage.getItem('currentUser');
+        if (local && !this.currentLogingUser.value) {
+            this.currentLogingUser.next(JSON.parse(local));
+        }
         return this.currentLogingUser.value;
     }
 }

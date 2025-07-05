@@ -79,10 +79,21 @@ export class MainMenuComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
+    const sessionUser = this.userSession.getCurrentUser();
+
+    if (!this.gastLogin && sessionUser && !this.currentLoginId) {
+      // Fallback für Seiten-Neuladung etc.
+      this.currentUser = sessionUser;
+      this.currentLoginId = sessionUser.id!;
+      this.currentLoginEmail = sessionUser.email!;
+      this.subCurrentUser(); // Synch starten
+    }
+
     if (!this.gastLogin && this.currentLoginId) {
-      await this.getCurrentUserLogIn()
+      await this.getCurrentUserLogIn();
       console.log('current User', this.currentUser);
     }
+
     if (!this.gastLogin) {
       this.firestoreService.getChannels().subscribe((c) => {
         this.channels = c;
@@ -90,16 +101,15 @@ export class MainMenuComponent implements OnInit {
           channel.members.includes(this.currentLoginId)
         );
         this.searchService.setFirestoreChannels(c);
-        console.log('Channels', this.userChannels);
       });
 
       this.getAllUsers();
 
       this.firestoreService.getConversations().subscribe((conv) => {
         this.directMessages = conv;
-        // console.log('Direktnachrichten', this.directMessages);
       });
     }
+
     this.updateFilteredResults();
   }
 

@@ -303,7 +303,7 @@ export class MenuDialogComponent implements OnInit {
     try {
       await this.firestoreService.addMembersToChannel(channelId, membersToAdd);
       console.log('Mitglieder erfolgreich hinzugefügt.');
-      this.closeDialog();
+      this.dialogRef.close({ membersAdded: true });
     } catch (error: any) {
       console.error('Fehler beim Hinzufügen der Mitglieder:', error);
     }

@@ -13,6 +13,7 @@ import { firstValueFrom } from 'rxjs';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { MenuDialogComponent } from '../main-menu/menu-dialog/menu-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { SessionService } from '../../shared/services/currentUserSession.service';
 
 @Component({
   selector: 'app-channel-info',
@@ -34,6 +35,7 @@ export class ChannelInfoComponent implements OnInit {
   readonly router = inject(Router);
   readonly document = inject(DOCUMENT);
   readonly dialog = inject(MatDialog);
+  readonly userSession = inject(SessionService);
 
   channelId = '';
   channel: Channel | null = null;
@@ -50,10 +52,12 @@ export class ChannelInfoComponent implements OnInit {
   editDescription = false;
 
   async ngOnInit(): Promise<void> {
+    this.currentUser = this.userSession.getCurrentUser();
     this.channelId = this.route.snapshot.paramMap.get('id') || '';
     await this.loadChannel();
     await this.loadMembers();
   }
+
 
   async loadChannel(): Promise<void> {
     const channels = await firstValueFrom(this.firestoreService.getChannels());
@@ -75,11 +79,20 @@ export class ChannelInfoComponent implements OnInit {
 
   async loadMembers(): Promise<void> {
     const users = await firstValueFrom(this.firestoreService.getUsers());
+
     const memberList = users.filter((user: appUser) =>
       this.channel?.members.includes(user.id!)
     );
-    this.members.set(memberList);
+
+    const sortedMembers = [...memberList].sort((a, b) => {
+      if (a.id === this.currentUser?.id) return -1;
+      if (b.id === this.currentUser?.id) return 1;
+      return 0;
+    });
+
+    this.members.set(sortedMembers);
   }
+
 
   async saveName(): Promise<void> {
     if (!this.channelId || !this.newChannelName?.trim()) return;
@@ -104,7 +117,7 @@ export class ChannelInfoComponent implements OnInit {
   }
 
   openAddPeopleDialog(): void {
-    this.dialog.open(MenuDialogComponent, {
+    const dialogRef = this.dialog.open(MenuDialogComponent, {
       position: { bottom: '0' },
       maxWidth: '100vw',
       width: '100vw',
@@ -116,14 +129,20 @@ export class ChannelInfoComponent implements OnInit {
         currentUser: this.currentUser
       }
     });
+
+    dialogRef.afterClosed().subscribe(async (result) => {
+      await this.loadChannel();
+      await this.loadMembers();
+    });
   }
+
 
   async leaveChannel(): Promise<void> {
     if (!this.channel || !this.currentUser?.id) return;
     const updatedMembers = this.channel.members.filter(id => id !== this.currentUser!.id);
     const ref = this.firestoreService.getChannelDocRef(this.channelId);
     await updateDoc(ref, { members: updatedMembers });
-    this.router.navigate(['/']);
+    this.router.navigate(['/main']);
   }
 
   close(): void {
