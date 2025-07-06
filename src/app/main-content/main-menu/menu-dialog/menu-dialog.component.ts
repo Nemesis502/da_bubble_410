@@ -255,11 +255,6 @@ export class MenuDialogComponent implements OnInit {
   }
 
   async createNewChannel() {
-    console.log('Channel-Name', this.channelName);
-    console.log('Beschreibung', this.channelDescription);
-    console.log('Erstellt von', this.currentUser);
-    console.log('Mitglieder', this.peoples());
-
     if (this.isGastLogin) {
       console.log('Gast-Login: Channel wird nicht gespeichert.');
       return;
@@ -274,16 +269,24 @@ export class MenuDialogComponent implements OnInit {
       name: this.channelName,
       description: this.channelDescription,
       createdBy: this.currentUser.id!,
-      members: this.peoples().map(u => u.id!)
+      members: Array.from(new Set([
+        ...this.peoples().map(u => u.id!),
+        this.currentUser.id!
+      ]))
     };
 
     try {
       await this.firestoreService.addChannel(newChannel);
       console.log('Channel erfolgreich gespeichert.');
       this.closeDialog();
+      this.router.navigate(['/main']);
     } catch (error) {
       console.error('Fehler beim Speichern des Channels:', error);
     }
+    console.log('Channel-Name', this.channelName);
+    console.log('Beschreibung', this.channelDescription);
+    console.log('Erstellt von', this.currentUser);
+    console.log('Mitglieder', this.peoples());
   }
 
   async addMembers() {
