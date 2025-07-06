@@ -109,7 +109,7 @@
         @if (showDirectMessages) {
         <div class="message-list" id="direct-messages">
           @if (gastLogin) {
-          @for (user of channelDirectMessageData.getDirectMessages(); track user.name) {
+          @for (user of channelDirectMessageData.getDirectMessagesForGast(); track user.name) {
           <div class="message-item">
             <img src="./assets/img/avatar/{{ user.img }}" alt="Avatar von {{ user.name }}" />
             <div class="status {{ user.status }}"></div>

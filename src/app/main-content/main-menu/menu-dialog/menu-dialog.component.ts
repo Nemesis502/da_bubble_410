@@ -93,7 +93,7 @@ export class MenuDialogComponent implements OnInit {
 
   private async loadUsers(): Promise<void> {
     if (this.isGastLogin) {
-      const guestUsers = this.channelsDirectMessageService.getDirectMessages().map(dm => ({
+      const guestUsers = this.channelsDirectMessageService.getDirectMessagesForGast().map(dm => ({
         userName: dm.name,
         profilePic: parseInt(dm.img.replace('.png', ''), 10) || 0,
         status: dm.status === 'online',

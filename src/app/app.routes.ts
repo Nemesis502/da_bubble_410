@@ -17,7 +17,7 @@ export const routes: Routes = [
     { path: 'resetPassword', component: ResetPasswordComponent },
     { path: 'newPassword', component: NewPasswordComponent },
     { path: 'singIn/chooseAvatar', component: ChooseAvatarPageComponent },
-    { path: 'chat', component: ChatTemplateComponent },
+    { path: 'chat/:id', component: ChatTemplateComponent },
     { path: 'main', component: MainMenuComponent },
     { path: 'legalNotice', component: LegalNoticeComponent },
     { path: 'privacyPolicy', component: PrivacyPolicyComponent },

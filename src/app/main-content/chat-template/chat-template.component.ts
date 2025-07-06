@@ -1,26 +1,16 @@
-import {
-  Component,
-  ElementRef,
-  HostListener,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, HostListener, inject, OnInit, ViewChild } from '@angular/core';
 import { ChannelsDirectMessageService } from '../../shared/services/channels-direct-message.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MessageTemplateComponent } from '../message-template/message-template.component';
 import { EmojiPickerComponent } from '../emoji-picker/emoji-picker.component';
 import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
-import {
-  Firestore,
-  collection,
-  doc,
-  addDoc,
-  serverTimestamp,
-} from '@angular/fire/firestore';
+import { Firestore, collection, doc, addDoc, serverTimestamp } from '@angular/fire/firestore';
+import { appUser } from '../../interfaces/user.interface';
+import { SessionService } from '../../shared/services/currentUserSession.service';
 
 interface PickerPosition {
   top: number;
@@ -42,22 +32,40 @@ interface PickerPosition {
   styleUrl: './chat-template.component.scss',
 })
 export class ChatTemplateComponent implements OnInit {
+  userSession = inject(SessionService);
+
   @ViewChild('chatField') chatField!: ElementRef<HTMLTextAreaElement>;
   selectedChannel: any = null;
   chatMessage: string = '';
   emojiPickerVisible: boolean = false;
   pickerPosition: PickerPosition = { top: 0, left: 0 };
   messages: any[] = [];
-  currentUser: string = 'w7dUBSUFSqZAtEy0GtxG';
+  currentUser: appUser | null = null;
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private elementRef: ElementRef,
     private channelService: ChannelsDirectMessageService,
     private firestore: Firestore
   ) { }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    this.currentUser = this.userSession.getCurrentUser();
+    const channelId = this.route.snapshot.paramMap.get('id');
+
+    if (channelId) {
+      const knownChannels = this.channelService.getChannels();
+      const matchedChannel = knownChannels.find(c => c.channelId === channelId);
+
+      if (matchedChannel) {
+        this.selectedChannel = matchedChannel;
+        this.channelService.setSelectedChannel(matchedChannel);
+        this.loadMessagesForChannel(matchedChannel);
+      } else {
+        console.warn('Channel mit ID nicht gefunden:', channelId);
+      }
+    }
     this.channelService.selectedChannel$.subscribe((channel) => {
       this.selectedChannel = channel;
       if (channel) {

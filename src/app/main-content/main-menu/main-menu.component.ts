@@ -196,20 +196,19 @@ export class MainMenuComponent implements OnInit {
     if (isChannel) {
       this.filteredChannels = this.channelDirectMessageData
         .getChannels()
-        .filter((c) => c.toLowerCase().startsWith(query));
+        .filter((c) => c.name.toLowerCase().startsWith(query));
       this.filteredDirectMessages = [];
     } else if (isDirect) {
       this.filteredDirectMessages = this.channelDirectMessageData
-        .getDirectMessages()
+        .getDirectMessagesForGast()
         .filter((dm) => dm.name.toLowerCase().startsWith(query));
       this.filteredChannels = [];
     } else {
       this.filteredChannels = this.channelDirectMessageData
         .getChannels()
-        .filter((c) => c.toLowerCase().startsWith(query));
-
+        .filter((c) => c.name.toLowerCase().startsWith(query));
       this.filteredDirectMessages = this.channelDirectMessageData
-        .getDirectMessages()
+        .getDirectMessagesForGast()
         .filter((dm) => dm.name.toLowerCase().startsWith(query));
     }
   }
@@ -265,6 +264,6 @@ export class MainMenuComponent implements OnInit {
 
   selectChannel(channel: any): void {
     this.channelDirectMessageData.setSelectedChannel(channel);
-    this.router.navigate(['/chat']);
+    this.router.navigate(['/chat', channel.channelId]);
   }
 }

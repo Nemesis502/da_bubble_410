@@ -14,14 +14,14 @@ export class SearchService {
 
   filterChannels(searchTerm: string): string[] {
     const query = searchTerm.toLowerCase();
-    return this.data.getChannels().filter(c =>
+    return this.data.getChannelsForGast().filter(c =>
       c.toLowerCase().includes(query)
     );
   }
 
   filterDirectMessages(searchTerm: string): DirectMessage[] {
     const query = searchTerm.toLowerCase();
-    return this.data.getDirectMessages().filter(dm =>
+    return this.data.getDirectMessagesForGast().filter(dm =>
       dm.name.toLowerCase().includes(query)
     );
   }
