@@ -119,7 +119,7 @@
     </mat-form-field>
     <mat-card-actions class="add-members">
         <button mat-button class="add-members-btn" aria-label="Mitglieder hinzufügen"
-            (click)="addMembers()">
+            (click)="addMembers()" [disabled]="peoples().length === 0">
             <span>Hinzufügen</span>
         </button>
     </mat-card-actions>
