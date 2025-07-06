@@ -20,6 +20,14 @@
     }
 }
 
+@media only screen and (min-width: 472px) {
+    .login-google-container {
+        button {
+            padding: 6px 66px 6px 66px;
+        }
+    }
+}
+
 @media only screen and (min-width: 600px) {
 
     .logIn-Section {
