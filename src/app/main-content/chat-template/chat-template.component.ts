@@ -143,9 +143,9 @@ export class ChatTemplateComponent implements OnInit {
 
       const newMessage = {
         text: this.chatMessage.trim(),
-        timestamp: serverTimestamp(),
-        senderID: this.currentUser,
-        channelId: this.selectedChannel.channelId,
+        timestamp: serverTimestamp() as unknown as Date,
+        senderID: this.currentUser?.id!,
+        channelId: this.selectedChannel.channelId
       };
 
       await addDoc(messageCollection, newMessage);

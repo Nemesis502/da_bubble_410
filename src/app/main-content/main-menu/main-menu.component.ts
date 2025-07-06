@@ -263,6 +263,11 @@ export class MainMenuComponent implements OnInit {
   }
 
   selectChannel(channel: any): void {
+    if (!channel || !channel.channelId) {
+      console.error('Channel oder channelId ist undefined:', channel);
+      return;
+    }
+
     this.channelDirectMessageData.setSelectedChannel(channel);
     this.router.navigate(['/chat', channel.channelId]);
   }

@@ -20,7 +20,7 @@ export class FirestoreService {
 
     await updateDoc(channelRef, { members: updatedMembers });
   }
-  
+
   getUserById(uid: string) {
     const userDoc = doc(this.firestore, 'users', uid);
     return docData(userDoc, { idField: 'id' });
@@ -41,9 +41,14 @@ export class FirestoreService {
     return collectionData(ref, { idField: 'id' });
   }
 
-  addChannel(channel: Channel) {
-    const ref = collection(this.firestore, 'channels');
-    return addDoc(ref, channel);
+  addChannel(channel: Omit<Channel, 'channelId'>) {
+    const channelCollection = collection(this.firestore, 'channels');
+    return addDoc(channelCollection, channel);
+  }
+
+  updateChannel(id: string, updateData: Partial<Channel>) {
+    const channelDoc = doc(this.firestore, 'channels', id);
+    return updateDoc(channelDoc, updateData);
   }
 
   synFirebase(uid: string) {

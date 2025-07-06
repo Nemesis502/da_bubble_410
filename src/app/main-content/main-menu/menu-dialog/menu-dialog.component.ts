@@ -265,24 +265,27 @@ export class MenuDialogComponent implements OnInit {
       return;
     }
 
-    const newChannel: Channel = {
+    const baseChannel: Omit<Channel, 'channelId'> = {
       name: this.channelName,
       description: this.channelDescription,
       createdBy: this.currentUser.id!,
       members: Array.from(new Set([
         ...this.peoples().map(u => u.id!),
         this.currentUser.id!
-      ]))
+      ])),
+      messages: []
     };
-
+    
     try {
-      await this.firestoreService.addChannel(newChannel);
-      console.log('Channel erfolgreich gespeichert.');
+      const docRef = await this.firestoreService.addChannel(baseChannel);
+      await this.firestoreService.updateChannel(docRef.id, { channelId: docRef.id });
+      console.log('Channel erfolgreich gespeichert mit ID:', docRef.id);
       this.closeDialog();
       this.router.navigate(['/main']);
     } catch (error) {
       console.error('Fehler beim Speichern des Channels:', error);
     }
+
     console.log('Channel-Name', this.channelName);
     console.log('Beschreibung', this.channelDescription);
     console.log('Erstellt von', this.currentUser);
