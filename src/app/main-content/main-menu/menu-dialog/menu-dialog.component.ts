@@ -20,7 +20,6 @@ import { FirestoreService } from '../../../shared/services/firestore.service';
 import { ChannelsDirectMessageService } from '../../../shared/services/channels-direct-message.service';
 import { Channel } from '../../../interfaces/channel.interface';
 
-
 @Component({
   selector: 'app-menu-dialog',
   standalone: true,
@@ -265,6 +264,11 @@ export class MenuDialogComponent implements OnInit {
       return;
     }
 
+    if (this.isActive) {
+      const alleUser = this.allUsers();
+      this.peoples.set(alleUser);
+    }
+
     const baseChannel: Omit<Channel, 'channelId'> = {
       name: this.channelName,
       description: this.channelDescription,
@@ -275,21 +279,15 @@ export class MenuDialogComponent implements OnInit {
       ])),
       messages: []
     };
-    
+
     try {
       const docRef = await this.firestoreService.addChannel(baseChannel);
       await this.firestoreService.updateChannel(docRef.id, { channelId: docRef.id });
-      console.log('Channel erfolgreich gespeichert mit ID:', docRef.id);
       this.closeDialog();
       this.router.navigate(['/main']);
     } catch (error) {
       console.error('Fehler beim Speichern des Channels:', error);
     }
-
-    console.log('Channel-Name', this.channelName);
-    console.log('Beschreibung', this.channelDescription);
-    console.log('Erstellt von', this.currentUser);
-    console.log('Mitglieder', this.peoples());
   }
 
   async addMembers() {
@@ -308,7 +306,6 @@ export class MenuDialogComponent implements OnInit {
 
     try {
       await this.firestoreService.addMembersToChannel(channelId, membersToAdd);
-      console.log('Mitglieder erfolgreich hinzugefügt.');
       this.dialogRef.close({ membersAdded: true });
     } catch (error: any) {
       console.error('Fehler beim Hinzufügen der Mitglieder:', error);

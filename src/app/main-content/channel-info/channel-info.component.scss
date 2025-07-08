@@ -64,7 +64,7 @@ input {
     padding: 20px 16px;
     background-color: white;
 
-    section{
+    section {
         width: 100%;
     }
 }
@@ -177,7 +177,7 @@ textarea,
 
     .members-list {
         display: flex;
-        flex-wrap: wrap;
+        flex-direction: column;
         gap: 9px;
 
         .member-avatar {
