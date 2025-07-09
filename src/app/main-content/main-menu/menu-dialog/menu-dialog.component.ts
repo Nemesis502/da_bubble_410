@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatChipsModule, MatChipInputEvent, MatChipEditedEvent } from '@angular/material/chips';
+import { MatChipsModule, MatChipInputEvent } from '@angular/material/chips';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { FormsModule } from '@angular/forms';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
@@ -38,6 +38,7 @@ import { Channel } from '../../../interfaces/channel.interface';
 export class MenuDialogComponent implements OnInit {
   @ViewChild('inputField') inputField!: ElementRef<HTMLInputElement>;
 
+  // readonly Injects
   readonly dialog = inject(MatDialog);
   readonly dialogRef = inject(MatDialogRef<MenuDialogComponent>);
   readonly authService = inject(AuthService);
@@ -45,12 +46,14 @@ export class MenuDialogComponent implements OnInit {
   readonly firestoreService = inject(FirestoreService);
   readonly channelsDirectMessageService = inject(ChannelsDirectMessageService);
 
+  // Signale & States
   readonly separatorKeysCodes = [ENTER, COMMA] as const;
   readonly peoples = signal<appUser[]>([]);
   readonly allUsers = signal<appUser[]>([]);
   readonly filteredUsers = signal<appUser[]>([]);
   channelMembers = signal<string[]>([]);
 
+  // Allgemeine Variablen
   currentUser: appUser | null = null;
   channelId: string = '';
   searchTerm = '';
@@ -66,28 +69,119 @@ export class MenuDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA)
     public data: {
       channelId: any;
-      source: string,
-      channelName?: string,
-      channelDescription?: string,
-      gastLogin?: boolean
+      source: string;
+      channelName?: string;
+      channelDescription?: string;
+      gastLogin?: boolean;
     },
     private userService: UserService,
     private userSession: SessionService
   ) {
-    this.isGastLogin = this.data.gastLogin!
+    this.isGastLogin = this.data.gastLogin!;
     this.currentUser = this.userSession.getCurrentUser();
   }
 
   async ngOnInit(): Promise<void> {
     await this.loadUsers();
+
     if (this.data.source === 'add-channel') {
       this.channelName = this.data.channelName || '';
       this.channelDescription = this.data.channelDescription || '';
     }
+
     if (this.data.source === 'channel-info') {
       this.channelId = this.data.channelId;
       await this.loadChannelMembers();
     }
+  }
+
+  // Main-Menu
+  openProfileDialog(): void {
+    this.closeDialog();
+    this.dialog.open(ProfilDialogComponent, {
+      maxWidth: '90vw',
+      panelClass: 'bottom-dialog-panel',
+    });
+  }
+
+  logout(): void {
+    if (this.currentUser?.id === 'Guest') {
+      this.router.navigate(['/']);
+      this.closeDialog();
+    } else {
+      this.authService.logout().then(() => {
+        this.userService.updateUserStatusFalse(this.currentUser?.id!);
+        this.router.navigate(['/']);
+        this.closeDialog();
+      });
+    }
+  }
+
+  // Add-Channel
+  async createNewChannel(): Promise<void> {
+    if (this.isGastLogin) {
+      console.log('Gast-Login: Channel wird nicht gespeichert.');
+      return;
+    }
+
+    if (!this.currentUser) {
+      console.error('Kein eingeloggter User gefunden.');
+      return;
+    }
+
+    if (this.isActive) {
+      this.peoples.set(this.allUsers());
+    }
+
+    const baseChannel: Omit<Channel, 'channelId'> = {
+      name: this.channelName,
+      description: this.channelDescription,
+      createdBy: this.currentUser.id!,
+      members: Array.from(new Set([
+        ...this.peoples().map(u => u.id!),
+        this.currentUser.id!
+      ])),
+      messages: []
+    };
+
+    try {
+      const docRef = await this.firestoreService.addChannel(baseChannel);
+      await this.firestoreService.updateChannel(docRef.id, { channelId: docRef.id });
+      this.closeDialog();
+      this.router.navigate(['/main']);
+    } catch (error) {
+      console.error('Fehler beim Speichern des Channels:', error);
+    }
+  }
+
+  // Channel-Info
+  async addMembers(): Promise<void> {
+    if (this.isGastLogin) {
+      console.log('Gast-Login: Mitglieder werden nicht hinzugefügt.');
+      return;
+    }
+
+    if (!this.currentUser) {
+      console.error('Kein eingeloggter User gefunden.');
+      return;
+    }
+
+    const membersToAdd = this.peoples().map(u => u.id!);
+    try {
+      await this.firestoreService.addMembersToChannel(this.data.channelId, membersToAdd);
+      this.dialogRef.close({ membersAdded: true });
+    } catch (error) {
+      console.error('Fehler beim Hinzufügen der Mitglieder:', error);
+    }
+  }
+
+  // Gemeinsame Funktionen
+  toggleActive(isActive: boolean): void {
+    this.isActive = isActive;
+  }
+
+  closeDialog(): void {
+    this.dialogRef.close();
   }
 
   private async loadUsers(): Promise<void> {
@@ -122,38 +216,10 @@ export class MenuDialogComponent implements OnInit {
     }
   }
 
-  openProfileDialog() {
-    this.closeDialog();
-    this.dialog.open(ProfilDialogComponent, {
-      maxWidth: '90vw',
-      panelClass: 'bottom-dialog-panel',
-    });
-  }
-
-  logout() {
-    if (this.currentUser?.id == "Guest") {
-      this.router.navigate(['/']);
-      this.closeDialog();
-    } else {
-      this.authService.logout().then(() => {
-        this.userService.updateUserStatusFalse(this.currentUser?.id!)
-        this.router.navigate(['/']);
-      });
-      this.closeDialog();
-    }
-  }
-
-  closeDialog() {
-    this.dialogRef.close();
-  }
-
-  toggleActive(isActive: boolean): void {
-    this.isActive = isActive;
-  }
-
-  filterUsers() {
-    const query = typeof this.searchTerm === 'string' ? this.searchTerm.toLowerCase() : '';
+  filterUsers(): void {
+    const query = this.searchTerm.toLowerCase();
     const membersInChannel = this.channelMembers();
+
     this.filteredUsers.set(
       this.allUsers().filter(user =>
         user.userName.toLowerCase().startsWith(query) &&
@@ -163,7 +229,7 @@ export class MenuDialogComponent implements OnInit {
     );
   }
 
-  selectUser(user: appUser) {
+  selectUser(user: appUser): void {
     if (
       !this.peoples().some(p => p.userName === user.userName) &&
       !this.channelMembers().includes(user.id!)
@@ -174,12 +240,7 @@ export class MenuDialogComponent implements OnInit {
     this.searchTerm = '';
     this.filteredUsers.set(this.allUsers());
 
-    setTimeout(() => {
-      if (this.inputField) {
-        this.inputField.nativeElement.value = '';
-        this.inputField.nativeElement.focus();
-      }
-    }, 0);
+    setTimeout(() => this.inputField?.nativeElement.focus(), 0);
   }
 
   addFromText(event: MatChipInputEvent): void {
@@ -187,58 +248,31 @@ export class MenuDialogComponent implements OnInit {
     if (!value) return;
 
     const match = this.allUsers().find(u => u.userName.toLowerCase() === value.toLowerCase());
-
-    if (
-      match &&
-      !this.peoples().some(p => p.userName === match.userName) &&
-      !this.channelMembers().includes(match.id!)
-    ) {
+    if (match && !this.peoples().some(p => p.userName === match.userName)) {
       this.peoples.update(peoples => [...peoples, match]);
     }
 
     this.searchTerm = '';
     this.filteredUsers.set(this.allUsers());
-
     event.chipInput?.clear();
 
     setTimeout(() => this.inputField?.nativeElement.focus(), 0);
   }
 
   onInputBlur(): void {
-    setTimeout(() => {
-      const val = this.searchTerm.trim();
-      if (!val) return;
-
-      const match = this.allUsers().find(u => u.userName.toLowerCase() === val.toLowerCase());
-
-      if (
-        match &&
-        !this.peoples().some(p => p.userName === match.userName) &&
-        !this.channelMembers().includes(match.id!)
-      ) {
-        this.peoples.update(peoples => [...peoples, match]);
-      }
-
-      this.searchTerm = '';
-      this.filteredUsers.set(this.allUsers());
-    }, 150);
+    setTimeout(() => this.tryAddFromSearchTerm(), 150);
   }
 
-  remove(people: appUser): void {
-    this.peoples.update(peoples => peoples.filter(p => p !== people));
-    this.announcer.announce(`Removed ${people.userName}`);
-  }
-
-  autocompleteOpened() {
+  autocompleteOpened(): void {
     this.autocompleteIsOpen = true;
   }
 
-  autocompleteClosed() {
+  autocompleteClosed(): void {
     this.autocompleteIsOpen = false;
     this.tryAddFromSearchTerm();
   }
 
-  private tryAddFromSearchTerm() {
+  private tryAddFromSearchTerm(): void {
     const val = this.searchTerm.trim();
     if (!val) return;
 
@@ -253,62 +287,8 @@ export class MenuDialogComponent implements OnInit {
     setTimeout(() => this.inputField?.nativeElement.focus(), 0);
   }
 
-  async createNewChannel() {
-    if (this.isGastLogin) {
-      console.log('Gast-Login: Channel wird nicht gespeichert.');
-      return;
-    }
-
-    if (!this.currentUser) {
-      console.error('Kein eingeloggter User gefunden.');
-      return;
-    }
-
-    if (this.isActive) {
-      const alleUser = this.allUsers();
-      this.peoples.set(alleUser);
-    }
-
-    const baseChannel: Omit<Channel, 'channelId'> = {
-      name: this.channelName,
-      description: this.channelDescription,
-      createdBy: this.currentUser.id!,
-      members: Array.from(new Set([
-        ...this.peoples().map(u => u.id!),
-        this.currentUser.id!
-      ])),
-      messages: []
-    };
-
-    try {
-      const docRef = await this.firestoreService.addChannel(baseChannel);
-      await this.firestoreService.updateChannel(docRef.id, { channelId: docRef.id });
-      this.closeDialog();
-      this.router.navigate(['/main']);
-    } catch (error) {
-      console.error('Fehler beim Speichern des Channels:', error);
-    }
-  }
-
-  async addMembers() {
-    if (this.isGastLogin) {
-      console.log('Gast-Login: Mitglieder werden nicht hinzugefügt.');
-      return;
-    }
-
-    if (!this.currentUser) {
-      console.error('Kein eingeloggter User gefunden.');
-      return;
-    }
-
-    const channelId = this.data.channelId;
-    const membersToAdd = this.peoples().map(u => u.id!);
-
-    try {
-      await this.firestoreService.addMembersToChannel(channelId, membersToAdd);
-      this.dialogRef.close({ membersAdded: true });
-    } catch (error: any) {
-      console.error('Fehler beim Hinzufügen der Mitglieder:', error);
-    }
+  remove(people: appUser): void {
+    this.peoples.update(peoples => peoples.filter(p => p !== people));
+    this.announcer.announce(`Removed ${people.userName}`);
   }
 }
