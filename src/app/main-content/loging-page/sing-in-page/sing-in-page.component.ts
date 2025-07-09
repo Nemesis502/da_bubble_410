@@ -9,11 +9,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
 import { merge } from 'rxjs';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-sing-in-page',
   standalone: true,
-  imports: [MatDividerModule, MatFormFieldModule, MatInputModule, FormsModule, ReactiveFormsModule, MatIconModule, MatButtonModule, RouterLink],
+  imports: [MatDividerModule, MatFormFieldModule, MatInputModule, FormsModule, ReactiveFormsModule, MatIconModule, MatButtonModule, RouterLink, MatCheckboxModule],
   templateUrl: './sing-in-page.component.html',
   styleUrl: './sing-in-page.component.scss'
 })
@@ -24,6 +25,8 @@ export class SingInPageComponent {
   email = new FormControl('', [Validators.required, Validators.email]);
   password = new FormControl('', [Validators.required, Validators.pattern(this.StrongPasswordRegx)]);
   hide = true;
+  checkedPrivacy = false;
+  checkboxTouched = false;
 
   errorMessageName = '';
   errorMessageEmail = '';
@@ -101,6 +104,11 @@ export class SingInPageComponent {
         singPassword: this.password.value
       }
     });
+  }
+
+  acceptPrivacy() {
+    this.checkedPrivacy = !this.checkedPrivacy;
+    console.log(this.checkedPrivacy);
   }
 }
 

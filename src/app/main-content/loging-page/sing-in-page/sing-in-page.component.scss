@@ -144,6 +144,45 @@ mat-form-field {
     border-radius: 100px !important;
 }
 
+.checkbox-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    mat-error {
+        text-align: center;
+    }
+}
+
+.checkbox-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    justify-content: flex-start;
+    gap: 8px;
+    margin-top: 32px;
+
+    input {
+        cursor: pointer;
+        accent-color: $purple2;
+        outline: 1px auto $purple2;
+        height: 12px;
+        width: 12px;
+        margin: 0;
+        position: static;
+    }
+
+    p {
+        color: #42526E;
+    }
+
+    a {
+        text-decoration: none;
+        color: $purple2;
+    }
+}
+
 .inputfield {
     color: black !important;
 }
