@@ -42,17 +42,15 @@ export class MainMenuComponent implements OnInit {
   readonly firestoreService = inject(FirestoreService);
 
   gastLogin = false;
-
   showChannels = true;
   showDirectMessages = true;
 
   currentLoginId = '';
   currentLoginEmail = '';
-
   searchTerm = '';
+
   filteredChannels: any[] = [];
   filteredDirectMessages: any[] = [];
-
   channels: any[] = [];
   userChannels: any[] = [];
   users: any[] = [];
@@ -104,8 +102,9 @@ export class MainMenuComponent implements OnInit {
 
       this.getAllUsers();
 
-      this.firestoreService.getConversations().subscribe((conv) => {
+      this.firestoreService.getConversationsByUserId(this.currentLoginId).subscribe((conv) => {
         this.directMessages = conv;
+        this.filterDirectMessageUsers(); // 👈 HIER
       });
     }
 
@@ -164,6 +163,10 @@ export class MainMenuComponent implements OnInit {
     this.firestoreService.getUsers().subscribe((u) => {
       this.users = u;
       this.searchService.setFirestoreUsers(u);
+
+      if (!this.gastLogin) {
+        this.filterDirectMessageUsers(); // 👈 HIER
+      }
     });
   }
 
@@ -239,6 +242,16 @@ export class MainMenuComponent implements OnInit {
         .filterFirestoreDirectMessages(query)
         .filter((u) => u.userName.toLowerCase().startsWith(query));
     }
+  }
+
+  filterDirectMessageUsers(): void {
+    const otherUserIds = this.directMessages
+      .map(conv => conv.participants.find((id: string) => id !== this.currentLoginId))
+      .filter(Boolean); // Filtert undefined raus
+
+    this.filteredDirectMessages = this.users.filter(user =>
+      otherUserIds.includes(user.id)
+    );
   }
 
   closeSearch(): void {

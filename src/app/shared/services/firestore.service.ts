@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { collection, collectionData, docData, Firestore } from '@angular/fire/firestore';
-import { addDoc, doc, getDoc, onSnapshot, updateDoc } from 'firebase/firestore';
+import { addDoc, doc, getDoc, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
 import { Observable } from 'rxjs';
 import { Channel } from '../../interfaces/channel.interface';
 
@@ -39,6 +39,12 @@ export class FirestoreService {
   getConversations(): Observable<any[]> {
     const ref = collection(this.firestore, 'conversations');
     return collectionData(ref, { idField: 'id' });
+  }
+
+  getConversationsByUserId(userId: string): Observable<any[]> {
+    const ref = collection(this.firestore, 'conversations');
+    const q = query(ref, where('participants', 'array-contains', userId));
+    return collectionData(q, { idField: 'id' });
   }
 
   addChannel(channel: Omit<Channel, 'channelId'>) {
