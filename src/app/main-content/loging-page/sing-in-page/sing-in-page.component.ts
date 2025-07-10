@@ -16,15 +16,15 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
   imports: [MatDividerModule, MatFormFieldModule, MatInputModule, FormsModule, ReactiveFormsModule, MatIconModule, MatButtonModule, RouterLink, MatCheckboxModule],
   templateUrl: './sing-in-page.component.html',
   styleUrls: ['./sing-in-page.component.scss',
-    './sing-in-page.component-medai-query.scss'
+    './sing-in-page.component-media-query.scss'
   ],
 })
 export class SingInPageComponent {
-  StrongPasswordRegx: RegExp =
+  strongPasswordRegx: RegExp =
     /^(?=[^A-Z]*[A-Z])(?=[^a-z]*[a-z])(?=\D*\d).{8,}$/;
   text = new FormControl('', [Validators.required]);
   email = new FormControl('', [Validators.required, Validators.email]);
-  password = new FormControl('', [Validators.required, Validators.pattern(this.StrongPasswordRegx)]);
+  password = new FormControl('', [Validators.required, Validators.pattern(this.strongPasswordRegx)]);
   hide = true;
   checkedPrivacy = false;
   checkboxTouched = false;

@@ -16,7 +16,9 @@ import { AuthService } from '../../../../shared/services/auth.service';
   standalone: true,
   imports: [CommonModule, MatDividerModule, MatFormFieldModule, MatInputModule, FormsModule, ReactiveFormsModule, MatIconModule, MatButtonModule],
   templateUrl: './choose-avatar-page.component.html',
-  styleUrl: './choose-avatar-page.component.scss'
+  styleUrls: ['./choose-avatar-page.component.scss',
+    './choose-avatar-page.component-media-query.scss'
+  ]
 })
 export class ChooseAvatarPageComponent {
   animation = false;
