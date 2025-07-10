@@ -1,17 +1,17 @@
+<header class="header-desktop">
+  <div class="logo-container-desktop">
+    <img src="./../../../assets/img/logo.png" alt="" />
+    <div>
+      <h1 class="nuito27px">DABubble</h1>
+    </div>
+  </div>
+</header>
+
 <section class="flex-collum-center logIn-Section">
   <div class="logo-container-mobile">
     <img src="./../../../assets/img/logo.png" alt="" />
     <div class="nuito27px"><h1>DABubble</h1></div>
   </div>
-
-  <header class="header-desktop">
-    <div class="logo-container-desktop">
-      <img src="./../../../assets/img/logo.png" alt="" />
-      <div>
-        <h1 class="nuito27px">DABubble</h1>
-      </div>
-    </div>
-  </header>
 
   <section class="input-section">
     <div class="flex-collum-center input-title">
@@ -79,7 +79,7 @@
             </p>
           </div>
         </div>
-        @if (!checkedPrivacy && !checkboxTouched) {
+        @if (!checkedPrivacy && checkboxTouched) {
         <mat-error
           >Bitte stimme der Datenschutzerklärung zu um forzufahren!</mat-error
         >

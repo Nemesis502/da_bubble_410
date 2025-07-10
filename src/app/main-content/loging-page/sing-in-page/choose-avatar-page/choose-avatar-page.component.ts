@@ -53,7 +53,6 @@ export class ChooseAvatarPageComponent {
 
   constructor(private authService: AuthService, private renderer: Renderer2, private router: Router, private userService: UserService) {
     const navigation = this.router.getCurrentNavigation();
-    console.log(navigation?.extras.state);
     const state = navigation?.extras.state as {
       singName: string;
       singEmail: string;

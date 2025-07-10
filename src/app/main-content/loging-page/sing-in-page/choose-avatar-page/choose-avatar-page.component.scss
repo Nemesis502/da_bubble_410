@@ -1,7 +1,6 @@
 @use "./../../../../../styles.scss" as *;
 
 .logIn-Section {
-    // margin: 92px 30px 0 30px;
     margin: 87px 16px 0 16px;
 }
 
@@ -33,13 +32,16 @@
     max-width: 486px;
     box-sizing: border-box;
 
+
     div {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         flex-direction: row;
+        width: 100%;
 
         h2 {
             font-size: 27px !important;
+            width: 100%;
         }
 
         img {
@@ -56,7 +58,6 @@
 .input-section {
     border-radius: 30px;
     background-color: white;
-    // margin: 30px 13px 30px 13px;
     margin: 30px 0 30px 0;
     display: flex;
     flex-direction: column;
@@ -78,6 +79,22 @@
 
     h2 {
         color: black;
+    }
+}
+
+.choose-container {
+    gap: 16px;
+
+
+    p {
+        width: 100%;
+        margin: 0;
+        font-family: 'Nunito' !important;
+        font-weight: 400 !important;
+        font-size: 20px !important;
+        line-height: 100% !important;
+        letter-spacing: 0 !important;
+        text-align: start !important;
     }
 }
 
@@ -133,11 +150,15 @@ form {
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
-    padding: 0 20px 0 0;
+    padding: 0 53px 0 0;
     margin: 30px 0 30px 0;
     width: 100%;
-    max-width: 320px;
     box-sizing: border-box;
+
+    button {
+        width: 107px;
+        height: 49px;
+    }
 }
 
 .login-button {

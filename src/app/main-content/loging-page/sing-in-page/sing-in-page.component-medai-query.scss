@@ -3,20 +3,16 @@
 @media only screen and (min-width: 600px) {
 
     .logIn-Section {
-        margin: 11px 30px 0 30px;
+        margin: 77px 30px 0 30px;
         gap: 65px;
     }
 
     .header-desktop {
-        display: flex;
+        display: flex !important;
         justify-content: space-between;
     }
 
     .logo-container-mobile {
-        display: none;
-    }
-
-    .newUser-container-mobile {
         display: none;
     }
 

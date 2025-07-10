@@ -1,4 +1,3 @@
-import { NgClass } from '@angular/common';
 import { Component } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -16,7 +15,9 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
   standalone: true,
   imports: [MatDividerModule, MatFormFieldModule, MatInputModule, FormsModule, ReactiveFormsModule, MatIconModule, MatButtonModule, RouterLink, MatCheckboxModule],
   templateUrl: './sing-in-page.component.html',
-  styleUrl: './sing-in-page.component.scss'
+  styleUrls: ['./sing-in-page.component.scss',
+    './sing-in-page.component-medai-query.scss'
+  ],
 })
 export class SingInPageComponent {
   StrongPasswordRegx: RegExp =
@@ -108,7 +109,11 @@ export class SingInPageComponent {
 
   acceptPrivacy() {
     this.checkedPrivacy = !this.checkedPrivacy;
-    console.log(this.checkedPrivacy);
+    if (this.checkedPrivacy === false) {
+      this.checkboxTouched = true;
+    } else {
+      this.checkboxTouched = false;
+    }
   }
 }
 
