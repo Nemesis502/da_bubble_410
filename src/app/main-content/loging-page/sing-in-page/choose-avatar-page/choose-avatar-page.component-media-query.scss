@@ -25,6 +25,10 @@
         gap: 65px;
     }
 
+    .button-container {
+        padding: 0 53px 0 0;
+    }
+
     .header-desktop {
         display: flex !important;
         justify-content: space-between;
@@ -33,14 +37,20 @@
     .logo-container-mobile {
         display: none;
     }
+
+    .creation-content{
+        h2{
+            padding: 50px;
+        }
+    }
 }
 
 @keyframes fromRightToLeft {
     0% {
-        left: 400px;
+        left: 100%;
     }
 
     100% {
-        left: 0px;
+        left: 0%;
     }
 }
