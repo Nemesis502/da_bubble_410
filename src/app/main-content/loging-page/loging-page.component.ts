@@ -32,8 +32,8 @@ export class LogingPageComponent {
   errorMessageLogIn = '';
   errorMessagePassword = ''
 
-  constructor(private authService: AuthService, private router: Router, private zone: NgZone) {
-    this.checkIfIntroPlayed();
+  constructor(private authService: AuthService, private router: Router) {
+    // this.checkIfIntroPlayed();
     merge(this.email.statusChanges, this.email.valueChanges)
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.updateErrorMessage());
