@@ -118,6 +118,12 @@ export class ChannelsDirectMessageService {
     );
   }
 
+async getChannelById(channelId: string): Promise<any> {
+  const channelRef = doc(this.firestore, `channels/${channelId}`);
+  const snap = await getDoc(channelRef);
+  return snap.exists() ? { channelId, ...snap.data() } : null;
+}
+
   fetchReactorName(reactorID: string | undefined): Promise<string> {
     if (
       !reactorID ||
@@ -192,7 +198,7 @@ export class ChannelsDirectMessageService {
             enrichedMessages.sort((a, b) => {
               const timeA = a.timestamp.seconds || 0;
               const timeB = b.timestamp.seconds || 0;
-              return timeA - timeB; // Sort by the original timestamp
+              return timeA - timeB; 
             })
           )
         );

@@ -102,7 +102,7 @@
           *ngIf="message.showMoreMenu"
           (clickOutside)="message.showMoreMenu = false"
         >
-          <button >Nachricht bearbeiten</button>
+          <button (click)="onEditClick(message)">Nachricht bearbeiten</button>
         </div>
       </div>
       <!-- Reaction Picker Component -->

@@ -20,8 +20,8 @@
     </button>
   </section>
   <section class="chat-body">
-    <app-message-template [currentChannelId]="selectedChannel?.id" [messages]="messages"
-      [currentUser]="currentUser?.id || ''"></app-message-template>
+    <app-message-template [currentChannelId]="selectedChannel?.channelId"[messages]="messages"
+      [currentUser]="currentUser?.id || ''"   (editMessage)="startEditingMessage($event)"></app-message-template>
   </section>
   <section class="chat-interface">
     <mat-card class="chat-card" appearance="outlined">

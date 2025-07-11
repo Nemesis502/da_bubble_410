@@ -5,8 +5,10 @@ import {
   OnDestroy,
   ViewChild,
   Input,
+  Output,
   OnChanges,
   SimpleChanges,
+  EventEmitter 
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -28,6 +30,7 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
   @Input() messages: any[] = [];
   @Input() currentUser: string = 'w7dUBSUFSqZAtEy0GtxG';
   @Input() currentChannelId: string | Channel | null = null;
+  @Output() editMessage = new EventEmitter<any>();
 
   selectedMessage: any = null;
   activeReactionPickerId: string | null = null;
@@ -54,6 +57,11 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
       this.addDateHeaders(); 
     }
   }
+
+  
+onEditClick(message: any): void {
+  this.editMessage.emit(message);
+}
 
 private addDateHeaders(): void {
   let lastMessageDate: string | null = null;
@@ -242,9 +250,12 @@ private formatOlderDate(date: Date): string {
     this.activeReactionPickerId = null;
   }
 
-  closeActiveElements(): void {
-    this.selectedMessage = null;
-  }
+closeActiveElements(): void {
+  this.selectedMessage = null;
+  this.messages.forEach((msg) => {
+    msg.showMoreMenu = false;
+  });
+}
 
   async selectReaction(reaction: string, message: any): Promise<void> {
     try {
@@ -309,12 +320,10 @@ private formatOlderDate(date: Date): string {
   }
 
   toggleMoreMenu(message: any, event: Event) {
-  event.stopPropagation(); // prevent bubbling that may close the menu instantly
-  // Close other menus first
+  event.stopPropagation(); 
   this.messages.forEach(m => {
     if (m !== message) m.showMoreMenu = false;
   });
-  // Toggle clicked message menu
   message.showMoreMenu = !message.showMoreMenu;
 }
 }
