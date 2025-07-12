@@ -9,7 +9,7 @@
     z-index: 999;
     inset: 0;
     background: linear-gradient(1.46deg, #313AE6 1.22%, #797EF3 98.76%);
-    animation: fadeout 1.0s 4.0s linear forwards;
+    animation: fadeout 1.0s 2.5s linear forwards;
 }
 
 .hidden {
@@ -22,12 +22,14 @@
     width: 263px;
     height: 69px;
     gap: 8px;
+    animation: moveToCorner 0.7s 2.5s linear forwards;
+    position: relative;
 
     img {
         height: 69px;
         width: 70px;
         transform: translateX(74px);
-        animation: imgToLeft 0.5s 2.0s linear forwards;
+        animation: imgToLeft 0.5s 0.5s linear forwards;
     }
 }
 
@@ -44,7 +46,7 @@
     h1 {
         transform: translateX(-192px);
         color: white;
-        animation: nameToRight 0.5s 2.5s linear forwards;
+        animation: nameToRight 0.5s 1.0s linear forwards;
         margin: 0;
     }
 }
@@ -61,6 +63,8 @@
     gap: 13px;
     width: 100%;
     box-sizing: border-box;
+    position: relative;
+    animation: moveToCornerLogin 0.5s 2.7s linear forwards;
 
     img {
         height: 56px;
@@ -221,7 +225,7 @@ mat-form-field {
         border: 0;
         border-radius: 100px;
         padding: 15px 6px 15px 6px;
-        
+
 
         p {
             color: $purple1;
@@ -355,5 +359,25 @@ mat-form-field {
     100% {
         opacity: 0;
         display: none;
+    }
+}
+
+@keyframes moveToCorner {
+    from {
+        bottom: 0%;
+    }
+
+    to {
+        bottom: 40%;
+    }
+}
+
+@keyframes moveToCornerLogin {
+    from {
+        top: 380px;
+    }
+
+    to {
+        top: 0;
     }
 }
