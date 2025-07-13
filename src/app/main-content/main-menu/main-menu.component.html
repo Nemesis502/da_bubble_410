@@ -6,6 +6,7 @@
 </section>
 <section class="menu">
   <section class="menu-item">
+
     @if (isSearchActive) {
     <section class="search-header">
       <span class="nuito18px700">Suche</span>
@@ -14,6 +15,7 @@
       </button>
     </section>
     }
+
     <form class="search-form" role="search">
       <mat-form-field appearance="fill" class="search-full-width">
         <input matInput placeholder="Gehe zu..." [(ngModel)]="searchTerm" name="searchTerm"
@@ -21,7 +23,9 @@
         <mat-icon matSuffix aria-hidden="true">search</mat-icon>
       </mat-form-field>
     </form>
+
     <section class="menu-list">
+
       @if (isSearchActive) {
       @if (filteredChannels.length > 0) {
       <section class="channels">
@@ -35,6 +39,7 @@
         </div>
       </section>
       }
+
       @if (filteredDirectMessages.length > 0) {
       <section class="direct-message">
         <div class="message-list search" id="direct-messages">
@@ -58,7 +63,11 @@
         </div>
       </section>
       }
-      } @if (!isSearchActive) {
+      }
+
+      @if (!isSearchActive) {
+
+      <!-- Channels -->
       <section class="channels">
         <div class="header">
           <button type="button" class="title" (click)="showChannels = !showChannels" [attr.aria-expanded]="showChannels"
@@ -71,6 +80,7 @@
             <mat-icon mat-icon-button fontIcon="add"></mat-icon>
           </button>
         </div>
+
         @if (showChannels) {
         <div class="channel-list" id="channel-list">
           @if (gastLogin) {
@@ -88,6 +98,7 @@
           </div>
           }
           }
+
           @if (channels.length <= 0) { <div class="channel-item channel-item-add" (click)="addChannel()">
             <mat-icon fontIcon="add_circle_outline"></mat-icon>
             <p class="nuito17px400">Channel hinzufügen</p>
@@ -96,6 +107,8 @@
         </div>
         }
       </section>
+
+      <!-- Direct Messages -->
       <section class="direct-message">
         <div class="header">
           <button type="button" class="title" (click)="showDirectMessages = !showDirectMessages"
@@ -106,6 +119,7 @@
             <h2 class="nuito27px">Direktnachrichten</h2>
           </button>
         </div>
+
         @if (showDirectMessages) {
         <div class="message-list" id="direct-messages">
           @if (gastLogin) {
@@ -117,14 +131,13 @@
           </div>
           }
           } @else {
-          @for (user of filteredDirectMessages; track user.id) {
+          @for (user of allDirectMessages; track user.id) {
           <div class="message-item">
             <img src="./assets/img/avatar/{{ user.profilePic }}.png" alt="Avatar von {{ user.userName }}" />
             <div class="status {{ user.status ? 'online' : 'offline' }}"></div>
             <p class="nuito17px400">
               {{ user.userName }}
-              @if (currentUser?.userName == user.userName)
-              {(Du)}
+              @if (currentUser?.id === user.id) {(Du)}
             </p>
           </div>
           }
@@ -133,9 +146,11 @@
         }
       </section>
       }
+
       <button class="new-chat-btn" mat-icon-button aria-label="Neuen Chat starten">
         <img src="./assets/img/menu/new-chat-white.png" alt="" aria-hidden="true" />
       </button>
+
     </section>
   </section>
 </section>

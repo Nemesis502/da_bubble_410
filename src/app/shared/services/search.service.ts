@@ -60,12 +60,6 @@ export class SearchService {
   filterFirestoreDirectMessages(searchTerm: string): appUser[] {
     const query = searchTerm.toLowerCase();
 
-    console.log('🔍 Suche nach DirectMessages:', {
-      searchTerm,
-      currentUserId: this.currentUserId,
-      directMessagePartnerIds: this.directMessagePartnerIds
-    });
-
     return this.firestoreUsers.filter(u =>
       !!u.id &&
       this.directMessagePartnerIds.includes(u.id) &&

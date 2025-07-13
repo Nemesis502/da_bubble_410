@@ -55,6 +55,7 @@ export class MainMenuComponent implements OnInit {
   userChannels: any[] = [];
   users: any[] = [];
   currentUser: appUser | null = null;
+  allDirectMessages: appUser[] = [];
   directMessages: any[] = [];
   unsubCurrentUser;
 
@@ -188,14 +189,24 @@ export class MainMenuComponent implements OnInit {
     }
 
     if (!this.directMessages || this.directMessages.length === 0) {
-      console.warn('Noch keine DirectMessages vorhanden. Suche übersprungen.');
       this.filteredChannels = [];
       this.filteredDirectMessages = [];
       return;
     }
 
     this.searchService.setDirectMessagePartnerIds(this.directMessages, this.currentLoginId);
-    this.filterAsUser(query, isChannelSearch, isDirectSearch);
+
+    if (isChannelSearch) {
+      this.filteredChannels = this.searchService.filterFirestoreChannels(query);
+      this.filteredDirectMessages = [];
+    } else if (isDirectSearch) {
+      this.filteredDirectMessages = this.searchService
+        .filterFirestoreDirectMessages(query);
+      this.filteredChannels = [];
+    } else {
+      this.filteredChannels = this.searchService.filterFirestoreChannels(query);
+      this.filteredDirectMessages = this.searchService.filterFirestoreDirectMessages(query);
+    }
   }
 
   get sortedUsers(): appUser[] {
@@ -253,9 +264,16 @@ export class MainMenuComponent implements OnInit {
       .map(conv => conv.participants.find((id: string) => id !== this.currentLoginId))
       .filter(Boolean);
 
-    this.filteredDirectMessages = this.users.filter(user =>
+    this.allDirectMessages = this.users.filter(user =>
       otherUserIds.includes(user.id)
     );
+
+    if (this.currentUser) {
+      const alreadyIncluded = this.allDirectMessages.some(u => u.id === this.currentUser?.id);
+      if (!alreadyIncluded) {
+        this.allDirectMessages.unshift(this.currentUser);
+      }
+    }
   }
 
   closeSearch(): void {
