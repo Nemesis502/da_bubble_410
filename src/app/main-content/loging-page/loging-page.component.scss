@@ -14,12 +14,11 @@
 
 .hidden {
     display: none;
-
 }
 
 .logo-intro-container {
     flex-direction: row-reverse !important;
-    width: 263px;
+    min-width: 263px;
     height: 69px;
     gap: 8px;
     animation: moveToCorner 0.7s 2.5s linear forwards;
@@ -40,7 +39,8 @@
 
 .title {
     overflow-x: hidden;
-    height: 35px;
+    // height: auto;
+    // min-height: 35px;
     text-align: center;
 
     h1 {
@@ -48,6 +48,12 @@
         color: white;
         animation: nameToRight 0.5s 1.0s linear forwards;
         margin: 0;
+        font-family: 'Nunito';
+        font-size: 27px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 }
 
@@ -364,17 +370,17 @@ mat-form-field {
 
 @keyframes moveToCorner {
     from {
-        bottom: 0%;
+        bottom: 0;
     }
 
     to {
-        bottom: 40%;
+        bottom: 290px;
     }
 }
 
 @keyframes moveToCornerLogin {
     from {
-        top: 380px;
+        top: 280px;
     }
 
     to {
