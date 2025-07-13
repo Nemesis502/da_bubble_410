@@ -89,6 +89,8 @@
     flex-direction: row;
     gap: 13px;
     box-sizing: border-box;
+    position: relative;
+    animation: moveToCornerLogin 0.7s 2.5s linear forwards;
 
     img {
         height: 70px;

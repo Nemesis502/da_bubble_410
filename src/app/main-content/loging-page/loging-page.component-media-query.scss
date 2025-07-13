@@ -147,12 +147,139 @@
 
     .title {
         h1 {
-             height: 100px;
+            height: 100px;
             transform: translateX(-400px);
             font-size: 72px;
         }
     }
 
+    @keyframes moveToCorner {
+        from {
+            bottom: 0;
+            transform: translate(0, 0) scale(1.0);
+        }
+
+        to {
+            bottom: 290px;
+            transform: translate(-20%, -10%) scale(0.5);
+        }
+    }
+
+    @keyframes moveToCornerLogin {
+        from {
+            top: 280px;
+            transform: translate(40%, -27%) scale(2.0);
+        }
+
+        to {
+            top: 0;
+            transform: translate(0, 0) scale(1.0);
+        }
+    }
+}
+
+@media only screen and (min-width: 800px) {
+    @keyframes moveToCorner {
+        from {
+            bottom: 0;
+            transform: translate(0, 0) scale(1.0);
+        }
+
+        to {
+            bottom: 290px;
+            transform: translate(-40%, -13%) scale(0.5);
+        }
+    }
+
+    @keyframes moveToCornerLogin {
+        from {
+            top: 280px;
+            transform: translate(75%, -27%) scale(2.0);
+        }
+
+        to {
+            top: 0;
+            transform: translate(0, 0) scale(1.0);
+        }
+    }
+}
+
+@media only screen and (min-width: 1000px) {
+    @keyframes moveToCorner {
+        from {
+            bottom: 0;
+            transform: translate(0, 0) scale(1.0);
+        }
+
+        to {
+            bottom: 290px;
+            transform: translate(-65%, -13%) scale(0.5);
+        }
+    }
+
+    @keyframes moveToCornerLogin {
+        from {
+            top: 280px;
+            transform: translate(90%, -27%) scale(2.0);
+        }
+
+        to {
+            top: 0;
+            transform: translate(0, 0) scale(1.0);
+        }
+    }
+}
+
+@media only screen and (min-width: 1300px) {
+    @keyframes moveToCorner {
+        from {
+            bottom: 0;
+            transform: translate(0, 0) scale(1.0);
+        }
+
+        to {
+            bottom: 290px;
+            transform: translate(-80%, -13%) scale(0.5);
+        }
+    }
+
+    @keyframes moveToCornerLogin {
+        from {
+            top: 280px;
+            transform: translate(110%, -27%) scale(2.0);
+        }
+
+        to {
+            top: 0;
+            transform: translate(0, 0) scale(1.0);
+        }
+    }
+}
+
+@media only screen and (min-width: 1500px) {
+    @keyframes moveToCorner {
+        from {
+            bottom: 0;
+            transform: translate(0, 0) scale(1.0);
+        }
+
+        to {
+            bottom: 290px;
+            transform: translate(-120%, -43%) scale(0.5);
+        }
+    }
+
+    @keyframes moveToCornerLogin {
+        from {
+            top: 280px;
+            transform: translate(140%, -27%) scale(2.0);
+        }
+
+        to {
+            top: 0;
+            transform: translate(0, 0) scale(1.0);
+        }
+    }
 }
 
 @keyframes nameToRight {
