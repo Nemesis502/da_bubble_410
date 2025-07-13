@@ -16,7 +16,9 @@ import { AuthService } from '../../../shared/services/auth.service';
   standalone: true,
   imports: [CommonModule, MatDividerModule, MatFormFieldModule, MatInputModule, FormsModule, ReactiveFormsModule, MatIconModule, MatButtonModule, RouterLink],
   templateUrl: './reset-password.component.html',
-  styleUrl: './reset-password.component.scss'
+  styleUrls: ['./reset-password.component.scss',
+    './reset-password.component-media-query.scss'
+  ]
 })
 export class ResetPasswordComponent {
   email = new FormControl('', [Validators.required, Validators.email]);
@@ -41,7 +43,7 @@ export class ResetPasswordComponent {
 
   async checkFormular() {
     if (this.email.valid) {
-      await this.authService.sendNewPasswordLink(this.email.value!)
+      // await this.authService.sendNewPasswordLink(this.email.value!)
       this.successfullAnimation()
     } else {
       this.email.markAsTouched();
@@ -52,9 +54,9 @@ export class ResetPasswordComponent {
   successfullAnimation() {
     this.animation = true;
     this.renderer.setStyle(document.body, 'overflow', 'hidden');
-    setTimeout(() => {
-      this.router.navigate(['/']);
-      this.renderer.removeStyle(document.body, 'overflow');
-    }, 2000);
+    // setTimeout(() => {
+    //   this.router.navigate(['/']);
+    //   this.renderer.removeStyle(document.body, 'overflow');
+    // }, 2000);
   }
 }
