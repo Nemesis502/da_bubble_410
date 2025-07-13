@@ -4,6 +4,7 @@ import { Firestore, getDoc, collectionData, collection, doc, setDoc, deleteDoc, 
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { Channel } from '../../interfaces/channel.interface';
+import { appUser } from '../../interfaces/user.interface';
 
 export interface DirectMessage {
   name: string;
@@ -118,11 +119,11 @@ export class ChannelsDirectMessageService {
     );
   }
 
-async getChannelById(channelId: string): Promise<any> {
-  const channelRef = doc(this.firestore, `channels/${channelId}`);
-  const snap = await getDoc(channelRef);
-  return snap.exists() ? { channelId, ...snap.data() } : null;
-}
+  async getChannelById(channelId: string): Promise<any> {
+    const channelRef = doc(this.firestore, `channels/${channelId}`);
+    const snap = await getDoc(channelRef);
+    return snap.exists() ? { channelId, ...snap.data() } : null;
+  }
 
   fetchReactorName(reactorID: string | undefined): Promise<string> {
     if (
@@ -198,7 +199,7 @@ async getChannelById(channelId: string): Promise<any> {
             enrichedMessages.sort((a, b) => {
               const timeA = a.timestamp.seconds || 0;
               const timeB = b.timestamp.seconds || 0;
-              return timeA - timeB; 
+              return timeA - timeB;
             })
           )
         );
@@ -280,4 +281,10 @@ async getChannelById(channelId: string): Promise<any> {
     }
   }
 
+  private selectedDirectMessageSource = new BehaviorSubject<appUser | null>(null);
+  selectedDirectMessage$ = this.selectedDirectMessageSource.asObservable();
+
+  setSelectedDirectMessage(user: appUser): void {
+    this.selectedDirectMessageSource.next(user);
+  }
 }

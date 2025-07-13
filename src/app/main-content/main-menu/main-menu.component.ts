@@ -10,7 +10,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
 import { MenuDialogComponent } from './menu-dialog/menu-dialog.component';
 import { SearchService } from '../../shared/services/search.service';
-import { ChannelsDirectMessageService } from '../../shared/services/channels-direct-message.service';
+import { ChannelsDirectMessageService, DirectMessage } from '../../shared/services/channels-direct-message.service';
 import { FirestoreService } from '../../shared/services/firestore.service';
 import { Router } from '@angular/router';
 import { UserService } from '../../shared/services/user.services';
@@ -305,5 +305,28 @@ export class MainMenuComponent implements OnInit {
 
     this.channelDirectMessageData.setSelectedChannel(channel);
     this.router.navigate(['/chat', channel.channelId]);
+  }
+
+  selectDirectMessage(user: appUser): void {
+    if (!user || !user.id) {
+      console.error('User oder user.id ist undefined:', user);
+      return;
+    }
+
+    const conversation = this.directMessages.find(conv =>
+      conv.participants.includes(user.id)
+    );
+
+    if (!conversation || !conversation.id) {
+      console.error('Keine passende Konversation gefunden für:', user);
+      return;
+    }
+
+    this.channelDirectMessageData.setSelectedDirectMessage(user);
+    this.router.navigate(['/chat', conversation.id]);
+  }
+
+  selectDirectMessageGast(user: DirectMessage): void {
+    this.router.navigate(['/chat', user.name]);
   }
 }

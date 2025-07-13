@@ -124,7 +124,7 @@
         <div class="message-list" id="direct-messages">
           @if (gastLogin) {
           @for (user of channelDirectMessageData.getDirectMessagesForGast(); track user.name) {
-          <div class="message-item">
+          <div class="message-item" (click)="selectDirectMessageGast(user)">
             <img src="./assets/img/avatar/{{ user.img }}" alt="Avatar von {{ user.name }}" />
             <div class="status {{ user.status }}"></div>
             <p class="nuito17px400">{{ user.name }}</p>
@@ -132,7 +132,7 @@
           }
           } @else {
           @for (user of allDirectMessages; track user.id) {
-          <div class="message-item">
+          <div class="message-item" (click)="selectDirectMessage(user)">
             <img src="./assets/img/avatar/{{ user.profilePic }}.png" alt="Avatar von {{ user.userName }}" />
             <div class="status {{ user.status ? 'online' : 'offline' }}"></div>
             <p class="nuito17px400">
