@@ -89,6 +89,7 @@ export class MainMenuComponent implements OnInit {
     if (!this.gastLogin && this.currentLoginId) {
       await this.getCurrentUserLogIn();
       console.log('current User', this.currentUser);
+      this.searchService.setCurrentUserId(this.currentLoginId);
     }
 
     if (!this.gastLogin) {
@@ -104,7 +105,10 @@ export class MainMenuComponent implements OnInit {
 
       this.firestoreService.getConversationsByUserId(this.currentLoginId).subscribe((conv) => {
         this.directMessages = conv;
-        this.filterDirectMessageUsers(); // 👈 HIER
+        this.filterDirectMessageUsers();
+        this.searchService.setDirectMessagePartnerIds(this.directMessages, this.currentLoginId);
+
+        this.updateFilteredResults();
       });
     }
 
@@ -165,7 +169,9 @@ export class MainMenuComponent implements OnInit {
       this.searchService.setFirestoreUsers(u);
 
       if (!this.gastLogin) {
-        this.filterDirectMessageUsers(); // 👈 HIER
+        this.filterDirectMessageUsers();
+        this.searchService.setCurrentUserId(this.currentLoginId);
+        this.searchService.setDirectMessagePartnerIds(this.directMessages, this.currentLoginId);
       }
     });
   }
@@ -178,9 +184,18 @@ export class MainMenuComponent implements OnInit {
 
     if (this.gastLogin) {
       this.filterAsGuest(query, isChannelSearch, isDirectSearch);
-    } else {
-      this.filterAsUser(query, isChannelSearch, isDirectSearch);
+      return;
     }
+
+    if (!this.directMessages || this.directMessages.length === 0) {
+      console.warn('Noch keine DirectMessages vorhanden. Suche übersprungen.');
+      this.filteredChannels = [];
+      this.filteredDirectMessages = [];
+      return;
+    }
+
+    this.searchService.setDirectMessagePartnerIds(this.directMessages, this.currentLoginId);
+    this.filterAsUser(query, isChannelSearch, isDirectSearch);
   }
 
   get sortedUsers(): appUser[] {
@@ -207,12 +222,8 @@ export class MainMenuComponent implements OnInit {
         .filter((dm) => dm.name.toLowerCase().startsWith(query));
       this.filteredChannels = [];
     } else {
-      this.filteredChannels = this.channelDirectMessageData
-        .getChannels()
-        .filter((c) => c.name.toLowerCase().startsWith(query));
-      this.filteredDirectMessages = this.channelDirectMessageData
-        .getDirectMessagesForGast()
-        .filter((dm) => dm.name.toLowerCase().startsWith(query));
+      this.filteredChannels = this.searchService.filterFirestoreChannels(query);
+      this.filteredDirectMessages = this.searchService.filterFirestoreDirectMessages(query);
     }
   }
 
@@ -223,31 +234,24 @@ export class MainMenuComponent implements OnInit {
   ): void {
     if (isChannel) {
       this.filteredChannels = this.searchService
-        .filterFirestoreChannels(query)
-        .map((c) => c.name)
-        .filter((c) => c.toLowerCase().startsWith(query));
+        .filterFirestoreChannels(query);
       this.filteredDirectMessages = [];
     } else if (isDirect) {
       this.filteredDirectMessages = this.searchService
-        .filterFirestoreDirectMessages(query)
-        .filter((u) => u.userName.toLowerCase().startsWith(query));
+        .filterFirestoreDirectMessages(query);
       this.filteredChannels = [];
     } else {
       this.filteredChannels = this.searchService
-        .filterFirestoreChannels(query)
-        .map((c) => c.name)
-        .filter((c) => c.toLowerCase().startsWith(query));
-
+        .filterFirestoreChannels(query);
       this.filteredDirectMessages = this.searchService
-        .filterFirestoreDirectMessages(query)
-        .filter((u) => u.userName.toLowerCase().startsWith(query));
+        .filterFirestoreDirectMessages(query);
     }
   }
 
   filterDirectMessageUsers(): void {
     const otherUserIds = this.directMessages
       .map(conv => conv.participants.find((id: string) => id !== this.currentLoginId))
-      .filter(Boolean); // Filtert undefined raus
+      .filter(Boolean);
 
     this.filteredDirectMessages = this.users.filter(user =>
       otherUserIds.includes(user.id)

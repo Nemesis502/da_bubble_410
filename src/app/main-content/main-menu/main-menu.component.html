@@ -25,11 +25,11 @@
       @if (isSearchActive) {
       @if (filteredChannels.length > 0) {
       <section class="channels">
-        <div class="channel-list" id="channel-list">
-          @for (channel of filteredChannels; track channel) {
-          <div class="channel-item">
+        <div class="channel-list search" id="channel-list">
+          @for (channel of filteredChannels; track channel.channelId) {
+          <div class="channel-item" (click)="selectChannel(channel)">
             <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
-            <p class="nuito17px400">{{ channel }}</p>
+            <p class="nuito17px400">{{ channel.name }}</p>
           </div>
           }
         </div>
@@ -37,7 +37,7 @@
       }
       @if (filteredDirectMessages.length > 0) {
       <section class="direct-message">
-        <div class="message-list" id="direct-messages">
+        <div class="message-list search" id="direct-messages">
           @if (gastLogin) {
           @for (user of filteredDirectMessages; track user.name) {
           <div class="message-item">

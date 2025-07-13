@@ -10,7 +10,20 @@ export class SearchService {
   private firestoreChannels: Channel[] = [];
   private firestoreUsers: appUser[] = [];
 
+  private currentUserId: string = '';
+  private directMessagePartnerIds: string[] = [];
+
   constructor(private data: ChannelsDirectMessageService) { }
+
+  setCurrentUserId(userId: string) {
+    this.currentUserId = userId;
+  }
+
+  setDirectMessagePartnerIds(conversations: any[], currentUserId: string) {
+    this.directMessagePartnerIds = conversations
+      .map(conv => conv.participants.find((id: string) => id !== currentUserId))
+      .filter((id): id is string => typeof id === 'string');
+  }
 
   filterChannels(searchTerm: string): string[] {
     const query = searchTerm.toLowerCase();
@@ -36,14 +49,26 @@ export class SearchService {
 
   filterFirestoreChannels(searchTerm: string): Channel[] {
     const query = searchTerm.toLowerCase();
-    return this.firestoreChannels.filter(c =>
-      c.name.toLowerCase().includes(query)
-    );
+
+    return this.firestoreChannels
+      .filter(c =>
+        c.name.toLowerCase().includes(query) &&
+        c.members.includes(this.currentUserId)
+      );
   }
 
   filterFirestoreDirectMessages(searchTerm: string): appUser[] {
     const query = searchTerm.toLowerCase();
+
+    console.log('🔍 Suche nach DirectMessages:', {
+      searchTerm,
+      currentUserId: this.currentUserId,
+      directMessagePartnerIds: this.directMessagePartnerIds
+    });
+
     return this.firestoreUsers.filter(u =>
+      !!u.id &&
+      this.directMessagePartnerIds.includes(u.id) &&
       u.userName.toLowerCase().includes(query)
     );
   }
