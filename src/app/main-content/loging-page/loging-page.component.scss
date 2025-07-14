@@ -22,7 +22,8 @@
     height: 69px;
     gap: 8px;
     animation: moveToCorner 0.7s 2.5s linear forwards;
-    position: relative;
+    // position: relative;
+    position: absolute;
 
     img {
         height: 69px;
@@ -371,11 +372,15 @@ mat-form-field {
 
 @keyframes moveToCorner {
     from {
-        bottom: 0;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(1);
     }
 
     to {
-        bottom: 290px;
+        top: 80px;
+        left: 110px;
+        transform: translate(0, 0) scale(1);
     }
 }
 

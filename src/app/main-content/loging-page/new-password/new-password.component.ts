@@ -8,9 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { merge } from 'rxjs';
 import { confirmPasswordValidator } from '../../../shared/services/confirm-password.validator';
-import { Auth } from '@angular/fire/auth';
 import { AuthService } from '../../../shared/services/auth.service';
 
 @Component({
@@ -18,7 +16,7 @@ import { AuthService } from '../../../shared/services/auth.service';
   standalone: true,
   imports: [CommonModule, MatDividerModule, MatFormFieldModule, MatInputModule, FormsModule, ReactiveFormsModule, MatIconModule, MatButtonModule, RouterLink],
   templateUrl: './new-password.component.html',
-  styleUrl: './new-password.component.scss'
+  styleUrls: ['./new-password.component.scss', './new-password.componen-media-query.scss']
 })
 export class NewPasswordComponent {
 

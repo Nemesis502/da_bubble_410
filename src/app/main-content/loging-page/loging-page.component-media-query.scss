@@ -1,93 +1,5 @@
 @use "./../../../styles.scss" as *;
 
-@media only screen and (min-height: 600px) {
-    @keyframes moveToCorner {
-        from {
-            bottom: 0;
-        }
-
-        to {
-            bottom: 150px;
-        }
-    }
-
-    @keyframes moveToCornerLogin {
-        from {
-            top: 150px;
-        }
-
-        to {
-            top: 0;
-        }
-    }
-}
-
-@media only screen and (min-height: 700px) {
-    @keyframes moveToCorner {
-        from {
-            bottom: 0;
-        }
-
-        to {
-            bottom: 200px;
-        }
-    }
-
-    @keyframes moveToCornerLogin {
-        from {
-            top: 180px;
-        }
-
-        to {
-            top: 0;
-        }
-    }
-}
-
-@media only screen and (min-height: 800px) {
-    @keyframes moveToCorner {
-        from {
-            bottom: 0;
-        }
-
-        to {
-            bottom: 215px;
-        }
-    }
-
-    @keyframes moveToCornerLogin {
-        from {
-            top: 200px;
-        }
-
-        to {
-            top: 0;
-        }
-    }
-}
-
-@media only screen and (min-height: 940px) {
-    @keyframes moveToCorner {
-        from {
-            bottom: 0;
-        }
-
-        to {
-            bottom: 500px;
-        }
-    }
-
-    @keyframes moveToCornerLogin {
-        from {
-            top: 360px;
-        }
-
-        to {
-            top: 0;
-        }
-    }
-}
-
 @media only screen and (min-width: 370px) {
     .logIn-Section {
         margin: 92px 30px 0 30px;
@@ -155,13 +67,15 @@
 
     @keyframes moveToCorner {
         from {
-            bottom: 0;
-            transform: translate(0, 0) scale(1.0);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1);
         }
 
         to {
-            bottom: 290px;
-            transform: translate(-20%, -10%) scale(0.5);
+            top: 20px;
+            left: -70px;
+            transform: translate(0, 0) scale(0.5);
         }
     }
 
@@ -169,110 +83,6 @@
         from {
             top: 280px;
             transform: translate(40%, -27%) scale(2.0);
-        }
-
-        to {
-            top: 0;
-            transform: translate(0, 0) scale(1.0);
-        }
-    }
-}
-
-@media only screen and (min-width: 800px) {
-    @keyframes moveToCorner {
-        from {
-            bottom: 0;
-            transform: translate(0, 0) scale(1.0);
-        }
-
-        to {
-            bottom: 290px;
-            transform: translate(-40%, -13%) scale(0.5);
-        }
-    }
-
-    @keyframes moveToCornerLogin {
-        from {
-            top: 280px;
-            transform: translate(75%, -27%) scale(2.0);
-        }
-
-        to {
-            top: 0;
-            transform: translate(0, 0) scale(1.0);
-        }
-    }
-}
-
-@media only screen and (min-width: 1000px) {
-    @keyframes moveToCorner {
-        from {
-            bottom: 0;
-            transform: translate(0, 0) scale(1.0);
-        }
-
-        to {
-            bottom: 290px;
-            transform: translate(-65%, -13%) scale(0.5);
-        }
-    }
-
-    @keyframes moveToCornerLogin {
-        from {
-            top: 280px;
-            transform: translate(90%, -27%) scale(2.0);
-        }
-
-        to {
-            top: 0;
-            transform: translate(0, 0) scale(1.0);
-        }
-    }
-}
-
-@media only screen and (min-width: 1300px) {
-    @keyframes moveToCorner {
-        from {
-            bottom: 0;
-            transform: translate(0, 0) scale(1.0);
-        }
-
-        to {
-            bottom: 290px;
-            transform: translate(-80%, -13%) scale(0.5);
-        }
-    }
-
-    @keyframes moveToCornerLogin {
-        from {
-            top: 280px;
-            transform: translate(110%, -27%) scale(2.0);
-        }
-
-        to {
-            top: 0;
-            transform: translate(0, 0) scale(1.0);
-        }
-    }
-}
-
-@media only screen and (min-width: 1500px) {
-    @keyframes moveToCorner {
-        from {
-            bottom: 0;
-            transform: translate(0, 0) scale(1.0);
-        }
-
-        to {
-            bottom: 290px;
-            transform: translate(-120%, -43%) scale(0.5);
-        }
-    }
-
-    @keyframes moveToCornerLogin {
-        from {
-            top: 280px;
-            transform: translate(140%, -27%) scale(2.0);
         }
 
         to {
