@@ -37,6 +37,8 @@ export class ChatTemplateComponent implements OnInit {
   userSession = inject(SessionService);
 
   @ViewChild('chatField') chatField!: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('chatBody') private chatBodyRef!: ElementRef;
+
   selectedChannel: any = null;
   chatMessage: string = '';
   emojiPickerVisible: boolean = false;
@@ -99,24 +101,20 @@ private async initializeChannelFromRoute(): Promise<void> {
 }
 
 
-  loadMessagesForChannel(channel: any): void {
-    console.log('Loading messages for channel:', channel);
-    if (channel?.channelId) {
-      this.channelService.getEnrichedMessages(channel.channelId).subscribe({
-        next: (messages) => {
-          this.messages = messages;
-        },
-        error: (error) => {
-          console.error(
-            'Error loading enriched messages with reactions:',
-            error
-          );
-        },
-      });
-    } else {
-      console.warn('Channel ID missing:', channel);
-    }
+loadMessagesForChannel(channel: any): void {
+  if (channel?.channelId) {
+    this.channelService.getEnrichedMessages(channel.channelId).subscribe({
+      next: (messages) => {
+        this.messages = messages;
+        this.scrollToBottom(); 
+      },
+      error: (error) => {
+        console.error('Error loading messages:', error);
+      },
+    });
   }
+}
+
 
   navigateToMain(): void {
     this.router.navigate(['/main']);
@@ -226,4 +224,14 @@ startEditingMessage(message: any): void {
 
     this.router.navigate(['/channel-info', channelId]);
   }
+
+  private scrollToBottom(): void {
+  setTimeout(() => {
+    if (this.chatBodyRef) {
+      const container = this.chatBodyRef.nativeElement;
+      container.scrollTop = container.scrollHeight;
+    }
+  }, 0); 
+}
+
 }

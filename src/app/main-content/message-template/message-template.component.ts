@@ -306,7 +306,7 @@ closeActiveElements(): void {
     if (reactors.length === 1) {
       return `${reactors[0]}<br>hat reagiert`;
     } else if (reactors.length === 2) {
-      return `${reactors[0]} und ${reactors[1]}<br>haben reagiert`;
+      return `${reactors[0]} und<br> ${reactors[1]}<br>haben reagiert`;
     } else {
       const othersCount = reactors.length - 1;
       return `${reactors[0]} und ${othersCount} weitere<br>haben reagiert`;

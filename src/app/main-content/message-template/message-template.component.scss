@@ -74,11 +74,17 @@
 .msg-main {
   margin-left: 16px;
   padding-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .msg-own-main {
   margin-right: 16px;
   padding-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .msg-time {
@@ -98,6 +104,8 @@
   padding: 15px;
   border-radius: 20px;
   border-top-left-radius: 0;
+  width: fit-content;
+  min-width: 100px;
   .msg-text {
     font-family: "nunito";
     font-weight: 400;
@@ -112,6 +120,8 @@
   padding: 15px;
   border-radius: 20px;
   border-top-right-radius: 0;
+  width: fit-content;
+  min-width: 100px;
   .msg-text {
     font-family: "nunito";
     font-weight: 400;
@@ -363,8 +373,8 @@
 
 .more-vert-popup {
   position: absolute;
-  top: 105%; 
-  right: -20%; 
+  top: 105%;
+  right: -20%;
   background: white;
   border: 1px solid #adb0d9;
   border-radius: 30px;
@@ -380,8 +390,8 @@
   padding: 8px;
   width: 240px;
 
-  button{
-    font-family: 'Nunito';
+  button {
+    font-family: "Nunito";
     font-weight: 600;
     font-size: 20px;
     white-space: nowrap;
@@ -389,13 +399,13 @@
     padding-left: 10px;
     padding-right: 10px;
     border-radius: 20px;
-        &:hover {
+    &:hover {
       background-color: $Bg;
       color: $purple3;
       font-size: 22px;
     }
   }
-}  
+}
 
 @media (min-width: 650px) {
   .popup-menu {

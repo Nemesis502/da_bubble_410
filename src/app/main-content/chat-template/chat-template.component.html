@@ -19,7 +19,7 @@
       <mat-icon class="mat-icon-top" fontIcon="person_add_alt"></mat-icon>
     </button>
   </section>
-  <section class="chat-body">
+  <section class="chat-body" #chatBody>
     <app-message-template [currentChannelId]="selectedChannel?.channelId"[messages]="messages"
       [currentUser]="currentUser?.id || ''"   (editMessage)="startEditingMessage($event)"></app-message-template>
   </section>

@@ -50,7 +50,7 @@
                 <!-- Hover Popup -->
                 <div class="reaction-popup" *ngIf="hoveredReactorNames?.length">
                   <p>{{ reaction.reaction }}</p>
-                  <p [innerHTML]="formatReactorNames(hoveredReactorNames)"></p>
+                  <p class="reaction-hover-names" [innerHTML]="formatReactorNames(hoveredReactorNames)"></p>
                 </div>
               </button>
 
