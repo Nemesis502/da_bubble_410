@@ -6,7 +6,11 @@
       <p>Devspace</p>
     </button>
     <button class="profile-btn">
-      <img src="./assets/img/avatar/{{currentUser?.profilePic}}.png" alt="" aria-hidden="true" />
+      <img
+        src="./assets/img/avatar/{{ currentUser?.profilePic }}.png"
+        alt=""
+        aria-hidden="true"
+      />
     </button>
   </section>
   <section class="chat-header">
@@ -20,13 +24,43 @@
     </button>
   </section>
   <section class="chat-body" #chatBody>
-    <app-message-template [currentChannelId]="selectedChannel?.channelId"[messages]="messages"
-      [currentUser]="currentUser?.id || ''"   (editMessage)="startEditingMessage($event)"></app-message-template>
+    <app-message-template
+      [currentChannelId]="selectedChannel?.channelId"
+      [messages]="messages"
+      [currentUser]="currentUser?.id || ''"
+      (editMessage)="startEditingMessage($event)"
+    ></app-message-template>
   </section>
   <section class="chat-interface">
     <mat-card class="chat-card" appearance="outlined">
-      <textarea [(ngModel)]="chatMessage" id="chat-field"
-        placeholder="Nachricht an #{{ selectedChannel?.name }}"></textarea>
+      <textarea
+        [(ngModel)]="chatMessage"
+        id="chat-field"
+        #chatField
+        (keydown)="checkMentionTrigger($event)"
+        placeholder="Nachricht an #{{ selectedChannel?.name }}"
+      ></textarea>
+
+      <!-- Basic @ Popup -->
+   <div class="mention-popup" *ngIf="mentionPopupVisible">
+  <div
+    class="mention-user"
+    *ngFor="let user of mentionableUsers"
+  >
+    <img
+      class="avatar"
+      [src]="'./../../../assets/img/avatar/' + user.profilePic + '.png'"
+      alt="avatar"
+    />
+    <div
+      class="status-dot"
+      [ngClass]="{ online: user.status, offline: !user.status }"
+    ></div>
+    <span class="mention-name">{{ user.userName }}</span>
+  </div>
+</div>
+
+
       <mat-card-actions class="chat-buttons">
         <div class="buttons-left">
           <button (click)="toggleEmojiPicker($event)">
@@ -35,12 +69,17 @@
           <button><mat-icon fontIcon="alternate_email"></mat-icon></button>
         </div>
         <div class="button-right">
-          <button (click)="sendMessage()"><mat-icon fontIcon="send"></mat-icon></button>
+          <button (click)="sendMessage()">
+            <mat-icon fontIcon="send"></mat-icon>
+          </button>
         </div>
       </mat-card-actions>
     </mat-card>
     <!-- Emoji Picker -->
-    <app-emoji-picker *ngIf="emojiPickerVisible" [pickerPosition]="pickerPosition"
-      (emojiSelected)="addEmoji($event)"></app-emoji-picker>
+    <app-emoji-picker
+      *ngIf="emojiPickerVisible"
+      [pickerPosition]="pickerPosition"
+      (emojiSelected)="addEmoji($event)"
+    ></app-emoji-picker>
   </section>
 </div>
