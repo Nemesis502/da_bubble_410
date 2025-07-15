@@ -80,6 +80,17 @@
     }
 }
 
+.logo-container-mobile,
+.logo-container-desktop {
+    animation: moveToCornerLogo 0.5s 2.7s linear forwards;
+    opacity: 0;
+
+    &.skip-animation {
+        animation: none;
+        opacity: 1;
+    }
+}
+
 @keyframes nameToRight {
     from {
         transform: translateX(-400px);

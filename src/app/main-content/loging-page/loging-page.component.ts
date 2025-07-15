@@ -33,7 +33,7 @@ export class LogingPageComponent {
   errorMessagePassword = ''
 
   constructor(private authService: AuthService, private router: Router) {
-    // this.checkIfIntroPlayed();
+    this.checkIfIntroPlayed();
     merge(this.email.statusChanges, this.email.valueChanges)
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.updateErrorMessage());
