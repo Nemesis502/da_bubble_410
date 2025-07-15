@@ -25,7 +25,16 @@
             <p class="msg-time">{{ message.formattedTime }}</p>
           </div>
           <div class="msg-own-content">
-            <p class="msg-text">{{ message.text }}</p>
+            <p class="msg-text">
+              <ng-container
+                *ngFor="let part of parseMessageWithMentions(message.text)"
+              >
+                <span *ngIf="part.isMention" class="mention">{{
+                  part.text
+                }}</span>
+                <span *ngIf="!part.isMention">{{ part.text }}</span>
+              </ng-container>
+            </p>
           </div>
           <div class="msg-own-answers">
             <button>{{ message.answersCount }} Antworten</button>
@@ -50,7 +59,10 @@
                 <!-- Hover Popup -->
                 <div class="reaction-popup" *ngIf="hoveredReactorNames?.length">
                   <p>{{ reaction.reaction }}</p>
-                  <p class="reaction-hover-names" [innerHTML]="formatReactorNames(hoveredReactorNames)"></p>
+                  <p
+                    class="reaction-hover-names"
+                    [innerHTML]="formatReactorNames(hoveredReactorNames)"
+                  ></p>
                 </div>
               </button>
 
@@ -134,7 +146,16 @@
             <p class="msg-time">{{ message.formattedTime }}</p>
           </div>
           <div class="msg-content">
-            <p class="msg-text">{{ message.text }}</p>
+            <p class="msg-text">
+              <ng-container
+                *ngFor="let part of parseMessageWithMentions(message.text)"
+              >
+                <span *ngIf="part.isMention" class="mention">{{
+                  part.text
+                }}</span>
+                <span *ngIf="!part.isMention">{{ part.text }}</span>
+              </ng-container>
+            </p>
           </div>
           <div class="msg-answers">
             <button>{{ message.answersCount }} Antworten</button>

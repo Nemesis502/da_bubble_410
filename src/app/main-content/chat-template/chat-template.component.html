@@ -42,24 +42,29 @@
       ></textarea>
 
       <!-- Basic @ Popup -->
-   <div class="mention-popup" *ngIf="mentionPopupVisible">
-  <div
-    class="mention-user"
-    *ngFor="let user of mentionableUsers"
-  >
-    <img
-      class="avatar"
-      [src]="'./../../../assets/img/avatar/' + user.profilePic + '.png'"
-      alt="avatar"
-    />
-    <div
-      class="status-dot"
-      [ngClass]="{ online: user.status, offline: !user.status }"
-    ></div>
-    <span class="mention-name nuito17px400">{{ user.userName }}</span>
-  </div>
-</div>
-
+      <div class="mention-popup" *ngIf="mentionPopupVisible">
+        <div
+          class="mention-user"
+          *ngFor="let user of mentionableUsers"
+          (click)="selectMentionUser(user.userName)"
+        >
+          <img
+            class="avatar"
+            [src]="'./../../../assets/img/avatar/' + user.profilePic + '.png'"
+            alt="avatar"
+          />
+          <div
+            class="status-dot"
+            [ngClass]="{ online: user.status, offline: !user.status }"
+          ></div>
+          <span class="mention-name nuito17px400"
+            >{{ user.userName
+            }}<span *ngIf="user.userName === currentUser?.userName">
+              (Du)</span
+            ></span
+          >
+        </div>
+      </div>
 
       <mat-card-actions class="chat-buttons">
         <div class="buttons-left">

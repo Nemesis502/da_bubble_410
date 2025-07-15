@@ -131,19 +131,20 @@ mentionableUsers: {
     }
   }
 
-  loadMessagesForChannel(channel: any): void {
-    if (channel?.channelId) {
-      this.channelService.getEnrichedMessages(channel.channelId).subscribe({
-        next: (messages) => {
-          this.messages = messages;
-          this.scrollToBottom();
-        },
-        error: (error) => {
-          console.error('Error loading messages:', error);
-        },
-      });
-    }
+loadMessagesForChannel(channel: any): void {
+  if (channel?.channelId) {
+    this.channelService.getEnrichedMessages(channel.channelId).subscribe({
+      next: (messages) => {
+        this.messages = messages;
+        this.scrollToBottom();
+        this.focusChatInput();  
+      },
+      error: (error) => {
+        console.error('Error loading messages:', error);
+      },
+    });
   }
+}
 
   navigateToMain(): void {
     this.router.navigate(['/main']);
@@ -179,47 +180,47 @@ mentionableUsers: {
     }
   }
 
-  async sendMessage(): Promise<void> {
-    if (!this.chatMessage.trim() || !this.selectedChannel?.channelId) {
-      console.warn('Message text is empty or channel is not selected.');
-      return;
-    }
-
-    try {
-      const messageText = this.chatMessage.trim();
-
-      if (this.editedMessage) {
-        const messageRef = doc(
-          this.firestore,
-          `channels/${this.selectedChannel.channelId}/messages/${this.editedMessage.id}`
-        );
-
-        await updateDoc(messageRef, { text: messageText });
-        console.log('Message updated successfully:', messageText);
-
-        this.editedMessage = null;
-      } else {
-        const messageCollection = collection(
-          this.firestore,
-          `channels/${this.selectedChannel.channelId}/messages`
-        );
-
-        const newMessage = {
-          text: messageText,
-          timestamp: serverTimestamp() as unknown as Date,
-          senderID: this.currentUser?.id!,
-          channelId: this.selectedChannel.channelId,
-        };
-
-        await addDoc(messageCollection, newMessage);
-        console.log('Message sent successfully:', newMessage);
-      }
-
-      this.chatMessage = '';
-    } catch (error) {
-      console.error('Error sending/updating message:', error);
-    }
+async sendMessage(): Promise<void> {
+  if (!this.chatMessage.trim() || !this.selectedChannel?.channelId) {
+    console.warn('Message text is empty or channel is not selected.');
+    return;
   }
+
+  try {
+    const messageText = this.chatMessage.trim();
+
+    if (this.editedMessage) {
+      const messageRef = doc(
+        this.firestore,
+        `channels/${this.selectedChannel.channelId}/messages/${this.editedMessage.id}`
+      );
+
+      await updateDoc(messageRef, { text: messageText });
+      console.log('Message updated successfully:', messageText);
+
+      this.editedMessage = null;
+    } else {
+      const messageCollection = collection(
+        this.firestore,
+        `channels/${this.selectedChannel.channelId}/messages`
+      );
+
+      const newMessage = {
+        text: messageText,
+        timestamp: serverTimestamp(),  
+        senderID: this.currentUser?.id!,
+        channelId: this.selectedChannel.channelId,
+      };
+
+      await addDoc(messageCollection, newMessage);
+      console.log('Message sent successfully:', newMessage);
+    }
+
+    this.chatMessage = '';
+  } catch (error) {
+    console.error('Error sending/updating message:', error);
+  }
+}
 
   startEditingMessage(message: any): void {
     this.chatMessage = message.text;
@@ -263,17 +264,28 @@ mentionableUsers: {
     }, 0);
   }
 
+  focusChatInput(): void {
+  if (this.chatField) {
+    this.chatField.nativeElement.focus();
+  }
+}
+
 async checkMentionTrigger(event: KeyboardEvent): Promise<void> {
   const char = event.key;
 
   if (char === '@') {
     this.mentionPopupVisible = true;
-    await this.fetchMentionableUsers(); 
+    await this.fetchMentionableUsers();
   } else if (char === ' ' || char === 'Enter' || char === 'Escape') {
     this.mentionPopupVisible = false;
   }
-}
 
+  setTimeout(() => {
+    if (!this.chatMessage.includes('@')) {
+      this.mentionPopupVisible = false;
+    }
+  }, 0);
+}
 
   async fetchMentionableUsers(): Promise<void> {
   if (!this.selectedChannel?.channelId) return;
@@ -316,4 +328,29 @@ async checkMentionTrigger(event: KeyboardEvent): Promise<void> {
     console.error('Error fetching mentionable users:', error);
   }
 }
+
+selectMentionUser(userName: string): void {
+  const textarea = this.chatField?.nativeElement;
+  if (!textarea) return;
+
+  const cursorPos = textarea.selectionStart;
+  const textBefore = this.chatMessage.slice(0, cursorPos);
+  const textAfter = this.chatMessage.slice(cursorPos);
+
+  const atIndex = textBefore.lastIndexOf('@');
+  if (atIndex === -1) return;
+
+  const newText =
+    textBefore.slice(0, atIndex) + `@${userName} ` + textAfter;
+
+  this.chatMessage = newText;
+
+  const newCursorPos = atIndex + userName.length + 2;
+  setTimeout(() => {
+    textarea.focus();
+    textarea.setSelectionRange(newCursorPos, newCursorPos);
+  });
+  this.mentionPopupVisible = false;
+}
+
 }

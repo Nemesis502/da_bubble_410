@@ -138,7 +138,6 @@ private formatOlderDate(date: Date): string {
   if (timestamp && typeof timestamp.seconds === 'number') {
     return new Date(timestamp.seconds * 1000); 
   }
-  console.error('Invalid timestamp:', timestamp);
   return new Date(0); 
 }
 
@@ -326,4 +325,27 @@ closeActiveElements(): void {
   });
   message.showMoreMenu = !message.showMoreMenu;
 }
+
+parseMessageWithMentions(messageText: string): { text: string; isMention: boolean }[] {
+  const mentionRegex = /@[\wäöüÄÖÜß]+(?: [\wäöüÄÖÜß]+)*(?=\s|$|[.,!?:])/g;
+  const parts: { text: string; isMention: boolean }[] = [];
+  let lastIndex = 0;
+
+  messageText.replace(mentionRegex, (match, index) => {
+    if (index > lastIndex) {
+      parts.push({ text: messageText.slice(lastIndex, index), isMention: false });
+    }
+    parts.push({ text: match, isMention: true });
+    lastIndex = index + match.length;
+    return match;
+  });
+
+  if (lastIndex < messageText.length) {
+    parts.push({ text: messageText.slice(lastIndex), isMention: false });
+  }
+
+  return parts;
+}
+
+
 }
