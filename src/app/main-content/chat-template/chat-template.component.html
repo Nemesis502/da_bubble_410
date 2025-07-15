@@ -85,6 +85,7 @@
       *ngIf="emojiPickerVisible"
       [pickerPosition]="pickerPosition"
       (emojiSelected)="addEmoji($event)"
+      (pickerClosed)="onPickerClosed()"
     ></app-emoji-picker>
   </section>
 </div>

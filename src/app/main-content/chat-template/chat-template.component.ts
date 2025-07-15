@@ -180,6 +180,10 @@ loadMessagesForChannel(channel: any): void {
     }
   }
 
+  onPickerClosed() {
+  this. emojiPickerVisible = false; 
+}
+
 async sendMessage(): Promise<void> {
   if (!this.chatMessage.trim() || !this.selectedChannel?.channelId) {
     console.warn('Message text is empty or channel is not selected.');

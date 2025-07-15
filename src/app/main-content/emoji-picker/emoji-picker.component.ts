@@ -36,6 +36,7 @@ export class EmojiPickerComponent {
 
   selectEmoji(emoji: string) {
     this.emojiSelected.emit(emoji); 
+    this.pickerClosed.emit(); 
   }
 
 }

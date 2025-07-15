@@ -92,8 +92,12 @@
         </div>
       </div>
       <div class="popup-menu-own" [class.active]="selectedMessage === message">
-        <button (click)="selectReaction('✅', message)">✅</button>
-        <button (click)="selectReaction('👍', message)">👍</button>
+        <button
+          *ngFor="let reaction of getLastTwoReactions(message)"
+          (click)="selectReaction(reaction, message)"
+        >
+          {{ reaction }}
+        </button>
         <button>
           <mat-icon
             (click)="toggleReactionPicker(message, $event)"
@@ -210,8 +214,12 @@
         </div>
       </div>
       <div class="popup-menu" [class.active]="selectedMessage === message">
-        <button (click)="selectReaction('✅', message)">✅</button>
-        <button (click)="selectReaction('👍', message)">👍</button>
+        <button
+          *ngFor="let reaction of getLastTwoReactions(message)"
+          (click)="selectReaction(reaction, message)"
+        >
+          {{ reaction }}
+        </button>
         <button>
           <mat-icon
             (click)="toggleReactionPicker(message, $event)"

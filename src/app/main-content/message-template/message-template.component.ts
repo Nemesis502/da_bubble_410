@@ -347,5 +347,26 @@ parseMessageWithMentions(messageText: string): { text: string; isMention: boolea
   return parts;
 }
 
+getLastTwoReactions(message: any): string[] {
+  if (!message?.reactions || message.reactions.length === 0) {
+    return ['✅', '👍'];
+  }
+
+  const sortedReactions = [...message.reactions].sort((a, b) => {
+    const aTime = a.timestamp?.seconds || 0;
+    const bTime = b.timestamp?.seconds || 0;
+    return bTime - aTime;
+  });
+
+  const distinctReactions = Array.from(
+    new Set(sortedReactions.map((r) => r.reaction))
+  );
+
+  return distinctReactions.slice(0, 2).length
+    ? distinctReactions.slice(0, 2)
+    : ['✅', '👍'];
+}
+
+
 
 }
