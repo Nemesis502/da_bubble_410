@@ -25,7 +25,6 @@ export class AuthService {
         try {
             let result = await signInWithPopup(this.auth, provider);
             let user = result.user;
-            // console.log('Google Login erfolgreich:', user);
             return user;
         } catch (error) {
             console.error('Google Login fehlgeschlagen:', error);
@@ -64,7 +63,6 @@ export class AuthService {
             await confirmPasswordReset(this.auth, oobCode, newPassword);
         } catch (error) {
             console.error('Passwort-Zurücksetzen fehlgeschlagen:', error);
-            // Fehler anzeigen, z. B. Link abgelaufen, ungültig, etc.
         }
     }
 

@@ -65,7 +65,7 @@
         }
     }
 
-    @keyframes moveToCorner {
+    @keyframes moveToCornerIntroLogo {
         from {
             top: 50%;
             left: 50%;
@@ -76,18 +76,6 @@
             top: 20px;
             left: -70px;
             transform: translate(0, 0) scale(0.5);
-        }
-    }
-
-    @keyframes moveToCornerLogin {
-        from {
-            top: 280px;
-            transform: translate(40%, -27%) scale(2.0);
-        }
-
-        to {
-            top: 0;
-            transform: translate(0, 0) scale(1.0);
         }
     }
 }
