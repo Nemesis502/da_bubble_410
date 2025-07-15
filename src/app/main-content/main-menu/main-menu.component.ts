@@ -33,7 +33,10 @@ import { onSnapshot } from 'firebase/firestore';
     MatDividerModule,
   ],
   templateUrl: './main-menu.component.html',
-  styleUrl: './main-menu.component.scss',
+  styleUrls: [
+    './main-menu.component.scss',
+    'main-menu.media-query.component.scss'
+  ],
 })
 export class MainMenuComponent implements OnInit {
   readonly dialog = inject(MatDialog);

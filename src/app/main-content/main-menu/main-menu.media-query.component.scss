@@ -1,0 +1,98 @@
+@use "./../../../styles.scss" as *;
+
+@media screen and (max-width: 360px) {
+    .nuito27px {
+        font-size: 26px !important;
+    }
+}
+
+@media screen and (max-height: 1280px) {
+    .channel-list {
+        max-height: 15vh;
+        height: max-content;
+    }
+
+    .menu-item {
+        padding: 1%;
+        padding-inline: 5%;
+    }
+}
+
+@media screen and (max-height: 900px) {
+    .message-list {
+        height: 50vh;
+    }
+}
+
+@media screen and (max-height: 850px) {
+    .message-list {
+        height: 47vh;
+    }
+}
+
+@media screen and (max-height: 800px) {
+    .message-list {
+        height: 45vh;
+    }
+}
+
+@media screen and (orientation: landscape) and (max-height: 799px) {
+    .menu {
+        display: none;
+    }
+
+    .landscape-warning {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-inline: 5%;
+        border-radius: 30px;
+        height: 65vh;
+        background-color: white;
+        font-size: 20px;
+    }
+}
+
+@media screen and (orientation: landscape) and (min-height: 800px),
+screen and (orientation: portrait) {
+    .message-list {
+        height: 40vh;
+    }
+
+    .landscape-warning {
+        display: none !important;
+    }
+}
+
+@media screen and (max-height: 670px) {
+    .message-list {
+        height: 38vh;
+    }
+}
+
+@media screen and (max-width: 320px) {
+    .nuito27px {
+        font-size: 22px !important;
+    }
+
+    .menu {
+        height: calc(100vh - 81px);
+    }
+
+    .message-list {
+        height: 30vh;
+
+        .message-item {
+            &:first-child {
+                margin-top: 16px;
+            }
+        }
+    }
+
+    .new-chat-btn {
+        right: 10px;
+        bottom: 10px;
+        width: 50px;
+        height: 50px;
+    }
+}
