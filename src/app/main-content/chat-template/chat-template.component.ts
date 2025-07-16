@@ -20,7 +20,8 @@ import {
   collection,
   doc,
   addDoc,
-  getDoc, 
+  getDoc,
+  getDocs,
   serverTimestamp,
 } from '@angular/fire/firestore';
 import { appUser } from '../../interfaces/user.interface';
@@ -52,14 +53,17 @@ export class ChatTemplateComponent implements OnInit {
   @ViewChild('chatField') chatField!: ElementRef<HTMLTextAreaElement>;
   @ViewChild('chatBody') private chatBodyRef!: ElementRef;
 
-mentionableUsers: {
-  id: string;
-  userName: string;
-  profilePic: string;
-  status: boolean;
-}[] = [];
+  mentionableUsers: {
+    id: string;
+    userName: string;
+    profilePic: string;
+    status: boolean;
+  }[] = [];
+
+  allChannels: { id: string; name: string }[] = [];
 
   mentionPopupVisible = false;
+  hashtagPopupVisible: boolean = false;
 
   selectedChannel: any = null;
   chatMessage: string = '';
@@ -79,20 +83,22 @@ mentionableUsers: {
     private firestore: Firestore
   ) {}
 
-  async ngOnInit(): Promise<void> {
-    this.currentUser = this.userSession.getCurrentUser();
+async ngOnInit(): Promise<void> {
+  this.currentUser = this.userSession.getCurrentUser();
 
-    await this.initializeChannelFromRoute();
+  await this.initializeChannelFromRoute();
+  await this.fetchAllChannels(); 
 
-    this.channelService.selectedChannel$.subscribe((channel) => {
-      this.selectedChannel = channel;
-      if (channel) {
-        this.loadMessagesForChannel(channel);
-      } else {
-        this.messages = [];
-      }
-    });
-  }
+  this.channelService.selectedChannel$.subscribe((channel) => {
+    this.selectedChannel = channel;
+    if (channel) {
+      this.loadMessagesForChannel(channel);
+    } else {
+      this.messages = [];
+    }
+  });
+}
+
 
   private async initializeChannelFromRoute(): Promise<void> {
     const channelId = this.route.snapshot.paramMap.get('id');
@@ -131,20 +137,20 @@ mentionableUsers: {
     }
   }
 
-loadMessagesForChannel(channel: any): void {
-  if (channel?.channelId) {
-    this.channelService.getEnrichedMessages(channel.channelId).subscribe({
-      next: (messages) => {
-        this.messages = messages;
-        this.scrollToBottom();
-        this.focusChatInput();  
-      },
-      error: (error) => {
-        console.error('Error loading messages:', error);
-      },
-    });
+  loadMessagesForChannel(channel: any): void {
+    if (channel?.channelId) {
+      this.channelService.getEnrichedMessages(channel.channelId).subscribe({
+        next: (messages) => {
+          this.messages = messages;
+          this.scrollToBottom();
+          this.focusChatInput();
+        },
+        error: (error) => {
+          console.error('Error loading messages:', error);
+        },
+      });
+    }
   }
-}
 
   navigateToMain(): void {
     this.router.navigate(['/main']);
@@ -181,50 +187,50 @@ loadMessagesForChannel(channel: any): void {
   }
 
   onPickerClosed() {
-  this. emojiPickerVisible = false; 
-}
-
-async sendMessage(): Promise<void> {
-  if (!this.chatMessage.trim() || !this.selectedChannel?.channelId) {
-    console.warn('Message text is empty or channel is not selected.');
-    return;
+    this.emojiPickerVisible = false;
   }
 
-  try {
-    const messageText = this.chatMessage.trim();
-
-    if (this.editedMessage) {
-      const messageRef = doc(
-        this.firestore,
-        `channels/${this.selectedChannel.channelId}/messages/${this.editedMessage.id}`
-      );
-
-      await updateDoc(messageRef, { text: messageText });
-      console.log('Message updated successfully:', messageText);
-
-      this.editedMessage = null;
-    } else {
-      const messageCollection = collection(
-        this.firestore,
-        `channels/${this.selectedChannel.channelId}/messages`
-      );
-
-      const newMessage = {
-        text: messageText,
-        timestamp: serverTimestamp(),  
-        senderID: this.currentUser?.id!,
-        channelId: this.selectedChannel.channelId,
-      };
-
-      await addDoc(messageCollection, newMessage);
-      console.log('Message sent successfully:', newMessage);
+  async sendMessage(): Promise<void> {
+    if (!this.chatMessage.trim() || !this.selectedChannel?.channelId) {
+      console.warn('Message text is empty or channel is not selected.');
+      return;
     }
 
-    this.chatMessage = '';
-  } catch (error) {
-    console.error('Error sending/updating message:', error);
+    try {
+      const messageText = this.chatMessage.trim();
+
+      if (this.editedMessage) {
+        const messageRef = doc(
+          this.firestore,
+          `channels/${this.selectedChannel.channelId}/messages/${this.editedMessage.id}`
+        );
+
+        await updateDoc(messageRef, { text: messageText });
+        console.log('Message updated successfully:', messageText);
+
+        this.editedMessage = null;
+      } else {
+        const messageCollection = collection(
+          this.firestore,
+          `channels/${this.selectedChannel.channelId}/messages`
+        );
+
+        const newMessage = {
+          text: messageText,
+          timestamp: serverTimestamp(),
+          senderID: this.currentUser?.id!,
+          channelId: this.selectedChannel.channelId,
+        };
+
+        await addDoc(messageCollection, newMessage);
+        console.log('Message sent successfully:', newMessage);
+      }
+
+      this.chatMessage = '';
+    } catch (error) {
+      console.error('Error sending/updating message:', error);
+    }
   }
-}
 
   startEditingMessage(message: any): void {
     this.chatMessage = message.text;
@@ -269,122 +275,160 @@ async sendMessage(): Promise<void> {
   }
 
   focusChatInput(): void {
-  if (this.chatField) {
-    this.chatField.nativeElement.focus();
+    if (this.chatField) {
+      this.chatField.nativeElement.focus();
+    }
   }
-}
 
-triggerMention(): void {
-  const textarea = this.chatField?.nativeElement;
-  if (!textarea) return;
+  triggerMention(): void {
+    const textarea = this.chatField?.nativeElement;
+    if (!textarea) return;
 
-  const cursorPos = textarea.selectionStart;
-  const textBefore = this.chatMessage.slice(0, cursorPos);
-  const charBefore = textBefore.charAt(textBefore.length - 1);
+    const cursorPos = textarea.selectionStart;
+    const textBefore = this.chatMessage.slice(0, cursorPos);
+    const charBefore = textBefore.charAt(textBefore.length - 1);
 
-  if (charBefore === '@') {
-    this.removeMentionSymbol(cursorPos);
-  } else {
-    this.insertMentionSymbol(cursorPos);
+    if (charBefore === '@') {
+      this.removeMentionSymbol(cursorPos);
+    } else {
+      this.insertMentionSymbol(cursorPos);
+    }
   }
-}
 
-private insertMentionSymbol(cursorPos: number): void {
-  const textarea = this.chatField?.nativeElement;
-  if (!textarea) return;
+  private insertMentionSymbol(cursorPos: number): void {
+    const textarea = this.chatField?.nativeElement;
+    if (!textarea) return;
 
-  const textBefore = this.chatMessage.slice(0, cursorPos);
-  const textAfter = this.chatMessage.slice(cursorPos);
+    const textBefore = this.chatMessage.slice(0, cursorPos);
+    const textAfter = this.chatMessage.slice(cursorPos);
 
-  this.chatMessage = `${textBefore}@${textAfter}`;
+    this.chatMessage = `${textBefore}@${textAfter}`;
 
-  setTimeout(() => {
-    textarea.focus();
-    textarea.setSelectionRange(cursorPos + 1, cursorPos + 1);
-  }, 0);
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(cursorPos + 1, cursorPos + 1);
+    }, 0);
 
-  this.mentionPopupVisible = true;
-  this.fetchMentionableUsers();
-}
-
-private removeMentionSymbol(cursorPos: number): void {
-  const textarea = this.chatField?.nativeElement;
-  if (!textarea) return;
-
-  const textBefore = this.chatMessage.slice(0, cursorPos - 1);
-  const textAfter = this.chatMessage.slice(cursorPos);
-
-  this.chatMessage = `${textBefore}${textAfter}`;
-
-  setTimeout(() => {
-    textarea.focus();
-    textarea.setSelectionRange(cursorPos - 1, cursorPos - 1);
-  }, 0);
-
-  this.mentionPopupVisible = false;
-}
-
-
-async checkMentionTrigger(event: KeyboardEvent): Promise<void> {
-  const char = event.key;
-
-  if (char === '@') {
     this.mentionPopupVisible = true;
-    await this.fetchMentionableUsers();
-  } else if (char === ' ' || char === 'Enter' || char === 'Escape') {
+    this.fetchMentionableUsers();
+  }
+
+  private removeMentionSymbol(cursorPos: number): void {
+    const textarea = this.chatField?.nativeElement;
+    if (!textarea) return;
+
+    const textBefore = this.chatMessage.slice(0, cursorPos - 1);
+    const textAfter = this.chatMessage.slice(cursorPos);
+
+    this.chatMessage = `${textBefore}${textAfter}`;
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(cursorPos - 1, cursorPos - 1);
+    }, 0);
+
     this.mentionPopupVisible = false;
   }
 
-  setTimeout(() => {
+  async checkMentionTrigger(event: KeyboardEvent): Promise<void> {
+    const char = event.key;
+
+    if (char === '@') {
+      await this.handleMentionTrigger();
+    } else if (char === '#') {
+      this.handleHashtagTrigger();
+    } else if ([' ', 'Enter', 'Escape'].includes(char)) {
+      this.closeAllPopups();
+    }
+
+    setTimeout(() => this.cleanupMentionAndHashtag(), 0);
+  }
+
+  private async handleMentionTrigger(): Promise<void> {
+    this.mentionPopupVisible = true;
+    await this.fetchMentionableUsers();
+  }
+
+  private handleHashtagTrigger(): void {
+    this.hashtagPopupVisible = true;
+  }
+
+  private closeAllPopups(): void {
+    this.mentionPopupVisible = false;
+    this.hashtagPopupVisible = false;
+  }
+
+  private cleanupMentionAndHashtag(): void {
     if (!this.chatMessage.includes('@')) {
       this.mentionPopupVisible = false;
     }
-  }, 0);
-}
+    if (!this.chatMessage.includes('#')) {
+      this.hashtagPopupVisible = false;
+    }
+  }
 
   async fetchMentionableUsers(): Promise<void> {
-  if (!this.selectedChannel?.channelId) return;
+    if (!this.selectedChannel?.channelId) return;
 
-  try {
-    const channelDocRef = doc(this.firestore, `channels/${this.selectedChannel.channelId}`);
-    const channelDocSnap = await getDoc(channelDocRef);
+    try {
+      const channelDocRef = doc(
+        this.firestore,
+        `channels/${this.selectedChannel.channelId}`
+      );
+      const channelDocSnap = await getDoc(channelDocRef);
 
-    if (!channelDocSnap.exists()) {
-      console.warn('Channel document does not exist');
-      return;
-    }
-
-    const channelData = channelDocSnap.data();
-    const memberIds: string[] = channelData['members'] || [];
-
-    const userPromises = memberIds.map(async (userId) => {
-      const userDocSnap = await getDoc(doc(this.firestore, `users/${userId}`));
-      if (userDocSnap.exists()) {
-        const data = userDocSnap.data();
-        return {
-          id: userId,
-          userName: data['userName'],
-          profilePic: data['profilePic'] || 'default',
-          status: data['status'] ?? false, 
-        };
+      if (!channelDocSnap.exists()) {
+        console.warn('Channel document does not exist');
+        return;
       }
-      return null;
-    });
 
-    const users = (await Promise.all(userPromises)).filter(Boolean);
+      const channelData = channelDocSnap.data();
+      const memberIds: string[] = channelData['members'] || [];
 
-    this.mentionableUsers = users as {
-      id: string;
-      userName: string;
-      profilePic: string;
-      status: boolean;
-    }[];
+      const userPromises = memberIds.map(async (userId) => {
+        const userDocSnap = await getDoc(
+          doc(this.firestore, `users/${userId}`)
+        );
+        if (userDocSnap.exists()) {
+          const data = userDocSnap.data();
+          return {
+            id: userId,
+            userName: data['userName'],
+            profilePic: data['profilePic'] || 'default',
+            status: data['status'] ?? false,
+          };
+        }
+        return null;
+      });
+
+      const users = (await Promise.all(userPromises)).filter(Boolean);
+
+      this.mentionableUsers = users as {
+        id: string;
+        userName: string;
+        profilePic: string;
+        status: boolean;
+      }[];
+    } catch (error) {
+      console.error('Error fetching mentionable users:', error);
+    }
+  }
+
+  private async fetchAllChannels(): Promise<void> {
+  try {
+    const channelsCol = collection(this.firestore, 'channels');
+    const snapshot = await getDocs(channelsCol);
+
+    this.allChannels = snapshot.docs.map((docSnap) => ({
+      id: docSnap.id,
+      name: docSnap.data()['name'] ?? 'Unnamed Channel',
+    }));
   } catch (error) {
-    console.error('Error fetching mentionable users:', error);
+    console.error('Error fetching channels:', error);
   }
 }
 
-selectMentionUser(userName: string): void {
+selectHashtagChannel(channelName: string): void {
   const textarea = this.chatField?.nativeElement;
   if (!textarea) return;
 
@@ -392,20 +436,43 @@ selectMentionUser(userName: string): void {
   const textBefore = this.chatMessage.slice(0, cursorPos);
   const textAfter = this.chatMessage.slice(cursorPos);
 
-  const atIndex = textBefore.lastIndexOf('@');
-  if (atIndex === -1) return;
+  const hashIndex = textBefore.lastIndexOf('#');
+  if (hashIndex === -1) return;
 
   const newText =
-    textBefore.slice(0, atIndex) + `@${userName} ` + textAfter;
+    textBefore.slice(0, hashIndex) + `#${channelName} ` + textAfter;
 
   this.chatMessage = newText;
 
-  const newCursorPos = atIndex + userName.length + 2;
+  const newCursorPos = hashIndex + channelName.length + 2;
   setTimeout(() => {
     textarea.focus();
     textarea.setSelectionRange(newCursorPos, newCursorPos);
   });
-  this.mentionPopupVisible = false;
+
+  this.hashtagPopupVisible = false;
 }
 
+  selectMentionUser(userName: string): void {
+    const textarea = this.chatField?.nativeElement;
+    if (!textarea) return;
+
+    const cursorPos = textarea.selectionStart;
+    const textBefore = this.chatMessage.slice(0, cursorPos);
+    const textAfter = this.chatMessage.slice(cursorPos);
+
+    const atIndex = textBefore.lastIndexOf('@');
+    if (atIndex === -1) return;
+
+    const newText = textBefore.slice(0, atIndex) + `@${userName} ` + textAfter;
+
+    this.chatMessage = newText;
+
+    const newCursorPos = atIndex + userName.length + 2;
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+    });
+    this.mentionPopupVisible = false;
+  }
 }

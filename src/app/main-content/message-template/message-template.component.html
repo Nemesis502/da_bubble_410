@@ -26,13 +26,10 @@
           </div>
           <div class="msg-own-content">
             <p class="msg-text">
-              <ng-container
-                *ngFor="let part of parseMessageWithMentions(message.text)"
-              >
-                <span *ngIf="part.isMention" class="mention">{{
-                  part.text
-                }}</span>
-                <span *ngIf="!part.isMention">{{ part.text }}</span>
+              <ng-container *ngFor="let part of parseMessageWithMentionsAndHashtags(message.text)">
+                <span *ngIf="part.isMention" class="mention">{{ part.text }}</span>
+                <span *ngIf="part.isHashtag" class="hashtag">{{ part.text }}</span>
+                <span *ngIf="!part.isMention && !part.isHashtag">{{ part.text }}</span>
               </ng-container>
             </p>
           </div>
@@ -41,32 +38,20 @@
             <p class="answer-time">{{ message.lastAnswerTime }}</p>
           </div>
           <div class="msg-reactions-own">
-            <ng-container
-              *ngIf="message.reactions && message.reactions.length > 0"
-            >
+            <ng-container *ngIf="message.reactions && message.reactions.length > 0">
               <button
-                *ngFor="
-                  let reaction of reactionsExpanded[message.id]
-                    ? message.reactions
-                    : (message.reactions | slice : 0 : 7)
-                "
+                *ngFor="let reaction of reactionsExpanded[message.id] ? message.reactions : (message.reactions | slice : 0 : 7)"
                 (click)="selectReaction(reaction.reaction, message)"
                 class="reaction"
                 (mouseover)="showReactorNames(reaction.reactors, $event)"
                 (mouseout)="hideReactorNames()"
               >
                 {{ reaction.reaction }} {{ reaction.count }}
-                <!-- Hover Popup -->
                 <div class="reaction-popup" *ngIf="hoveredReactorNames?.length">
                   <p>{{ reaction.reaction }}</p>
-                  <p
-                    class="reaction-hover-names"
-                    [innerHTML]="formatReactorNames(hoveredReactorNames)"
-                  ></p>
+                  <p class="reaction-hover-names" [innerHTML]="formatReactorNames(hoveredReactorNames)"></p>
                 </div>
               </button>
-
-              <!-- Show more or show less buttons -->
               <button
                 *ngIf="message.reactions.length > 7"
                 (click)="toggleReactions(message)"
@@ -78,8 +63,6 @@
                     : "+" + (message.reactions.length - 7) + " weitere"
                 }}
               </button>
-
-              <!-- Add reaction button -->
               <button class="icon-button">
                 <mat-icon
                   (click)="toggleReactionPicker(message, $event)"
@@ -111,8 +94,6 @@
         <button (click)="toggleMoreMenu(message, $event)">
           <mat-icon fontSet="material-icons-outlined">more_vert</mat-icon>
         </button>
-
-        <!-- Popup Menu -->
         <div
           class="more-vert-popup"
           *ngIf="message.showMoreMenu"
@@ -121,7 +102,6 @@
           <button (click)="onEditClick(message)">Nachricht bearbeiten</button>
         </div>
       </div>
-      <!-- Reaction Picker Component -->
       <app-reaction-picker
         *ngIf="activeReactionPickerId === message.id"
         (reactionSelected)="selectReaction($event, message)"
@@ -151,13 +131,10 @@
           </div>
           <div class="msg-content">
             <p class="msg-text">
-              <ng-container
-                *ngFor="let part of parseMessageWithMentions(message.text)"
-              >
-                <span *ngIf="part.isMention" class="mention">{{
-                  part.text
-                }}</span>
-                <span *ngIf="!part.isMention">{{ part.text }}</span>
+              <ng-container *ngFor="let part of parseMessageWithMentionsAndHashtags(message.text)">
+                <span *ngIf="part.isMention" class="mention">{{ part.text }}</span>
+                <span *ngIf="part.isHashtag" class="hashtag">{{ part.text }}</span>
+                <span *ngIf="!part.isMention && !part.isHashtag">{{ part.text }}</span>
               </ng-container>
             </p>
           </div>
@@ -166,30 +143,20 @@
             <p class="answer-time">{{ message.lastAnswerTime }}</p>
           </div>
           <div class="msg-reactions">
-            <ng-container
-              *ngIf="message.reactions && message.reactions.length > 0"
-            >
-              <!-- Render reactions (up to 7 or all, depending on state) -->
+            <ng-container *ngIf="message.reactions && message.reactions.length > 0">
               <button
-                *ngFor="
-                  let reaction of reactionsExpanded[message.id]
-                    ? message.reactions
-                    : (message.reactions | slice : 0 : 7)
-                "
+                *ngFor="let reaction of reactionsExpanded[message.id] ? message.reactions : (message.reactions | slice : 0 : 7)"
                 (click)="selectReaction(reaction.reaction, message)"
                 class="reaction"
                 (mouseover)="showReactorNames(reaction.reactors, $event)"
                 (mouseout)="hideReactorNames()"
               >
                 {{ reaction.reaction }} {{ reaction.count }}
-                <!-- Hover Popup -->
                 <div class="reaction-popup" *ngIf="hoveredReactorNames">
                   <p>{{ reaction.reaction }}</p>
                   <p [innerHTML]="formatReactorNames(hoveredReactorNames)"></p>
                 </div>
               </button>
-
-              <!-- Show more or show less buttons -->
               <button
                 *ngIf="message.reactions.length > 7"
                 (click)="toggleReactions(message)"
@@ -201,7 +168,6 @@
                     : "+" + (message.reactions.length - 7) + " weitere"
                 }}
               </button>
-              <!-- Add reaction button -->
               <button class="icon-button">
                 <mat-icon
                   (click)="toggleReactionPicker(message, $event)"
@@ -231,7 +197,6 @@
           <mat-icon fontSet="material-icons-outlined">message</mat-icon>
         </button>
       </div>
-      <!-- Reaction Picker Component -->
       <app-reaction-picker
         *ngIf="activeReactionPickerId === message.id"
         (reactionSelected)="selectReaction($event, message)"

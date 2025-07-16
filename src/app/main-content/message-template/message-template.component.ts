@@ -326,26 +326,61 @@ closeActiveElements(): void {
   message.showMoreMenu = !message.showMoreMenu;
 }
 
-parseMessageWithMentions(messageText: string): { text: string; isMention: boolean }[] {
+parseMessageWithMentionsAndHashtags(messageText: string): { text: string; isMention: boolean; isHashtag: boolean }[] {
+  const mentionParts = this.parseMentions(messageText);
+  return this.parseHashtags(mentionParts);
+}
+
+parseMentions(messageText: string): { text: string; isMention: boolean; isHashtag: boolean }[] {
   const mentionRegex = /@[\wäöüÄÖÜß]+(?: [\wäöüÄÖÜß]+)*(?=\s|$|[.,!?:])/g;
-  const parts: { text: string; isMention: boolean }[] = [];
+  const parts: { text: string; isMention: boolean; isHashtag: boolean }[] = [];
   let lastIndex = 0;
 
-  messageText.replace(mentionRegex, (match, index) => {
-    if (index > lastIndex) {
-      parts.push({ text: messageText.slice(lastIndex, index), isMention: false });
+  let match: RegExpExecArray | null;
+  while ((match = mentionRegex.exec(messageText)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push({ text: messageText.slice(lastIndex, match.index), isMention: false, isHashtag: false });
     }
-    parts.push({ text: match, isMention: true });
-    lastIndex = index + match.length;
-    return match;
-  });
-
+    parts.push({ text: match[0], isMention: true, isHashtag: false });
+    lastIndex = match.index + match[0].length;
+  }
   if (lastIndex < messageText.length) {
-    parts.push({ text: messageText.slice(lastIndex), isMention: false });
+    parts.push({ text: messageText.slice(lastIndex), isMention: false, isHashtag: false });
   }
 
   return parts;
 }
+
+parseHashtags(parts: { text: string; isMention: boolean; isHashtag: boolean }[]): { text: string; isMention: boolean; isHashtag: boolean }[] {
+ const hashtagRegex = /#[\wäöüÄÖÜß-]+/g;
+  const result: { text: string; isMention: boolean; isHashtag: boolean }[] = [];
+
+  for (const part of parts) {
+    if (part.isMention) {
+      result.push(part);
+      continue;
+    }
+
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+    const text = part.text;
+
+    while ((match = hashtagRegex.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        result.push({ text: text.slice(lastIndex, match.index), isMention: false, isHashtag: false });
+      }
+      result.push({ text: match[0], isMention: false, isHashtag: true });
+      lastIndex = match.index + match[0].length;
+    }
+
+    if (lastIndex < text.length) {
+      result.push({ text: text.slice(lastIndex), isMention: false, isHashtag: false });
+    }
+  }
+
+  return result;
+}
+
 
 getLastTwoReactions(message: any): string[] {
   if (!message?.reactions || message.reactions.length === 0) {

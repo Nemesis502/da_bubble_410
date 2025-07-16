@@ -41,7 +41,7 @@
         placeholder="Nachricht an #{{ selectedChannel?.name }}"
       ></textarea>
 
-      <!-- Basic @ Popup -->
+      <!--  @ Popup -->
       <div class="mention-popup" *ngIf="mentionPopupVisible">
         <div
           class="mention-user"
@@ -65,6 +65,20 @@
           >
         </div>
       </div>
+      <!--  # Popup -->
+<div class="mention-popup" *ngIf="hashtagPopupVisible">
+  <div
+    class="hashtag-item"
+    *ngFor="let channel of allChannels"
+    (click)="selectHashtagChannel(channel.name)"
+  >
+    <span class="hashtag-name nuito17px400">
+      <span class="hashtag">#</span>{{ channel.name }}
+    </span>
+  </div>
+</div>
+
+
 
       <mat-card-actions class="chat-buttons">
         <div class="buttons-left">

@@ -215,7 +215,7 @@ img {
   gap: 10px;
 
   &:hover {
-    background-color: #f3f3f3;
+    background-color: $Bg;
   }
 
   .avatar {
@@ -246,4 +246,34 @@ img {
     padding-left: 0px;
     margin-left: 0px;
   }
+}
+
+.hashtag-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 12px;
+  white-space: nowrap; 
+  transition: background-color 0.2s;
+  &:hover {
+    background-color: $Bg;
+     .hashtag {
+      color: $purple3; 
+    }
+  }
+}
+
+.hashtag-name {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  gap: 4px;
+}
+
+.hashtag {
+  color: black;
+  font-weight: bold;
+  padding-right: 12px;
+  font-size: 20px;
 }
