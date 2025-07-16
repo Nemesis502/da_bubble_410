@@ -86,9 +86,9 @@ export class ChooseAvatarPageComponent {
       this.userService.addUser(this.uid, this.newUser);
       this.loginWithGoogle()
     } else {
-      // this.uid = await this.authService.registerUser(this.userEmail, this.userPassword);
-      // this.newUser = this.setNewUser();
-      // this.userService.addUser(this.uid, this.newUser);
+      this.uid = await this.authService.registerUser(this.userEmail, this.userPassword);
+      this.newUser = this.setNewUser();
+      this.userService.addUser(this.uid, this.newUser);
       this.returnToStart();
     }
   }
@@ -127,9 +127,9 @@ export class ChooseAvatarPageComponent {
   returnToStart() {
     this.animation = true;
     this.renderer.setStyle(document.body, 'overflow', 'hidden');
-    // setTimeout(() => {
-    //   this.router.navigate(['/']);
-    //   this.renderer.removeStyle(document.body, 'overflow');
-    // }, 2000);
+    setTimeout(() => {
+      this.router.navigate(['/']);
+      this.renderer.removeStyle(document.body, 'overflow');
+    }, 2000);
   }
 }
