@@ -365,8 +365,5 @@ getLastTwoReactions(message: any): string[] {
   return distinctReactions.slice(0, 2).length
     ? distinctReactions.slice(0, 2)
     : ['✅', '👍'];
-}
-
-
-
+} 
 }

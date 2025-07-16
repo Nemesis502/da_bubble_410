@@ -71,7 +71,9 @@
           <button (click)="toggleEmojiPicker($event)">
             <mat-icon fontIcon="insert_emoticon"></mat-icon>
           </button>
-          <button><mat-icon fontIcon="alternate_email"></mat-icon></button>
+          <button (click)="triggerMention()">
+            <mat-icon fontIcon="alternate_email"></mat-icon>
+          </button>
         </div>
         <div class="button-right">
           <button (click)="sendMessage()">

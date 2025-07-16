@@ -274,6 +274,57 @@ async sendMessage(): Promise<void> {
   }
 }
 
+triggerMention(): void {
+  const textarea = this.chatField?.nativeElement;
+  if (!textarea) return;
+
+  const cursorPos = textarea.selectionStart;
+  const textBefore = this.chatMessage.slice(0, cursorPos);
+  const charBefore = textBefore.charAt(textBefore.length - 1);
+
+  if (charBefore === '@') {
+    this.removeMentionSymbol(cursorPos);
+  } else {
+    this.insertMentionSymbol(cursorPos);
+  }
+}
+
+private insertMentionSymbol(cursorPos: number): void {
+  const textarea = this.chatField?.nativeElement;
+  if (!textarea) return;
+
+  const textBefore = this.chatMessage.slice(0, cursorPos);
+  const textAfter = this.chatMessage.slice(cursorPos);
+
+  this.chatMessage = `${textBefore}@${textAfter}`;
+
+  setTimeout(() => {
+    textarea.focus();
+    textarea.setSelectionRange(cursorPos + 1, cursorPos + 1);
+  }, 0);
+
+  this.mentionPopupVisible = true;
+  this.fetchMentionableUsers();
+}
+
+private removeMentionSymbol(cursorPos: number): void {
+  const textarea = this.chatField?.nativeElement;
+  if (!textarea) return;
+
+  const textBefore = this.chatMessage.slice(0, cursorPos - 1);
+  const textAfter = this.chatMessage.slice(cursorPos);
+
+  this.chatMessage = `${textBefore}${textAfter}`;
+
+  setTimeout(() => {
+    textarea.focus();
+    textarea.setSelectionRange(cursorPos - 1, cursorPos - 1);
+  }, 0);
+
+  this.mentionPopupVisible = false;
+}
+
+
 async checkMentionTrigger(event: KeyboardEvent): Promise<void> {
   const char = event.key;
 
