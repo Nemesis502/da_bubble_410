@@ -27,6 +27,7 @@ import {
 import { appUser } from '../../interfaces/user.interface';
 import { SessionService } from '../../shared/services/currentUserSession.service';
 import { updateDoc } from '@angular/fire/firestore';
+import { Observable, of } from 'rxjs';
 
 interface PickerPosition {
   top: number;
@@ -74,6 +75,11 @@ export class ChatTemplateComponent implements OnInit {
   pickerPosition: PickerPosition = { top: 0, left: 0 };
 
   editedMessage: any = null;
+
+  chatIsThread: boolean = false;
+ activeThreadMessageId: string = '';
+threadMessages$: Observable<any[] | null> = of(null);
+ activeThreadMessage: any | null = null;
 
   constructor(
     private router: Router,
@@ -191,11 +197,29 @@ async ngOnInit(): Promise<void> {
   }
 
   async sendMessage(): Promise<void> {
-    if (!this.chatMessage.trim() || !this.selectedChannel?.channelId) {
-      console.warn('Message text is empty or channel is not selected.');
-      return;
-    }
+  const messageText = this.chatMessage.trim();
+  const channelId = this.selectedChannel?.channelId;
+  const userId = this.currentUser?.id;
 
+  if (!messageText || !channelId || !userId) {
+    return;
+  }
+
+  if (this.chatIsThread && this.activeThreadMessageId) {
+    try {
+      await this.channelService.sendThreadMessage(
+        channelId,
+        this.activeThreadMessageId,
+        messageText,
+        userId
+      );
+      this.loadThreadMessages(); 
+      
+      this.chatMessage = '';
+    } catch (error) {
+      console.error('Error sending thread message:', error);
+    }
+  } else {
     try {
       const messageText = this.chatMessage.trim();
 
@@ -230,7 +254,7 @@ async ngOnInit(): Promise<void> {
     } catch (error) {
       console.error('Error sending/updating message:', error);
     }
-  }
+  }}
 
   startEditingMessage(message: any): void {
     this.chatMessage = message.text;
@@ -475,4 +499,57 @@ selectHashtagChannel(channelName: string): void {
     });
     this.mentionPopupVisible = false;
   }
+
+  handleReplyToMessage(messageId: string): void {
+  this.chatIsThread = true;
+  this.activeThreadMessageId = messageId;
+  this.loadThreadMessages();
+  this.setActiveThreadMessage(messageId)
+  console.log('Opening thread for message:', messageId);
+}
+
+loadThreadMessages(): void {
+  const channelId = this.selectedChannel?.channelId;
+  const messageId = this.activeThreadMessageId;
+
+  if (!channelId || !messageId) return;
+
+  this.channelService.getEnrichedThreadMessages(channelId, messageId).subscribe((messages) => {
+    this.threadMessages$ = of(messages);
+  });
+
+  const docRef = doc(this.firestore, `channels/${channelId}/messages/${messageId}`);
+  getDoc(docRef).then((docSnap) => {
+    if (docSnap.exists()) {
+      const rawMsg = { id: docSnap.id, ...docSnap.data() };
+      this.channelService.enrichMessage(channelId, rawMsg).subscribe((enrichedMsg) => {
+        this.activeThreadMessage = enrichedMsg;
+      });
+    } else {
+      this.activeThreadMessage = null;
+    }
+  });
+}
+
+async setActiveThreadMessage(messageId: string) {
+  this.activeThreadMessageId = messageId;
+
+  if (!this.selectedChannel?.channelId) {
+    this.activeThreadMessage = null;
+    return;
+  }
+
+  const docRef = doc(
+    this.firestore,
+    `channels/${this.selectedChannel.channelId}/messages/${messageId}`
+  );
+
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    this.activeThreadMessage = { id: docSnap.id, ...docSnap.data() };
+  } else {
+    this.activeThreadMessage = null;
+  }
+}
+
 }

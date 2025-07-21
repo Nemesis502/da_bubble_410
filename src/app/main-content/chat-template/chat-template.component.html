@@ -15,22 +15,84 @@
   </section>
   <section class="chat-header">
     <button class="channel-button" (click)="openChannelInfo()">
-      <mat-icon fontSet="material-icons-outlined">numbers</mat-icon>
-      <p class="channel-name nuito18px700">{{ selectedChannel?.name }}</p>
-      <mat-icon class="mat-icon-top" fontIcon="keyboard_arrow_down"></mat-icon>
+      <!-- Show "numbers" icon only when not in thread view -->
+      <mat-icon *ngIf="!chatIsThread" fontSet="material-icons-outlined">
+        numbers
+      </mat-icon>
+
+      <!-- Channel name -->
+      <p class="channel-name nuito18px700">
+        <ng-container *ngIf="chatIsThread; else normalChannelName">
+          Thread <span class="channel-hash">#</span
+          ><span class="channel-name-thread">{{ selectedChannel?.name }}</span>
+        </ng-container>
+        <ng-template #normalChannelName>
+          {{ selectedChannel?.name }}
+        </ng-template>
+      </p>
+
+      <mat-icon
+        *ngIf="!chatIsThread"
+        class="mat-icon-top"
+        fontIcon="keyboard_arrow_down"
+      ></mat-icon>
     </button>
-    <button class="add-user-button">
-      <mat-icon class="mat-icon-top" fontIcon="person_add_alt"></mat-icon>
+
+    <!-- Thread view: show X button -->
+    <button
+      *ngIf="chatIsThread; else addUserButton"
+      class="x-button"
+      (click)="navigateToMain()"
+      aria-label="Close Thread"
+    >
+      <mat-icon fontIcon="close"></mat-icon>
     </button>
+
+    <!-- Normal view: show Add User button -->
+    <ng-template #addUserButton>
+      <button class="add-user-button">
+        <mat-icon class="mat-icon-top" fontIcon="person_add_alt"></mat-icon>
+      </button>
+    </ng-template>
   </section>
+
   <section class="chat-body" #chatBody>
-    <app-message-template
-      [currentChannelId]="selectedChannel?.channelId"
-      [messages]="messages"
-      [currentUser]="currentUser?.id || ''"
-      (editMessage)="startEditingMessage($event)"
-    ></app-message-template>
+    <!-- Thread view -->
+   <ng-container *ngIf="chatIsThread; else fullChat">
+  <!-- Parent (active) thread message -->
+  <app-message-template
+    *ngIf="activeThreadMessage"
+    [messages]="[activeThreadMessage]"
+    [currentUser]="currentUser?.id || ''"
+    [currentChannelId]="selectedChannel?.channelId"
+    (editMessage)="startEditingMessage($event)"
+    (replyToMessage)="handleReplyToMessage($event)"
+  ></app-message-template>
+
+  <!-- Replies to thread -->
+  <app-message-template
+    *ngIf="threadMessages$ | async as threadMessages"
+    [messages]="threadMessages"
+    [currentUser]="currentUser?.id || ''"
+    [currentChannelId]="selectedChannel?.channelId"
+    (editMessage)="startEditingMessage($event)"
+    (replyToMessage)="handleReplyToMessage($event)"
+  ></app-message-template>
+</ng-container>
+
+<!-- Full channel chat view -->
+<ng-template #fullChat>
+  <app-message-template
+    [messages]="messages"
+    [currentUser]="currentUser?.id || ''"
+    [currentChannelId]="selectedChannel?.channelId"
+    (editMessage)="startEditingMessage($event)"
+    (replyToMessage)="handleReplyToMessage($event)"
+  ></app-message-template>
+</ng-template>
+
   </section>
+
   <section class="chat-interface">
     <mat-card class="chat-card" appearance="outlined">
       <textarea
@@ -38,7 +100,11 @@
         id="chat-field"
         #chatField
         (keydown)="checkMentionTrigger($event)"
-        placeholder="Nachricht an #{{ selectedChannel?.name }}"
+        [placeholder]="
+          chatIsThread
+            ? 'Antworten...'
+            : 'Nachricht an #' + (selectedChannel?.name || '')
+        "
       ></textarea>
 
       <!--  @ Popup -->
@@ -66,19 +132,17 @@
         </div>
       </div>
       <!--  # Popup -->
-<div class="mention-popup" *ngIf="hashtagPopupVisible">
-  <div
-    class="hashtag-item"
-    *ngFor="let channel of allChannels"
-    (click)="selectHashtagChannel(channel.name)"
-  >
-    <span class="hashtag-name nuito17px400">
-      <span class="hashtag">#</span>{{ channel.name }}
-    </span>
-  </div>
-</div>
-
-
+      <div class="mention-popup" *ngIf="hashtagPopupVisible">
+        <div
+          class="hashtag-item"
+          *ngFor="let channel of allChannels"
+          (click)="selectHashtagChannel(channel.name)"
+        >
+          <span class="hashtag-name nuito17px400">
+            <span class="hashtag">#</span>{{ channel.name }}
+          </span>
+        </div>
+      </div>
 
       <mat-card-actions class="chat-buttons">
         <div class="buttons-left">

@@ -1,6 +1,6 @@
 <div *ngFor="let message of messages" (click)="onMessageClick(message, $event)">
   <!-- Message Header -->
-  <div class="msg-header" *ngIf="message.showDateHeader">
+  <div class="msg-header" *ngIf="message?.showDateHeader">
     <span></span>
     <p>{{ message.date }}</p>
   </div>
@@ -34,7 +34,7 @@
             </p>
           </div>
           <div class="msg-own-answers">
-            <button>{{ message.answersCount }} Antworten</button>
+            <button (click)="onReplyClick(message)">{{ message.answersCount }} Antworten</button>
             <p class="answer-time">{{ message.lastAnswerTime }}</p>
           </div>
           <div class="msg-reactions-own">
@@ -88,7 +88,7 @@
             >add_reaction</mat-icon
           >
         </button>
-        <button>
+        <button (click)="onReplyClick(message)">
           <mat-icon fontSet="material-icons-outlined">message</mat-icon>
         </button>
         <button (click)="toggleMoreMenu(message, $event)">
@@ -139,7 +139,7 @@
             </p>
           </div>
           <div class="msg-answers">
-            <button>{{ message.answersCount }} Antworten</button>
+            <button (click)="onReplyClick(message)">{{ message.answersCount }} Antworten</button>
             <p class="answer-time">{{ message.lastAnswerTime }}</p>
           </div>
           <div class="msg-reactions">
@@ -193,7 +193,7 @@
             >add_reaction</mat-icon
           >
         </button>
-        <button>
+        <button (click)="onReplyClick(message)">
           <mat-icon fontSet="material-icons-outlined">message</mat-icon>
         </button>
       </div>

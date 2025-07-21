@@ -31,6 +31,7 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
   @Input() currentUser: string = 'w7dUBSUFSqZAtEy0GtxG';
   @Input() currentChannelId: string | Channel | null = null;
   @Output() editMessage = new EventEmitter<any>();
+  @Output() replyToMessage = new EventEmitter<string>();
 
   selectedMessage: any = null;
   activeReactionPickerId: string | null = null;
@@ -401,4 +402,8 @@ getLastTwoReactions(message: any): string[] {
     ? distinctReactions.slice(0, 2)
     : ['✅', '👍'];
 } 
+
+onReplyClick(message: any): void {
+  this.replyToMessage.emit(message.id || message.messageID);
+}
 }
