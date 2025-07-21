@@ -16,11 +16,21 @@
         padding: 1%;
         padding-inline: 5%;
     }
+
+    .new-chat-btn {
+        right: 32px;
+        bottom: 32px;
+    }
 }
 
 @media screen and (max-height: 900px) {
     .message-list {
         height: 50vh;
+    }
+
+    .new-chat-btn {
+        right: 16px;
+        bottom: 16px;
     }
 }
 
