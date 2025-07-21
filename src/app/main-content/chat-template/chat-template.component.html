@@ -61,6 +61,7 @@
    <ng-container *ngIf="chatIsThread; else fullChat">
   <!-- Parent (active) thread message -->
   <app-message-template
+    [chatIsThread]="chatIsThread"
     *ngIf="activeThreadMessage"
     [messages]="[activeThreadMessage]"
     [currentUser]="currentUser?.id || ''"
@@ -71,6 +72,7 @@
 
   <!-- Replies to thread -->
   <app-message-template
+    [chatIsThread]="chatIsThread"
     *ngIf="threadMessages$ | async as threadMessages"
     [messages]="threadMessages"
     [currentUser]="currentUser?.id || ''"
@@ -83,6 +85,7 @@
 <!-- Full channel chat view -->
 <ng-template #fullChat>
   <app-message-template
+    [chatIsThread]="chatIsThread"
     [messages]="messages"
     [currentUser]="currentUser?.id || ''"
     [currentChannelId]="selectedChannel?.channelId"

@@ -26,21 +26,45 @@
           </div>
           <div class="msg-own-content">
             <p class="msg-text">
-              <ng-container *ngFor="let part of parseMessageWithMentionsAndHashtags(message.text)">
-                <span *ngIf="part.isMention" class="mention">{{ part.text }}</span>
-                <span *ngIf="part.isHashtag" class="hashtag">{{ part.text }}</span>
-                <span *ngIf="!part.isMention && !part.isHashtag">{{ part.text }}</span>
+              <ng-container
+                *ngFor="
+                  let part of parseMessageWithMentionsAndHashtags(message.text)
+                "
+              >
+                <span *ngIf="part.isMention" class="mention">{{
+                  part.text
+                }}</span>
+                <span *ngIf="part.isHashtag" class="hashtag">{{
+                  part.text
+                }}</span>
+                <span *ngIf="!part.isMention && !part.isHashtag">{{
+                  part.text
+                }}</span>
               </ng-container>
             </p>
           </div>
-          <div class="msg-own-answers">
-            <button (click)="onReplyClick(message)">{{ message.answersCount }} Antworten</button>
-            <p class="answer-time">{{ message.lastAnswerTime }}</p>
+          <div *ngIf="!chatIsThread" class="msg-own-answers">
+            <button (click)="onReplyClick(message)">
+              <ng-container *ngIf="message.answersCount > 0">
+                {{ message.answersCount }}
+              </ng-container>
+              Antworten
+            </button>
+
+            <p class="answer-time" *ngIf="message.answersCount > 0" >
+              Letzte Antwort {{ message.lastAnswerTime }}
+            </p>
           </div>
           <div class="msg-reactions-own">
-            <ng-container *ngIf="message.reactions && message.reactions.length > 0">
+            <ng-container
+              *ngIf="message.reactions && message.reactions.length > 0"
+            >
               <button
-                *ngFor="let reaction of reactionsExpanded[message.id] ? message.reactions : (message.reactions | slice : 0 : 7)"
+                *ngFor="
+                  let reaction of reactionsExpanded[message.id]
+                    ? message.reactions
+                    : (message.reactions | slice : 0 : 7)
+                "
                 (click)="selectReaction(reaction.reaction, message)"
                 class="reaction"
                 (mouseover)="showReactorNames(reaction.reactors, $event)"
@@ -49,7 +73,10 @@
                 {{ reaction.reaction }} {{ reaction.count }}
                 <div class="reaction-popup" *ngIf="hoveredReactorNames?.length">
                   <p>{{ reaction.reaction }}</p>
-                  <p class="reaction-hover-names" [innerHTML]="formatReactorNames(hoveredReactorNames)"></p>
+                  <p
+                    class="reaction-hover-names"
+                    [innerHTML]="formatReactorNames(hoveredReactorNames)"
+                  ></p>
                 </div>
               </button>
               <button
@@ -88,7 +115,7 @@
             >add_reaction</mat-icon
           >
         </button>
-        <button (click)="onReplyClick(message)">
+        <button *ngIf="!chatIsThread" (click)="onReplyClick(message)">
           <mat-icon fontSet="material-icons-outlined">message</mat-icon>
         </button>
         <button (click)="toggleMoreMenu(message, $event)">
@@ -131,21 +158,45 @@
           </div>
           <div class="msg-content">
             <p class="msg-text">
-              <ng-container *ngFor="let part of parseMessageWithMentionsAndHashtags(message.text)">
-                <span *ngIf="part.isMention" class="mention">{{ part.text }}</span>
-                <span *ngIf="part.isHashtag" class="hashtag">{{ part.text }}</span>
-                <span *ngIf="!part.isMention && !part.isHashtag">{{ part.text }}</span>
+              <ng-container
+                *ngFor="
+                  let part of parseMessageWithMentionsAndHashtags(message.text)
+                "
+              >
+                <span *ngIf="part.isMention" class="mention">{{
+                  part.text
+                }}</span>
+                <span *ngIf="part.isHashtag" class="hashtag">{{
+                  part.text
+                }}</span>
+                <span *ngIf="!part.isMention && !part.isHashtag">{{
+                  part.text
+                }}</span>
               </ng-container>
             </p>
           </div>
-          <div class="msg-answers">
-            <button (click)="onReplyClick(message)">{{ message.answersCount }} Antworten</button>
-            <p class="answer-time">{{ message.lastAnswerTime }}</p>
+          <div *ngIf="!chatIsThread" class="msg-answers">
+            <button  (click)="onReplyClick(message)">
+              <ng-container *ngIf="message.answersCount > 0">
+                {{ message.answersCount }}
+              </ng-container>
+              Antworten
+            </button>
+
+            <p class="answer-time" *ngIf="message.answersCount > 0">
+              Letzte Antwort {{ message.lastAnswerTime }}
+            </p>
           </div>
           <div class="msg-reactions">
-            <ng-container *ngIf="message.reactions && message.reactions.length > 0">
+            <ng-container
+              *ngIf="message.reactions && message.reactions.length > 0"
+            >
               <button
-                *ngFor="let reaction of reactionsExpanded[message.id] ? message.reactions : (message.reactions | slice : 0 : 7)"
+                *ngFor="
+                  let reaction of reactionsExpanded[message.id]
+                    ? message.reactions
+                    : (message.reactions | slice : 0 : 7)
+                "
                 (click)="selectReaction(reaction.reaction, message)"
                 class="reaction"
                 (mouseover)="showReactorNames(reaction.reactors, $event)"
@@ -193,7 +244,7 @@
             >add_reaction</mat-icon
           >
         </button>
-        <button (click)="onReplyClick(message)">
+        <button *ngIf="!chatIsThread" (click)="onReplyClick(message)">
           <mat-icon fontSet="material-icons-outlined">message</mat-icon>
         </button>
       </div>

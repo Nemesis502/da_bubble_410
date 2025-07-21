@@ -8,7 +8,7 @@ import {
   Output,
   OnChanges,
   SimpleChanges,
-  EventEmitter 
+  EventEmitter,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -28,7 +28,8 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
   @ViewChild('reactionPicker', { read: ElementRef })
   reactionPicker: ElementRef | null = null;
   @Input() messages: any[] = [];
-  @Input() currentUser: string = 'w7dUBSUFSqZAtEy0GtxG';
+  @Input() chatIsThread: boolean = false;
+  @Input() currentUser: string = '';
   @Input() currentChannelId: string | Channel | null = null;
   @Output() editMessage = new EventEmitter<any>();
   @Output() replyToMessage = new EventEmitter<string>();
@@ -55,92 +56,91 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
     if (changes['messages']) {
       this.sortMessagesByTimestamp();
       this.transformReactionsToEmoji();
-      this.addDateHeaders(); 
+      this.addDateHeaders();
     }
   }
 
-  
-onEditClick(message: any): void {
-  this.editMessage.emit(message);
-}
+  onEditClick(message: any): void {
+    this.editMessage.emit(message);
+  }
 
-private addDateHeaders(): void {
-  let lastMessageDate: string | null = null;
+  private addDateHeaders(): void {
+    let lastMessageDate: string | null = null;
 
-  this.messages.forEach((message) => {
-    const messageDate = this.convertTimestampToDate(message.timestamp);
-    const formattedDate = this.getFormattedDate(messageDate);
+    this.messages.forEach((message) => {
+      const messageDate = this.convertTimestampToDate(message.timestamp);
+      const formattedDate = this.getFormattedDate(messageDate);
 
-    if (lastMessageDate !== formattedDate) {
-      message.showDateHeader = true;
-      message.date = formattedDate; 
-      lastMessageDate = formattedDate;
+      if (lastMessageDate !== formattedDate) {
+        message.showDateHeader = true;
+        message.date = formattedDate;
+        lastMessageDate = formattedDate;
+      } else {
+        message.showDateHeader = false;
+      }
+    });
+  }
+
+  private getFormattedDate(date: Date): string {
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    if (this.isSameDay(date, today)) {
+      return 'Heute';
+    } else if (this.isSameDay(date, yesterday)) {
+      return 'Gestern';
     } else {
-      message.showDateHeader = false;
+      return this.formatOlderDate(date);
     }
-  });
-}
-
-private getFormattedDate(date: Date): string {
-  const today = new Date();
-  const yesterday = new Date();
-  yesterday.setDate(today.getDate() - 1);
-
-  if (this.isSameDay(date, today)) {
-    return 'Heute';
-  } else if (this.isSameDay(date, yesterday)) {
-    return 'Gestern';
-  } else {
-    return this.formatOlderDate(date);
   }
-}
 
-private isSameDay(date1: Date, date2: Date): boolean {
-  return (
-    date1.getFullYear() === date2.getFullYear() &&
-    date1.getMonth() === date2.getMonth() &&
-    date1.getDate() === date2.getDate()
-  );
-}
+  private isSameDay(date1: Date, date2: Date): boolean {
+    return (
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
+    );
+  }
 
-private formatOlderDate(date: Date): string {
-  const dayNames = [
-    'Sonntag',
-    'Montag',
-    'Dienstag',
-    'Mittwoch',
-    'Donnerstag',
-    'Freitag',
-    'Samstag',
-  ];
-  const monthNames = [
-    'Januar',
-    'Februar',
-    'März',
-    'April',
-    'Mai',
-    'Juni',
-    'Juli',
-    'August',
-    'September',
-    'Oktober',
-    'November',
-    'Dezember',
-  ];
+  private formatOlderDate(date: Date): string {
+    const dayNames = [
+      'Sonntag',
+      'Montag',
+      'Dienstag',
+      'Mittwoch',
+      'Donnerstag',
+      'Freitag',
+      'Samstag',
+    ];
+    const monthNames = [
+      'Januar',
+      'Februar',
+      'März',
+      'April',
+      'Mai',
+      'Juni',
+      'Juli',
+      'August',
+      'September',
+      'Oktober',
+      'November',
+      'Dezember',
+    ];
 
-  const weekday = dayNames[date.getDay()];
-  const day = date.getDate();
-  const month = monthNames[date.getMonth()];
+    const weekday = dayNames[date.getDay()];
+    const day = date.getDate();
+    const month = monthNames[date.getMonth()];
 
-  return `${weekday}, ${day}. ${month}`;
-}
+    return `${weekday}, ${day}. ${month}`;
+  }
 
   private convertTimestampToDate(timestamp: any): Date {
-  if (timestamp && typeof timestamp.seconds === 'number') {
-    return new Date(timestamp.seconds * 1000); 
+    if (timestamp && typeof timestamp.seconds === 'number') {
+      return new Date(timestamp.seconds * 1000);
+    }
+    return new Date(0);
   }
-  return new Date(0); 
-}
 
   private sortMessagesByTimestamp(): void {
     this.messages.sort((a, b) => {
@@ -250,12 +250,12 @@ private formatOlderDate(date: Date): string {
     this.activeReactionPickerId = null;
   }
 
-closeActiveElements(): void {
-  this.selectedMessage = null;
-  this.messages.forEach((msg) => {
-    msg.showMoreMenu = false;
-  });
-}
+  closeActiveElements(): void {
+    this.selectedMessage = null;
+    this.messages.forEach((msg) => {
+      msg.showMoreMenu = false;
+    });
+  }
 
   async selectReaction(reaction: string, message: any): Promise<void> {
     try {
@@ -320,90 +320,113 @@ closeActiveElements(): void {
   }
 
   toggleMoreMenu(message: any, event: Event) {
-  event.stopPropagation(); 
-  this.messages.forEach(m => {
-    if (m !== message) m.showMoreMenu = false;
-  });
-  message.showMoreMenu = !message.showMoreMenu;
-}
-
-parseMessageWithMentionsAndHashtags(messageText: string): { text: string; isMention: boolean; isHashtag: boolean }[] {
-  const mentionParts = this.parseMentions(messageText);
-  return this.parseHashtags(mentionParts);
-}
-
-parseMentions(messageText: string): { text: string; isMention: boolean; isHashtag: boolean }[] {
-  const mentionRegex = /@[\wäöüÄÖÜß]+(?: [\wäöüÄÖÜß]+)*(?=\s|$|[.,!?:])/g;
-  const parts: { text: string; isMention: boolean; isHashtag: boolean }[] = [];
-  let lastIndex = 0;
-
-  let match: RegExpExecArray | null;
-  while ((match = mentionRegex.exec(messageText)) !== null) {
-    if (match.index > lastIndex) {
-      parts.push({ text: messageText.slice(lastIndex, match.index), isMention: false, isHashtag: false });
-    }
-    parts.push({ text: match[0], isMention: true, isHashtag: false });
-    lastIndex = match.index + match[0].length;
-  }
-  if (lastIndex < messageText.length) {
-    parts.push({ text: messageText.slice(lastIndex), isMention: false, isHashtag: false });
+    event.stopPropagation();
+    this.messages.forEach((m) => {
+      if (m !== message) m.showMoreMenu = false;
+    });
+    message.showMoreMenu = !message.showMoreMenu;
   }
 
-  return parts;
-}
+  parseMessageWithMentionsAndHashtags(
+    messageText: string
+  ): { text: string; isMention: boolean; isHashtag: boolean }[] {
+    const mentionParts = this.parseMentions(messageText);
+    return this.parseHashtags(mentionParts);
+  }
 
-parseHashtags(parts: { text: string; isMention: boolean; isHashtag: boolean }[]): { text: string; isMention: boolean; isHashtag: boolean }[] {
- const hashtagRegex = /#[\wäöüÄÖÜß-]+/g;
-  const result: { text: string; isMention: boolean; isHashtag: boolean }[] = [];
-
-  for (const part of parts) {
-    if (part.isMention) {
-      result.push(part);
-      continue;
-    }
-
+  parseMentions(
+    messageText: string
+  ): { text: string; isMention: boolean; isHashtag: boolean }[] {
+    const mentionRegex = /@[\wäöüÄÖÜß]+(?: [\wäöüÄÖÜß]+)*(?=\s|$|[.,!?:])/g;
+    const parts: { text: string; isMention: boolean; isHashtag: boolean }[] =
+      [];
     let lastIndex = 0;
-    let match: RegExpExecArray | null;
-    const text = part.text;
 
-    while ((match = hashtagRegex.exec(text)) !== null) {
+    let match: RegExpExecArray | null;
+    while ((match = mentionRegex.exec(messageText)) !== null) {
       if (match.index > lastIndex) {
-        result.push({ text: text.slice(lastIndex, match.index), isMention: false, isHashtag: false });
+        parts.push({
+          text: messageText.slice(lastIndex, match.index),
+          isMention: false,
+          isHashtag: false,
+        });
       }
-      result.push({ text: match[0], isMention: false, isHashtag: true });
+      parts.push({ text: match[0], isMention: true, isHashtag: false });
       lastIndex = match.index + match[0].length;
     }
-
-    if (lastIndex < text.length) {
-      result.push({ text: text.slice(lastIndex), isMention: false, isHashtag: false });
+    if (lastIndex < messageText.length) {
+      parts.push({
+        text: messageText.slice(lastIndex),
+        isMention: false,
+        isHashtag: false,
+      });
     }
+
+    return parts;
   }
 
-  return result;
-}
+  parseHashtags(
+    parts: { text: string; isMention: boolean; isHashtag: boolean }[]
+  ): { text: string; isMention: boolean; isHashtag: boolean }[] {
+    const hashtagRegex = /#[\wäöüÄÖÜß-]+/g;
+    const result: { text: string; isMention: boolean; isHashtag: boolean }[] =
+      [];
 
+    for (const part of parts) {
+      if (part.isMention) {
+        result.push(part);
+        continue;
+      }
 
-getLastTwoReactions(message: any): string[] {
-  if (!message?.reactions || message.reactions.length === 0) {
-    return ['✅', '👍'];
+      let lastIndex = 0;
+      let match: RegExpExecArray | null;
+      const text = part.text;
+
+      while ((match = hashtagRegex.exec(text)) !== null) {
+        if (match.index > lastIndex) {
+          result.push({
+            text: text.slice(lastIndex, match.index),
+            isMention: false,
+            isHashtag: false,
+          });
+        }
+        result.push({ text: match[0], isMention: false, isHashtag: true });
+        lastIndex = match.index + match[0].length;
+      }
+
+      if (lastIndex < text.length) {
+        result.push({
+          text: text.slice(lastIndex),
+          isMention: false,
+          isHashtag: false,
+        });
+      }
+    }
+
+    return result;
   }
 
-  const sortedReactions = [...message.reactions].sort((a, b) => {
-    const aTime = a.timestamp?.seconds || 0;
-    const bTime = b.timestamp?.seconds || 0;
-    return bTime - aTime;
-  });
+  getLastTwoReactions(message: any): string[] {
+    if (!message?.reactions || message.reactions.length === 0) {
+      return ['✅', '👍'];
+    }
 
-  const distinctReactions = Array.from(
-    new Set(sortedReactions.map((r) => r.reaction))
-  );
+    const sortedReactions = [...message.reactions].sort((a, b) => {
+      const aTime = a.timestamp?.seconds || 0;
+      const bTime = b.timestamp?.seconds || 0;
+      return bTime - aTime;
+    });
 
-  return distinctReactions.slice(0, 2).length
-    ? distinctReactions.slice(0, 2)
-    : ['✅', '👍'];
-} 
+    const distinctReactions = Array.from(
+      new Set(sortedReactions.map((r) => r.reaction))
+    );
 
-onReplyClick(message: any): void {
-  this.replyToMessage.emit(message.id || message.messageID);
-}
+    return distinctReactions.slice(0, 2).length
+      ? distinctReactions.slice(0, 2)
+      : ['✅', '👍'];
+  }
+
+  onReplyClick(message: any): void {
+    this.replyToMessage.emit(message.id || message.messageID);
+  }
 }
