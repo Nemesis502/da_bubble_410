@@ -4,9 +4,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { ProfilEditDialogComponent } from './profil-edit-dialog/profil-edit-dialog.component';
-import { SessionService } from '../services/currentUserSession.service';
-import { appUser } from '../../interfaces/user.interface';
+import { ProfilEditDialogComponent } from '../profil-edit-dialog/profil-edit-dialog.component';
+import { SessionService } from '../../services/currentUserSession.service';
+import { appUser } from '../../../interfaces/user.interface';
 
 @Component({
   selector: 'app-profil-dialog',

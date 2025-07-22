@@ -7,10 +7,10 @@ import { MainMenuComponent } from './main-content/main-menu/main-menu.component'
 import { LegalNoticeComponent } from './main-content/legal-notice/legal-notice.component';
 import { ResetPasswordComponent } from './main-content/loging-page/reset-password/reset-password.component';
 import { PrivacyPolicyComponent } from './main-content/privacy-policy/privacy-policy.component';
-import { AddChannelDialogComponent } from './main-content/main-menu/add-channel-dialog/add-channel-dialog.component';
 import { NewPasswordComponent } from './main-content/loging-page/new-password/new-password.component';
 import { ChannelInfoComponent } from './main-content/channel-info/channel-info.component';
 import { NewMessageComponent } from './main-content/new-message/new-message.component';
+import { AddChannelDialogComponent } from './shared/dialogs/add-channel-dialog/add-channel-dialog.component';
 
 export const routes: Routes = [
   { path: '', component: LogingPageComponent },

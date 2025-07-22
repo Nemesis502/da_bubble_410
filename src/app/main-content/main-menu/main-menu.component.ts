@@ -8,7 +8,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
-import { MenuDialogComponent } from './menu-dialog/menu-dialog.component';
 import { SearchService } from '../../shared/services/search.service';
 import { ChannelsDirectMessageService, DirectMessage } from '../../shared/services/channels-direct-message.service';
 import { FirestoreService } from '../../shared/services/firestore.service';
@@ -18,6 +17,7 @@ import { appUser } from '../../interfaces/user.interface';
 import { firstValueFrom } from 'rxjs';
 import { SessionService } from '../../shared/services/currentUserSession.service';
 import { onSnapshot } from 'firebase/firestore';
+import { MenuDialogComponent } from '../../shared/dialogs/menu-dialog/menu-dialog.component';
 
 @Component({
   selector: 'app-main-menu',

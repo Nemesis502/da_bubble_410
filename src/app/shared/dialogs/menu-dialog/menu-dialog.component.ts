@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { ProfilDialogComponent } from '../../../shared/profil-dialog/profil-dialog.component';
+import { ProfilDialogComponent } from '../../../shared/dialogs/profil-dialog/profil-dialog.component';
 import { AuthService } from '../../../shared/services/auth.service';
 import { SessionService } from '../../../shared/services/currentUserSession.service';
 import { appUser } from '../../../interfaces/user.interface';
