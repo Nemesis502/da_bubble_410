@@ -28,7 +28,7 @@ import { appUser } from '../../interfaces/user.interface';
 import { SessionService } from '../../shared/services/currentUserSession.service';
 import { updateDoc } from '@angular/fire/firestore';
 import { Observable, of } from 'rxjs';
-import { MenuDialogComponent } from '../main-menu/menu-dialog/menu-dialog.component';
+import { MenuDialogComponent } from '../../shared/dialogs/menu-dialog/menu-dialog.component';
 
 interface PickerPosition {
   top: number;
