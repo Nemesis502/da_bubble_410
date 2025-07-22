@@ -332,4 +332,8 @@ export class MainMenuComponent implements OnInit {
   selectDirectMessageGast(user: DirectMessage): void {
     this.router.navigate(['/chat', user.name]);
   }
+
+  openNewMessage(): void {
+  this.router.navigate(['/new-message', this.currentUser?.id]);
+}
 }

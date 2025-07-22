@@ -1,0 +1,149 @@
+<div class="comp-body">
+  <section class="header">
+    <button (click)="navigateToMain()" class="back-btn nuito18px700">
+      <mat-icon class="mat-icon-top" fontIcon="arrow_back_ios_new"></mat-icon>
+      <img src="./assets/img/workspace-logo.png" />
+      <p>Devspace</p>
+    </button>
+    <button class="profile-btn">
+      <img
+        src="./assets/img/avatar/{{ currentUser?.profilePic }}.png"
+        alt=""
+        aria-hidden="true"
+      />
+    </button>
+  </section>
+  <section class="chat-header">
+    <p class="new-message nuito18px700">Neue Nachricht</p>
+    <div class="search-field-wrapper">
+      <mat-card class="search-field">
+        <textarea
+          id="search-field"
+          #searchField
+          [(ngModel)]="searchInput"
+          (keydown)="handleSearchFieldKey($event)"
+          placeholder="An: #channel oder @jemand"
+        ></textarea>
+      </mat-card>
+      <!-- Search @ mention popup -->
+      <div
+        class="mention-popup mention-popup-top"
+        *ngIf="searchFieldMentionVisible"
+        (click)="$event.stopPropagation()"
+      >
+        <div
+          class="mention-user"
+          *ngFor="let user of searchMentionUsers"
+          (click)="insertMentionInSearch(user.userName)"
+        >
+          <img
+            class="avatar"
+            [src]="'./../../../assets/img/avatar/' + user.profilePic + '.png'"
+            alt="avatar"
+          />
+          <div
+            class="status-dot"
+            [ngClass]="{ online: user.status, offline: !user.status }"
+          ></div>
+          <span class="mention-name nuito17px400"
+            >{{ user.userName
+            }}<span *ngIf="user.userName === currentUser?.userName"> (Du)</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Search # hashtag popup -->
+      <div
+        class="mention-popup mention-popup-top"
+        *ngIf="searchFieldHashtagVisible"
+        (click)="$event.stopPropagation()"
+      >
+        <div
+          class="hashtag-item"
+          *ngFor="let channel of searchHashtagChannels"
+          (click)="insertHashtagInSearch(channel.name)"
+        >
+          <span class="hashtag-name nuito17px400">
+            <span class="hashtag">#</span>{{ channel.name }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chat-body" #chatBody>
+    <ng-template #fullChat> </ng-template>
+  </section>
+
+  <section class="chat-interface">
+    <mat-card class="chat-card" appearance="outlined">
+      <textarea
+        [(ngModel)]="chatMessage"
+        id="chat-field"
+        #chatField
+        (keydown)="checkMentionTrigger($event)"
+        placeholder="Starte mit einer neuen Nachricht"
+      ></textarea>
+
+      <!--  @ Popup -->
+      <div class="mention-popup" *ngIf="mentionPopupVisible">
+        <div
+          class="mention-user"
+          *ngFor="let user of mentionableUsers"
+          (click)="selectMentionUser(user.userName)"
+        >
+          <img
+            class="avatar"
+            [src]="'./../../../assets/img/avatar/' + user.profilePic + '.png'"
+            alt="avatar"
+          />
+          <div
+            class="status-dot"
+            [ngClass]="{ online: user.status, offline: !user.status }"
+          ></div>
+          <span class="mention-name nuito17px400"
+            >{{ user.userName
+            }}<span *ngIf="user.userName === currentUser?.userName">
+              (Du)</span
+            ></span
+          >
+        </div>
+      </div>
+      <!--  # Popup -->
+      <div class="mention-popup" *ngIf="hashtagPopupVisible">
+        <div
+          class="hashtag-item"
+          *ngFor="let channel of allChannels"
+          (click)="selectHashtagChannel(channel.name)"
+        >
+          <span class="hashtag-name nuito17px400">
+            <span class="hashtag">#</span>{{ channel.name }}
+          </span>
+        </div>
+      </div>
+
+      <mat-card-actions class="chat-buttons">
+        <div class="buttons-left">
+          <button (click)="toggleEmojiPicker($event)">
+            <mat-icon fontIcon="insert_emoticon"></mat-icon>
+          </button>
+          <button (click)="triggerMention()">
+            <mat-icon fontIcon="alternate_email"></mat-icon>
+          </button>
+        </div>
+        <div class="button-right">
+          <button (click)="sendMessage()">
+            <mat-icon fontIcon="send"></mat-icon>
+          </button>
+        </div>
+      </mat-card-actions>
+    </mat-card>
+    <!-- Emoji Picker -->
+    <app-emoji-picker
+      *ngIf="emojiPickerVisible"
+      [pickerPosition]="pickerPosition"
+      (emojiSelected)="addEmoji($event)"
+      (pickerClosed)="onPickerClosed()"
+    ></app-emoji-picker>
+  </section>
+</div>
