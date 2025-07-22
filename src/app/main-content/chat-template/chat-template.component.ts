@@ -28,6 +28,7 @@ import { appUser } from '../../interfaces/user.interface';
 import { SessionService } from '../../shared/services/currentUserSession.service';
 import { updateDoc } from '@angular/fire/firestore';
 import { Observable, of } from 'rxjs';
+import { MenuDialogComponent } from '../main-menu/menu-dialog/menu-dialog.component';
 
 interface PickerPosition {
   top: number;
@@ -50,6 +51,7 @@ interface PickerPosition {
 })
 export class ChatTemplateComponent implements OnInit {
   userSession = inject(SessionService);
+  dialog = inject(MatDialog);
 
   @ViewChild('chatField') chatField!: ElementRef<HTMLTextAreaElement>;
   @ViewChild('chatBody') private chatBodyRef!: ElementRef;
@@ -561,5 +563,17 @@ handleReplyToMessage(messageId: string): void {
     } else {
       this.activeThreadMessage = null;
     }
+  }
+
+  openMenuDialog(): void {
+    this.dialog.open(MenuDialogComponent, {
+      position: { bottom: '0' },
+      maxWidth: '100vw',
+      width: '100vw',
+      panelClass: 'bottom-dialog-panel',
+      data: {
+        source: 'main-menu',
+      },
+    });
   }
 }
