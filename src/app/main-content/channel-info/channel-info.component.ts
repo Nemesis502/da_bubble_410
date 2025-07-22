@@ -11,9 +11,9 @@ import { Channel } from '../../interfaces/channel.interface';
 import { appUser } from '../../interfaces/user.interface';
 import { firstValueFrom } from 'rxjs';
 import { TextFieldModule } from '@angular/cdk/text-field';
-import { MenuDialogComponent } from '../main-menu/menu-dialog/menu-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { SessionService } from '../../shared/services/currentUserSession.service';
+import { MenuDialogComponent } from '../../shared/dialogs/menu-dialog/menu-dialog.component';
 
 @Component({
   selector: 'app-channel-info',
