@@ -179,6 +179,7 @@ mat-form-field {
 
         &:hover {
             border: 1px $TextGray solid !important;
+            cursor: pointer;
         }
     }
 
@@ -186,6 +187,7 @@ mat-form-field {
         color: $TextGray !important;
     }
 }
+
 
 .inputfield {
     color: black !important;
@@ -197,9 +199,15 @@ mat-form-field {
     a {
         color: $purple2;
         text-decoration: none;
+        padding: 5px 15px;
+        border-radius: 30px;
 
         &:hover {
+            background-color: $Bg;
             cursor: pointer;
+            color: $purple1;
+            font-weight: 500 !important;
+            font-size: 18px !important;
         }
     }
 }
@@ -344,10 +352,10 @@ mat-form-field {
     width: 165px;
     height: 39px !important;
     padding: 7px 18px !important;
+    border-radius: 25px !important;
 
     &:hover {
-        border: 1px $purple2 solid !important;
-        border-radius: 25px !important;
+        border: 1px $LightPurple solid !important;
 
         span {
             font-weight: 700;
@@ -362,12 +370,24 @@ mat-form-field {
     justify-content: center;
     gap: 16px;
     margin-bottom: 20px;
+
 }
 
 .link-container {
+    padding: 10px 15px;
+
     a {
         color: $purple2;
         text-decoration: none;
+    }
+
+    &:hover {
+        border: 1px $LightPurple solid !important;
+        border-radius: 25px !important;
+
+        a {
+            font-weight: 700 !important;
+        }
     }
 }
 
