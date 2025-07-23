@@ -132,6 +132,7 @@
     gap: 20px;
     width: 100%;
     max-width: 606px;
+    height: 630px;
 
     h2 {
         margin: 0;
@@ -151,6 +152,7 @@
     width: 100%;
     box-sizing: border-box;
     max-width: 500px;
+    height: 160px;
 }
 
 .mat-mdc-form-field-has-icon-prefix .mat-mdc-text-field-wrapper {
@@ -176,6 +178,7 @@ mat-form-field {
 
     .mat-mdc-text-field-wrapper {
         border-radius: 100px;
+        height: 58px;
 
         &:hover {
             border: 1px $TextGray solid !important;
@@ -195,6 +198,7 @@ mat-form-field {
 
 .password-forget-container {
     margin-bottom: 20px;
+    height: 25px;
 
     a {
         color: $purple2;
@@ -246,7 +250,7 @@ mat-form-field {
     box-sizing: border-box;
     width: 100%;
     max-width: 500px;
-    max-height: 60px;
+    height: 60px;
     padding: 0 20px 0 20px;
     display: flex;
     justify-content: center;
@@ -289,6 +293,7 @@ mat-form-field {
     margin: 20px 0 35px 0;
     width: 100%;
     max-width: 320px;
+    height: 55px;
 }
 
 .login-button,
@@ -370,11 +375,11 @@ mat-form-field {
     justify-content: center;
     gap: 16px;
     margin-bottom: 20px;
-
 }
 
 .link-container {
     padding: 10px 15px;
+
 
     a {
         color: $purple2;
@@ -384,6 +389,7 @@ mat-form-field {
     &:hover {
         border: 1px $LightPurple solid !important;
         border-radius: 25px !important;
+        cursor: pointer;
 
         a {
             font-weight: 700 !important;
