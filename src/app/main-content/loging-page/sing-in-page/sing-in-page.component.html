@@ -15,9 +15,23 @@
 
   <section class="input-section">
     <div class="flex-collum-center input-title">
-      <div>
-        <img routerLink="/" src="./../../../../assets/img/back.png" alt="" />
-        <h2 class="nuito32px700">Konto erstellen</h2>
+      <div class="input-headline">
+        <div class="arrow-img">
+          <img
+            class="default-arrows"
+            src="./../../../../assets/img/back.png"
+            alt=""
+          />
+          <img
+            class="hover-arrows"
+            routerLink="/"
+            src="./../../../../assets/img/back_hover.png"
+            alt=""
+          />
+        </div>
+        <div class="input-h2">
+          <h2 class="nuito32px700">Konto erstellen</h2>
+        </div>
       </div>
       <p class="nuito17px400">
         Mit deinem Namen und deiner E-Mail-Adresse hast du dein neues
@@ -71,13 +85,13 @@
       </mat-form-field>
       <div class="checkbox-section">
         <div class="checkbox-container">
-          <input (click)="acceptPrivacy()" type="checkbox" name="" id="" />
           <div>
-            <p class="openSans16px400">
-              Ich stimme der
-              <a class="figtree18px400" href="">Datenschutzerklärung</a> zu.
-            </p>
+            <input (click)="acceptPrivacy()" type="checkbox" name="" id="" />
           </div>
+          <p class="openSans16px400">
+            Ich stimme der
+            <a class="figtree18px400" href="">Datenschutzerklärung</a> zu.
+          </p>
         </div>
         @if (!checkedPrivacy && checkboxTouched) {
         <mat-error
@@ -91,8 +105,7 @@
           [disabled]="!checkedPrivacy"
           (click)="checkFormular()"
           mat-flat-button
-          class="nuito18px700 h49px login-button"
-        >
+          class="nuito18px700 h49px login-button">
           Weiter
         </button>
       </div>
