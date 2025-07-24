@@ -13,7 +13,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { EmojiPickerComponent } from '../emoji-picker/emoji-picker.component';
 import { FormsModule } from '@angular/forms';
-import { Firestore, collection, getDocs } from '@angular/fire/firestore';
+import {
+  Firestore,
+  collection,
+  getDocs,
+  addDoc,
+  query,
+  where,
+} from '@angular/fire/firestore';
 import { appUser } from '../../interfaces/user.interface';
 import { SessionService } from '../../shared/services/currentUserSession.service';
 
@@ -129,7 +136,112 @@ export class NewMessageComponent implements OnInit {
     this.emojiPickerVisible = false;
   }
 
-  async sendMessage(): Promise<void> {}
+async sendMessage(): Promise<void> {
+  if (!this.chatMessage.trim() || !this.searchInput.trim()) return;
+
+  const mentionName = this.extractMention(this.searchInput);
+  const channelName = this.extractChannel(this.searchInput);
+
+  if (mentionName) {
+    await this.sendMessageToConversation(mentionName);
+    return;
+  }
+
+  if (channelName) {
+    await this.sendMessageToChannel(channelName);
+    return;
+  }
+
+  console.warn('No valid #channel or @user mention');
+}
+
+private extractMention(input: string): string | null {
+  const match = input.match(/@([\wÀ-ÿ .'-]+)/);
+  return match ? match[1].trim() : null;
+}
+
+private extractChannel(input: string): string | null {
+  const match = input.match(/#([^\s#@]+)/);
+  return match ? match[1].trim() : null;
+}
+private async sendMessageToConversation(userName: string): Promise<void> {
+  const mentionedUser = this.mentionableUsers.find(
+    (user) => user.userName.toLowerCase() === userName.toLowerCase()
+  );
+
+  if (!mentionedUser || !this.currentUser?.id) {
+    console.warn(`User @${userName} not found or session invalid`);
+    return;
+  }
+
+  const conversationId = await this.getOrCreateConversation(
+    this.currentUser.id,
+    mentionedUser.id
+  );
+
+  const message = {
+    senderID: this.currentUser.id,
+    text: this.chatMessage,
+    timestamp: new Date(),
+  };
+
+  const msgCol = collection(
+    this.firestore,
+    `conversations/${conversationId}/directMessages`
+  );
+  await addDoc(msgCol, message);
+
+  this.chatMessage = '';
+  this.searchInput = '';
+  this.router.navigate([`/chat/${conversationId}`]);
+}
+private async getOrCreateConversation(
+  userA: string,
+  userB: string
+): Promise<string> {
+  const convRef = collection(this.firestore, 'conversations');
+  const q = query(convRef, where('participants', 'array-contains', userA));
+  const snapshot = await getDocs(q);
+
+  const existing = snapshot.docs.find((doc) => {
+    const participants = doc.data()['participants'] as string[];
+    return participants.includes(userB);
+  });
+
+  if (existing) return existing.id;
+
+  const newConv = await addDoc(convRef, {
+    participants: [userA, userB],
+  });
+  return newConv.id;
+}
+private async sendMessageToChannel(channelName: string): Promise<void> {
+  const matchedChannel = this.allChannels.find(
+    (ch) => ch.name.toLowerCase() === channelName.toLowerCase()
+  );
+
+  if (!matchedChannel || !this.currentUser?.id) {
+    console.warn(`Channel #${channelName} not found or session invalid`);
+    return;
+  }
+
+  const message = {
+    channelId: matchedChannel.id,
+    senderID: this.currentUser.id,
+    text: this.chatMessage,
+    timestamp: new Date(),
+  };
+
+  const msgCol = collection(
+    this.firestore,
+    `channels/${matchedChannel.id}/messages`
+  );
+  await addDoc(msgCol, message);
+
+  this.chatMessage = '';
+  this.searchInput = '';
+  this.router.navigate([`/chat/${matchedChannel.id}`]);
+}
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
@@ -350,63 +462,63 @@ export class NewMessageComponent implements OnInit {
     this.mentionPopupVisible = false;
   }
 
-async handleSearchFieldKey(event: KeyboardEvent): Promise<void> {
-  setTimeout(() => {
-    if (this.searchInput.includes('@')) {
-      this.searchFieldMentionVisible = true;
-      this.searchMentionUsers = this.mentionableUsers;
-    } else {
-      this.searchFieldMentionVisible = false;
-    }
+  async handleSearchFieldKey(event: KeyboardEvent): Promise<void> {
+    setTimeout(() => {
+      if (this.searchInput.includes('@')) {
+        this.searchFieldMentionVisible = true;
+        this.searchMentionUsers = this.mentionableUsers;
+      } else {
+        this.searchFieldMentionVisible = false;
+      }
 
-    if (this.searchInput.includes('#')) {
-      this.searchFieldHashtagVisible = true;
-      this.searchHashtagChannels = this.allChannels;
-    } else {
-      this.searchFieldHashtagVisible = false;
-    }
-  }, 0);
-}
+      if (this.searchInput.includes('#')) {
+        this.searchFieldHashtagVisible = true;
+        this.searchHashtagChannels = this.allChannels;
+      } else {
+        this.searchFieldHashtagVisible = false;
+      }
+    }, 0);
+  }
 
-insertMentionInSearch(userName: string): void {
-  const textarea = this.searchField.nativeElement;
-  const cursorPos = textarea.selectionStart;
-  const textBefore = this.searchInput.slice(0, cursorPos);
-  const textAfter = this.searchInput.slice(cursorPos);
+  insertMentionInSearch(userName: string): void {
+    const textarea = this.searchField.nativeElement;
+    const cursorPos = textarea.selectionStart;
+    const textBefore = this.searchInput.slice(0, cursorPos);
+    const textAfter = this.searchInput.slice(cursorPos);
 
-  const atIndex = textBefore.lastIndexOf('@');
-  if (atIndex === -1) return;
+    const atIndex = textBefore.lastIndexOf('@');
+    if (atIndex === -1) return;
 
-  this.searchInput =
-    textBefore.slice(0, atIndex) + `@${userName} ` + textAfter;
+    this.searchInput =
+      textBefore.slice(0, atIndex) + `@${userName} ` + textAfter;
 
-  const newCursorPos = atIndex + userName.length + 2;
-  setTimeout(() => {
-    textarea.focus();
-    textarea.setSelectionRange(newCursorPos, newCursorPos);
-  });
+    const newCursorPos = atIndex + userName.length + 2;
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+    });
 
-  this.searchFieldMentionVisible = false;
-}
+    this.searchFieldMentionVisible = false;
+  }
 
-insertHashtagInSearch(channelName: string): void {
-  const textarea = this.searchField.nativeElement;
-  const cursorPos = textarea.selectionStart;
-  const textBefore = this.searchInput.slice(0, cursorPos);
-  const textAfter = this.searchInput.slice(cursorPos);
+  insertHashtagInSearch(channelName: string): void {
+    const textarea = this.searchField.nativeElement;
+    const cursorPos = textarea.selectionStart;
+    const textBefore = this.searchInput.slice(0, cursorPos);
+    const textAfter = this.searchInput.slice(cursorPos);
 
-  const hashIndex = textBefore.lastIndexOf('#');
-  if (hashIndex === -1) return;
+    const hashIndex = textBefore.lastIndexOf('#');
+    if (hashIndex === -1) return;
 
-  this.searchInput =
-    textBefore.slice(0, hashIndex) + `#${channelName} ` + textAfter;
+    this.searchInput =
+      textBefore.slice(0, hashIndex) + `#${channelName} ` + textAfter;
 
-  const newCursorPos = hashIndex + channelName.length + 2;
-  setTimeout(() => {
-    textarea.focus();
-    textarea.setSelectionRange(newCursorPos, newCursorPos);
-  });
+    const newCursorPos = hashIndex + channelName.length + 2;
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+    });
 
-  this.searchFieldHashtagVisible = false;
-}
+    this.searchFieldHashtagVisible = false;
+  }
 }

@@ -107,42 +107,48 @@ export class ChatTemplateComponent implements OnInit {
     });
   }
 
-  private async initializeChannelFromRoute(): Promise<void> {
-    const channelId = this.route.snapshot.paramMap.get('id');
-    if (!channelId) {
-      console.warn('No channel ID in route');
-      return;
-    }
+private async initializeChannelFromRoute(): Promise<void> {
+  const channelId = this.getChannelIdFromRoute();
+  if (!channelId) return;
 
-    try {
-      const knownChannels = this.channelService.getChannels();
-      const matchedChannel = knownChannels.find(
-        (c) => c.channelId === channelId
-      );
-
-      if (matchedChannel) {
-        this.selectedChannel = matchedChannel;
-        this.channelService.setSelectedChannel(matchedChannel);
-        this.loadMessagesForChannel(matchedChannel);
-      } else {
-        const fetchedChannel = await this.channelService.getChannelById(
-          channelId
-        );
-        if (fetchedChannel) {
-          this.selectedChannel = fetchedChannel;
-          this.channelService.setSelectedChannel(fetchedChannel);
-          this.loadMessagesForChannel(fetchedChannel);
-        } else {
-          console.warn(
-            'Channel mit ID nicht gefunden in Firestore:',
-            channelId
-          );
-        }
-      }
-    } catch (error) {
-      console.error('Fehler beim Laden des Channels nach Refresh:', error);
+  try {
+    const channel = await this.resolveChannelById(channelId);
+    if (channel) {
+      this.setActiveChannel(channel);
+    } else {
+      console.warn('Channel mit ID nicht gefunden in Firestore:', channelId);
     }
+  } catch (error) {
+    console.error('Fehler beim Laden des Channels nach Refresh:', error);
   }
+}
+
+private getChannelIdFromRoute(): string | null {
+  const channelId = this.route.snapshot.paramMap.get('id');
+  if (!channelId) {
+    console.warn('No channel ID in route');
+  }
+  return channelId;
+}
+
+private async resolveChannelById(channelId: string): Promise<any | null> {
+  const knownChannels = this.channelService.getChannels();
+  const matchedChannel = knownChannels.find(c => c.channelId === channelId);
+
+  if (matchedChannel) {
+    return matchedChannel;
+  }
+
+  return await this.channelService.getChannelById(channelId);
+}
+
+private setActiveChannel(channel: any): void {
+  this.selectedChannel = channel;
+  this.channelService.setSelectedChannel(channel);
+  this.loadMessagesForChannel(channel);
+}
+
+
 
   loadMessagesForChannel(channel: any): void {
     if (channel?.channelId) {
@@ -197,66 +203,91 @@ export class ChatTemplateComponent implements OnInit {
     this.emojiPickerVisible = false;
   }
 
-  async sendMessage(): Promise<void> {
-    const messageText = this.chatMessage.trim();
-    const channelId = this.selectedChannel?.channelId;
-    const userId = this.currentUser?.id;
+async sendMessage(): Promise<void> {
+  const messageText = this.chatMessage.trim();
+  const channelId = this.selectedChannel?.channelId;
+  const userId = this.currentUser?.id;
 
-    if (!messageText || !channelId || !userId) {
-      return;
-    }
+  if (!messageText || !channelId || !userId) return;
 
-    if (this.chatIsThread && this.activeThreadMessageId) {
-      try {
-        await this.channelService.sendThreadMessage(
-          channelId,
-          this.activeThreadMessageId,
-          messageText,
-          userId
-        );
-        this.loadThreadMessages();
-
-        this.chatMessage = '';
-      } catch (error) {
-        console.error('Error sending thread message:', error);
+  try {
+    if (this.editedMessage) {
+      if (this.chatIsThread) {
+        await this.updateThreadMessage(channelId, messageText);
+      } else {
+        await this.updateExistingMessage(channelId, messageText);
       }
+    } else if (this.chatIsThread && this.activeThreadMessageId) {
+      await this.sendThreadMessage(channelId, messageText, userId);
     } else {
-      try {
-        const messageText = this.chatMessage.trim();
-
-        if (this.editedMessage) {
-          const messageRef = doc(
-            this.firestore,
-            `channels/${this.selectedChannel.channelId}/messages/${this.editedMessage.id}`
-          );
-
-          await updateDoc(messageRef, { text: messageText });
-          console.log('Message updated successfully:', messageText);
-
-          this.editedMessage = null;
-        } else {
-          const messageCollection = collection(
-            this.firestore,
-            `channels/${this.selectedChannel.channelId}/messages`
-          );
-
-          const newMessage = {
-            text: messageText,
-            timestamp: serverTimestamp(),
-            senderID: this.currentUser?.id!,
-            channelId: this.selectedChannel.channelId,
-          };
-
-          await addDoc(messageCollection, newMessage);
-          console.log('Message sent successfully:', newMessage);
-        }
-
-        this.chatMessage = '';
-      } catch (error) {
-        console.error('Error sending/updating message:', error);
-      }
+      await this.createNewMessage(channelId, messageText, userId);
     }
+
+    this.afterMessageSend();
+  } catch (error) {
   }
+}
+
+private async updateThreadMessage(channelId: string, messageText: string): Promise<void> {
+  if (!this.editedMessage?.id || !this.activeThreadMessageId) return;
+
+  const messageRef = doc(
+    this.firestore,
+    `channels/${channelId}/messages/${this.activeThreadMessageId}/threadMessages/${this.editedMessage.id}`
+  );
+
+  await updateDoc(messageRef, { text: messageText });
+
+  this.editedMessage = null;
+  this.loadThreadMessages();
+}
+
+
+private async sendThreadMessage(channelId: string, messageText: string, userId: string): Promise<void> {
+  await this.channelService.sendThreadMessage(
+    channelId,
+    this.activeThreadMessageId,
+    messageText,
+    userId
+  );
+  this.loadThreadMessages();
+}
+
+private async updateExistingMessage(channelId: string, messageText: string): Promise<void> {
+  if (!this.editedMessage?.id) return;
+
+  const messageRef = doc(
+    this.firestore,
+    `channels/${channelId}/messages/${this.editedMessage.id}`
+  );
+
+  await updateDoc(messageRef, { text: messageText });
+  console.log('Message updated successfully:', messageText);
+
+  this.editedMessage = null;
+}
+
+private async createNewMessage(channelId: string, messageText: string, userId: string): Promise<void> {
+  const messageCollection = collection(
+    this.firestore,
+    `channels/${channelId}/messages`
+  );
+
+  const newMessage = {
+    text: messageText,
+    timestamp: serverTimestamp(),
+    senderID: userId,
+    channelId: channelId,
+  };
+
+  await addDoc(messageCollection, newMessage);
+  console.log('Message sent successfully:', newMessage);
+}
+
+private afterMessageSend(): void {
+  this.chatMessage = '';
+}
+
 
   startEditingMessage(message: any): void {
     this.chatMessage = message.text;
@@ -502,17 +533,16 @@ export class ChatTemplateComponent implements OnInit {
     this.mentionPopupVisible = false;
   }
 
-handleReplyToMessage(messageId: string): void {
-  this.chatIsThread = true;
-  this.activeThreadMessageId = messageId;
-  this.loadThreadMessages();
-  this.setActiveThreadMessage(messageId);
+  handleReplyToMessage(messageId: string): void {
+    this.chatIsThread = true;
+    this.activeThreadMessageId = messageId;
+    this.loadThreadMessages();
+    this.setActiveThreadMessage(messageId);
 
-  setTimeout(() => {
-    this.scrollToBottom();
-  }, 100); 
-}
-
+    setTimeout(() => {
+      this.scrollToBottom();
+    }, 100);
+  }
 
   loadThreadMessages(): void {
     const channelId = this.selectedChannel?.channelId;
@@ -575,5 +605,13 @@ handleReplyToMessage(messageId: string): void {
         source: 'main-menu',
       },
     });
+  }
+
+  closeThreadView(): void {
+    this.chatIsThread = false;
+    const channelId = this.selectedChannel?.channelId;
+    if (channelId) {
+      this.router.navigate([`/chat/${channelId}`]);
+    }
   }
 }
