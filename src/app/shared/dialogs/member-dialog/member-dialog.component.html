@@ -1,0 +1,35 @@
+<mat-card>
+    <mat-card-header>
+        <mat-card-title>
+            Mitglieder
+        </mat-card-title>
+        <button mat-icon-button>
+            <mat-icon>close</mat-icon>
+        </button>
+    </mat-card-header>
+    <mat-card-content class="members">
+        <div class="members-list">
+            @for (member of members(); track member.id) {
+            <div class="member-avatar">
+                <img [src]="'./assets/img/avatar/' + member.profilePic + '.png'"
+                    alt="Avatar von {{ member.userName }}" />
+                <mat-icon fontIcon="lens" [ngClass]="member.status ? 'online' : 'offline'"
+                    class="status-icon"></mat-icon>
+                <span class="nuito18px700">
+                    {{ member.userName }}
+                    @if (member.id === currentUser?.id) { (Du) }
+                </span>
+            </div>
+            }
+        </div>
+        <button mat-button class="add-member-btn" (click)="openAddPeopleDialog()">
+            <div class="icon-bg">
+                <mat-icon fontSet="material-icons-outlined">person_add</mat-icon>
+            </div>
+            <span class="nuito18px700">
+                Mitglieder hinzufügen
+            </span>
+        </button>
+    </mat-card-content>
+
+</mat-card>

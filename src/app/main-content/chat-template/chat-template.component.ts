@@ -29,6 +29,7 @@ import { SessionService } from '../../shared/services/currentUserSession.service
 import { updateDoc } from '@angular/fire/firestore';
 import { Observable, of } from 'rxjs';
 import { MenuDialogComponent } from '../../shared/dialogs/menu-dialog/menu-dialog.component';
+import { MemberDialogComponent } from '../../shared/dialogs/member-dialog/member-dialog.component';
 
 interface PickerPosition {
   top: number;
@@ -89,7 +90,7 @@ export class ChatTemplateComponent implements OnInit {
     private elementRef: ElementRef,
     private channelService: ChannelsDirectMessageService,
     private firestore: Firestore
-  ) {}
+  ) { }
 
   async ngOnInit(): Promise<void> {
     this.currentUser = this.userSession.getCurrentUser();
@@ -502,16 +503,16 @@ export class ChatTemplateComponent implements OnInit {
     this.mentionPopupVisible = false;
   }
 
-handleReplyToMessage(messageId: string): void {
-  this.chatIsThread = true;
-  this.activeThreadMessageId = messageId;
-  this.loadThreadMessages();
-  this.setActiveThreadMessage(messageId);
+  handleReplyToMessage(messageId: string): void {
+    this.chatIsThread = true;
+    this.activeThreadMessageId = messageId;
+    this.loadThreadMessages();
+    this.setActiveThreadMessage(messageId);
 
-  setTimeout(() => {
-    this.scrollToBottom();
-  }, 100); 
-}
+    setTimeout(() => {
+      this.scrollToBottom();
+    }, 100);
+  }
 
 
   loadThreadMessages(): void {
@@ -575,5 +576,15 @@ handleReplyToMessage(messageId: string): void {
         source: 'main-menu',
       },
     });
+  }
+
+  openMemberDialog(): void {
+    this.dialog.open(MemberDialogComponent, {
+      position: { top: '140px' },
+      width: '80vw',
+      data: {
+        channelId: this.selectedChannel?.channelId
+      }
+    })
   }
 }

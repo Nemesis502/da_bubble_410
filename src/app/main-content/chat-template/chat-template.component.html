@@ -50,7 +50,7 @@
 
     <!-- Normal view: show Add User button -->
     <ng-template #addUserButton>
-      <button class="add-user-button">
+      <button class="add-user-button" (click)="openMemberDialog()">
         <mat-icon class="mat-icon-top" fontIcon="person_add_alt"></mat-icon>
       </button>
     </ng-template>
