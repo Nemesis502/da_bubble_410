@@ -1,0 +1,79 @@
+@use "./../../../styles.scss" as *;
+
+.logo-container-desktop {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    gap: 13px;
+    box-sizing: border-box;
+    position: relative;
+
+    img {
+        height: 70px;
+        width: 70px;
+    }
+
+    h1 {
+        color: black;
+        margin: 0;
+    }
+}
+
+.header-desktop {
+    margin: 75px 75px 0 75px;
+    display: none;
+}
+
+.hidden {
+    display: none;
+}
+
+.footer-desktop {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.link-container {
+    padding: 10px 15px;
+
+    a {
+        color: $purple2;
+        text-decoration: none;
+    }
+
+    &:hover {
+        border: 1px $LightPurple solid !important;
+        border-radius: 25px !important;
+        cursor: pointer;
+
+        a {
+            font-weight: 700 !important;
+        }
+    }
+}
+
+@keyframes moveToCornerIntroLogo {
+    from {
+        top: 50%;
+        transform: translate(0, 0) scale(1);
+    }
+
+    to {
+        top: 87px;
+        transform: translate(0, 0) scale(1.0);
+    }
+}
+
+@keyframes moveToCornerLogo {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

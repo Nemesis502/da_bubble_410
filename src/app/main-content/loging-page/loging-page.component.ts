@@ -17,7 +17,8 @@ import { AuthService } from '../../shared/services/auth.service';
   imports: [CommonModule, MatDividerModule, MatFormFieldModule, MatInputModule, FormsModule, ReactiveFormsModule, MatIconModule, MatButtonModule, RouterLink],
   templateUrl: './loging-page.component.html',
   styleUrls: ['./loging-page.component.scss',
-    './loging-page.component-media-query.scss'
+    'loging-page.component-header-and-footer.scss',
+    './loging-page.component-media-query.scss',
   ],
   encapsulation: ViewEncapsulation.None
 })
