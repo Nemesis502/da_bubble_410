@@ -502,17 +502,16 @@ export class ChatTemplateComponent implements OnInit {
     this.mentionPopupVisible = false;
   }
 
-handleReplyToMessage(messageId: string): void {
-  this.chatIsThread = true;
-  this.activeThreadMessageId = messageId;
-  this.loadThreadMessages();
-  this.setActiveThreadMessage(messageId);
+  handleReplyToMessage(messageId: string): void {
+    this.chatIsThread = true;
+    this.activeThreadMessageId = messageId;
+    this.loadThreadMessages();
+    this.setActiveThreadMessage(messageId);
 
-  setTimeout(() => {
-    this.scrollToBottom();
-  }, 100); 
-}
-
+    setTimeout(() => {
+      this.scrollToBottom();
+    }, 100);
+  }
 
   loadThreadMessages(): void {
     const channelId = this.selectedChannel?.channelId;
@@ -575,5 +574,13 @@ handleReplyToMessage(messageId: string): void {
         source: 'main-menu',
       },
     });
+  }
+
+  closeThreadView(): void {
+    this.chatIsThread = false;
+    const channelId = this.selectedChannel?.channelId;
+    if (channelId) {
+      this.router.navigate([`/chat/${channelId}`]);
+    }
   }
 }

@@ -42,7 +42,7 @@
     <button
       *ngIf="chatIsThread; else addUserButton"
       class="x-button"
-      (click)="navigateToMain()"
+      (click)=" closeThreadView()"
       aria-label="Close Thread"
     >
       <mat-icon fontIcon="close"></mat-icon>
