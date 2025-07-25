@@ -10,6 +10,7 @@ import { merge } from 'rxjs';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../shared/services/auth.service';
+import { User } from 'firebase/auth';
 
 @Component({
   selector: 'app-loging-page',
@@ -78,42 +79,46 @@ export class LogingPageComponent {
     this.authService.signInWithGoogle().then(async user => {
       let exists = await this.authService.checkUserExistsInFirestore(user.uid);
       if (exists) {
-        this.router.navigate(['/main'], {
-          state: {
-            loginEmail: user.email,
-            loginId: user.uid
-          }
-        });
+        this.navigateToMainSite(user)
       } else {
-        this.router.navigate(['singIn/chooseAvatar'], {
-          state: {
-            singName: user.displayName,
-            singEmail: user.email,
-            isGoogleLogin: true,
-            googleUid: user.uid,
-          }
-        });
+        this.navigateToChooseAvatar(user)
       }
     }).catch(err => {
       console.error('Google Login fehlgeschlagen:', err);
     });
   }
 
+  navigateToMainSite(user: User) {
+    this.router.navigate(['/main'], {
+      state: {
+        loginEmail: user.email,
+        loginId: user.uid
+      }
+    });
+  }
+
+  navigateToChooseAvatar(user: User) {
+    this.router.navigate(['singIn/chooseAvatar'], {
+      state: {
+        singName: user.displayName,
+        singEmail: user.email,
+        isGoogleLogin: true,
+        googleUid: user.uid,
+      }
+    });
+  }
+
   checkValideLogIn() {
     const email = this.email.value?.trim().toLowerCase() || '';
+    
     const password = this.password.value || '';
-
-    this.authService.login(email, password)
-      .then((userCredential) => {
-        console.log("Erfolgreich eingeloggt:", userCredential.user);
+    this.authService.login(email, password).then((userCredential) => {
         this.router.navigate(['main'], {
           state: {
             loginEmail: userCredential.user.email,
             loginId: userCredential.user.uid
-          }
-        });
-      })
-      .catch((error) => {
+          }});
+      }).catch((error) => {
         console.error("Login fehlgeschlagen:", error.message);
         this.LogInError = true;
         this.updateErrorLogIn();

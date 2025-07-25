@@ -64,7 +64,7 @@
           (blur)="updateErrorMessageEmail()"
           required
         />
-        @if (email.invalid) {
+        @if (email.invalid || emailExists) {
         <mat-error>{{ errorMessageEmail }}</mat-error>
         }
       </mat-form-field>
@@ -90,7 +90,7 @@
           </div>
           <p class="openSans16px400">
             Ich stimme der
-            <a class="figtree18px400" href="">Datenschutzerklärung</a> zu.
+            <a class="figtree18px400" routerLink="/privacyPolicy">Datenschutzerklärung</a> zu.
           </p>
         </div>
         @if (!checkedPrivacy && checkboxTouched) {
@@ -113,10 +113,10 @@
   </section>
   <footer class="footer-desktop">
     <div class="link-container">
-      <a class="figtree18px400" routerLink="legalNotice">Impressum</a>
+      <a class="figtree18px400" routerLink="/legalNotice">Impressum</a>
     </div>
     <div class="link-container">
-      <a class="figtree18px400" routerLink="privacyPolicy">Datenschutz</a>
+      <a class="figtree18px400" routerLink="/privacyPolicy">Datenschutz</a>
     </div>
   </footer>
 </section>

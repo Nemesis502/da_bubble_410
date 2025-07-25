@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
 import { merge } from 'rxjs';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { AuthService } from '../../../shared/services/auth.service';
 
 @Component({
   selector: 'app-sing-in-page',
@@ -28,12 +29,13 @@ export class SingInPageComponent {
   hide = true;
   checkedPrivacy = false;
   checkboxTouched = false;
+  emailExists = false;
 
   errorMessageName = '';
   errorMessageEmail = '';
   errorMessagePassword = '';
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private authService: AuthService) {
     merge(this.text.statusChanges, this.text.valueChanges)
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.updateErrorMessageName());
@@ -54,11 +56,16 @@ export class SingInPageComponent {
   }
 
   updateErrorMessageEmail() {
+    console.log('updateError', this.emailExists);
+
     if (this.email.hasError('required')) {
       this.errorMessageEmail = 'Du musst eine E-Mail-Adresse eintragen';
     } else if (this.email.hasError('email')) {
       this.errorMessageEmail = 'Keine gültige E-Mail-Adresse';
-    } else {
+    } else if (this.emailExists) {
+      this.errorMessageEmail = 'Diese E-Mail ist bereits registriert.';
+    }
+    else {
       this.errorMessageEmail = '';
     }
   }
@@ -74,15 +81,26 @@ export class SingInPageComponent {
     }
   }
 
-  checkFormular() {
+  async checkFormular() {
     this.markedInputs();
     this.updateErrorMessage();
 
     if (this.text.valid && this.email.valid && this.password.valid) {
       let lowerCaseEmail = this.email.value?.trim().toLocaleLowerCase();
-      this.nextPage(lowerCaseEmail);
+      // await this.checkUserExistAuth(lowerCaseEmail!)
+      // this.nextPage(lowerCaseEmail);
     }
   }
+
+  // async checkUserExistAuth(lowerCaseEmail: string) {
+  //   this.emailExists = await this.authService.checkUserExistsByEmail(lowerCaseEmail);
+  //   console.log(this.emailExists);
+  //   if (this.emailExists) {
+  //     this.updateErrorMessageEmail();
+  //     return;
+  //   }
+  //   this.nextPage(lowerCaseEmail);
+  // }
 
   markedInputs() {
     this.text.markAsTouched();
