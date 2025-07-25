@@ -29,7 +29,6 @@ export class SingInPageComponent {
   hide = true;
   checkedPrivacy = false;
   checkboxTouched = false;
-  emailExists = false;
 
   errorMessageName = '';
   errorMessageEmail = '';
@@ -56,16 +55,13 @@ export class SingInPageComponent {
   }
 
   updateErrorMessageEmail() {
-    console.log('updateError', this.emailExists);
-
     if (this.email.hasError('required')) {
       this.errorMessageEmail = 'Du musst eine E-Mail-Adresse eintragen';
     } else if (this.email.hasError('email')) {
       this.errorMessageEmail = 'Keine gültige E-Mail-Adresse';
-    } else if (this.emailExists) {
+    } else if (this.email.hasError('emailExists')) {
       this.errorMessageEmail = 'Diese E-Mail ist bereits registriert.';
-    }
-    else {
+    } else {
       this.errorMessageEmail = '';
     }
   }
@@ -87,20 +83,19 @@ export class SingInPageComponent {
 
     if (this.text.valid && this.email.valid && this.password.valid) {
       let lowerCaseEmail = this.email.value?.trim().toLocaleLowerCase();
-      // await this.checkUserExistAuth(lowerCaseEmail!)
-      // this.nextPage(lowerCaseEmail);
+      await this.checkUserExistAuth(lowerCaseEmail!);
     }
   }
 
-  // async checkUserExistAuth(lowerCaseEmail: string) {
-  //   this.emailExists = await this.authService.checkUserExistsByEmail(lowerCaseEmail);
-  //   console.log(this.emailExists);
-  //   if (this.emailExists) {
-  //     this.updateErrorMessageEmail();
-  //     return;
-  //   }
-  //   this.nextPage(lowerCaseEmail);
-  // }
+  async checkUserExistAuth(lowerCaseEmail: string) {
+    let emailExists = await this.authService.checkUserExistsByEmail(lowerCaseEmail);
+    if (emailExists) {
+      this.email.setErrors({ emailExists: true });
+      return;
+    }
+    this.email.setErrors(null);
+    this.nextPage(lowerCaseEmail);
+  }
 
   markedInputs() {
     this.text.markAsTouched();
@@ -133,5 +128,3 @@ export class SingInPageComponent {
     }
   }
 }
-
-
