@@ -12,6 +12,13 @@ export interface DirectMessage {
   status: string;
 }
 
+ export interface DirectMessageRaw {
+  id?: string;
+  text: string;
+  senderID: string;
+  timestamp: any; 
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -393,5 +400,68 @@ async sendThreadMessage(
 
   console.log('Thread message sent to:', threadMessageId);
 }
+
+getConversationMessages(conversationId: string): Observable<any[]> {
+  const messagesCol = collection(
+    this.firestore,
+    `conversations/${conversationId}/directMessages`
+  );
+
+  const q = query(messagesCol, orderBy('timestamp', 'asc'));
+
+  return collectionData(q, { idField: 'id' }).pipe(
+    catchError((error) => {
+      console.error('Error fetching conversation messages:', error);
+      return of([]);
+    })
+  );
+}
+
+getEnrichedConversationMessages(conversationId: string): Observable<any[]> {
+  const messagesCol = collection(
+    this.firestore,
+    `conversations/${conversationId}/directMessages`
+  );
+
+  const q = query(messagesCol, orderBy('timestamp', 'asc'));
+
+  return collectionData(q, { idField: 'id' }).pipe(
+    map((docs) => docs as DirectMessageRaw[]),  
+    switchMap((messages) => {
+      if (!messages.length) return of([]);
+
+      const enrichedMessages$ = messages.map((message) => {
+        const userDetails$ = message.senderID
+          ? this.getUserDetails(message.senderID).pipe(catchError(() => of(null)))
+          : of(null);
+
+        return userDetails$.pipe(
+          map((userDetails) => ({
+            ...message, //
+            formattedTime: this.formatTimestamp(message.timestamp),
+            username: userDetails?.userName || 'Unknown User',
+            avatar: userDetails?.profilePic || 'default-avatar.png',
+          }))
+        );
+      });
+
+      return combineLatest(enrichedMessages$).pipe(
+        map((enrichedMessages) =>
+          enrichedMessages.sort((a, b) => {
+            const timeA = a.timestamp?.seconds ?? 0;
+            const timeB = b.timestamp?.seconds ?? 0;
+            return timeA - timeB;
+          })
+        )
+      );
+    }),
+    catchError((error) => {
+      console.error('Error enriching conversation messages:', error);
+      return of([]);
+    })
+  );
+}
+
+
 
 }

@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Auth, createUserWithEmailAndPassword, GoogleAuthProvider, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, signOut } from '@angular/fire/auth';
 import { Firestore } from '@angular/fire/firestore';
 import { confirmPasswordReset } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 
 @Injectable({
     providedIn: 'root'
@@ -38,10 +38,16 @@ export class AuthService {
         return userSnap.exists();
     }
 
+    async checkUserExistsByEmail(email: string): Promise<boolean> {
+        let usersRef = collection(this.firestore, 'users');
+        let q = query(usersRef, where('email', '==', email));
+        let querySnapshot = await getDocs(q);
+        return !querySnapshot.empty;
+    }
+
     async logout() {
         try {
             await signOut(this.auth);
-            console.log('Erfolgreich abgemeldet');
         } catch (err) {
             console.error('Fehler beim Logout:', err);
         }

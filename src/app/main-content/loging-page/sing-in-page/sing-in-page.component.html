@@ -15,9 +15,23 @@
 
   <section class="input-section">
     <div class="flex-collum-center input-title">
-      <div>
-        <img routerLink="/" src="./../../../../assets/img/back.png" alt="" />
-        <h2 class="nuito32px700">Konto erstellen</h2>
+      <div class="input-headline">
+        <div class="arrow-img">
+          <img
+            class="default-arrows"
+            src="./../../../../assets/img/back.png"
+            alt=""
+          />
+          <img
+            class="hover-arrows"
+            routerLink="/"
+            src="./../../../../assets/img/back_hover.png"
+            alt=""
+          />
+        </div>
+        <div class="input-h2">
+          <h2 class="nuito32px700">Konto erstellen</h2>
+        </div>
       </div>
       <p class="nuito17px400">
         Mit deinem Namen und deiner E-Mail-Adresse hast du dein neues
@@ -50,8 +64,12 @@
           (blur)="updateErrorMessageEmail()"
           required
         />
-        @if (email.invalid) {
-        <mat-error>{{ errorMessageEmail }}</mat-error>
+        @if (email.hasError('required')) {
+        <mat-error>Du musst eine E-Mail-Adresse eintragen</mat-error>
+        } @else if (email.hasError('email')) {
+        <mat-error>Keine gültige E-Mail-Adresse</mat-error>
+        } @else if (email.hasError('emailExists')) {
+        <mat-error>Diese E-Mail ist bereits registriert.</mat-error>
         }
       </mat-form-field>
       <mat-form-field>
@@ -71,13 +89,16 @@
       </mat-form-field>
       <div class="checkbox-section">
         <div class="checkbox-container">
-          <input (click)="acceptPrivacy()" type="checkbox" name="" id="" />
           <div>
-            <p class="openSans16px400">
-              Ich stimme der
-              <a class="figtree18px400" href="">Datenschutzerklärung</a> zu.
-            </p>
+            <input (click)="acceptPrivacy()" type="checkbox" name="" id="" />
           </div>
+          <p class="openSans16px400">
+            Ich stimme der
+            <a class="figtree18px400" routerLink="/privacyPolicy"
+              >Datenschutzerklärung</a
+            >
+            zu.
+          </p>
         </div>
         @if (!checkedPrivacy && checkboxTouched) {
         <mat-error
@@ -100,10 +121,10 @@
   </section>
   <footer class="footer-desktop">
     <div class="link-container">
-      <a class="figtree18px400" routerLink="legalNotice">Impressum</a>
+      <a class="figtree18px400" routerLink="/legalNotice">Impressum</a>
     </div>
     <div class="link-container">
-      <a class="figtree18px400" routerLink="privacyPolicy">Datenschutz</a>
+      <a class="figtree18px400" routerLink="/privacyPolicy">Datenschutz</a>
     </div>
   </footer>
 </section>

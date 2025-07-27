@@ -101,31 +101,45 @@
     gap: 15px;
     width: 100%;
     box-sizing: border-box;
+}
 
-    div {
-        display: flex;
-        align-items: center;
-        flex-direction: row;
-        width: 100%;
 
-        :hover {
+.input-headline {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: row;
+    width: 100%;
+}
+
+.arrow-img {
+    img {
+        height: 40px;
+        width: 40px;
+    }
+
+    &:hover {
+        .default-arrows {
+            display: none;
+        }
+
+        .hover-arrows {
+            display: block;
             cursor: pointer;
-        }
-
-        h2 {
-            font-size: 27px !important;
-            width: 100%;
-        }
-
-        img {
-            height: 40px;
-            width: 40px;
         }
     }
 }
 
+.input-h2 {
+    font-size: 27px !important;
+    width: 100%;
+}
+
 mat-form-field {
     width: 100%;
+
+    &:hover input {
+        cursor: pointer;
+    }
 
     mat-icon,
     mat-label {
@@ -139,6 +153,12 @@ mat-form-field {
 
 ::ng-deep .mat-mdc-text-field-wrapper {
     border-radius: 100px !important;
+    height: 58px !important;
+
+    &:hover {
+        border: 1px $TextGray solid !important;
+        cursor: pointer;
+    }
 }
 
 .checkbox-section {
@@ -162,14 +182,25 @@ mat-form-field {
     gap: 8px;
     margin-top: 32px;
 
-    input {
-        cursor: pointer;
-        accent-color: $purple2;
-        outline: 1px auto $purple2;
-        height: 12px;
-        width: 12px;
-        margin: 0;
-        position: static;
+    div {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 30px;
+        width: 30px;
+        border-radius: 38px;
+
+        input {
+            cursor: pointer;
+            accent-color: $purple2;
+            outline: 1px auto $purple2;
+            height: 18px;
+            width: 18px;
+            margin: 0;
+            position: static;
+            padding: 5px;
+            z-index: 2;
+        }
     }
 
     p {
@@ -179,8 +210,31 @@ mat-form-field {
     a {
         text-decoration: none;
         color: $purple2;
+        border-radius: 30px;
+
+        &:hover {
+            background-color: $Bg;
+            cursor: pointer;
+            color: $purple1;
+            font-weight: 500 !important;
+            font-size: 18px !important;
+            padding: 5px 5px;
+        }
+    }
+
+    &:hover {
+        div {
+            background-color: $Bg;
+
+            input {
+                background-color: $Bg;
+                accent-color: $purple1;
+                outline: 1px auto $purple1;
+            }
+        }
     }
 }
+
 
 .inputfield {
     color: black !important;
@@ -197,6 +251,11 @@ mat-form-field {
 .login-button {
     border-radius: 25px !important;
     background-color: $purple1 !important;
+
+    &:hover {
+        background-color: $purple2 !important;
+        cursor: pointer;
+    }
 }
 
 .h49px {
@@ -213,8 +272,29 @@ mat-form-field {
 }
 
 .link-container {
+    padding: 10px 15px;
+
     a {
         color: $purple2;
         text-decoration: none;
     }
+
+    &:hover {
+        border: 1px $LightPurple solid !important;
+        border-radius: 25px !important;
+        cursor: pointer;
+
+        a {
+            font-weight: 700 !important;
+        }
+    }
+
+}
+
+.default-arrows {
+    display: block;
+}
+
+.hover-arrows {
+    display: none;
 }

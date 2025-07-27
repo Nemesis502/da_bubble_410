@@ -73,12 +73,14 @@ export class ChatTemplateComponent implements OnInit {
   chatMessage: string = '';
   messages: any[] = [];
   currentUser: appUser | null = null;
+  otherUser: appUser | null = null;
 
   emojiPickerVisible: boolean = false;
   pickerPosition: PickerPosition = { top: 0, left: 0 };
 
   editedMessage: any = null;
-
+  chatIsChannel: boolean = false;
+  chatIsConversation: boolean = false;
   chatIsThread: boolean = false;
   activeThreadMessageId: string = '';
   threadMessages$: Observable<any[] | null> = of(null);
@@ -109,40 +111,137 @@ export class ChatTemplateComponent implements OnInit {
   }
 
   private async initializeChannelFromRoute(): Promise<void> {
+    const id = this.getChannelIdFromRoute();
+    if (!id) return;
+
+    try {
+      const channelDocRef = doc(this.firestore, `channels/${id}`);
+      const channelSnap = await getDoc(channelDocRef);
+
+      if (channelSnap.exists()) {
+        const channel = await this.resolveChannelById(id);
+        if (channel) {
+          this.chatIsConversation = false;
+          this.chatIsChannel = true;
+          this.setActiveChannel(channel);
+        }
+        return;
+      }
+
+      const convDocRef = doc(this.firestore, `conversations/${id}`);
+      const convSnap = await getDoc(convDocRef);
+
+      if (convSnap.exists()) {
+        this.chatIsConversation = true;
+        await this.handleConversationSetup(id);
+        return;
+      }
+
+      console.warn('Neither channel nor conversation found for ID:', id);
+    } catch (error) {
+      console.error('Error resolving channel/conversation:', error);
+    }
+  }
+
+  private async handleConversationSetup(conversationId: string): Promise<void> {
+    try {
+      const convDocRef = doc(this.firestore, `conversations/${conversationId}`);
+      const convSnap = await getDoc(convDocRef);
+
+      if (!convSnap.exists()) {
+        console.warn('Conversation not found:', conversationId);
+        return;
+      }
+
+      const data = convSnap.data();
+      const participants: string[] = data['participants'] || [];
+
+      const currentUserId = this.currentUser?.id;
+      if (!currentUserId) {
+        console.warn('Current user not available');
+        return;
+      }
+
+      const otherUserId = participants.find((id) => id !== currentUserId);
+      if (!otherUserId) {
+        console.warn('No other user in conversation');
+        return;
+      }
+
+      await this.fetchOtherUserInfo(otherUserId);
+      this.selectedChannel = { channelId: conversationId };
+      this.loadMessagesForConversation(conversationId);
+      console.log('Conversation setup complete. Other user:', this.otherUser);
+    } catch (error) {
+      console.error('Error during conversation setup:', error);
+    }
+  }
+
+  private loadMessagesForConversation(conversationId: string): void {
+    this.channelService
+      .getEnrichedConversationMessages(conversationId)
+      .subscribe({
+        next: (messages) => {
+          this.messages = messages;
+          this.scrollToBottom();
+          this.focusChatInput();
+          console.log('Loaded messages:', this.messages);
+        },
+        error: (error) => {
+          console.error('Error loading enriched conversation messages:', error);
+        },
+      });
+  }
+
+  private async fetchOtherUserInfo(userId: string): Promise<void> {
+    try {
+      const userDocRef = doc(this.firestore, `users/${userId}`);
+      const userSnap = await getDoc(userDocRef);
+
+      if (!userSnap.exists()) {
+        console.warn(`User document not found for ID: ${userId}`);
+        this.otherUser = null;
+        return;
+      }
+
+      const data = userSnap.data();
+
+      this.otherUser = {
+        id: userId,
+        userName: data['userName'] || 'Unknown',
+        profilePic: data['profilePic'] || 'default',
+        status: data['status'] ?? false,
+        email: data['email'] || '',
+      };
+    } catch (error) {
+      console.error('Error fetching other user info:', error);
+      this.otherUser = null;
+    }
+  }
+
+  private getChannelIdFromRoute(): string | null {
     const channelId = this.route.snapshot.paramMap.get('id');
     if (!channelId) {
       console.warn('No channel ID in route');
-      return;
+    }
+    return channelId;
+  }
+
+  private async resolveChannelById(channelId: string): Promise<any | null> {
+    const knownChannels = this.channelService.getChannels();
+    const matchedChannel = knownChannels.find((c) => c.channelId === channelId);
+
+    if (matchedChannel) {
+      return matchedChannel;
     }
 
-    try {
-      const knownChannels = this.channelService.getChannels();
-      const matchedChannel = knownChannels.find(
-        (c) => c.channelId === channelId
-      );
+    return await this.channelService.getChannelById(channelId);
+  }
 
-      if (matchedChannel) {
-        this.selectedChannel = matchedChannel;
-        this.channelService.setSelectedChannel(matchedChannel);
-        this.loadMessagesForChannel(matchedChannel);
-      } else {
-        const fetchedChannel = await this.channelService.getChannelById(
-          channelId
-        );
-        if (fetchedChannel) {
-          this.selectedChannel = fetchedChannel;
-          this.channelService.setSelectedChannel(fetchedChannel);
-          this.loadMessagesForChannel(fetchedChannel);
-        } else {
-          console.warn(
-            'Channel mit ID nicht gefunden in Firestore:',
-            channelId
-          );
-        }
-      }
-    } catch (error) {
-      console.error('Fehler beim Laden des Channels nach Refresh:', error);
-    }
+  private setActiveChannel(channel: any): void {
+    this.selectedChannel = channel;
+    this.channelService.setSelectedChannel(channel);
+    this.loadMessagesForChannel(channel);
   }
 
   loadMessagesForChannel(channel: any): void {
@@ -203,60 +302,96 @@ export class ChatTemplateComponent implements OnInit {
     const channelId = this.selectedChannel?.channelId;
     const userId = this.currentUser?.id;
 
-    if (!messageText || !channelId || !userId) {
-      return;
-    }
+    if (!messageText || !channelId || !userId) return;
 
-    if (this.chatIsThread && this.activeThreadMessageId) {
-      try {
-        await this.channelService.sendThreadMessage(
-          channelId,
-          this.activeThreadMessageId,
-          messageText,
-          userId
-        );
-        this.loadThreadMessages();
-
-        this.chatMessage = '';
-      } catch (error) {
-        console.error('Error sending thread message:', error);
-      }
-    } else {
-      try {
-        const messageText = this.chatMessage.trim();
-
-        if (this.editedMessage) {
-          const messageRef = doc(
-            this.firestore,
-            `channels/${this.selectedChannel.channelId}/messages/${this.editedMessage.id}`
-          );
-
-          await updateDoc(messageRef, { text: messageText });
-          console.log('Message updated successfully:', messageText);
-
-          this.editedMessage = null;
+    try {
+      if (this.editedMessage) {
+        if (this.chatIsThread) {
+          await this.updateThreadMessage(channelId, messageText);
         } else {
-          const messageCollection = collection(
-            this.firestore,
-            `channels/${this.selectedChannel.channelId}/messages`
-          );
-
-          const newMessage = {
-            text: messageText,
-            timestamp: serverTimestamp(),
-            senderID: this.currentUser?.id!,
-            channelId: this.selectedChannel.channelId,
-          };
-
-          await addDoc(messageCollection, newMessage);
-          console.log('Message sent successfully:', newMessage);
+          await this.updateExistingMessage(channelId, messageText);
         }
-
-        this.chatMessage = '';
-      } catch (error) {
-        console.error('Error sending/updating message:', error);
+      } else if (this.chatIsThread && this.activeThreadMessageId) {
+        await this.sendThreadMessage(channelId, messageText, userId);
+      } else {
+        await this.createNewMessage(channelId, messageText, userId);
       }
-    }
+
+      this.afterMessageSend();
+    } catch (error) { }
+  }
+
+  private async updateThreadMessage(
+    channelId: string,
+    messageText: string
+  ): Promise<void> {
+    if (!this.editedMessage?.id || !this.activeThreadMessageId) return;
+
+    const messageRef = doc(
+      this.firestore,
+      `channels/${channelId}/messages/${this.activeThreadMessageId}/threadMessages/${this.editedMessage.id}`
+    );
+
+    await updateDoc(messageRef, { text: messageText });
+
+    this.editedMessage = null;
+    this.loadThreadMessages();
+  }
+
+  private async sendThreadMessage(
+    channelId: string,
+    messageText: string,
+    userId: string
+  ): Promise<void> {
+    await this.channelService.sendThreadMessage(
+      channelId,
+      this.activeThreadMessageId,
+      messageText,
+      userId
+    );
+    this.loadThreadMessages();
+  }
+
+  private async updateExistingMessage(
+    channelId: string,
+    messageText: string
+  ): Promise<void> {
+    if (!this.editedMessage?.id) return;
+
+    const messageRef = doc(
+      this.firestore,
+      `channels/${channelId}/messages/${this.editedMessage.id}`
+    );
+
+    await updateDoc(messageRef, { text: messageText });
+    console.log('Message updated successfully:', messageText);
+
+    this.editedMessage = null;
+  }
+
+  private async createNewMessage(
+    channelId: string,
+    messageText: string,
+    userId: string
+  ): Promise<void> {
+    const messageCollection = collection(
+      this.firestore,
+      `channels/${channelId}/messages`
+    );
+
+    const newMessage = {
+      text: messageText,
+      timestamp: serverTimestamp(),
+      senderID: userId,
+      channelId: channelId,
+    };
+
+    await addDoc(messageCollection, newMessage);
+    console.log('Message sent successfully:', newMessage);
+  }
+
+  private afterMessageSend(): void {
+    this.chatMessage = '';
   }
 
   startEditingMessage(message: any): void {
@@ -514,7 +649,6 @@ export class ChatTemplateComponent implements OnInit {
     }, 100);
   }
 
-
   loadThreadMessages(): void {
     const channelId = this.selectedChannel?.channelId;
     const messageId = this.activeThreadMessageId;
@@ -577,7 +711,6 @@ export class ChatTemplateComponent implements OnInit {
       },
     });
   }
-
   openMemberDialog(): void {
     this.dialog.open(MemberDialogComponent, {
       position: { top: '122px' },
@@ -588,5 +721,13 @@ export class ChatTemplateComponent implements OnInit {
         channelId: this.selectedChannel?.channelId
       }
     })
+  }
+
+  closeThreadView(): void {
+    this.chatIsThread = false;
+    const channelId = this.selectedChannel?.channelId;
+    if (channelId) {
+      this.router.navigate([`/chat/${channelId}`]);
+    }
   }
 }

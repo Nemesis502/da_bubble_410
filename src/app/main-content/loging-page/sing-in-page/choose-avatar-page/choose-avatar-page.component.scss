@@ -53,28 +53,36 @@
     gap: 15px;
     width: 100%;
     box-sizing: border-box;
+}
 
+.input-headline {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: row;
+    width: 100%;
+}
 
-    div {
-        display: flex;
-        align-items: flex-start;
-        flex-direction: row;
-        width: 100%;
+.arrow-img {
+    img {
+        height: 40px;
+        width: 40px;
+    }
 
-        h2 {
-            font-size: 27px !important;
-            width: 100%;
+    &:hover {
+        .default-arrows {
+            display: none;
         }
 
-        img {
-            height: 40px;
-            width: 40px;
-
-            &:hover {
-                cursor: pointer;
-            }
+        .hover-arrows {
+            display: block;
+            cursor: pointer;
         }
     }
+}
+
+.input-h2 {
+    font-size: 27px !important;
+    width: 100%;
 }
 
 .input-section {
@@ -158,6 +166,11 @@
         cursor: pointer;
         height: 48px;
         width: 48px;
+
+        &:hover {
+            border: 8px #e6e6e6 solid;
+            border-radius: 100px;
+        }
     }
 }
 
@@ -237,14 +250,35 @@ form {
 }
 
 .link-container {
+    padding: 10px 15px;
+
     a {
         color: $purple2;
         text-decoration: none;
     }
+
+    &:hover {
+        border: 1px $LightPurple solid !important;
+        border-radius: 25px !important;
+        cursor: pointer;
+
+        a {
+            font-weight: 700 !important;
+        }
+    }
+
 }
 
 .animation-RightToLeft {
     animation: fromRightToLeft 0.2s 1.3s linear forwards;
+}
+
+.default-arrows {
+    display: block;
+}
+
+.hover-arrows {
+    display: none;
 }
 
 @keyframes fromRightToLeft {

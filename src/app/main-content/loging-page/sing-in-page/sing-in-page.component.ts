@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
 import { merge } from 'rxjs';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { AuthService } from '../../../shared/services/auth.service';
 
 @Component({
   selector: 'app-sing-in-page',
@@ -33,7 +34,7 @@ export class SingInPageComponent {
   errorMessageEmail = '';
   errorMessagePassword = '';
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private authService: AuthService) {
     merge(this.text.statusChanges, this.text.valueChanges)
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.updateErrorMessageName());
@@ -58,6 +59,8 @@ export class SingInPageComponent {
       this.errorMessageEmail = 'Du musst eine E-Mail-Adresse eintragen';
     } else if (this.email.hasError('email')) {
       this.errorMessageEmail = 'Keine gültige E-Mail-Adresse';
+    } else if (this.email.hasError('emailExists')) {
+      this.errorMessageEmail = 'Diese E-Mail ist bereits registriert.';
     } else {
       this.errorMessageEmail = '';
     }
@@ -74,14 +77,24 @@ export class SingInPageComponent {
     }
   }
 
-  checkFormular() {
+  async checkFormular() {
     this.markedInputs();
     this.updateErrorMessage();
 
     if (this.text.valid && this.email.valid && this.password.valid) {
       let lowerCaseEmail = this.email.value?.trim().toLocaleLowerCase();
-      this.nextPage(lowerCaseEmail);
+      await this.checkUserExistAuth(lowerCaseEmail!);
     }
+  }
+
+  async checkUserExistAuth(lowerCaseEmail: string) {
+    let emailExists = await this.authService.checkUserExistsByEmail(lowerCaseEmail);
+    if (emailExists) {
+      this.email.setErrors({ emailExists: true });
+      return;
+    }
+    this.email.setErrors(null);
+    this.nextPage(lowerCaseEmail);
   }
 
   markedInputs() {
@@ -115,5 +128,3 @@ export class SingInPageComponent {
     }
   }
 }
-
-
