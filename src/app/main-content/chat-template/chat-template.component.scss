@@ -298,3 +298,21 @@ img {
   cursor: pointer;
   background-color: white;
 }
+
+  .status-dot {
+    position: absolute;
+    left: 45px;
+    margin: 35px 0 0 0;
+    border: 2px solid white;
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+  }
+
+  .online {
+    background-color: #2ecc71;
+  }
+
+  .offline {
+    background-color: #bdc3c7;
+  }

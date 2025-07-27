@@ -72,12 +72,14 @@ export class ChatTemplateComponent implements OnInit {
   chatMessage: string = '';
   messages: any[] = [];
   currentUser: appUser | null = null;
+  otherUser: appUser | null = null;
 
   emojiPickerVisible: boolean = false;
   pickerPosition: PickerPosition = { top: 0, left: 0 };
 
   editedMessage: any = null;
-
+  chatIsChannel: boolean = false;
+  chatIsConversation: boolean = false;
   chatIsThread: boolean = false;
   activeThreadMessageId: string = '';
   threadMessages$: Observable<any[] | null> = of(null);
@@ -107,48 +109,139 @@ export class ChatTemplateComponent implements OnInit {
     });
   }
 
-private async initializeChannelFromRoute(): Promise<void> {
-  const channelId = this.getChannelIdFromRoute();
-  if (!channelId) return;
+  private async initializeChannelFromRoute(): Promise<void> {
+    const id = this.getChannelIdFromRoute();
+    if (!id) return;
 
-  try {
-    const channel = await this.resolveChannelById(channelId);
-    if (channel) {
-      this.setActiveChannel(channel);
-    } else {
-      console.warn('Channel mit ID nicht gefunden in Firestore:', channelId);
+    try {
+      const channelDocRef = doc(this.firestore, `channels/${id}`);
+      const channelSnap = await getDoc(channelDocRef);
+
+      if (channelSnap.exists()) {
+        const channel = await this.resolveChannelById(id);
+        if (channel) {
+          this.chatIsConversation = false;
+          this.chatIsChannel = true;
+          this.setActiveChannel(channel);
+        }
+        return;
+      }
+
+      const convDocRef = doc(this.firestore, `conversations/${id}`);
+      const convSnap = await getDoc(convDocRef);
+
+      if (convSnap.exists()) {
+        this.chatIsConversation = true;
+        await this.handleConversationSetup(id);
+        return;
+      }
+
+      console.warn('Neither channel nor conversation found for ID:', id);
+    } catch (error) {
+      console.error('Error resolving channel/conversation:', error);
     }
-  } catch (error) {
-    console.error('Fehler beim Laden des Channels nach Refresh:', error);
-  }
-}
-
-private getChannelIdFromRoute(): string | null {
-  const channelId = this.route.snapshot.paramMap.get('id');
-  if (!channelId) {
-    console.warn('No channel ID in route');
-  }
-  return channelId;
-}
-
-private async resolveChannelById(channelId: string): Promise<any | null> {
-  const knownChannels = this.channelService.getChannels();
-  const matchedChannel = knownChannels.find(c => c.channelId === channelId);
-
-  if (matchedChannel) {
-    return matchedChannel;
   }
 
-  return await this.channelService.getChannelById(channelId);
-}
+  private async handleConversationSetup(conversationId: string): Promise<void> {
+    try {
+      const convDocRef = doc(this.firestore, `conversations/${conversationId}`);
+      const convSnap = await getDoc(convDocRef);
 
-private setActiveChannel(channel: any): void {
-  this.selectedChannel = channel;
-  this.channelService.setSelectedChannel(channel);
-  this.loadMessagesForChannel(channel);
-}
+      if (!convSnap.exists()) {
+        console.warn('Conversation not found:', conversationId);
+        return;
+      }
 
+      const data = convSnap.data();
+      const participants: string[] = data['participants'] || [];
 
+      const currentUserId = this.currentUser?.id;
+      if (!currentUserId) {
+        console.warn('Current user not available');
+        return;
+      }
+
+      const otherUserId = participants.find((id) => id !== currentUserId);
+      if (!otherUserId) {
+        console.warn('No other user in conversation');
+        return;
+      }
+
+      await this.fetchOtherUserInfo(otherUserId);
+      this.selectedChannel = { channelId: conversationId };
+      this.loadMessagesForConversation(conversationId);
+      console.log('Conversation setup complete. Other user:', this.otherUser);
+    } catch (error) {
+      console.error('Error during conversation setup:', error);
+    }
+  }
+
+  private loadMessagesForConversation(conversationId: string): void {
+    this.channelService
+      .getEnrichedConversationMessages(conversationId)
+      .subscribe({
+        next: (messages) => {
+          this.messages = messages;
+          this.scrollToBottom();
+          this.focusChatInput();
+          console.log('Loaded messages:', this.messages);
+        },
+        error: (error) => {
+          console.error('Error loading enriched conversation messages:', error);
+        },
+      });
+  }
+
+  private async fetchOtherUserInfo(userId: string): Promise<void> {
+    try {
+      const userDocRef = doc(this.firestore, `users/${userId}`);
+      const userSnap = await getDoc(userDocRef);
+
+      if (!userSnap.exists()) {
+        console.warn(`User document not found for ID: ${userId}`);
+        this.otherUser = null;
+        return;
+      }
+
+      const data = userSnap.data();
+
+      this.otherUser = {
+        id: userId,
+        userName: data['userName'] || 'Unknown',
+        profilePic: data['profilePic'] || 'default',
+        status: data['status'] ?? false,
+        email: data['email'] || '',
+      };
+    } catch (error) {
+      console.error('Error fetching other user info:', error);
+      this.otherUser = null;
+    }
+  }
+
+  private getChannelIdFromRoute(): string | null {
+    const channelId = this.route.snapshot.paramMap.get('id');
+    if (!channelId) {
+      console.warn('No channel ID in route');
+    }
+    return channelId;
+  }
+
+  private async resolveChannelById(channelId: string): Promise<any | null> {
+    const knownChannels = this.channelService.getChannels();
+    const matchedChannel = knownChannels.find((c) => c.channelId === channelId);
+
+    if (matchedChannel) {
+      return matchedChannel;
+    }
+
+    return await this.channelService.getChannelById(channelId);
+  }
+
+  private setActiveChannel(channel: any): void {
+    this.selectedChannel = channel;
+    this.channelService.setSelectedChannel(channel);
+    this.loadMessagesForChannel(channel);
+  }
 
   loadMessagesForChannel(channel: any): void {
     if (channel?.channelId) {
@@ -203,91 +296,102 @@ private setActiveChannel(channel: any): void {
     this.emojiPickerVisible = false;
   }
 
-async sendMessage(): Promise<void> {
-  const messageText = this.chatMessage.trim();
-  const channelId = this.selectedChannel?.channelId;
-  const userId = this.currentUser?.id;
+  async sendMessage(): Promise<void> {
+    const messageText = this.chatMessage.trim();
+    const channelId = this.selectedChannel?.channelId;
+    const userId = this.currentUser?.id;
 
-  if (!messageText || !channelId || !userId) return;
+    if (!messageText || !channelId || !userId) return;
 
-  try {
-    if (this.editedMessage) {
-      if (this.chatIsThread) {
-        await this.updateThreadMessage(channelId, messageText);
+    try {
+      if (this.editedMessage) {
+        if (this.chatIsThread) {
+          await this.updateThreadMessage(channelId, messageText);
+        } else {
+          await this.updateExistingMessage(channelId, messageText);
+        }
+      } else if (this.chatIsThread && this.activeThreadMessageId) {
+        await this.sendThreadMessage(channelId, messageText, userId);
       } else {
-        await this.updateExistingMessage(channelId, messageText);
+        await this.createNewMessage(channelId, messageText, userId);
       }
-    } else if (this.chatIsThread && this.activeThreadMessageId) {
-      await this.sendThreadMessage(channelId, messageText, userId);
-    } else {
-      await this.createNewMessage(channelId, messageText, userId);
-    }
 
-    this.afterMessageSend();
-  } catch (error) {
+      this.afterMessageSend();
+    } catch (error) {}
   }
-}
 
-private async updateThreadMessage(channelId: string, messageText: string): Promise<void> {
-  if (!this.editedMessage?.id || !this.activeThreadMessageId) return;
+  private async updateThreadMessage(
+    channelId: string,
+    messageText: string
+  ): Promise<void> {
+    if (!this.editedMessage?.id || !this.activeThreadMessageId) return;
 
-  const messageRef = doc(
-    this.firestore,
-    `channels/${channelId}/messages/${this.activeThreadMessageId}/threadMessages/${this.editedMessage.id}`
-  );
+    const messageRef = doc(
+      this.firestore,
+      `channels/${channelId}/messages/${this.activeThreadMessageId}/threadMessages/${this.editedMessage.id}`
+    );
 
-  await updateDoc(messageRef, { text: messageText });
+    await updateDoc(messageRef, { text: messageText });
 
-  this.editedMessage = null;
-  this.loadThreadMessages();
-}
+    this.editedMessage = null;
+    this.loadThreadMessages();
+  }
 
+  private async sendThreadMessage(
+    channelId: string,
+    messageText: string,
+    userId: string
+  ): Promise<void> {
+    await this.channelService.sendThreadMessage(
+      channelId,
+      this.activeThreadMessageId,
+      messageText,
+      userId
+    );
+    this.loadThreadMessages();
+  }
 
-private async sendThreadMessage(channelId: string, messageText: string, userId: string): Promise<void> {
-  await this.channelService.sendThreadMessage(
-    channelId,
-    this.activeThreadMessageId,
-    messageText,
-    userId
-  );
-  this.loadThreadMessages();
-}
+  private async updateExistingMessage(
+    channelId: string,
+    messageText: string
+  ): Promise<void> {
+    if (!this.editedMessage?.id) return;
 
-private async updateExistingMessage(channelId: string, messageText: string): Promise<void> {
-  if (!this.editedMessage?.id) return;
+    const messageRef = doc(
+      this.firestore,
+      `channels/${channelId}/messages/${this.editedMessage.id}`
+    );
 
-  const messageRef = doc(
-    this.firestore,
-    `channels/${channelId}/messages/${this.editedMessage.id}`
-  );
+    await updateDoc(messageRef, { text: messageText });
+    console.log('Message updated successfully:', messageText);
 
-  await updateDoc(messageRef, { text: messageText });
-  console.log('Message updated successfully:', messageText);
+    this.editedMessage = null;
+  }
 
-  this.editedMessage = null;
-}
+  private async createNewMessage(
+    channelId: string,
+    messageText: string,
+    userId: string
+  ): Promise<void> {
+    const messageCollection = collection(
+      this.firestore,
+      `channels/${channelId}/messages`
+    );
 
-private async createNewMessage(channelId: string, messageText: string, userId: string): Promise<void> {
-  const messageCollection = collection(
-    this.firestore,
-    `channels/${channelId}/messages`
-  );
+    const newMessage = {
+      text: messageText,
+      timestamp: serverTimestamp(),
+      senderID: userId,
+      channelId: channelId,
+    };
 
-  const newMessage = {
-    text: messageText,
-    timestamp: serverTimestamp(),
-    senderID: userId,
-    channelId: channelId,
-  };
+    await addDoc(messageCollection, newMessage);
+    console.log('Message sent successfully:', newMessage);
+  }
 
-  await addDoc(messageCollection, newMessage);
-  console.log('Message sent successfully:', newMessage);
-}
-
-private afterMessageSend(): void {
-  this.chatMessage = '';
-}
-
+  private afterMessageSend(): void {
+    this.chatMessage = '';
+  }
 
   startEditingMessage(message: any): void {
     this.chatMessage = message.text;
