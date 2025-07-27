@@ -718,6 +718,7 @@ export class ChatTemplateComponent implements OnInit {
       maxHeight: '75vh',
       panelClass: 'member-dialog',
       data: {
+        source: 'channel-chat',
         channelId: this.selectedChannel?.channelId
       }
     })

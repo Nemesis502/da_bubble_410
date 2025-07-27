@@ -1,9 +1,13 @@
-<mat-card class="member-dialog">
+<mat-card class="member-dialog" [ngClass]="{
+    'from-channel-chat': data.source === 'channel-chat',
+    'from-members-list': data.source === 'members-list'
+}">
+    @if (data.source === 'channel-chat') {
     <mat-card-header class="member-dialog-header">
         <mat-card-title class="nuito24px700">
             Mitglieder
         </mat-card-title>
-        <button mat-icon-button>
+        <button mat-icon-button (click)="closeDialog()" aria-label="Close Member Dialog">
             <mat-icon>close</mat-icon>
         </button>
     </mat-card-header>
@@ -31,4 +35,53 @@
             </span>
         </button>
     </mat-card-content>
+    } @else {
+    <mat-card-header class="member-dialog-header">
+        <mat-card-title class="nuito24px700">
+            Leute hinzufügen
+        </mat-card-title>
+        <button mat-icon-button (click)="closeDialog()" aria-label="Close Member Dialog">
+            <mat-icon>close</mat-icon>
+        </button>
+    </mat-card-header>
+    <mat-form-field class="add-people-input" appearance="fill">
+        <mat-chip-grid #chipGrid aria-label="Leute hinzufügen">
+            @for (people of peoples(); track people) {
+            <mat-chip-row (removed)="remove(people)">
+                <img class="chip-avatar" [src]="'./assets/img/avatar/' + people.profilePic + '.png'" alt="Avatar" />
+                {{ people.userName }}
+                <button matChipRemove [attr.aria-label]="'remove ' + people.userName">
+                    <mat-icon fontIcon="close"></mat-icon>
+                </button>
+            </mat-chip-row>
+            }
+            <input #inputField placeholder="Name eingeben" [matChipInputFor]="chipGrid"
+                [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="false"
+                (matChipInputTokenEnd)="addFromText($event)" (blur)="onInputBlur()" [(ngModel)]="searchTerm"
+                (ngModelChange)="filterUsers()" [matAutocomplete]="auto" matAutocompletePosition="below" />
+        </mat-chip-grid>
+        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectUser($event.option.value)"
+            (opened)="autocompleteOpened()" (closed)="autocompleteClosed()">
+            @if (searchTerm.length > 0) {
+            @for (user of filteredUsers(); track user.userName) {
+            <mat-option [value]="user">
+                <div class="chip-avatar-wrapper">
+                    <img [src]="'./assets/img/avatar/' + user.profilePic + '.png'"
+                        alt="Avatar von {{ user.userName }}" />
+                    <mat-icon fontIcon="lens" [ngClass]="user.status ? 'online' : 'offline'"
+                        class="status-icon"></mat-icon>
+                </div>
+                {{ user.userName }}
+            </mat-option>
+            }
+            }
+        </mat-autocomplete>
+    </mat-form-field>
+    <mat-card-actions class="add-members">
+        <button mat-button class="add-members-btn" aria-label="Mitglieder hinzufügen" (click)="addMembers()"
+            [disabled]="peoples().length === 0">
+            <span>Hinzufügen</span>
+        </button>
+    </mat-card-actions>
+    }
 </mat-card>
