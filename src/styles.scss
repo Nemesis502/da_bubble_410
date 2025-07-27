@@ -399,3 +399,10 @@ body {
 .mdc-floating-label {
   color: #686868 !important;
 }
+
+::ng-deep .member-dialog .mat-mdc-dialog-surface,
+::ng-deep .member-dialog .mdc-dialog__surface {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}

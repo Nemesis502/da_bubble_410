@@ -580,8 +580,10 @@ export class ChatTemplateComponent implements OnInit {
 
   openMemberDialog(): void {
     this.dialog.open(MemberDialogComponent, {
-      position: { top: '140px' },
+      position: { top: '122px' },
       width: '80vw',
+      maxHeight: '75vh',
+      panelClass: 'member-dialog',
       data: {
         channelId: this.selectedChannel?.channelId
       }
