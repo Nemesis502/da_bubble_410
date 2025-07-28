@@ -79,6 +79,7 @@ img {
     }
     p {
       margin-bottom: 0px;
+      padding-left: 12px;
     }
   }
 
@@ -302,7 +303,7 @@ img {
   .status-dot {
     position: absolute;
     left: 45px;
-    margin: 35px 0 0 0;
+    margin: 42px 0 0 12px;
     border: 2px solid white;
     border-radius: 50%;
     width: 10px;

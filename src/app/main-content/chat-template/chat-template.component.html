@@ -10,9 +10,9 @@
     </button>
   </section>
   <section class="chat-header">
-    <button class="channel-button" (click)="openChannelInfo()">
+    <button class="channel-button" >
       <!-- Show "numbers" icon only when not in thread view -->
-      <mat-icon *ngIf="chatIsChannel" fontSet="material-icons-outlined">
+      <mat-icon (click)="openChannelInfo()" *ngIf="chatIsChannel" fontSet="material-icons-outlined">
         numbers
       </mat-icon>
 
@@ -31,12 +31,12 @@
         <ng-container *ngIf="chatIsThread">
           Thread <span class="channel-hash">#</span><span class="channel-name-thread">{{ selectedChannel?.name }}</span>
         </ng-container>
-        <ng-container *ngIf="chatIsChannel" #normalChannelName>
+        <ng-container (click)="openChannelInfo()" *ngIf="chatIsChannel" #normalChannelName>
           {{ selectedChannel?.name }}
         </ng-container>
       </p>
 
-      <mat-icon *ngIf="chatIsChannel" class="mat-icon-top" fontIcon="keyboard_arrow_down"></mat-icon>
+      <mat-icon *ngIf="chatIsChannel" (click)="openChannelInfo()" class="mat-icon-top" fontIcon="keyboard_arrow_down"></mat-icon>
     </button>
 
     <!-- Thread view: show X button -->
