@@ -211,7 +211,7 @@ export class ChatTemplateComponent implements OnInit {
       this.otherUser = {
         id: userId,
         userName: data['userName'] || 'Unknown',
-        profilePic: data['profilePic'] || 'default',
+        profilePic: data['profilePic'],
         status: data['status'] ?? false,
         email: data['email'] || '',
       };
@@ -504,7 +504,6 @@ async checkMentionTrigger(event: KeyboardEvent): Promise<void> {
     this.closeAllPopups();
   }
 
-  // Add filtering logic for mention or hashtag
   setTimeout(() => {
     this.filterPopupLists();
     this.cleanupMentionAndHashtag();
@@ -530,7 +529,6 @@ private filterPopupLists(): void {
     }
   }
 }
-
 
   private async handleMentionTrigger(): Promise<void> {
     this.mentionPopupVisible = true;
@@ -767,14 +765,11 @@ private filterPopupLists(): void {
   const cursorPos = textarea.selectionStart;
   const textBefore = this.chatMessage.slice(0, cursorPos);
 
-  // Find last index of trigger char before cursor
   const lastTriggerIndex = textBefore.lastIndexOf(triggerChar);
   if (lastTriggerIndex === -1) return null;
 
-  // Extract substring after trigger char until cursor or whitespace
   const term = textBefore.slice(lastTriggerIndex + 1);
 
-  // If term contains whitespace or another trigger char, ignore
   if (term.includes(' ') || term.includes('@') || term.includes('#')) {
     return null;
   }

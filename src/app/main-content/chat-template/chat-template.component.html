@@ -6,11 +6,21 @@
       <p>Devspace</p>
     </button>
     <button class="profile-btn" (click)="openMenuDialog()">
-      <img src="./assets/img/avatar/{{ currentUser?.profilePic }}.png" alt="" aria-hidden="true" />
+      <ng-container *ngIf="currentUser?.profilePic; else defaultCurrentUserAvatar">
+        <img
+          [src]="'./assets/img/avatar/' + currentUser?.profilePic + '.png'"
+          alt="User Avatar"
+          aria-hidden="true"
+        />
+      </ng-container>
+      <ng-template #defaultCurrentUserAvatar>
+        <img src="./assets/img/avatar/0.png" alt="Default Avatar" aria-hidden="true" />
+      </ng-template>
     </button>
   </section>
+
   <section class="chat-header">
-    <button class="channel-button" >
+    <button class="channel-button">
       <!-- Show "numbers" icon only when not in thread view -->
       <mat-icon (click)="openChannelInfo()" *ngIf="chatIsChannel" fontSet="material-icons-outlined">
         numbers
@@ -18,8 +28,21 @@
 
       <!-- Show other user avatar + name if chatIsConversation -->
       <ng-container class="convo-header" *ngIf="chatIsConversation">
-        <img class="other-user-avatar" [src]="'./assets/img/avatar/' + otherUser?.profilePic + '.png'"
-          alt="{{ otherUser?.userName }}'s avatar" />
+        <ng-container *ngIf="otherUser?.profilePic; else defaultOtherUserAvatar">
+          <img
+            class="other-user-avatar"
+            [src]="'./assets/img/avatar/' + otherUser?.profilePic + '.png'"
+            alt="{{ otherUser?.userName }}'s avatar"
+          />
+        </ng-container>
+        <ng-template #defaultOtherUserAvatar>
+          <img
+            class="other-user-avatar"
+            src="./assets/img/avatar/0.png"
+            alt="Default Avatar"
+          />
+        </ng-template>
+
         <div class="status-dot" [ngClass]="{ online: otherUser?.status, offline: !otherUser?.status }"></div>
         <p class="other-user-name nuito18px700">
           {{ otherUser?.userName }}
@@ -56,48 +79,82 @@
     <!-- Thread view -->
     <ng-container *ngIf="chatIsThread; else fullChat">
       <!-- Parent (active) thread message -->
-      <app-message-template [chatIsThread]="chatIsThread" *ngIf="activeThreadMessage" [messages]="[activeThreadMessage]"
-        [currentUser]="currentUser?.id || ''" [currentChannelId]="selectedChannel?.channelId"
+      <app-message-template
+        [chatIsThread]="chatIsThread"
+        *ngIf="activeThreadMessage"
+        [messages]="[activeThreadMessage]"
+        [currentUser]="currentUser?.id || ''"
+        [currentChannelId]="selectedChannel?.channelId"
         (editMessage)="startEditingMessage($event)"
-        (replyToMessage)="handleReplyToMessage($event)"></app-message-template>
+        (replyToMessage)="handleReplyToMessage($event)"
+      ></app-message-template>
 
       <!-- Replies to thread -->
-      <app-message-template [chatIsThread]="chatIsThread" *ngIf="threadMessages$ | async as threadMessages"
-        [messages]="threadMessages" [currentUser]="currentUser?.id || ''"
-        [currentChannelId]="selectedChannel?.channelId" (editMessage)="startEditingMessage($event)"
-        (replyToMessage)="handleReplyToMessage($event)"></app-message-template>
+      <app-message-template
+        [chatIsThread]="chatIsThread"
+        *ngIf="threadMessages$ | async as threadMessages"
+        [messages]="threadMessages"
+        [currentUser]="currentUser?.id || ''"
+        [currentChannelId]="selectedChannel?.channelId"
+        (editMessage)="startEditingMessage($event)"
+        (replyToMessage)="handleReplyToMessage($event)"
+      ></app-message-template>
     </ng-container>
 
     <!-- Full channel chat view -->
     <ng-template #fullChat>
-      <app-message-template [chatIsThread]="chatIsThread" [messages]="messages" [currentUser]="currentUser?.id || ''"
-        [currentChannelId]="selectedChannel?.channelId" (editMessage)="startEditingMessage($event)"
-        (replyToMessage)="handleReplyToMessage($event)"></app-message-template>
+      <app-message-template
+        [chatIsThread]="chatIsThread"
+        [messages]="messages"
+        [currentUser]="currentUser?.id || ''"
+        [currentChannelId]="selectedChannel?.channelId"
+        (editMessage)="startEditingMessage($event)"
+        (replyToMessage)="handleReplyToMessage($event)"
+      ></app-message-template>
     </ng-template>
   </section>
 
   <section class="chat-interface">
     <mat-card class="chat-card" appearance="outlined">
-      <textarea [(ngModel)]="chatMessage" id="chat-field" #chatField (keydown)="checkMentionTrigger($event)"
+      <textarea
+        [(ngModel)]="chatMessage"
+        id="chat-field"
+        #chatField
+        (keydown)="checkMentionTrigger($event)"
         [placeholder]="
           chatIsThread
             ? 'Antworten...'
-            : 'Nachricht an ' + ('#' +selectedChannel?.name || otherUser?.userName)
-        "></textarea>
+            : 'Nachricht an ' + ('#' + selectedChannel?.name || otherUser?.userName)
+        "
+      ></textarea>
 
       <!--  @ Popup -->
       <div class="mention-popup" *ngIf="mentionPopupVisible">
-        <div class="mention-user" *ngFor="let user of filteredMentionableUsers" (click)="selectMentionUser(user.userName)">
-          <img class="avatar" [src]="'./../../../assets/img/avatar/' + user.profilePic + '.png'" alt="avatar" />
+        <div
+          class="mention-user"
+          *ngFor="let user of filteredMentionableUsers"
+          (click)="selectMentionUser(user.userName)"
+        >
+          <img
+            class="avatar"
+            [src]="'./../../../assets/img/avatar/' + user.profilePic + '.png'"
+            alt="avatar"
+          />
           <div class="status-dot" [ngClass]="{ online: user.status, offline: !user.status }"></div>
-          <span class="mention-name nuito17px400">{{ user.userName
-            }}<span *ngIf="user.userName === currentUser?.userName">
-              (Du)</span></span>
+          <span class="mention-name nuito17px400">{{
+            user.userName
+          }}<span *ngIf="user.userName === currentUser?.userName">
+              (Du)</span
+            ></span>
         </div>
       </div>
       <!--  # Popup -->
       <div class="mention-popup" *ngIf="hashtagPopupVisible">
-        <div class="hashtag-item" *ngFor="let channel of filteredChannels" (click)="selectHashtagChannel(channel.name)">
+        <div
+          class="hashtag-item"
+          *ngFor="let channel of filteredChannels"
+          (click)="selectHashtagChannel(channel.name)"
+        >
           <span class="hashtag-name nuito17px400">
             <span class="hashtag">#</span>{{ channel.name }}
           </span>
@@ -121,7 +178,11 @@
       </mat-card-actions>
     </mat-card>
     <!-- Emoji Picker -->
-    <app-emoji-picker *ngIf="emojiPickerVisible" [pickerPosition]="pickerPosition" (emojiSelected)="addEmoji($event)"
-      (pickerClosed)="onPickerClosed()"></app-emoji-picker>
+    <app-emoji-picker
+      *ngIf="emojiPickerVisible"
+      [pickerPosition]="pickerPosition"
+      (emojiSelected)="addEmoji($event)"
+      (pickerClosed)="onPickerClosed()"
+    ></app-emoji-picker>
   </section>
 </div>
