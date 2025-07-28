@@ -301,7 +301,6 @@ export class ChatTemplateComponent implements OnInit {
     const messageText = this.chatMessage.trim();
     const channelId = this.selectedChannel?.channelId;
     const userId = this.currentUser?.id;
-
     if (!messageText || !channelId || !userId) return;
 
     try {
@@ -640,6 +639,7 @@ export class ChatTemplateComponent implements OnInit {
 
   handleReplyToMessage(messageId: string): void {
     this.chatIsThread = true;
+    this.chatIsChannel = false;
     this.activeThreadMessageId = messageId;
     this.loadThreadMessages();
     this.setActiveThreadMessage(messageId);
@@ -726,6 +726,7 @@ export class ChatTemplateComponent implements OnInit {
 
   closeThreadView(): void {
     this.chatIsThread = false;
+    this.chatIsChannel = true;
     const channelId = this.selectedChannel?.channelId;
     if (channelId) {
       this.router.navigate([`/chat/${channelId}`]);

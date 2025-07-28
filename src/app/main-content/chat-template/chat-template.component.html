@@ -31,9 +31,9 @@
         <ng-container *ngIf="chatIsThread">
           Thread <span class="channel-hash">#</span><span class="channel-name-thread">{{ selectedChannel?.name }}</span>
         </ng-container>
-        <ng-template *ngIf="chatIsChannel" #normalChannelName>
+        <ng-container *ngIf="chatIsChannel" #normalChannelName>
           {{ selectedChannel?.name }}
-        </ng-template>
+        </ng-container>
       </p>
 
       <mat-icon *ngIf="chatIsChannel" class="mat-icon-top" fontIcon="keyboard_arrow_down"></mat-icon>
