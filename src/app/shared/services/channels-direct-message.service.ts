@@ -12,11 +12,11 @@ export interface DirectMessage {
   status: string;
 }
 
- export interface DirectMessageRaw {
+export interface DirectMessageRaw {
   id?: string;
   text: string;
   senderID: string;
-  timestamp: any; 
+  timestamp: any;
 }
 
 @Injectable({
@@ -76,10 +76,14 @@ export class ChannelsDirectMessageService {
     }
   ];
 
+
   private selectedChannelSource = new BehaviorSubject<any>(null);
   selectedChannel$ = this.selectedChannelSource.asObservable();
 
+
   getChannels(): Channel[] {
+    console.log("moin");
+    
     return this.channels;
   }
 
@@ -177,113 +181,113 @@ export class ChannelsDirectMessageService {
     );
   }
 
-getEnrichedMessages(channelId: string): Observable<any[]> {
-  return this.getMessages(channelId).pipe(
-    switchMap(messages => {
-      if (!messages.length) return of([]);
+  getEnrichedMessages(channelId: string): Observable<any[]> {
+    return this.getMessages(channelId).pipe(
+      switchMap(messages => {
+        if (!messages.length) return of([]);
 
-      const enrichedMessages$ = messages.map(message =>
-        this.enrichMessage(channelId, message)
-      );
-
-      return combineLatest(enrichedMessages$).pipe(
-        map(enrichedMessages =>
-          enrichedMessages.sort((a, b) => {
-            const timeA = a.timestamp?.seconds ?? 0;
-            const timeB = b.timestamp?.seconds ?? 0;
-            return timeA - timeB;
-          })
-        )
-      );
-    })
-  );
-}
-
-
-getEnrichedThreadMessages(channelId: string, parentMessageId: string): Observable<any[]> {
-  return this.getThreadMessages(channelId, parentMessageId).pipe(
-    switchMap((messages) => {
-      if (!messages.length) return of([]);
-
-      const enrichedMessages$ = messages.map((message) => {
-        const userDetails$ = message.senderID
-          ? this.getUserDetails(message.senderID).pipe(catchError(() => of(null)))
-          : of(null);
-
-        const reactions$ = this.getReactionsForMessage(channelId, message.id).pipe(catchError(() => of([])));
-
-        return combineLatest([userDetails$, reactions$]).pipe(
-          map(([userDetails, reactions]) => ({
-            ...message,
-            formattedTime: this.formatTimestamp(message.timestamp),
-            username: userDetails?.userName || 'Unknown User',
-            avatar: userDetails?.profilePic || 'default-avatar.png',
-            reactions: reactions || [],
-          }))
+        const enrichedMessages$ = messages.map(message =>
+          this.enrichMessage(channelId, message)
         );
-      });
 
-      return combineLatest(enrichedMessages$).pipe(
-        map((enrichedMessages) =>
-          enrichedMessages.sort((a, b) => {
-            const timeA = a.timestamp?.seconds ?? 0;
-            const timeB = b.timestamp?.seconds ?? 0;
-            return timeA - timeB;
-          })
-        )
-      );
-    })
-  );
-}
-
-enrichMessage(channelId: string, message: any): Observable<any> {
-  const userDetails$ = message.senderID
-    ? this.getUserDetails(message.senderID).pipe(catchError(() => of(null)))
-    : of(null);
-
-  const reactions$ = this.getReactionsForMessage(channelId, message.id).pipe(catchError(() => of([])));
-  const answersCount$ = this.getThreadMessageCount(channelId, message.id);
-  const lastAnswer$ = this.getLatestThreadMessage(channelId, message.id).pipe(
-    catchError(() => of(null))
-  );
-
-  return combineLatest([userDetails$, reactions$, answersCount$, lastAnswer$]).pipe(
-    map(([userDetails, reactions, answersCount, lastAnswer]) => ({
-      ...message,
-      formattedTime: this.formatTimestamp(message.timestamp),
-      username: userDetails?.userName || 'Unknown User',
-      avatar: userDetails?.profilePic || 'default-avatar.png',
-      reactions: reactions || [],
-      answersCount: answersCount || 0,
-      lastAnswerTime: lastAnswer ? this.formatTimestamp(lastAnswer.timestamp) : null,
-    }))
-  );
-}
-
-getLatestThreadMessage(channelId: string, messageId: string): Observable<any> {
-  const threadMessagesCollection = collection(
-    this.firestore,
-    `channels/${channelId}/messages/${messageId}/threadMessages`
-  );
-
-  const q = query(threadMessagesCollection, orderBy('timestamp', 'desc'), limit(1));
-
-  return collectionData(q, { idField: 'id' }).pipe(
-    map((messages) => (messages.length > 0 ? messages[0] : null))
-  );
-}
+        return combineLatest(enrichedMessages$).pipe(
+          map(enrichedMessages =>
+            enrichedMessages.sort((a, b) => {
+              const timeA = a.timestamp?.seconds ?? 0;
+              const timeB = b.timestamp?.seconds ?? 0;
+              return timeA - timeB;
+            })
+          )
+        );
+      })
+    );
+  }
 
 
-getThreadMessageCount(channelId: string, parentMessageId: string): Observable<number> {
-  const threadMessagesCollection = collection(
-    this.firestore,
-    `channels/${channelId}/messages/${parentMessageId}/threadMessages`
-  );
-  return collectionData(threadMessagesCollection).pipe(
-    map(messages => messages.length),
-    catchError(() => of(0))
-  );
-}
+  getEnrichedThreadMessages(channelId: string, parentMessageId: string): Observable<any[]> {
+    return this.getThreadMessages(channelId, parentMessageId).pipe(
+      switchMap((messages) => {
+        if (!messages.length) return of([]);
+
+        const enrichedMessages$ = messages.map((message) => {
+          const userDetails$ = message.senderID
+            ? this.getUserDetails(message.senderID).pipe(catchError(() => of(null)))
+            : of(null);
+
+          const reactions$ = this.getReactionsForMessage(channelId, message.id).pipe(catchError(() => of([])));
+
+          return combineLatest([userDetails$, reactions$]).pipe(
+            map(([userDetails, reactions]) => ({
+              ...message,
+              formattedTime: this.formatTimestamp(message.timestamp),
+              username: userDetails?.userName || 'Unknown User',
+              avatar: userDetails?.profilePic || 'default-avatar.png',
+              reactions: reactions || [],
+            }))
+          );
+        });
+
+        return combineLatest(enrichedMessages$).pipe(
+          map((enrichedMessages) =>
+            enrichedMessages.sort((a, b) => {
+              const timeA = a.timestamp?.seconds ?? 0;
+              const timeB = b.timestamp?.seconds ?? 0;
+              return timeA - timeB;
+            })
+          )
+        );
+      })
+    );
+  }
+
+  enrichMessage(channelId: string, message: any): Observable<any> {
+    const userDetails$ = message.senderID
+      ? this.getUserDetails(message.senderID).pipe(catchError(() => of(null)))
+      : of(null);
+
+    const reactions$ = this.getReactionsForMessage(channelId, message.id).pipe(catchError(() => of([])));
+    const answersCount$ = this.getThreadMessageCount(channelId, message.id);
+    const lastAnswer$ = this.getLatestThreadMessage(channelId, message.id).pipe(
+      catchError(() => of(null))
+    );
+
+    return combineLatest([userDetails$, reactions$, answersCount$, lastAnswer$]).pipe(
+      map(([userDetails, reactions, answersCount, lastAnswer]) => ({
+        ...message,
+        formattedTime: this.formatTimestamp(message.timestamp),
+        username: userDetails?.userName || 'Unknown User',
+        avatar: userDetails?.profilePic || 'default-avatar.png',
+        reactions: reactions || [],
+        answersCount: answersCount || 0,
+        lastAnswerTime: lastAnswer ? this.formatTimestamp(lastAnswer.timestamp) : null,
+      }))
+    );
+  }
+
+  getLatestThreadMessage(channelId: string, messageId: string): Observable<any> {
+    const threadMessagesCollection = collection(
+      this.firestore,
+      `channels/${channelId}/messages/${messageId}/threadMessages`
+    );
+
+    const q = query(threadMessagesCollection, orderBy('timestamp', 'desc'), limit(1));
+
+    return collectionData(q, { idField: 'id' }).pipe(
+      map((messages) => (messages.length > 0 ? messages[0] : null))
+    );
+  }
+
+
+  getThreadMessageCount(channelId: string, parentMessageId: string): Observable<number> {
+    const threadMessagesCollection = collection(
+      this.firestore,
+      `channels/${channelId}/messages/${parentMessageId}/threadMessages`
+    );
+    return collectionData(threadMessagesCollection).pipe(
+      map(messages => messages.length),
+      catchError(() => of(0))
+    );
+  }
 
   private getUserDetails(senderID: string): Observable<any> {
     if (!senderID) {
@@ -367,100 +371,100 @@ getThreadMessageCount(channelId: string, parentMessageId: string): Observable<nu
   }
 
   getThreadMessages(channelId: string, threadMessageId: string): Observable<any[]> {
-  const threadMessagesCollection = collection(
-    this.firestore,
-    `channels/${channelId}/messages/${threadMessageId}/threadMessages`
-  );
+    const threadMessagesCollection = collection(
+      this.firestore,
+      `channels/${channelId}/messages/${threadMessageId}/threadMessages`
+    );
 
-  return collectionData(threadMessagesCollection, { idField: 'id' }).pipe(
-    catchError((error) => {
-      console.error('Error fetching thread messages:', error);
-      return of([]);
-    })
-  );
-}
+    return collectionData(threadMessagesCollection, { idField: 'id' }).pipe(
+      catchError((error) => {
+        console.error('Error fetching thread messages:', error);
+        return of([]);
+      })
+    );
+  }
 
-async sendThreadMessage(
-  channelId: string,
-  threadMessageId: string,
-  text: string,
-  senderID: string
-): Promise<void> {
-  const threadMessagesCollection = collection(
-    this.firestore,
-    `channels/${channelId}/messages/${threadMessageId}/threadMessages`
-  );
+  async sendThreadMessage(
+    channelId: string,
+    threadMessageId: string,
+    text: string,
+    senderID: string
+  ): Promise<void> {
+    const threadMessagesCollection = collection(
+      this.firestore,
+      `channels/${channelId}/messages/${threadMessageId}/threadMessages`
+    );
 
-  const newMessageRef = doc(threadMessagesCollection);
-  await setDoc(newMessageRef, {
-    text,
-    senderID,
-    timestamp: Timestamp.now()
-  });
+    const newMessageRef = doc(threadMessagesCollection);
+    await setDoc(newMessageRef, {
+      text,
+      senderID,
+      timestamp: Timestamp.now()
+    });
 
-  console.log('Thread message sent to:', threadMessageId);
-}
+    console.log('Thread message sent to:', threadMessageId);
+  }
 
-getConversationMessages(conversationId: string): Observable<any[]> {
-  const messagesCol = collection(
-    this.firestore,
-    `conversations/${conversationId}/directMessages`
-  );
+  getConversationMessages(conversationId: string): Observable<any[]> {
+    const messagesCol = collection(
+      this.firestore,
+      `conversations/${conversationId}/directMessages`
+    );
 
-  const q = query(messagesCol, orderBy('timestamp', 'asc'));
+    const q = query(messagesCol, orderBy('timestamp', 'asc'));
 
-  return collectionData(q, { idField: 'id' }).pipe(
-    catchError((error) => {
-      console.error('Error fetching conversation messages:', error);
-      return of([]);
-    })
-  );
-}
+    return collectionData(q, { idField: 'id' }).pipe(
+      catchError((error) => {
+        console.error('Error fetching conversation messages:', error);
+        return of([]);
+      })
+    );
+  }
 
-getEnrichedConversationMessages(conversationId: string): Observable<any[]> {
-  const messagesCol = collection(
-    this.firestore,
-    `conversations/${conversationId}/directMessages`
-  );
+  getEnrichedConversationMessages(conversationId: string): Observable<any[]> {
+    const messagesCol = collection(
+      this.firestore,
+      `conversations/${conversationId}/directMessages`
+    );
 
-  const q = query(messagesCol, orderBy('timestamp', 'asc'));
+    const q = query(messagesCol, orderBy('timestamp', 'asc'));
 
-  return collectionData(q, { idField: 'id' }).pipe(
-    map((docs) => docs as DirectMessageRaw[]),  
-    switchMap((messages) => {
-      if (!messages.length) return of([]);
+    return collectionData(q, { idField: 'id' }).pipe(
+      map((docs) => docs as DirectMessageRaw[]),
+      switchMap((messages) => {
+        if (!messages.length) return of([]);
 
-      const enrichedMessages$ = messages.map((message) => {
-        const userDetails$ = message.senderID
-          ? this.getUserDetails(message.senderID).pipe(catchError(() => of(null)))
-          : of(null);
+        const enrichedMessages$ = messages.map((message) => {
+          const userDetails$ = message.senderID
+            ? this.getUserDetails(message.senderID).pipe(catchError(() => of(null)))
+            : of(null);
 
-        return userDetails$.pipe(
-          map((userDetails) => ({
-            ...message, //
-            formattedTime: this.formatTimestamp(message.timestamp),
-            username: userDetails?.userName || 'Unknown User',
-            avatar: userDetails?.profilePic || 'default-avatar.png',
-          }))
+          return userDetails$.pipe(
+            map((userDetails) => ({
+              ...message, //
+              formattedTime: this.formatTimestamp(message.timestamp),
+              username: userDetails?.userName || 'Unknown User',
+              avatar: userDetails?.profilePic || 'default-avatar.png',
+            }))
+          );
+        });
+
+        return combineLatest(enrichedMessages$).pipe(
+          map((enrichedMessages) =>
+            enrichedMessages.sort((a, b) => {
+              const timeA = a.timestamp?.seconds ?? 0;
+              const timeB = b.timestamp?.seconds ?? 0;
+              return timeA - timeB;
+            })
+          )
         );
-      });
-
-      return combineLatest(enrichedMessages$).pipe(
-        map((enrichedMessages) =>
-          enrichedMessages.sort((a, b) => {
-            const timeA = a.timestamp?.seconds ?? 0;
-            const timeB = b.timestamp?.seconds ?? 0;
-            return timeA - timeB;
-          })
-        )
-      );
-    }),
-    catchError((error) => {
-      console.error('Error enriching conversation messages:', error);
-      return of([]);
-    })
-  );
-}
+      }),
+      catchError((error) => {
+        console.error('Error enriching conversation messages:', error);
+        return of([]);
+      })
+    );
+  }
 
 
 

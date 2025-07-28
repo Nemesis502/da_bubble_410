@@ -87,6 +87,7 @@ export class ChatTemplateComponent implements OnInit {
   activeThreadMessageId: string = '';
   threadMessages$: Observable<any[] | null> = of(null);
   activeThreadMessage: any | null = null;
+  messageCollection: any;
 
   constructor(
     private router: Router,
@@ -94,40 +95,67 @@ export class ChatTemplateComponent implements OnInit {
     private elementRef: ElementRef,
     private channelService: ChannelsDirectMessageService,
     private firestore: Firestore
-  ) {}
+  ) { }
 
   async ngOnInit(): Promise<void> {
     this.currentUser = this.userSession.getCurrentUser();
 
     await this.initializeChannelFromRoute();
     await this.fetchAllChannels();
+    console.log(this.selectedChannel);
 
-this.channelService.selectedChannel$.subscribe(async (channelOrConversation) => {
-  this.selectedChannel = channelOrConversation;
-  this.messages = []; 
 
-  if (!channelOrConversation) return;
+    // debugger
+    // this.channelService.selectedChannel$.subscribe(async (channelOrConversation) => {
+    //   console.log("channel or Conversation", channelOrConversation);
+    //   this.selectedChannel = channelOrConversation;
+    //   console.log("Selected Channel", this.selectedChannel);
 
-  if (this.isChannel(channelOrConversation)) {
-    this.chatIsChannel = true;
-    this.chatIsConversation = false;
-    await this.loadMessagesForChannel(channelOrConversation);
-  } else if (this.isConversation(channelOrConversation)) {
-    this.chatIsChannel = false;
-    this.chatIsConversation = true;
-    await this.loadMessagesForConversation(channelOrConversation.channelId);
+    //   this.messages = [];
+
+    //   if (!channelOrConversation) return;
+
+    //   if (this.isChannel(channelOrConversation)) {
+    //     this.chatIsChannel = true;
+    //     this.chatIsConversation = false;
+    //     await this.loadMessagesForChannel(channelOrConversation);
+    //   } else if (this.isConversation(channelOrConversation)) {
+    //     this.chatIsChannel = false;
+    //     this.chatIsConversation = true;
+    //     await this.loadMessagesForConversation(channelOrConversation.channelId);
+    //   }
+    // });
+    // this.channelService.selectedDirectMessage$.subscribe(async (channelOrConversation) => {
+    //   console.log("channel or Conversation", channelOrConversation);
+    //   this.selectedChannel = channelOrConversation;
+    //   console.log("Selected Channel", this.selectedChannel);
+
+    //   this.messages = [];
+
+    //   if (!channelOrConversation) return;
+
+    //   if (this.isChannel(channelOrConversation)) {
+    //     this.chatIsChannel = true;
+    //     this.chatIsConversation = false;
+    //     await this.loadMessagesForChannel(channelOrConversation);
+    //   } else if (this.isConversation(channelOrConversation)) {
+    //     this.chatIsChannel = false;
+    //     this.chatIsConversation = true;
+    //     await this.loadMessagesForConversation(this.selectedChannel);
+    //   }
+    // });
   }
-});
-}
 
 
-private isChannel(obj: any): boolean {
-  return obj && obj.type === 'channel'; 
-}
 
-private isConversation(obj: any): boolean {
-  return obj && obj.type === 'conversation';
-}
+
+  private isChannel(obj: any): boolean {
+    return obj && obj.type === 'channel';
+  }
+
+  private isConversation(obj: any): boolean {
+    return obj && obj.type === 'conversation';
+  }
 
 
   private async initializeChannelFromRoute(): Promise<void> {
@@ -153,6 +181,8 @@ private isConversation(obj: any): boolean {
 
       if (convSnap.exists()) {
         this.chatIsConversation = true;
+        this.selectedChannel = id
+        console.log(this.selectedChannel);
         await this.handleConversationSetup(id);
         return;
       }
@@ -164,6 +194,8 @@ private isConversation(obj: any): boolean {
   }
 
   private async handleConversationSetup(conversationId: string): Promise<void> {
+    console.log(conversationId);
+
     try {
       const convDocRef = doc(this.firestore, `conversations/${conversationId}`);
       const convSnap = await getDoc(convDocRef);
@@ -189,7 +221,10 @@ private isConversation(obj: any): boolean {
       }
 
       await this.fetchOtherUserInfo(otherUserId);
+
       this.selectedChannel = { channelId: conversationId };
+      console.log(this.selectedChannel);
+
       this.loadMessagesForConversation(conversationId);
       console.log('Conversation setup complete. Other user:', this.otherUser);
     } catch (error) {
@@ -198,6 +233,8 @@ private isConversation(obj: any): boolean {
   }
 
   private loadMessagesForConversation(conversationId: string): void {
+    console.log(conversationId);
+
     this.channelService
       .getEnrichedConversationMessages(conversationId)
       .subscribe({
@@ -318,6 +355,11 @@ private isConversation(obj: any): boolean {
   }
 
   async sendMessage(): Promise<void> {
+    // debugger
+    console.log(this.selectedChannel);
+    console.log(this.chatIsConversation);
+
+
     const messageText = this.chatMessage.trim();
     const channelId = this.selectedChannel?.channelId;
     const userId = this.currentUser?.id;
@@ -337,7 +379,7 @@ private isConversation(obj: any): boolean {
       }
 
       this.afterMessageSend();
-    } catch (error) {}
+    } catch (error) { }
   }
 
   private async updateThreadMessage(
@@ -391,21 +433,28 @@ private isConversation(obj: any): boolean {
   private async createNewMessage(
     channelId: string,
     messageText: string,
-    userId: string
-  ): Promise<void> {
-    const messageCollection = collection(
-      this.firestore,
-      `channels/${channelId}/messages`
-    );
+    userId: string): Promise<void> {
+    if (this.chatIsConversation) {
+      this.messageCollection = collection(
+        this.firestore,
+        `conversations/${channelId}/directMessages`);
+    } else {
+      this.messageCollection = collection(
+        this.firestore,
+        `channels/${channelId}/messages`
+      );
+    }
+    await this.sendMessageInConversation(messageText, userId, channelId)
+  }
 
+  async sendMessageInConversation(messageText: string, userId: string, channelId: string) {
     const newMessage = {
       text: messageText,
       timestamp: serverTimestamp(),
       senderID: userId,
       channelId: channelId,
     };
-
-    await addDoc(messageCollection, newMessage);
+    await addDoc(this.messageCollection, newMessage);
     console.log('Message sent successfully:', newMessage);
   }
 
@@ -511,42 +560,42 @@ private isConversation(obj: any): boolean {
     this.mentionPopupVisible = false;
   }
 
-async checkMentionTrigger(event: KeyboardEvent): Promise<void> {
-  const char = event.key;
+  async checkMentionTrigger(event: KeyboardEvent): Promise<void> {
+    const char = event.key;
 
-  if (char === '@') {
-    await this.handleMentionTrigger();
-  } else if (char === '#') {
-    this.handleHashtagTrigger();
-  } else if ([' ', 'Enter', 'Escape'].includes(char)) {
-    this.closeAllPopups();
+    if (char === '@') {
+      await this.handleMentionTrigger();
+    } else if (char === '#') {
+      this.handleHashtagTrigger();
+    } else if ([' ', 'Enter', 'Escape'].includes(char)) {
+      this.closeAllPopups();
+    }
+
+    setTimeout(() => {
+      this.filterPopupLists();
+      this.cleanupMentionAndHashtag();
+    }, 0);
   }
 
-  setTimeout(() => {
-    this.filterPopupLists();
-    this.cleanupMentionAndHashtag();
-  }, 0);
-}
+  private filterPopupLists(): void {
+    if (this.mentionPopupVisible) {
+      const term = this.getCurrentTriggerTerm('@');
+      if (term !== null) {
+        this.filterMentionableUsers(term);
+      } else {
+        this.filteredMentionableUsers = this.mentionableUsers;
+      }
+    }
 
-private filterPopupLists(): void {
-  if (this.mentionPopupVisible) {
-    const term = this.getCurrentTriggerTerm('@');
-    if (term !== null) {
-      this.filterMentionableUsers(term);
-    } else {
-      this.filteredMentionableUsers = this.mentionableUsers;
+    if (this.hashtagPopupVisible) {
+      const term = this.getCurrentTriggerTerm('#');
+      if (term !== null) {
+        this.filterChannels(term);
+      } else {
+        this.filteredChannels = this.allChannels;
+      }
     }
   }
-
-  if (this.hashtagPopupVisible) {
-    const term = this.getCurrentTriggerTerm('#');
-    if (term !== null) {
-      this.filterChannels(term);
-    } else {
-      this.filteredChannels = this.allChannels;
-    }
-  }
-}
 
   private async handleMentionTrigger(): Promise<void> {
     this.mentionPopupVisible = true;
@@ -777,35 +826,35 @@ private filterPopupLists(): void {
   }
 
   private getCurrentTriggerTerm(triggerChar: '@' | '#'): string | null {
-  const textarea = this.chatField?.nativeElement;
-  if (!textarea) return null;
+    const textarea = this.chatField?.nativeElement;
+    if (!textarea) return null;
 
-  const cursorPos = textarea.selectionStart;
-  const textBefore = this.chatMessage.slice(0, cursorPos);
+    const cursorPos = textarea.selectionStart;
+    const textBefore = this.chatMessage.slice(0, cursorPos);
 
-  const lastTriggerIndex = textBefore.lastIndexOf(triggerChar);
-  if (lastTriggerIndex === -1) return null;
+    const lastTriggerIndex = textBefore.lastIndexOf(triggerChar);
+    if (lastTriggerIndex === -1) return null;
 
-  const term = textBefore.slice(lastTriggerIndex + 1);
+    const term = textBefore.slice(lastTriggerIndex + 1);
 
-  if (term.includes(' ') || term.includes('@') || term.includes('#')) {
-    return null;
+    if (term.includes(' ') || term.includes('@') || term.includes('#')) {
+      return null;
+    }
+
+    return term.toLowerCase();
   }
 
-  return term.toLowerCase();
-}
+  private filterMentionableUsers(term: string): void {
+    this.filteredMentionableUsers = this.mentionableUsers.filter(user =>
+      user.userName.toLowerCase().includes(term)
+    );
+  }
 
-private filterMentionableUsers(term: string): void {
-  this.filteredMentionableUsers = this.mentionableUsers.filter(user =>
-    user.userName.toLowerCase().includes(term)
-  );
-}
-
-private filterChannels(term: string): void {
-  this.filteredChannels = this.allChannels.filter(channel =>
-    channel.name.toLowerCase().includes(term)
-  );
-}
+  private filterChannels(term: string): void {
+    this.filteredChannels = this.allChannels.filter(channel =>
+      channel.name.toLowerCase().includes(term)
+    );
+  }
 
 
 }
