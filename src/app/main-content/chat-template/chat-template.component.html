@@ -87,7 +87,7 @@
 
       <!--  @ Popup -->
       <div class="mention-popup" *ngIf="mentionPopupVisible">
-        <div class="mention-user" *ngFor="let user of mentionableUsers" (click)="selectMentionUser(user.userName)">
+        <div class="mention-user" *ngFor="let user of filteredMentionableUsers" (click)="selectMentionUser(user.userName)">
           <img class="avatar" [src]="'./../../../assets/img/avatar/' + user.profilePic + '.png'" alt="avatar" />
           <div class="status-dot" [ngClass]="{ online: user.status, offline: !user.status }"></div>
           <span class="mention-name nuito17px400">{{ user.userName
@@ -97,7 +97,7 @@
       </div>
       <!--  # Popup -->
       <div class="mention-popup" *ngIf="hashtagPopupVisible">
-        <div class="hashtag-item" *ngFor="let channel of allChannels" (click)="selectHashtagChannel(channel.name)">
+        <div class="hashtag-item" *ngFor="let channel of filteredChannels" (click)="selectHashtagChannel(channel.name)">
           <span class="hashtag-name nuito17px400">
             <span class="hashtag">#</span>{{ channel.name }}
           </span>

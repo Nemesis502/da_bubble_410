@@ -68,6 +68,8 @@ export class ChatTemplateComponent implements OnInit {
 
   mentionPopupVisible = false;
   hashtagPopupVisible: boolean = false;
+  filteredMentionableUsers = this.mentionableUsers;
+  filteredChannels = this.allChannels;
 
   selectedChannel: any = null;
   chatMessage: string = '';
@@ -92,7 +94,7 @@ export class ChatTemplateComponent implements OnInit {
     private elementRef: ElementRef,
     private channelService: ChannelsDirectMessageService,
     private firestore: Firestore
-  ) { }
+  ) {}
 
   async ngOnInit(): Promise<void> {
     this.currentUser = this.userSession.getCurrentUser();
@@ -317,7 +319,7 @@ export class ChatTemplateComponent implements OnInit {
       }
 
       this.afterMessageSend();
-    } catch (error) { }
+    } catch (error) {}
   }
 
   private async updateThreadMessage(
@@ -491,19 +493,44 @@ export class ChatTemplateComponent implements OnInit {
     this.mentionPopupVisible = false;
   }
 
-  async checkMentionTrigger(event: KeyboardEvent): Promise<void> {
-    const char = event.key;
+async checkMentionTrigger(event: KeyboardEvent): Promise<void> {
+  const char = event.key;
 
-    if (char === '@') {
-      await this.handleMentionTrigger();
-    } else if (char === '#') {
-      this.handleHashtagTrigger();
-    } else if ([' ', 'Enter', 'Escape'].includes(char)) {
-      this.closeAllPopups();
-    }
-
-    setTimeout(() => this.cleanupMentionAndHashtag(), 0);
+  if (char === '@') {
+    await this.handleMentionTrigger();
+  } else if (char === '#') {
+    this.handleHashtagTrigger();
+  } else if ([' ', 'Enter', 'Escape'].includes(char)) {
+    this.closeAllPopups();
   }
+
+  // Add filtering logic for mention or hashtag
+  setTimeout(() => {
+    this.filterPopupLists();
+    this.cleanupMentionAndHashtag();
+  }, 0);
+}
+
+private filterPopupLists(): void {
+  if (this.mentionPopupVisible) {
+    const term = this.getCurrentTriggerTerm('@');
+    if (term !== null) {
+      this.filterMentionableUsers(term);
+    } else {
+      this.filteredMentionableUsers = this.mentionableUsers;
+    }
+  }
+
+  if (this.hashtagPopupVisible) {
+    const term = this.getCurrentTriggerTerm('#');
+    if (term !== null) {
+      this.filterChannels(term);
+    } else {
+      this.filteredChannels = this.allChannels;
+    }
+  }
+}
+
 
   private async handleMentionTrigger(): Promise<void> {
     this.mentionPopupVisible = true;
@@ -719,9 +746,9 @@ export class ChatTemplateComponent implements OnInit {
       panelClass: 'member-dialog',
       data: {
         source: 'channel-chat',
-        channelId: this.selectedChannel?.channelId
-      }
-    })
+        channelId: this.selectedChannel?.channelId,
+      },
+    });
   }
 
   closeThreadView(): void {
@@ -732,4 +759,40 @@ export class ChatTemplateComponent implements OnInit {
       this.router.navigate([`/chat/${channelId}`]);
     }
   }
+
+  private getCurrentTriggerTerm(triggerChar: '@' | '#'): string | null {
+  const textarea = this.chatField?.nativeElement;
+  if (!textarea) return null;
+
+  const cursorPos = textarea.selectionStart;
+  const textBefore = this.chatMessage.slice(0, cursorPos);
+
+  // Find last index of trigger char before cursor
+  const lastTriggerIndex = textBefore.lastIndexOf(triggerChar);
+  if (lastTriggerIndex === -1) return null;
+
+  // Extract substring after trigger char until cursor or whitespace
+  const term = textBefore.slice(lastTriggerIndex + 1);
+
+  // If term contains whitespace or another trigger char, ignore
+  if (term.includes(' ') || term.includes('@') || term.includes('#')) {
+    return null;
+  }
+
+  return term.toLowerCase();
+}
+
+private filterMentionableUsers(term: string): void {
+  this.filteredMentionableUsers = this.mentionableUsers.filter(user =>
+    user.userName.toLowerCase().includes(term)
+  );
+}
+
+private filterChannels(term: string): void {
+  this.filteredChannels = this.allChannels.filter(channel =>
+    channel.name.toLowerCase().includes(term)
+  );
+}
+
+
 }
