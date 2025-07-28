@@ -136,112 +136,112 @@ export class NewMessageComponent implements OnInit {
     this.emojiPickerVisible = false;
   }
 
-async sendMessage(): Promise<void> {
-  if (!this.chatMessage.trim() || !this.searchInput.trim()) return;
+  async sendMessage(): Promise<void> {
+    if (!this.chatMessage.trim() || !this.searchInput.trim()) return;
 
-  const mentionName = this.extractMention(this.searchInput);
-  const channelName = this.extractChannel(this.searchInput);
+    const mentionName = this.extractMention(this.searchInput);
+    const channelName = this.extractChannel(this.searchInput);
 
-  if (mentionName) {
-    await this.sendMessageToConversation(mentionName);
-    return;
+    if (mentionName) {
+      await this.sendMessageToConversation(mentionName);
+      return;
+    }
+
+    if (channelName) {
+      await this.sendMessageToChannel(channelName);
+      return;
+    }
+
+    console.warn('No valid #channel or @user mention');
   }
 
-  if (channelName) {
-    await this.sendMessageToChannel(channelName);
-    return;
+  private extractMention(input: string): string | null {
+    const match = input.match(/@([\wÀ-ÿ .'-]+)/);
+    return match ? match[1].trim() : null;
   }
 
-  console.warn('No valid #channel or @user mention');
-}
-
-private extractMention(input: string): string | null {
-  const match = input.match(/@([\wÀ-ÿ .'-]+)/);
-  return match ? match[1].trim() : null;
-}
-
-private extractChannel(input: string): string | null {
-  const match = input.match(/#([^\s#@]+)/);
-  return match ? match[1].trim() : null;
-}
-private async sendMessageToConversation(userName: string): Promise<void> {
-  const mentionedUser = this.mentionableUsers.find(
-    (user) => user.userName.toLowerCase() === userName.toLowerCase()
-  );
-
-  if (!mentionedUser || !this.currentUser?.id) {
-    console.warn(`User @${userName} not found or session invalid`);
-    return;
+  private extractChannel(input: string): string | null {
+    const match = input.match(/#([^\s#@]+)/);
+    return match ? match[1].trim() : null;
   }
+  private async sendMessageToConversation(userName: string): Promise<void> {
+    const mentionedUser = this.mentionableUsers.find(
+      (user) => user.userName.toLowerCase() === userName.toLowerCase()
+    );
 
-  const conversationId = await this.getOrCreateConversation(
-    this.currentUser.id,
-    mentionedUser.id
-  );
+    if (!mentionedUser || !this.currentUser?.id) {
+      console.warn(`User @${userName} not found or session invalid`);
+      return;
+    }
 
-  const message = {
-    senderID: this.currentUser.id,
-    text: this.chatMessage,
-    timestamp: new Date(),
-  };
+    const conversationId = await this.getOrCreateConversation(
+      this.currentUser.id,
+      mentionedUser.id
+    );
 
-  const msgCol = collection(
-    this.firestore,
-    `conversations/${conversationId}/directMessages`
-  );
-  await addDoc(msgCol, message);
+    const message = {
+      senderID: this.currentUser.id,
+      text: this.chatMessage,
+      timestamp: new Date(),
+    };
 
-  this.chatMessage = '';
-  this.searchInput = '';
-  this.router.navigate([`/chat/${conversationId}`]);
-}
-private async getOrCreateConversation(
-  userA: string,
-  userB: string
-): Promise<string> {
-  const convRef = collection(this.firestore, 'conversations');
-  const q = query(convRef, where('participants', 'array-contains', userA));
-  const snapshot = await getDocs(q);
+    const msgCol = collection(
+      this.firestore,
+      `conversations/${conversationId}/directMessages`
+    );
+    await addDoc(msgCol, message);
 
-  const existing = snapshot.docs.find((doc) => {
-    const participants = doc.data()['participants'] as string[];
-    return participants.includes(userB);
-  });
-
-  if (existing) return existing.id;
-
-  const newConv = await addDoc(convRef, {
-    participants: [userA, userB],
-  });
-  return newConv.id;
-}
-private async sendMessageToChannel(channelName: string): Promise<void> {
-  const matchedChannel = this.allChannels.find(
-    (ch) => ch.name.toLowerCase() === channelName.toLowerCase()
-  );
-
-  if (!matchedChannel || !this.currentUser?.id) {
-    console.warn(`Channel #${channelName} not found or session invalid`);
-    return;
+    this.chatMessage = '';
+    this.searchInput = '';
+    this.router.navigate([`/chat/${conversationId}`]);
   }
+  private async getOrCreateConversation(
+    userA: string,
+    userB: string
+  ): Promise<string> {
+    const convRef = collection(this.firestore, 'conversations');
+    const q = query(convRef, where('participants', 'array-contains', userA));
+    const snapshot = await getDocs(q);
 
-  const message = {
-    channelId: matchedChannel.id,
-    senderID: this.currentUser.id,
-    text: this.chatMessage,
-    timestamp: new Date(),
-  };
+    const existing = snapshot.docs.find((doc) => {
+      const participants = doc.data()['participants'] as string[];
+      return participants.includes(userB);
+    });
 
-  const msgCol = collection(
-    this.firestore,
-    `channels/${matchedChannel.id}/messages`
-  );
-  await addDoc(msgCol, message);
+    if (existing) return existing.id;
 
-  this.chatMessage = '';
-  this.searchInput = '';
-  this.router.navigate([`/chat/${matchedChannel.id}`]);
-}
+    const newConv = await addDoc(convRef, {
+      participants: [userA, userB],
+    });
+    return newConv.id;
+  }
+  private async sendMessageToChannel(channelName: string): Promise<void> {
+    const matchedChannel = this.allChannels.find(
+      (ch) => ch.name.toLowerCase() === channelName.toLowerCase()
+    );
+
+    if (!matchedChannel || !this.currentUser?.id) {
+      console.warn(`Channel #${channelName} not found or session invalid`);
+      return;
+    }
+
+    const message = {
+      channelId: matchedChannel.id,
+      senderID: this.currentUser.id,
+      text: this.chatMessage,
+      timestamp: new Date(),
+    };
+
+    const msgCol = collection(
+      this.firestore,
+      `channels/${matchedChannel.id}/messages`
+    );
+    await addDoc(msgCol, message);
+
+    this.chatMessage = '';
+    this.searchInput = '';
+    this.router.navigate([`/chat/${matchedChannel.id}`]);
+  }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
@@ -328,7 +328,21 @@ private async sendMessageToChannel(channelName: string): Promise<void> {
       this.closeAllPopups();
     }
 
-    setTimeout(() => this.cleanupMentionAndHashtag(), 0);
+    setTimeout(() => {
+      this.cleanupMentionAndHashtag();
+
+      const mentionKeyword = this.extractLastMentionKeyword(this.chatMessage);
+      this.mentionPopupVisible = this.chatMessage.includes('@');
+      this.searchMentionUsers = this.mentionableUsers.filter((user) =>
+        user.userName.toLowerCase().includes(mentionKeyword.toLowerCase())
+      );
+
+      const hashtagKeyword = this.extractLastHashtagKeyword(this.chatMessage);
+      this.hashtagPopupVisible = this.chatMessage.includes('#');
+      this.searchHashtagChannels = this.allChannels.filter((channel) =>
+        channel.name.toLowerCase().includes(hashtagKeyword.toLowerCase())
+      );
+    }, 0);
   }
 
   async checkSearchFieldTrigger(event: KeyboardEvent): Promise<void> {
@@ -464,19 +478,19 @@ private async sendMessageToChannel(channelName: string): Promise<void> {
 
   async handleSearchFieldKey(event: KeyboardEvent): Promise<void> {
     setTimeout(() => {
-      if (this.searchInput.includes('@')) {
-        this.searchFieldMentionVisible = true;
-        this.searchMentionUsers = this.mentionableUsers;
-      } else {
-        this.searchFieldMentionVisible = false;
-      }
+      const mentionKeyword = this.extractLastMentionKeyword(this.searchInput);
+      this.searchFieldMentionVisible = this.searchInput.includes('@');
 
-      if (this.searchInput.includes('#')) {
-        this.searchFieldHashtagVisible = true;
-        this.searchHashtagChannels = this.allChannels;
-      } else {
-        this.searchFieldHashtagVisible = false;
-      }
+      this.searchMentionUsers = this.mentionableUsers.filter((user) =>
+        user.userName.toLowerCase().includes(mentionKeyword.toLowerCase())
+      );
+
+      const hashtagKeyword = this.extractLastHashtagKeyword(this.searchInput);
+      this.searchFieldHashtagVisible = this.searchInput.includes('#');
+
+      this.searchHashtagChannels = this.allChannels.filter((channel) =>
+        channel.name.toLowerCase().includes(hashtagKeyword.toLowerCase())
+      );
     }, 0);
   }
 
@@ -520,5 +534,15 @@ private async sendMessageToChannel(channelName: string): Promise<void> {
     });
 
     this.searchFieldHashtagVisible = false;
+  }
+
+  private extractLastMentionKeyword(text: string): string {
+    const match = text.match(/@([\wÀ-ÿ .'-]*)$/);
+    return match ? match[1] : '';
+  }
+
+  private extractLastHashtagKeyword(text: string): string {
+    const match = text.match(/#([\wÀ-ÿ .'-]*)$/);
+    return match ? match[1] : '';
   }
 }

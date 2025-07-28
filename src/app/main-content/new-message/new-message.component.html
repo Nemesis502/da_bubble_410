@@ -85,11 +85,11 @@
         placeholder="Starte mit einer neuen Nachricht"
       ></textarea>
 
-      <!--  @ Popup -->
+      <!-- @ Popup -->
       <div class="mention-popup" *ngIf="mentionPopupVisible">
         <div
           class="mention-user"
-          *ngFor="let user of mentionableUsers"
+          *ngFor="let user of searchMentionUsers"
           (click)="selectMentionUser(user.userName)"
         >
           <img
@@ -103,17 +103,16 @@
           ></div>
           <span class="mention-name nuito17px400"
             >{{ user.userName
-            }}<span *ngIf="user.userName === currentUser?.userName">
-              (Du)</span
-            ></span
-          >
+            }}<span *ngIf="user.userName === currentUser?.userName"> (Du)</span>
+          </span>
         </div>
       </div>
-      <!--  # Popup -->
+
+      <!-- # Popup -->
       <div class="mention-popup" *ngIf="hashtagPopupVisible">
         <div
           class="hashtag-item"
-          *ngFor="let channel of allChannels"
+          *ngFor="let channel of searchHashtagChannels"
           (click)="selectHashtagChannel(channel.name)"
         >
           <span class="hashtag-name nuito17px400">
