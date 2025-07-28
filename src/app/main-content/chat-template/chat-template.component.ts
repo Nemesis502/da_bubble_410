@@ -102,15 +102,33 @@ export class ChatTemplateComponent implements OnInit {
     await this.initializeChannelFromRoute();
     await this.fetchAllChannels();
 
-    this.channelService.selectedChannel$.subscribe((channel) => {
-      this.selectedChannel = channel;
-      if (channel) {
-        this.loadMessagesForChannel(channel);
-      } else {
-        this.messages = [];
-      }
-    });
+this.channelService.selectedChannel$.subscribe(async (channelOrConversation) => {
+  this.selectedChannel = channelOrConversation;
+  this.messages = []; 
+
+  if (!channelOrConversation) return;
+
+  if (this.isChannel(channelOrConversation)) {
+    this.chatIsChannel = true;
+    this.chatIsConversation = false;
+    await this.loadMessagesForChannel(channelOrConversation);
+  } else if (this.isConversation(channelOrConversation)) {
+    this.chatIsChannel = false;
+    this.chatIsConversation = true;
+    await this.loadMessagesForConversation(channelOrConversation.channelId);
   }
+});
+}
+
+
+private isChannel(obj: any): boolean {
+  return obj && obj.type === 'channel'; 
+}
+
+private isConversation(obj: any): boolean {
+  return obj && obj.type === 'conversation';
+}
+
 
   private async initializeChannelFromRoute(): Promise<void> {
     const id = this.getChannelIdFromRoute();
