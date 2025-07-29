@@ -103,60 +103,7 @@ export class ChatTemplateComponent implements OnInit {
     await this.initializeChannelFromRoute();
     await this.fetchAllChannels();
     console.log(this.selectedChannel);
-
-
-    // debugger
-    // this.channelService.selectedChannel$.subscribe(async (channelOrConversation) => {
-    //   console.log("channel or Conversation", channelOrConversation);
-    //   this.selectedChannel = channelOrConversation;
-    //   console.log("Selected Channel", this.selectedChannel);
-
-    //   this.messages = [];
-
-    //   if (!channelOrConversation) return;
-
-    //   if (this.isChannel(channelOrConversation)) {
-    //     this.chatIsChannel = true;
-    //     this.chatIsConversation = false;
-    //     await this.loadMessagesForChannel(channelOrConversation);
-    //   } else if (this.isConversation(channelOrConversation)) {
-    //     this.chatIsChannel = false;
-    //     this.chatIsConversation = true;
-    //     await this.loadMessagesForConversation(channelOrConversation.channelId);
-    //   }
-    // });
-    // this.channelService.selectedDirectMessage$.subscribe(async (channelOrConversation) => {
-    //   console.log("channel or Conversation", channelOrConversation);
-    //   this.selectedChannel = channelOrConversation;
-    //   console.log("Selected Channel", this.selectedChannel);
-
-    //   this.messages = [];
-
-    //   if (!channelOrConversation) return;
-
-    //   if (this.isChannel(channelOrConversation)) {
-    //     this.chatIsChannel = true;
-    //     this.chatIsConversation = false;
-    //     await this.loadMessagesForChannel(channelOrConversation);
-    //   } else if (this.isConversation(channelOrConversation)) {
-    //     this.chatIsChannel = false;
-    //     this.chatIsConversation = true;
-    //     await this.loadMessagesForConversation(this.selectedChannel);
-    //   }
-    // });
   }
-
-
-
-
-  private isChannel(obj: any): boolean {
-    return obj && obj.type === 'channel';
-  }
-
-  private isConversation(obj: any): boolean {
-    return obj && obj.type === 'conversation';
-  }
-
 
   private async initializeChannelFromRoute(): Promise<void> {
     const id = this.getChannelIdFromRoute();
@@ -355,11 +302,6 @@ export class ChatTemplateComponent implements OnInit {
   }
 
   async sendMessage(): Promise<void> {
-    // debugger
-    console.log(this.selectedChannel);
-    console.log(this.chatIsConversation);
-
-
     const messageText = this.chatMessage.trim();
     const channelId = this.selectedChannel?.channelId;
     const userId = this.currentUser?.id;
@@ -855,6 +797,4 @@ export class ChatTemplateComponent implements OnInit {
       channel.name.toLowerCase().includes(term)
     );
   }
-
-
 }

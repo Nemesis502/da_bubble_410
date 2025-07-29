@@ -82,8 +82,6 @@ export class ChannelsDirectMessageService {
 
 
   getChannels(): Channel[] {
-    console.log("moin");
-    
     return this.channels;
   }
 
