@@ -113,9 +113,8 @@ export class ChatTemplateComponent implements OnInit {
     console.log(this.selectedChannel);
   }
 
-<<<<<<< HEAD
-  private async initializeChannelFromRoute(): Promise<void> {
-    const id = this.getChannelIdFromRoute();
+
+  private async initializeChannelFromRoute(id: string): Promise<void> {
     if (!id) return;
 
     try {
@@ -807,20 +806,17 @@ export class ChatTemplateComponent implements OnInit {
       channel.name.toLowerCase().includes(term)
     );
   }
-<<<<<<< HEAD
-=======
 
-openProfileDialogOtherUser(): void {
-  this.dialog.open(ProfilDialogComponent, {
-    maxWidth: '90vw',
-    panelClass: 'bottom-dialog-panel',
-    data: {
-      user: this.otherUser,
-      loggedUser: this.currentUser?.id,
-      isUser: false
-    }
-  });
-}
+  openProfileDialogOtherUser(): void {
+    this.dialog.open(ProfilDialogComponent, {
+      maxWidth: '90vw',
+      panelClass: 'bottom-dialog-panel',
+      data: {
+        user: this.otherUser,
+        loggedUser: this.currentUser?.id,
+        isUser: false
+      }
+    });
+  }
 
->>>>>>> 4552ae8bc12a0748df479671dcaf85fe36154df1
 }
