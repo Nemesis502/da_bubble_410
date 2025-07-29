@@ -48,7 +48,7 @@ interface PickerPosition {
     MessageTemplateComponent,
     EmojiPickerComponent,
 
-],
+  ],
   templateUrl: './chat-template.component.html',
   styleUrl: './chat-template.component.scss',
 })
@@ -90,7 +90,7 @@ export class ChatTemplateComponent implements OnInit {
   threadMessages$: Observable<any[] | null> = of(null);
   activeThreadMessage: any | null = null;
   messageCollection: any;
-  
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -102,12 +102,12 @@ export class ChatTemplateComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.currentUser = this.userSession.getCurrentUser();
 
-   this.route.paramMap.subscribe(async params => {
-  const id = params.get('id');
-  if (id) {
-    await this.initializeChannelFromRoute(id);
-  }
-});
+    this.route.paramMap.subscribe(async params => {
+      const id = params.get('id');
+      if (id) {
+        await this.initializeChannelFromRoute(id);
+      }
+    });
 
     await this.fetchAllChannels();
     console.log(this.selectedChannel);
