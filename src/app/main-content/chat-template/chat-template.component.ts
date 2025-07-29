@@ -30,6 +30,7 @@ import { updateDoc } from '@angular/fire/firestore';
 import { Observable, of } from 'rxjs';
 import { MenuDialogComponent } from '../../shared/dialogs/menu-dialog/menu-dialog.component';
 import { MemberDialogComponent } from '../../shared/dialogs/member-dialog/member-dialog.component';
+import { ProfilDialogComponent } from '../../shared/dialogs/profil-dialog/profil-dialog.component';
 
 interface PickerPosition {
   top: number;
@@ -46,7 +47,8 @@ interface PickerPosition {
     CommonModule,
     MessageTemplateComponent,
     EmojiPickerComponent,
-  ],
+
+],
   templateUrl: './chat-template.component.html',
   styleUrl: './chat-template.component.scss',
 })
@@ -88,7 +90,7 @@ export class ChatTemplateComponent implements OnInit {
   threadMessages$: Observable<any[] | null> = of(null);
   activeThreadMessage: any | null = null;
   messageCollection: any;
-
+  
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -180,6 +182,7 @@ export class ChatTemplateComponent implements OnInit {
       console.log(this.selectedChannel);
 
       this.loadMessagesForConversation(conversationId);
+      this.chatIsChannel = false;
       console.log('Conversation setup complete. Other user:', this.otherUser);
     } catch (error) {
       console.error('Error during conversation setup:', error);
@@ -804,4 +807,20 @@ export class ChatTemplateComponent implements OnInit {
       channel.name.toLowerCase().includes(term)
     );
   }
+<<<<<<< HEAD
+=======
+
+openProfileDialogOtherUser(): void {
+  this.dialog.open(ProfilDialogComponent, {
+    maxWidth: '90vw',
+    panelClass: 'bottom-dialog-panel',
+    data: {
+      user: this.otherUser,
+      loggedUser: this.currentUser?.id,
+      isUser: false
+    }
+  });
+}
+
+>>>>>>> 4552ae8bc12a0748df479671dcaf85fe36154df1
 }
