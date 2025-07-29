@@ -16,6 +16,9 @@ import { ReactionPickerComponent } from '../../reaction-picker/reaction-picker.c
 import { Channel } from '../../interfaces/channel.interface';
 import { ChannelsDirectMessageService } from '../../shared/services/channels-direct-message.service';
 import { formatDate } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
+import { ProfilDialogComponent } from '../../shared/dialogs/profil-dialog/profil-dialog.component';
+import { appUser } from '../../interfaces/user.interface';
 
 @Component({
   selector: 'app-message-template',
@@ -43,7 +46,8 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
   constructor(
     private elementRef: ElementRef,
     private renderer: Renderer2,
-    private directMessageService: ChannelsDirectMessageService
+    private directMessageService: ChannelsDirectMessageService,
+    private dialog: MatDialog
   ) {
     this.clickListener = this.renderer.listen(
       'document',
@@ -429,4 +433,24 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
   onReplyClick(message: any): void {
     this.replyToMessage.emit(message.id || message.messageID);
   }
+  
+  openUserProfileDialog(message: any): void {
+  const user: appUser = {
+    id: message.senderID,
+    userName: message.username,
+    email: message.email || '', 
+    profilePic: message.avatar || 0,
+    status: message.status ?? true
+  };
+  const loggedUser = this.currentUser;
+
+  this.dialog.open(ProfilDialogComponent, {
+    data: {
+      user: user,
+      loggedUser,
+      isUser: false
+    },
+    panelClass: 'bottom-dialog-panel'
+  });}
+
 }

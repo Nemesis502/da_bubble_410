@@ -100,11 +100,18 @@ export class ChatTemplateComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.currentUser = this.userSession.getCurrentUser();
 
-    await this.initializeChannelFromRoute();
+   this.route.paramMap.subscribe(async params => {
+  const id = params.get('id');
+  if (id) {
+    await this.initializeChannelFromRoute(id);
+  }
+});
+
     await this.fetchAllChannels();
     console.log(this.selectedChannel);
   }
 
+<<<<<<< HEAD
   private async initializeChannelFromRoute(): Promise<void> {
     const id = this.getChannelIdFromRoute();
     if (!id) return;

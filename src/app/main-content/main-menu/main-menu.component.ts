@@ -9,7 +9,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
 import { SearchService } from '../../shared/services/search.service';
-import { ChannelsDirectMessageService, DirectMessage } from '../../shared/services/channels-direct-message.service';
+import {
+  ChannelsDirectMessageService,
+  DirectMessage,
+} from '../../shared/services/channels-direct-message.service';
 import { FirestoreService } from '../../shared/services/firestore.service';
 import { Router } from '@angular/router';
 import { UserService } from '../../shared/services/user.services';
@@ -18,6 +21,7 @@ import { firstValueFrom } from 'rxjs';
 import { SessionService } from '../../shared/services/currentUserSession.service';
 import { onSnapshot } from 'firebase/firestore';
 import { MenuDialogComponent } from '../../shared/dialogs/menu-dialog/menu-dialog.component';
+import { DirectMessageService } from '../../shared/services/direct-message.service';
 
 @Component({
   selector: 'app-main-menu',
@@ -35,7 +39,7 @@ import { MenuDialogComponent } from '../../shared/dialogs/menu-dialog/menu-dialo
   templateUrl: './main-menu.component.html',
   styleUrls: [
     './main-menu.component.scss',
-    'main-menu.media-query.component.scss'
+    'main-menu.media-query.component.scss',
   ],
 })
 export class MainMenuComponent implements OnInit {
@@ -62,16 +66,22 @@ export class MainMenuComponent implements OnInit {
   directMessages: any[] = [];
   unsubCurrentUser;
 
-  constructor(private router: Router, private userService: UserService, private userSession: SessionService, private cdr: ChangeDetectorRef) {
+  constructor(
+    private router: Router,
+    private userService: UserService,
+    private userSession: SessionService,
+    private cdr: ChangeDetectorRef,
+    private directMessageService: DirectMessageService
+  ) {
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras.state as {
       loginEmail: string;
       loginId: string;
     };
     if (state) {
-      if (state.loginId == "Guest") {
+      if (state.loginId == 'Guest') {
         this.gastLogin = true;
-        this.loadGuestData()
+        this.loadGuestData();
         this.userSession.setCurrentUser(this.currentUser!);
       } else {
         this.loadUserData(state);
@@ -88,6 +98,7 @@ export class MainMenuComponent implements OnInit {
       this.currentLoginId = sessionUser.id!;
       this.currentLoginEmail = sessionUser.email!;
       this.subCurrentUser();
+      this.directMessageService.setCurrentUser(this.currentUser);
     }
 
     if (!this.gastLogin && this.currentLoginId) {
@@ -99,7 +110,7 @@ export class MainMenuComponent implements OnInit {
     if (!this.gastLogin) {
       this.firestoreService.getChannels().subscribe((c) => {
         this.channels = c;
-        this.userChannels = c.filter(channel =>
+        this.userChannels = c.filter((channel) =>
           channel.members.includes(this.currentLoginId)
         );
         this.searchService.setFirestoreChannels(c);
@@ -107,13 +118,18 @@ export class MainMenuComponent implements OnInit {
 
       this.getAllUsers();
 
-      this.firestoreService.getConversationsByUserId(this.currentLoginId).subscribe((conv) => {
-        this.directMessages = conv;
-        this.filterDirectMessageUsers();
-        this.searchService.setDirectMessagePartnerIds(this.directMessages, this.currentLoginId);
+      this.firestoreService
+        .getConversationsByUserId(this.currentLoginId)
+        .subscribe((conv) => {
+          this.directMessages = conv;
+          this.filterDirectMessageUsers();
+          this.searchService.setDirectMessagePartnerIds(
+            this.directMessages,
+            this.currentLoginId
+          );
 
-        this.updateFilteredResults();
-      });
+          this.updateFilteredResults();
+        });
     }
 
     this.updateFilteredResults();
@@ -126,34 +142,41 @@ export class MainMenuComponent implements OnInit {
 
   async getCurrentUserLogIn() {
     this.userService.updateUserStatusTrue(this.currentLoginId);
-    let userData = await firstValueFrom(this.firestoreService.getUserById(this.currentLoginId));
+    let userData = await firstValueFrom(
+      this.firestoreService.getUserById(this.currentLoginId)
+    );
     this.currentUser = this.userService.setUserObject(userData, userData?.id);
     this.userSession.setCurrentUser(this.currentUser);
   }
 
   subCurrentUser() {
-    let currenUserDocRef = this.firestoreService.getUserDocRef(this.currentLoginId)
+    let currenUserDocRef = this.firestoreService.getUserDocRef(
+      this.currentLoginId
+    );
 
     return onSnapshot(currenUserDocRef, (currentUserData) => {
       let userData = currentUserData.data();
       if (userData) {
-        let user = this.userService.setUserObject(userData, this.currentLoginId);
+        let user = this.userService.setUserObject(
+          userData,
+          this.currentLoginId
+        );
         this.userSession.setCurrentUser(user);
         this.currentUser = user;
         this.getAllUsers();
         this.cdr.detectChanges();
       }
-    })
+    });
   }
 
   loadGuestData() {
     let guestData = {
       id: 'Guest',
-      userName: "Frederik Beck",
+      userName: 'Frederik Beck',
       profilePic: 3,
       status: true,
-      email: "email@beispiel.com"
-    }
+      email: 'email@beispiel.com',
+    };
     this.currentUser = guestData;
   }
 
@@ -175,7 +198,10 @@ export class MainMenuComponent implements OnInit {
       if (!this.gastLogin) {
         this.filterDirectMessageUsers();
         this.searchService.setCurrentUserId(this.currentLoginId);
-        this.searchService.setDirectMessagePartnerIds(this.directMessages, this.currentLoginId);
+        this.searchService.setDirectMessagePartnerIds(
+          this.directMessages,
+          this.currentLoginId
+        );
       }
     });
   }
@@ -197,26 +223,30 @@ export class MainMenuComponent implements OnInit {
       return;
     }
 
-    this.searchService.setDirectMessagePartnerIds(this.directMessages, this.currentLoginId);
+    this.searchService.setDirectMessagePartnerIds(
+      this.directMessages,
+      this.currentLoginId
+    );
 
     if (isChannelSearch) {
       this.filteredChannels = this.searchService.filterFirestoreChannels(query);
       this.filteredDirectMessages = [];
     } else if (isDirectSearch) {
-      this.filteredDirectMessages = this.searchService
-        .filterFirestoreDirectMessages(query);
+      this.filteredDirectMessages =
+        this.searchService.filterFirestoreDirectMessages(query);
       this.filteredChannels = [];
     } else {
       this.filteredChannels = this.searchService.filterFirestoreChannels(query);
-      this.filteredDirectMessages = this.searchService.filterFirestoreDirectMessages(query);
+      this.filteredDirectMessages =
+        this.searchService.filterFirestoreDirectMessages(query);
     }
   }
 
   get sortedUsers(): appUser[] {
     if (!this.currentUser) return this.users;
     return [
-      ...this.users.filter(u => u.id === this.currentUser?.id),
-      ...this.users.filter(u => u.id !== this.currentUser?.id)
+      ...this.users.filter((u) => u.id === this.currentUser?.id),
+      ...this.users.filter((u) => u.id !== this.currentUser?.id),
     ];
   }
 
@@ -237,7 +267,8 @@ export class MainMenuComponent implements OnInit {
       this.filteredChannels = [];
     } else {
       this.filteredChannels = this.searchService.filterFirestoreChannels(query);
-      this.filteredDirectMessages = this.searchService.filterFirestoreDirectMessages(query);
+      this.filteredDirectMessages =
+        this.searchService.filterFirestoreDirectMessages(query);
     }
   }
 
@@ -247,32 +278,34 @@ export class MainMenuComponent implements OnInit {
     isDirect: boolean
   ): void {
     if (isChannel) {
-      this.filteredChannels = this.searchService
-        .filterFirestoreChannels(query);
+      this.filteredChannels = this.searchService.filterFirestoreChannels(query);
       this.filteredDirectMessages = [];
     } else if (isDirect) {
-      this.filteredDirectMessages = this.searchService
-        .filterFirestoreDirectMessages(query);
+      this.filteredDirectMessages =
+        this.searchService.filterFirestoreDirectMessages(query);
       this.filteredChannels = [];
     } else {
-      this.filteredChannels = this.searchService
-        .filterFirestoreChannels(query);
-      this.filteredDirectMessages = this.searchService
-        .filterFirestoreDirectMessages(query);
+      this.filteredChannels = this.searchService.filterFirestoreChannels(query);
+      this.filteredDirectMessages =
+        this.searchService.filterFirestoreDirectMessages(query);
     }
   }
 
   filterDirectMessageUsers(): void {
     const otherUserIds = this.directMessages
-      .map(conv => conv.participants.find((id: string) => id !== this.currentLoginId))
+      .map((conv) =>
+        conv.participants.find((id: string) => id !== this.currentLoginId)
+      )
       .filter(Boolean);
 
-    this.allDirectMessages = this.users.filter(user =>
+    this.allDirectMessages = this.users.filter((user) =>
       otherUserIds.includes(user.id)
     );
 
     if (this.currentUser) {
-      const alreadyIncluded = this.allDirectMessages.some(u => u.id === this.currentUser?.id);
+      const alreadyIncluded = this.allDirectMessages.some(
+        (u) => u.id === this.currentUser?.id
+      );
       if (!alreadyIncluded) {
         this.allDirectMessages.unshift(this.currentUser);
       }
@@ -316,7 +349,7 @@ export class MainMenuComponent implements OnInit {
       return;
     }
 
-    const conversation = this.directMessages.find(conv =>
+    const conversation = this.directMessages.find((conv) =>
       conv.participants.includes(user.id)
     );
 
@@ -334,6 +367,6 @@ export class MainMenuComponent implements OnInit {
   }
 
   openNewMessage(): void {
-  this.router.navigate(['/new-message', this.currentUser?.id]);
-}
+    this.router.navigate(['/new-message', this.currentUser?.id]);
+  }
 }
