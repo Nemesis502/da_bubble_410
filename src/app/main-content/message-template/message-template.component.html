@@ -19,7 +19,7 @@
         </div>
         <div class="msg-own-main">
           <div class="msg-own-info">
-            <button class="chatter-name nuito18px700">
+            <button  (click)="openUserProfileDialog(message)" class="chatter-name nuito18px700">
               {{ message.username }}
             </button>
             <p class="msg-time">{{ message.formattedTime }}</p>
@@ -151,7 +151,7 @@
         </div>
         <div class="msg-main">
           <div class="msg-info">
-            <button class="chatter-name nuito18px700">
+            <button  (click)="openUserProfileDialog(message)" class="chatter-name nuito18px700">
               {{ message.username }}
             </button>
             <p class="msg-time">{{ message.formattedTime }}</p>

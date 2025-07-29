@@ -257,12 +257,12 @@ img {
   padding: 6px 10px;
   cursor: pointer;
   border-radius: 12px;
-  white-space: nowrap; 
+  white-space: nowrap;
   transition: background-color 0.2s;
   &:hover {
     background-color: $Bg;
-     .hashtag {
-      color: $purple3; 
+    .hashtag {
+      color: $purple3;
     }
   }
 }
@@ -281,39 +281,39 @@ img {
   font-size: 20px;
 }
 
-.channel-hash{
+.channel-hash {
   color: $purple2;
   font-size: 20px;
   padding-right: 8px;
   padding-left: 8px;
 }
 
-.channel-name-thread{
+.channel-name-thread {
   color: $purple2;
   font-size: 14px;
   display: flex;
   text-align: center;
 }
 
-.x-button{
+.x-button {
   cursor: pointer;
   background-color: white;
 }
 
-  .status-dot {
-    position: absolute;
-    left: 45px;
-    margin: 42px 0 0 12px;
-    border: 2px solid white;
-    border-radius: 50%;
-    width: 10px;
-    height: 10px;
-  }
+.status-dot {
+  position: absolute;
+  left: 45px;
+  margin: 42px 0 0 12px;
+  border: 2px solid white;
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+}
 
-  .online {
-    background-color: #2ecc71;
-  }
+.online {
+  background-color: #2ecc71;
+}
 
-  .offline {
-    background-color: #bdc3c7;
-  }
+.offline {
+  background-color: #bdc3c7;
+}

@@ -6,7 +6,9 @@
       <p>Devspace</p>
     </button>
     <button class="profile-btn" (click)="openMenuDialog()">
-      <ng-container *ngIf="currentUser?.profilePic; else defaultCurrentUserAvatar">
+      <ng-container
+        *ngIf="currentUser?.profilePic; else defaultCurrentUserAvatar"
+      >
         <img
           [src]="'./assets/img/avatar/' + currentUser?.profilePic + '.png'"
           alt="User Avatar"
@@ -14,7 +16,11 @@
         />
       </ng-container>
       <ng-template #defaultCurrentUserAvatar>
-        <img src="./assets/img/avatar/0.png" alt="Default Avatar" aria-hidden="true" />
+        <img
+          src="./assets/img/avatar/0.png"
+          alt="Default Avatar"
+          aria-hidden="true"
+        />
       </ng-template>
     </button>
   </section>
@@ -22,14 +28,24 @@
   <section class="chat-header">
     <button class="channel-button">
       <!-- Show "numbers" icon only when not in thread view -->
-      <mat-icon (click)="openChannelInfo()" *ngIf="chatIsChannel" fontSet="material-icons-outlined">
+      <mat-icon
+        (click)="openChannelInfo()"
+        *ngIf="chatIsChannel"
+        fontSet="material-icons-outlined"
+      >
         numbers
       </mat-icon>
 
       <!-- Show other user avatar + name if chatIsConversation -->
-      <ng-container class="convo-header" *ngIf="chatIsConversation">
-        <ng-container *ngIf="otherUser?.profilePic; else defaultOtherUserAvatar">
-          <img
+      <ng-container
+      
+        class="convo-header"
+        *ngIf="chatIsConversation"
+      >
+        <ng-container   (click)="openProfileDialogOtherUser()"
+          *ngIf="otherUser?.profilePic; else defaultOtherUserAvatar"
+        >
+          <img   (click)="openProfileDialogOtherUser()"
             class="other-user-avatar"
             [src]="'./assets/img/avatar/' + otherUser?.profilePic + '.png'"
             alt="{{ otherUser?.userName }}'s avatar"
@@ -43,27 +59,44 @@
           />
         </ng-template>
 
-        <div class="status-dot" [ngClass]="{ online: otherUser?.status, offline: !otherUser?.status }"></div>
-        <p class="other-user-name nuito18px700">
+        <div   (click)="openProfileDialogOtherUser()"
+          class="status-dot"
+          [ngClass]="{ online: otherUser?.status, offline: !otherUser?.status }"
+        ></div>
+        <p class="other-user-name nuito18px700"   (click)="openProfileDialogOtherUser()">
           {{ otherUser?.userName }}
         </p>
       </ng-container>
-
       <!-- Channel name -->
       <p class="channel-name nuito18px700">
         <ng-container *ngIf="chatIsThread">
-          Thread <span class="channel-hash">#</span><span class="channel-name-thread">{{ selectedChannel?.name }}</span>
+          Thread <span class="channel-hash">#</span
+          ><span class="channel-name-thread">{{ selectedChannel?.name }}</span>
         </ng-container>
-        <ng-container (click)="openChannelInfo()" *ngIf="chatIsChannel" #normalChannelName>
+        <ng-container
+          (click)="openChannelInfo()"
+          *ngIf="chatIsChannel"
+          #normalChannelName
+        >
           {{ selectedChannel?.name }}
         </ng-container>
       </p>
 
-      <mat-icon *ngIf="chatIsChannel" (click)="openChannelInfo()" class="mat-icon-top" fontIcon="keyboard_arrow_down"></mat-icon>
+      <mat-icon
+        *ngIf="chatIsChannel"
+        (click)="openChannelInfo()"
+        class="mat-icon-top"
+        fontIcon="keyboard_arrow_down"
+      ></mat-icon>
     </button>
 
     <!-- Thread view: show X button -->
-    <button *ngIf="chatIsThread" class="x-button" (click)="closeThreadView()" aria-label="Close Thread">
+    <button
+      *ngIf="chatIsThread"
+      class="x-button"
+      (click)="closeThreadView()"
+      aria-label="Close Thread"
+    >
       <mat-icon fontIcon="close"></mat-icon>
     </button>
 
@@ -124,7 +157,9 @@
         [placeholder]="
           chatIsThread
             ? 'Antworten...'
-            : 'Nachricht an ' + ('#' + selectedChannel?.name || otherUser?.userName)
+            : chatIsChannel
+            ? 'Nachricht an #' + (selectedChannel?.name || '')
+            : 'Nachricht an ' + (otherUser?.userName || '')
         "
       ></textarea>
 
@@ -140,12 +175,16 @@
             [src]="'./../../../assets/img/avatar/' + user.profilePic + '.png'"
             alt="avatar"
           />
-          <div class="status-dot" [ngClass]="{ online: user.status, offline: !user.status }"></div>
-          <span class="mention-name nuito17px400">{{
-            user.userName
-          }}<span *ngIf="user.userName === currentUser?.userName">
+          <div
+            class="status-dot"
+            [ngClass]="{ online: user.status, offline: !user.status }"
+          ></div>
+          <span class="mention-name nuito17px400"
+            >{{ user.userName
+            }}<span *ngIf="user.userName === currentUser?.userName">
               (Du)</span
-            ></span>
+            ></span
+          >
         </div>
       </div>
       <!--  # Popup -->

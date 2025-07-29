@@ -44,6 +44,7 @@
   @if (!isUser) {
   <mat-card-content class="profil-message">
     <button
+ (click)=" openConversation()"
       mat-button
       class="profil-message-button"
       aria-label="Nachricht senden"

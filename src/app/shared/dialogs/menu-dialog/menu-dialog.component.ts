@@ -1,4 +1,12 @@
-import { Component, Inject, inject, signal, OnInit, ViewChild, ElementRef } from '@angular/core';
+import {
+  Component,
+  Inject,
+  inject,
+  signal,
+  OnInit,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,7 +15,11 @@ import { MatChipsModule, MatChipInputEvent } from '@angular/material/chips';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { FormsModule } from '@angular/forms';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ProfilDialogComponent } from '../../../shared/dialogs/profil-dialog/profil-dialog.component';
 import { AuthService } from '../../../shared/services/auth.service';
@@ -30,10 +42,10 @@ import { Channel } from '../../../interfaces/channel.interface';
     MatIconModule,
     MatFormFieldModule,
     MatChipsModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
   ],
   templateUrl: './menu-dialog.component.html',
-  styleUrls: ['./menu-dialog.component.scss']
+  styleUrls: ['./menu-dialog.component.scss'],
 })
 export class MenuDialogComponent implements OnInit {
   @ViewChild('inputField') inputField!: ElementRef<HTMLInputElement>;
@@ -101,6 +113,11 @@ export class MenuDialogComponent implements OnInit {
     this.dialog.open(ProfilDialogComponent, {
       maxWidth: '90vw',
       panelClass: 'bottom-dialog-panel',
+      data: {
+        user: this.currentUser,
+        loggedUser: this.currentUser?.id, 
+        isUser: true,
+      },
     });
   }
 
@@ -137,16 +154,17 @@ export class MenuDialogComponent implements OnInit {
       name: this.channelName,
       description: this.channelDescription,
       createdBy: this.currentUser.id!,
-      members: Array.from(new Set([
-        ...this.peoples().map(u => u.id!),
-        this.currentUser.id!
-      ])),
-      messages: []
+      members: Array.from(
+        new Set([...this.peoples().map((u) => u.id!), this.currentUser.id!])
+      ),
+      messages: [],
     };
 
     try {
       const docRef = await this.firestoreService.addChannel(baseChannel);
-      await this.firestoreService.updateChannel(docRef.id, { channelId: docRef.id });
+      await this.firestoreService.updateChannel(docRef.id, {
+        channelId: docRef.id,
+      });
       this.closeDialog();
       this.router.navigate(['/main']);
     } catch (error) {
@@ -166,9 +184,12 @@ export class MenuDialogComponent implements OnInit {
       return;
     }
 
-    const membersToAdd = this.peoples().map(u => u.id!);
+    const membersToAdd = this.peoples().map((u) => u.id!);
     try {
-      await this.firestoreService.addMembersToChannel(this.data.channelId, membersToAdd);
+      await this.firestoreService.addMembersToChannel(
+        this.data.channelId,
+        membersToAdd
+      );
       this.dialogRef.close({ membersAdded: true });
     } catch (error) {
       console.error('Fehler beim Hinzufügen der Mitglieder:', error);
@@ -186,22 +207,26 @@ export class MenuDialogComponent implements OnInit {
 
   private async loadUsers(): Promise<void> {
     if (this.isGastLogin) {
-      const guestUsers = this.channelsDirectMessageService.getDirectMessagesForGast().map(dm => ({
-        userName: dm.name,
-        profilePic: parseInt(dm.img.replace('.png', ''), 10) || 0,
-        status: dm.status === 'online',
-        email: ''
-      }));
+      const guestUsers = this.channelsDirectMessageService
+        .getDirectMessagesForGast()
+        .map((dm) => ({
+          userName: dm.name,
+          profilePic: parseInt(dm.img.replace('.png', ''), 10) || 0,
+          status: dm.status === 'online',
+          email: '',
+        }));
       this.allUsers.set(guestUsers);
       this.filteredUsers.set(guestUsers);
     } else {
-      const usersFromFirestore = await firstValueFrom(this.firestoreService.getUsers());
+      const usersFromFirestore = await firstValueFrom(
+        this.firestoreService.getUsers()
+      );
       const users: appUser[] = usersFromFirestore.map((u: any) => ({
         id: u.id,
         userName: u.userName,
         profilePic: u.profilePic,
         status: u.status,
-        email: u.email
+        email: u.email,
       }));
       this.allUsers.set(users);
       this.filteredUsers.set(users);
@@ -210,7 +235,7 @@ export class MenuDialogComponent implements OnInit {
 
   private async loadChannelMembers(): Promise<void> {
     const channels = await firstValueFrom(this.firestoreService.getChannels());
-    const channel = channels.find(c => c.channelId === this.channelId);
+    const channel = channels.find((c) => c.channelId === this.channelId);
     if (channel) {
       this.channelMembers.set(channel.members);
     }
@@ -221,20 +246,21 @@ export class MenuDialogComponent implements OnInit {
     const membersInChannel = this.channelMembers();
 
     this.filteredUsers.set(
-      this.allUsers().filter(user =>
-        user.userName.toLowerCase().startsWith(query) &&
-        !this.peoples().some(p => p.userName === user.userName) &&
-        !membersInChannel.includes(user.id!)
+      this.allUsers().filter(
+        (user) =>
+          user.userName.toLowerCase().startsWith(query) &&
+          !this.peoples().some((p) => p.userName === user.userName) &&
+          !membersInChannel.includes(user.id!)
       )
     );
   }
 
   selectUser(user: appUser): void {
     if (
-      !this.peoples().some(p => p.userName === user.userName) &&
+      !this.peoples().some((p) => p.userName === user.userName) &&
       !this.channelMembers().includes(user.id!)
     ) {
-      this.peoples.update(peoples => [...peoples, user]);
+      this.peoples.update((peoples) => [...peoples, user]);
     }
 
     this.searchTerm = '';
@@ -247,9 +273,11 @@ export class MenuDialogComponent implements OnInit {
     const value = (event.value || '').trim();
     if (!value) return;
 
-    const match = this.allUsers().find(u => u.userName.toLowerCase() === value.toLowerCase());
-    if (match && !this.peoples().some(p => p.userName === match.userName)) {
-      this.peoples.update(peoples => [...peoples, match]);
+    const match = this.allUsers().find(
+      (u) => u.userName.toLowerCase() === value.toLowerCase()
+    );
+    if (match && !this.peoples().some((p) => p.userName === match.userName)) {
+      this.peoples.update((peoples) => [...peoples, match]);
     }
 
     this.searchTerm = '';
@@ -276,9 +304,11 @@ export class MenuDialogComponent implements OnInit {
     const val = this.searchTerm.trim();
     if (!val) return;
 
-    const match = this.allUsers().find(u => u.userName.toLowerCase() === val.toLowerCase());
-    if (match && !this.peoples().some(p => p.userName === match.userName)) {
-      this.peoples.update(peoples => [...peoples, match]);
+    const match = this.allUsers().find(
+      (u) => u.userName.toLowerCase() === val.toLowerCase()
+    );
+    if (match && !this.peoples().some((p) => p.userName === match.userName)) {
+      this.peoples.update((peoples) => [...peoples, match]);
     }
 
     this.searchTerm = '';
@@ -288,7 +318,7 @@ export class MenuDialogComponent implements OnInit {
   }
 
   remove(people: appUser): void {
-    this.peoples.update(peoples => peoples.filter(p => p !== people));
+    this.peoples.update((peoples) => peoples.filter((p) => p !== people));
     this.announcer.announce(`Removed ${people.userName}`);
   }
 }
