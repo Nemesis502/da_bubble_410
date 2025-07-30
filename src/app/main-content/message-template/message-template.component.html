@@ -1,6 +1,6 @@
 <div *ngFor="let message of messages" (click)="onMessageClick(message, $event)">
   <!-- Message Header -->
-  <div class="msg-header" *ngIf="message?.showDateHeader">
+  <div class="msg-header" *ngIf="message?.showDateHeader && !chatIsThread">
     <span></span>
     <p>{{ message.date }}</p>
   </div>

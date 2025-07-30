@@ -55,7 +55,7 @@ export class ProfilDialogComponent {
     if (!this.currentUser?.id || !this.loggedInUserId) {
       return;
     }
-
+    console.log(this.loggedInUserId, this.currentUser.id)
     this.directMessageService
       .findAndOpenConversation(this.loggedInUserId, this.currentUser.id)
       .then(() => this.dialogRef.close())

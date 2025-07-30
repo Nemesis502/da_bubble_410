@@ -30,7 +30,8 @@ async findAndOpenConversation(loggedUserId: string, targetUserId: string): Promi
   if (!loggedUserId || !targetUserId) {
     throw new Error('User IDs are required');
   }
-if (!loggedUserId == !targetUserId){
+if (loggedUserId === targetUserId){
+      console.log(loggedUserId, targetUserId)
   console.log('feature coming soon')
 }
   const conversation = await this.firestoreService.getConversationBetweenUsers(loggedUserId, targetUserId);

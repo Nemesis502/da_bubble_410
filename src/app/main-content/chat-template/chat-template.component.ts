@@ -47,7 +47,6 @@ interface PickerPosition {
     CommonModule,
     MessageTemplateComponent,
     EmojiPickerComponent,
-
   ],
   templateUrl: './chat-template.component.html',
   styleUrl: './chat-template.component.scss',
@@ -97,12 +96,12 @@ export class ChatTemplateComponent implements OnInit {
     private elementRef: ElementRef,
     private channelService: ChannelsDirectMessageService,
     private firestore: Firestore
-  ) { }
+  ) {}
 
   async ngOnInit(): Promise<void> {
     this.currentUser = this.userSession.getCurrentUser();
 
-    this.route.paramMap.subscribe(async params => {
+    this.route.paramMap.subscribe(async (params) => {
       const id = params.get('id');
       if (id) {
         await this.initializeChannelFromRoute(id);
@@ -112,7 +111,6 @@ export class ChatTemplateComponent implements OnInit {
     await this.fetchAllChannels();
     console.log(this.selectedChannel);
   }
-
 
   private async initializeChannelFromRoute(id: string): Promise<void> {
     if (!id) return;
@@ -136,7 +134,8 @@ export class ChatTemplateComponent implements OnInit {
 
       if (convSnap.exists()) {
         this.chatIsConversation = true;
-        this.selectedChannel = id
+        this.chatIsChannel = false;
+        this.selectedChannel = id;
         console.log(this.selectedChannel);
         await this.handleConversationSetup(id);
         return;
@@ -232,14 +231,6 @@ export class ChatTemplateComponent implements OnInit {
     }
   }
 
-  private getChannelIdFromRoute(): string | null {
-    const channelId = this.route.snapshot.paramMap.get('id');
-    if (!channelId) {
-      console.warn('No channel ID in route');
-    }
-    return channelId;
-  }
-
   private async resolveChannelById(channelId: string): Promise<any | null> {
     const knownChannels = this.channelService.getChannels();
     const matchedChannel = knownChannels.find((c) => c.channelId === channelId);
@@ -276,40 +267,6 @@ export class ChatTemplateComponent implements OnInit {
     this.router.navigate(['/main']);
   }
 
-  toggleEmojiPicker(event: MouseEvent): void {
-    event.stopPropagation();
-    this.emojiPickerVisible = !this.emojiPickerVisible;
-
-    if (this.emojiPickerVisible) {
-      const buttonRect = (event.target as HTMLElement).getBoundingClientRect();
-      this.pickerPosition = {
-        top: buttonRect.bottom + window.scrollY,
-        left: buttonRect.left + window.scrollX,
-      };
-    }
-  }
-
-  addEmoji(emoji: string): void {
-    if (this.chatField) {
-      const textarea = this.chatField.nativeElement;
-      const cursorPos = textarea.selectionStart;
-      const textBefore = this.chatMessage.slice(0, cursorPos);
-      const textAfter = this.chatMessage.slice(cursorPos);
-      this.chatMessage = `${textBefore}${emoji}${textAfter}`;
-      textarea.focus();
-      setTimeout(() => {
-        textarea.setSelectionRange(
-          cursorPos + emoji.length,
-          cursorPos + emoji.length
-        );
-      }, 0);
-    }
-  }
-
-  onPickerClosed() {
-    this.emojiPickerVisible = false;
-  }
-
   async sendMessage(): Promise<void> {
     const messageText = this.chatMessage.trim();
     const channelId = this.selectedChannel?.channelId;
@@ -330,7 +287,7 @@ export class ChatTemplateComponent implements OnInit {
       }
 
       this.afterMessageSend();
-    } catch (error) { }
+    } catch (error) {}
   }
 
   private async updateThreadMessage(
@@ -350,19 +307,30 @@ export class ChatTemplateComponent implements OnInit {
     this.loadThreadMessages();
   }
 
-  private async sendThreadMessage(
-    channelId: string,
-    messageText: string,
-    userId: string
-  ): Promise<void> {
+private async sendThreadMessage(
+  channelId: string,
+  messageText: string,
+  userId: string
+): Promise<void> {
+  if (this.chatIsConversation) {
+    await this.channelService.sendConversationThreadMessage(
+      channelId,
+      this.activeThreadMessageId,
+      messageText,
+      userId
+    );
+  } else {
     await this.channelService.sendThreadMessage(
       channelId,
       this.activeThreadMessageId,
       messageText,
       userId
     );
-    this.loadThreadMessages();
   }
+
+  this.loadThreadMessages();
+}
+
 
   private async updateExistingMessage(
     channelId: string,
@@ -384,21 +352,27 @@ export class ChatTemplateComponent implements OnInit {
   private async createNewMessage(
     channelId: string,
     messageText: string,
-    userId: string): Promise<void> {
+    userId: string
+  ): Promise<void> {
     if (this.chatIsConversation) {
       this.messageCollection = collection(
         this.firestore,
-        `conversations/${channelId}/directMessages`);
+        `conversations/${channelId}/directMessages`
+      );
     } else {
       this.messageCollection = collection(
         this.firestore,
         `channels/${channelId}/messages`
       );
     }
-    await this.sendMessageInConversation(messageText, userId, channelId)
+    await this.sendMessageInConversation(messageText, userId, channelId);
   }
 
-  async sendMessageInConversation(messageText: string, userId: string, channelId: string) {
+  async sendMessageInConversation(
+    messageText: string,
+    userId: string,
+    channelId: string
+  ) {
     const newMessage = {
       text: messageText,
       timestamp: serverTimestamp(),
@@ -418,24 +392,6 @@ export class ChatTemplateComponent implements OnInit {
     this.editedMessage = message;
   }
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const pickerElement = this.elementRef.nativeElement.querySelector(
-      '.emoji-picker-panel'
-    );
-    const buttonElement =
-      this.elementRef.nativeElement.querySelector('.chat-buttons');
-
-    if (
-      pickerElement &&
-      !pickerElement.contains(event.target as Node) &&
-      buttonElement &&
-      !buttonElement.contains(event.target as Node)
-    ) {
-      this.emojiPickerVisible = false;
-    }
-  }
-
   openChannelInfo(): void {
     const channelId = this.selectedChannel?.channelId;
     if (!channelId) {
@@ -446,7 +402,165 @@ export class ChatTemplateComponent implements OnInit {
     this.router.navigate(['/channel-info', channelId]);
   }
 
-  private scrollToBottom(): void {
+
+  handleReplyToMessage(messageId: string): void {
+    this.chatIsThread = true;
+    this.chatIsChannel = false;
+    this.activeThreadMessageId = messageId;
+    this.loadThreadMessages();
+    this.setActiveThreadMessage(messageId);
+
+    setTimeout(() => {
+      this.scrollToBottom();
+    }, 100);
+  }
+
+loadThreadMessages(): void {
+  const channelId = this.selectedChannel?.channelId;
+  const messageId = this.activeThreadMessageId;
+
+  if (!messageId) return;
+
+  if (this.chatIsConversation && channelId) {
+    // Load thread messages for a conversation
+    this.channelService
+      .getEnrichedConversationThreadMessages(channelId, messageId)
+      .subscribe((messages) => {
+        this.threadMessages$ = of(messages);
+      });
+
+    const docRef = doc(this.firestore, `conversations/${channelId}/directMessages/${messageId}`);
+    getDoc(docRef).then((docSnap) => {
+      if (docSnap.exists()) {
+        const rawMsg = { id: docSnap.id, ...docSnap.data() };
+        this.channelService
+          .enrichMessage(channelId, rawMsg)
+          .subscribe((enrichedMsg) => {
+            this.activeThreadMessage = enrichedMsg;
+          });
+      } else {
+        this.activeThreadMessage = null;
+      }
+    });
+  } else if (channelId) {
+    // Original channel thread logic
+    this.channelService
+      .getEnrichedThreadMessages(channelId, messageId)
+      .subscribe((messages) => {
+        this.threadMessages$ = of(messages);
+      });
+
+    const docRef = doc(this.firestore, `channels/${channelId}/messages/${messageId}`);
+    getDoc(docRef).then((docSnap) => {
+      if (docSnap.exists()) {
+        const rawMsg = { id: docSnap.id, ...docSnap.data() };
+        this.channelService
+          .enrichMessage(channelId, rawMsg)
+          .subscribe((enrichedMsg) => {
+            this.activeThreadMessage = enrichedMsg;
+          });
+      } else {
+        this.activeThreadMessage = null;
+      }
+    });
+  }
+}
+
+
+async setActiveThreadMessage(messageId: string) {
+  this.activeThreadMessageId = messageId;
+
+  if (!this.selectedChannel?.channelId) {
+    this.activeThreadMessage = null;
+    return;
+  }
+
+  let docRef;
+
+  if (this.chatIsConversation) {
+    docRef = doc(
+      this.firestore,
+      `conversations/${this.selectedChannel.channelId}/directMessages/${messageId}`
+    );
+  } else {
+    docRef = doc(
+      this.firestore,
+      `channels/${this.selectedChannel.channelId}/messages/${messageId}`
+    );
+  }
+
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    this.activeThreadMessage = { id: docSnap.id, ...docSnap.data() };
+  } else {
+    this.activeThreadMessage = null;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  openMenuDialog(): void {
+    this.dialog.open(MenuDialogComponent, {
+      position: { bottom: '0' },
+      maxWidth: '100vw',
+      width: '100vw',
+      panelClass: 'bottom-dialog-panel',
+      data: {
+        source: 'main-menu',
+      },
+    });
+  }
+
+  openMemberDialog(): void {
+    this.dialog.open(MemberDialogComponent, {
+      position: { top: '122px' },
+      width: '80vw',
+      maxHeight: '75vh',
+      panelClass: 'member-dialog',
+      data: {
+        source: 'channel-chat',
+        channelId: this.selectedChannel?.channelId,
+      },
+    });
+  }
+
+  closeThreadView(): void {
+    this.chatIsThread = false;
+    if (!this.chatIsConversation) {
+      this.chatIsChannel = true;
+    }
+    const channelId = this.selectedChannel?.channelId;
+    if (channelId) {
+      this.router.navigate([`/chat/${channelId}`]);
+    }
+  }
+
+  openProfileDialogOtherUser(): void {
+    this.dialog.open(ProfilDialogComponent, {
+      maxWidth: '90vw',
+      panelClass: 'bottom-dialog-panel',
+      data: {
+        user: this.otherUser,
+        loggedUser: this.currentUser?.id,
+        isUser: false,
+      },
+    });
+  }
+
+    private scrollToBottom(): void {
     setTimeout(() => {
       if (this.chatBodyRef) {
         const container = this.chatBodyRef.nativeElement;
@@ -680,102 +794,7 @@ export class ChatTemplateComponent implements OnInit {
     this.mentionPopupVisible = false;
   }
 
-  handleReplyToMessage(messageId: string): void {
-    this.chatIsThread = true;
-    this.chatIsChannel = false;
-    this.activeThreadMessageId = messageId;
-    this.loadThreadMessages();
-    this.setActiveThreadMessage(messageId);
-
-    setTimeout(() => {
-      this.scrollToBottom();
-    }, 100);
-  }
-
-  loadThreadMessages(): void {
-    const channelId = this.selectedChannel?.channelId;
-    const messageId = this.activeThreadMessageId;
-
-    if (!channelId || !messageId) return;
-
-    this.channelService
-      .getEnrichedThreadMessages(channelId, messageId)
-      .subscribe((messages) => {
-        this.threadMessages$ = of(messages);
-      });
-
-    const docRef = doc(
-      this.firestore,
-      `channels/${channelId}/messages/${messageId}`
-    );
-    getDoc(docRef).then((docSnap) => {
-      if (docSnap.exists()) {
-        const rawMsg = { id: docSnap.id, ...docSnap.data() };
-        this.channelService
-          .enrichMessage(channelId, rawMsg)
-          .subscribe((enrichedMsg) => {
-            this.activeThreadMessage = enrichedMsg;
-          });
-      } else {
-        this.activeThreadMessage = null;
-      }
-    });
-  }
-
-  async setActiveThreadMessage(messageId: string) {
-    this.activeThreadMessageId = messageId;
-
-    if (!this.selectedChannel?.channelId) {
-      this.activeThreadMessage = null;
-      return;
-    }
-
-    const docRef = doc(
-      this.firestore,
-      `channels/${this.selectedChannel.channelId}/messages/${messageId}`
-    );
-
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      this.activeThreadMessage = { id: docSnap.id, ...docSnap.data() };
-    } else {
-      this.activeThreadMessage = null;
-    }
-  }
-
-  openMenuDialog(): void {
-    this.dialog.open(MenuDialogComponent, {
-      position: { bottom: '0' },
-      maxWidth: '100vw',
-      width: '100vw',
-      panelClass: 'bottom-dialog-panel',
-      data: {
-        source: 'main-menu',
-      },
-    });
-  }
-  openMemberDialog(): void {
-    this.dialog.open(MemberDialogComponent, {
-      position: { top: '122px' },
-      width: '80vw',
-      maxHeight: '75vh',
-      panelClass: 'member-dialog',
-      data: {
-        source: 'channel-chat',
-        channelId: this.selectedChannel?.channelId,
-      },
-    });
-  }
-
-  closeThreadView(): void {
-    this.chatIsThread = false;
-    this.chatIsChannel = true;
-    const channelId = this.selectedChannel?.channelId;
-    if (channelId) {
-      this.router.navigate([`/chat/${channelId}`]);
-    }
-  }
-
+  
   private getCurrentTriggerTerm(triggerChar: '@' | '#'): string | null {
     const textarea = this.chatField?.nativeElement;
     if (!textarea) return null;
@@ -796,27 +815,66 @@ export class ChatTemplateComponent implements OnInit {
   }
 
   private filterMentionableUsers(term: string): void {
-    this.filteredMentionableUsers = this.mentionableUsers.filter(user =>
+    this.filteredMentionableUsers = this.mentionableUsers.filter((user) =>
       user.userName.toLowerCase().includes(term)
     );
   }
 
   private filterChannels(term: string): void {
-    this.filteredChannels = this.allChannels.filter(channel =>
+    this.filteredChannels = this.allChannels.filter((channel) =>
       channel.name.toLowerCase().includes(term)
     );
   }
 
-  openProfileDialogOtherUser(): void {
-    this.dialog.open(ProfilDialogComponent, {
-      maxWidth: '90vw',
-      panelClass: 'bottom-dialog-panel',
-      data: {
-        user: this.otherUser,
-        loggedUser: this.currentUser?.id,
-        isUser: false
-      }
-    });
+  toggleEmojiPicker(event: MouseEvent): void {
+    event.stopPropagation();
+    this.emojiPickerVisible = !this.emojiPickerVisible;
+
+    if (this.emojiPickerVisible) {
+      const buttonRect = (event.target as HTMLElement).getBoundingClientRect();
+      this.pickerPosition = {
+        top: buttonRect.bottom + window.scrollY,
+        left: buttonRect.left + window.scrollX,
+      };
+    }
   }
 
+  addEmoji(emoji: string): void {
+    if (this.chatField) {
+      const textarea = this.chatField.nativeElement;
+      const cursorPos = textarea.selectionStart;
+      const textBefore = this.chatMessage.slice(0, cursorPos);
+      const textAfter = this.chatMessage.slice(cursorPos);
+      this.chatMessage = `${textBefore}${emoji}${textAfter}`;
+      textarea.focus();
+      setTimeout(() => {
+        textarea.setSelectionRange(
+          cursorPos + emoji.length,
+          cursorPos + emoji.length
+        );
+      }, 0);
+    }
+  }
+
+  onPickerClosed() {
+    this.emojiPickerVisible = false;
+  }
+
+    @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const pickerElement = this.elementRef.nativeElement.querySelector(
+      '.emoji-picker-panel'
+    );
+    const buttonElement =
+      this.elementRef.nativeElement.querySelector('.chat-buttons');
+
+    if (
+      pickerElement &&
+      !pickerElement.contains(event.target as Node) &&
+      buttonElement &&
+      !buttonElement.contains(event.target as Node)
+    ) {
+      this.emojiPickerVisible = false;
+    }
+  }
 }
