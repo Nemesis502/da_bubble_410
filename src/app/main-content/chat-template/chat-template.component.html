@@ -38,14 +38,15 @@
 
       <!-- Show other user avatar + name if chatIsConversation -->
       <ng-container
-      
         class="convo-header"
-        *ngIf="chatIsConversation"
+        *ngIf="chatIsConversation && !chatIsThread"
       >
-        <ng-container   (click)="openProfileDialogOtherUser()"
+        <ng-container
+          (click)="openProfileDialogOtherUser()"
           *ngIf="otherUser?.profilePic; else defaultOtherUserAvatar"
         >
-          <img   (click)="openProfileDialogOtherUser()"
+          <img
+            (click)="openProfileDialogOtherUser()"
             class="other-user-avatar"
             [src]="'./assets/img/avatar/' + otherUser?.profilePic + '.png'"
             alt="{{ otherUser?.userName }}'s avatar"
@@ -59,19 +60,27 @@
           />
         </ng-template>
 
-        <div   (click)="openProfileDialogOtherUser()"
+        <div
+          (click)="openProfileDialogOtherUser()"
           class="status-dot"
           [ngClass]="{ online: otherUser?.status, offline: !otherUser?.status }"
         ></div>
-        <p class="other-user-name nuito18px700"   (click)="openProfileDialogOtherUser()">
+        <p
+          class="other-user-name nuito18px700"
+          (click)="openProfileDialogOtherUser()"
+        >
           {{ otherUser?.userName }}
         </p>
       </ng-container>
       <!-- Channel name -->
       <p class="channel-name nuito18px700">
         <ng-container *ngIf="chatIsThread">
-          Thread <span class="channel-hash">#</span
-          ><span class="channel-name-thread">{{ selectedChannel?.name }}</span>
+          Thread <span class="channel-hash">#</span>
+          <span class="channel-name-thread">
+            {{
+              chatIsConversation ? otherUser?.userName : selectedChannel?.name
+            }}
+          </span>
         </ng-container>
         <ng-container
           (click)="openChannelInfo()"
@@ -121,6 +130,12 @@
         (editMessage)="startEditingMessage($event)"
         (replyToMessage)="handleReplyToMessage($event)"
       ></app-message-template>
+
+      <!-- Antworten counter -->
+      <div class="msg-header" *ngIf="threadMessages$ | async as threadMessages">
+        <p>{{ threadMessages.length }} Antworten</p>
+        <span></span>
+      </div>
 
       <!-- Replies to thread -->
       <app-message-template

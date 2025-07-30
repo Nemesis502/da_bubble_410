@@ -317,3 +317,30 @@ img {
 .offline {
   background-color: #bdc3c7;
 }
+
+.msg-header {
+  padding-left: 16px;
+  padding-right: 16px;
+  height: 35px;
+  display: flex;
+  width: calc(100% - 32px);
+  align-items: center;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  span {
+    height: 1px;
+    width: 100%;
+    background-color: $LightPurple;
+  }
+  p {
+    font-family: "Nunito" !important;
+    color: $LightPurple;
+    font-size: 18px;
+    z-index: 1;
+    margin-bottom: 0px;
+    padding-bottom: 0px;
+    padding: 2px 10px;
+    white-space: nowrap;
+  }
+}
