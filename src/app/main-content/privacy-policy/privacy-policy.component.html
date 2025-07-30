@@ -2,29 +2,41 @@
 
 <main class="privacy-policy scroll-container">
     <section class="content-wrapper">
-        <button class="back-button" aria-label="Zurück" (click)="goBack()">
-            <img src="./../../assets/img/back.png" alt="Zurück">
-        </button>
+    <div class="arrow-container">
+      <div class="arrow-img">
+        <img
+          class="default-arrows"
+          src="./../../../../assets/img/back.png"
+          alt=""
+        />
+        <img
+          class="hover-arrows"
+          (click)="goBack()"
+          src="./../../../../assets/img/back_hover.png"
+          alt=""
+        />
+      </div>
+    </div>
 
-        <section>
+        <section class="privacy-policy-section">
             <h1 class="headline">Datenschutzerklärung</h1>
             <p>Stand: 1. Juni 2025</p>
             <h2 class="headline">Inhaltsübersicht</h2>
             <ul class="index">
-                <li><a class="index-link" href="#m3">Verantwortlicher</a></li>
-                <li><a class="index-link" href="#mOverview">Übersicht der Verarbeitungen</a></li>
-                <li><a class="index-link" href="#m2427">Maßgebliche Rechtsgrundlagen</a></li>
-                <li><a class="index-link" href="#m27">Sicherheitsmaßnahmen</a></li>
-                <li><a class="index-link" href="#m25">Übermittlung von personenbezogenen Daten</a></li>
-                <li><a class="index-link" href="#m24">Internationale Datentransfers</a></li>
-                <li><a class="index-link" href="#m12">Allgemeine Informationen zur Datenspeicherung und Löschung</a></li>
-                <li><a class="index-link" href="#m10">Rechte der betroffenen Personen</a></li>
-                <li><a class="index-link" href="#m225">Bereitstellung des Onlineangebots und Webhosting</a></li>
-                <li><a class="index-link" href="#m367">Registrierung, Anmeldung und Nutzerkonto</a></li>
-                <li><a class="index-link" href="#m432">Community Funktionen</a></li>
-                <li><a class="index-link" href="#m451">Single-Sign-On-Anmeldung</a></li>
-                <li><a class="index-link" href="#m182">Kontakt- und Anfrageverwaltung</a></li>
-                <li><a class="index-link" href="#m328">Plug-ins und eingebettete Funktionen sowie Inhalte</a></li>
+                <li><a class="index-link" (click)="goTo('m3')">Verantwortlicher</a></li>
+                <li><a class="index-link" (click)="goTo('mOverview')">Übersicht der Verarbeitungen</a></li>
+                <li><a class="index-link" (click)="goTo('m2427')">Maßgebliche Rechtsgrundlagen</a></li>
+                <li><a class="index-link" (click)="goTo('m27')">Sicherheitsmaßnahmen</a></li>
+                <li><a class="index-link" (click)="goTo('m25')">Übermittlung von personenbezogenen Daten</a></li>
+                <li><a class="index-link" (click)="goTo('m24')">Internationale Datentransfers</a></li>
+                <li><a class="index-link" (click)="goTo('m12')">Allgemeine Informationen zur Datenspeicherung und Löschung</a></li>
+                <li><a class="index-link" (click)="goTo('m10')">Rechte der betroffenen Personen</a></li>
+                <li><a class="index-link" (click)="goTo('m225')" >Bereitstellung des Onlineangebots und Webhosting</a></li>
+                <li><a class="index-link" (click)="goTo('m367')">Registrierung, Anmeldung und Nutzerkonto</a></li>
+                <li><a class="index-link" (click)="goTo('m432')">Community Funktionen</a></li>
+                <li><a class="index-link" (click)="goTo('m451')">Single-Sign-On-Anmeldung</a></li>
+                <li><a class="index-link" (click)="goTo('m182')">Kontakt- und Anfrageverwaltung</a></li>
+                <li><a class="index-link" (click)="goTo('m328')">Plug-ins und eingebettete Funktionen sowie Inhalte</a></li>
             </ul>
             <h2 class="headline" id="m3">Verantwortlicher</h2>
             <p>Erik, Michel<br>Radeland 55d<br>24558, Henstedt-Ulzburg, Deutschland </p>

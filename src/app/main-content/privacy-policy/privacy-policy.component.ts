@@ -1,5 +1,6 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, ViewportScroller } from '@angular/common';
 import { Component } from '@angular/core';
+import { Location } from '@angular/common';
 import { LogoComponent } from '../../shared/logo/logo.component';
 import { Router } from '@angular/router';
 
@@ -14,9 +15,18 @@ import { Router } from '@angular/router';
   styleUrl: './privacy-policy.component.scss'
 })
 export class PrivacyPolicyComponent {
-  constructor(private router: Router) { }
+  constructor(private router: Router, private viewportScroller: ViewportScroller, private location: Location) { }
+
+  goTo(id: string) {
+    // this.router.navigate(['privacyPolicy']).then(() => this.viewportScroller.scrollToAnchor(id));
+    this.viewportScroller.scrollToAnchor(id);
+    // const el = document.getElementById(id);
+    // if (el) {
+    //   el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // }
+  }
 
   goBack() {
-    this.router.navigate(['/']);
+    this.location.back();
   }
 }

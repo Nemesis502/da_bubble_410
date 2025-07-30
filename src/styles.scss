@@ -373,9 +373,11 @@ button {
   cursor: pointer;
 }
 
+
 html,
 body {
-  height: 100%;
+  //height: 100%; //brauchen wir das wirklich?
+  scroll-behavior: smooth;
 }
 
 body {

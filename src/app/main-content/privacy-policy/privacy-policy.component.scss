@@ -4,11 +4,10 @@
     display: flex;
     flex-direction: column;
     max-width: 600px;
-    max-height: 470px;
     margin: 10% auto;
     background-color: white;
     border-radius: 30px;
-    overflow-y: auto;
+    margin-inline: 5%;
 
     h1 {
         font-size: 46px;
@@ -35,6 +34,29 @@
     }
 }
 
+.arrow-container {
+    height: 40px;
+    width: 40px;
+}
+
+.arrow-img {
+    img {
+        height: 40px;
+        width: 40px;
+    }
+
+    &:hover {
+        .default-arrows {
+            display: none;
+        }
+
+        .hover-arrows {
+            display: block;
+            cursor: pointer;
+        }
+    }
+}
+
 .scroll-container {
     &::-webkit-scrollbar {
         width: 8px;
@@ -56,6 +78,13 @@
     display: flex;
     flex-direction: column;
     padding: 40px;
+    gap: 32px;
+}
+
+.privacy-policy-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
 .back-button {
@@ -71,10 +100,18 @@
     }
 }
 
+.default-arrows {
+    display: block;
+}
+
+.hover-arrows {
+    display: none;
+}
+
+
 @media (max-width: 630px) {
     .privacy-policy {
         margin-inline: 5%;
-        max-height: 80vh;
 
         h1 {
             font-size: 24px;
@@ -100,7 +137,6 @@
 
 @media (max-width: 400px) {
     .privacy-policy {
-        max-width: 90%;
 
         ul {
             padding-left: 20px;
@@ -133,9 +169,5 @@
         ul {
             padding-left: 15px;
         }
-    }
-
-    .content-wrapper {
-        padding: 15px;
     }
 }
