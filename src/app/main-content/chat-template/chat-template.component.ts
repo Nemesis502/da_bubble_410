@@ -96,7 +96,7 @@ export class ChatTemplateComponent implements OnInit {
     private elementRef: ElementRef,
     private channelService: ChannelsDirectMessageService,
     private firestore: Firestore
-  ) {}
+  ) { }
 
   async ngOnInit(): Promise<void> {
     this.currentUser = this.userSession.getCurrentUser();
@@ -133,13 +133,10 @@ export class ChatTemplateComponent implements OnInit {
 
       if (convSnap.exists()) {
         this.chatIsConversation = true;
-<<<<<<< HEAD
         this.selectedChannel = id
-=======
         this.chatIsChannel = false;
         this.selectedChannel = id;
         console.log(this.selectedChannel);
->>>>>>> b8d832535dc5cf6b82f89dff1c2a32411dbdac4b
         await this.handleConversationSetup(id);
         return;
       }
@@ -287,7 +284,7 @@ export class ChatTemplateComponent implements OnInit {
       }
 
       this.afterMessageSend();
-    } catch (error) {}
+    } catch (error) { }
   }
 
   private async updateThreadMessage(
@@ -307,29 +304,29 @@ export class ChatTemplateComponent implements OnInit {
     this.loadThreadMessages();
   }
 
-private async sendThreadMessage(
-  channelId: string,
-  messageText: string,
-  userId: string
-): Promise<void> {
-  if (this.chatIsConversation) {
-    await this.channelService.sendConversationThreadMessage(
-      channelId,
-      this.activeThreadMessageId,
-      messageText,
-      userId
-    );
-  } else {
-    await this.channelService.sendThreadMessage(
-      channelId,
-      this.activeThreadMessageId,
-      messageText,
-      userId
-    );
-  }
+  private async sendThreadMessage(
+    channelId: string,
+    messageText: string,
+    userId: string
+  ): Promise<void> {
+    if (this.chatIsConversation) {
+      await this.channelService.sendConversationThreadMessage(
+        channelId,
+        this.activeThreadMessageId,
+        messageText,
+        userId
+      );
+    } else {
+      await this.channelService.sendThreadMessage(
+        channelId,
+        this.activeThreadMessageId,
+        messageText,
+        userId
+      );
+    }
 
-  this.loadThreadMessages();
-}
+    this.loadThreadMessages();
+  }
 
 
   private async updateExistingMessage(
@@ -414,87 +411,87 @@ private async sendThreadMessage(
     }, 100);
   }
 
-loadThreadMessages(): void {
-  const channelId = this.selectedChannel?.channelId;
-  const messageId = this.activeThreadMessageId;
+  loadThreadMessages(): void {
+    const channelId = this.selectedChannel?.channelId;
+    const messageId = this.activeThreadMessageId;
 
-  if (!messageId) return;
+    if (!messageId) return;
 
-  if (this.chatIsConversation && channelId) {
-    // Load thread messages for a conversation
-    this.channelService
-      .getEnrichedConversationThreadMessages(channelId, messageId)
-      .subscribe((messages) => {
-        this.threadMessages$ = of(messages);
+    if (this.chatIsConversation && channelId) {
+      // Load thread messages for a conversation
+      this.channelService
+        .getEnrichedConversationThreadMessages(channelId, messageId)
+        .subscribe((messages) => {
+          this.threadMessages$ = of(messages);
+        });
+
+      const docRef = doc(this.firestore, `conversations/${channelId}/directMessages/${messageId}`);
+      getDoc(docRef).then((docSnap) => {
+        if (docSnap.exists()) {
+          const rawMsg = { id: docSnap.id, ...docSnap.data() };
+          this.channelService
+            .enrichMessage(channelId, rawMsg)
+            .subscribe((enrichedMsg) => {
+              this.activeThreadMessage = enrichedMsg;
+            });
+        } else {
+          this.activeThreadMessage = null;
+        }
       });
+    } else if (channelId) {
+      // Original channel thread logic
+      this.channelService
+        .getEnrichedThreadMessages(channelId, messageId)
+        .subscribe((messages) => {
+          this.threadMessages$ = of(messages);
+        });
 
-    const docRef = doc(this.firestore, `conversations/${channelId}/directMessages/${messageId}`);
-    getDoc(docRef).then((docSnap) => {
-      if (docSnap.exists()) {
-        const rawMsg = { id: docSnap.id, ...docSnap.data() };
-        this.channelService
-          .enrichMessage(channelId, rawMsg)
-          .subscribe((enrichedMsg) => {
-            this.activeThreadMessage = enrichedMsg;
-          });
-      } else {
-        this.activeThreadMessage = null;
-      }
-    });
-  } else if (channelId) {
-    // Original channel thread logic
-    this.channelService
-      .getEnrichedThreadMessages(channelId, messageId)
-      .subscribe((messages) => {
-        this.threadMessages$ = of(messages);
+      const docRef = doc(this.firestore, `channels/${channelId}/messages/${messageId}`);
+      getDoc(docRef).then((docSnap) => {
+        if (docSnap.exists()) {
+          const rawMsg = { id: docSnap.id, ...docSnap.data() };
+          this.channelService
+            .enrichMessage(channelId, rawMsg)
+            .subscribe((enrichedMsg) => {
+              this.activeThreadMessage = enrichedMsg;
+            });
+        } else {
+          this.activeThreadMessage = null;
+        }
       });
-
-    const docRef = doc(this.firestore, `channels/${channelId}/messages/${messageId}`);
-    getDoc(docRef).then((docSnap) => {
-      if (docSnap.exists()) {
-        const rawMsg = { id: docSnap.id, ...docSnap.data() };
-        this.channelService
-          .enrichMessage(channelId, rawMsg)
-          .subscribe((enrichedMsg) => {
-            this.activeThreadMessage = enrichedMsg;
-          });
-      } else {
-        this.activeThreadMessage = null;
-      }
-    });
-  }
-}
-
-
-async setActiveThreadMessage(messageId: string) {
-  this.activeThreadMessageId = messageId;
-
-  if (!this.selectedChannel?.channelId) {
-    this.activeThreadMessage = null;
-    return;
+    }
   }
 
-  let docRef;
 
-  if (this.chatIsConversation) {
-    docRef = doc(
-      this.firestore,
-      `conversations/${this.selectedChannel.channelId}/directMessages/${messageId}`
-    );
-  } else {
-    docRef = doc(
-      this.firestore,
-      `channels/${this.selectedChannel.channelId}/messages/${messageId}`
-    );
-  }
+  async setActiveThreadMessage(messageId: string) {
+    this.activeThreadMessageId = messageId;
 
-  const docSnap = await getDoc(docRef);
-  if (docSnap.exists()) {
-    this.activeThreadMessage = { id: docSnap.id, ...docSnap.data() };
-  } else {
-    this.activeThreadMessage = null;
+    if (!this.selectedChannel?.channelId) {
+      this.activeThreadMessage = null;
+      return;
+    }
+
+    let docRef;
+
+    if (this.chatIsConversation) {
+      docRef = doc(
+        this.firestore,
+        `conversations/${this.selectedChannel.channelId}/directMessages/${messageId}`
+      );
+    } else {
+      docRef = doc(
+        this.firestore,
+        `channels/${this.selectedChannel.channelId}/messages/${messageId}`
+      );
+    }
+
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      this.activeThreadMessage = { id: docSnap.id, ...docSnap.data() };
+    } else {
+      this.activeThreadMessage = null;
+    }
   }
-}
 
 
 
@@ -559,7 +556,7 @@ async setActiveThreadMessage(messageId: string) {
     });
   }
 
-    private scrollToBottom(): void {
+  private scrollToBottom(): void {
     setTimeout(() => {
       if (this.chatBodyRef) {
         const container = this.chatBodyRef.nativeElement;
@@ -793,7 +790,7 @@ async setActiveThreadMessage(messageId: string) {
     this.mentionPopupVisible = false;
   }
 
-  
+
   private getCurrentTriggerTerm(triggerChar: '@' | '#'): string | null {
     const textarea = this.chatField?.nativeElement;
     if (!textarea) return null;
@@ -859,7 +856,7 @@ async setActiveThreadMessage(messageId: string) {
     this.emojiPickerVisible = false;
   }
 
-    @HostListener('document:click', ['$event'])
+  @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const pickerElement = this.elementRef.nativeElement.querySelector(
       '.emoji-picker-panel'
