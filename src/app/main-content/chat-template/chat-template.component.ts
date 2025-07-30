@@ -110,7 +110,6 @@ export class ChatTemplateComponent implements OnInit {
     });
 
     await this.fetchAllChannels();
-    console.log(this.selectedChannel);
   }
 
 
@@ -137,7 +136,6 @@ export class ChatTemplateComponent implements OnInit {
       if (convSnap.exists()) {
         this.chatIsConversation = true;
         this.selectedChannel = id
-        console.log(this.selectedChannel);
         await this.handleConversationSetup(id);
         return;
       }
@@ -149,7 +147,6 @@ export class ChatTemplateComponent implements OnInit {
   }
 
   private async handleConversationSetup(conversationId: string): Promise<void> {
-    console.log(conversationId);
 
     try {
       const convDocRef = doc(this.firestore, `conversations/${conversationId}`);
@@ -178,7 +175,6 @@ export class ChatTemplateComponent implements OnInit {
       await this.fetchOtherUserInfo(otherUserId);
 
       this.selectedChannel = { channelId: conversationId };
-      console.log(this.selectedChannel);
 
       this.loadMessagesForConversation(conversationId);
       this.chatIsChannel = false;
@@ -189,7 +185,6 @@ export class ChatTemplateComponent implements OnInit {
   }
 
   private loadMessagesForConversation(conversationId: string): void {
-    console.log(conversationId);
 
     this.channelService
       .getEnrichedConversationMessages(conversationId)
@@ -376,7 +371,6 @@ export class ChatTemplateComponent implements OnInit {
     );
 
     await updateDoc(messageRef, { text: messageText });
-    console.log('Message updated successfully:', messageText);
 
     this.editedMessage = null;
   }
