@@ -31,6 +31,7 @@ import { Observable, of } from 'rxjs';
 import { MenuDialogComponent } from '../../shared/dialogs/menu-dialog/menu-dialog.component';
 import { MemberDialogComponent } from '../../shared/dialogs/member-dialog/member-dialog.component';
 import { ProfilDialogComponent } from '../../shared/dialogs/profil-dialog/profil-dialog.component';
+import { ChannelInfoComponent } from '../channel-info/channel-info.component';
 
 interface PickerPosition {
   top: number;
@@ -47,6 +48,7 @@ interface PickerPosition {
     CommonModule,
     MessageTemplateComponent,
     EmojiPickerComponent,
+    ChannelInfoComponent
   ],
   templateUrl: './chat-template.component.html',
   styleUrl: './chat-template.component.scss',
@@ -89,6 +91,7 @@ export class ChatTemplateComponent implements OnInit {
   threadMessages$: Observable<any[] | null> = of(null);
   activeThreadMessage: any | null = null;
   messageCollection: any;
+  isChannelInfoOpen: boolean = false;
 
   constructor(
     private router: Router,
@@ -389,13 +392,14 @@ export class ChatTemplateComponent implements OnInit {
   }
 
   openChannelInfo(): void {
-    const channelId = this.selectedChannel?.channelId;
-    if (!channelId) {
-      console.warn('Kein Channel ausgewählt');
-      return;
-    }
+    // const channelId = this.selectedChannel?.channelId;
+    // if (!channelId) {
+    //   console.warn('Kein Channel ausgewählt');
+    //   return;
+    // }
 
-    this.router.navigate(['/channel-info', channelId]);
+    // this.router.navigate(['/channel-info', channelId]);
+    this.isChannelInfoOpen = true;
   }
 
 
@@ -492,21 +496,6 @@ export class ChatTemplateComponent implements OnInit {
       this.activeThreadMessage = null;
     }
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   openMenuDialog(): void {
     this.dialog.open(MenuDialogComponent, {

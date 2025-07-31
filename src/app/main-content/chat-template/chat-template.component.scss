@@ -1,4 +1,5 @@
 @use "./../../../styles.scss" as *;
+
 .comp-body {
   display: flex;
   flex-direction: column;
@@ -6,6 +7,7 @@
   margin: 0;
   background-color: white !important;
 }
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -14,6 +16,7 @@
   padding-right: 16px;
   height: 80px;
   background-color: $Bg;
+
   button {
     border: 0;
     background-color: transparent;
@@ -26,10 +29,12 @@
 .back-btn {
   display: flex;
   align-items: center;
+
   p {
     margin-bottom: 0px;
     margin-left: 10px;
   }
+
   img {
     height: 50px;
     width: 50px;
@@ -68,15 +73,18 @@ img {
     display: flex;
     margin-left: 16px;
     align-items: center;
+
     .mat-icon-top {
       font-size: 16px !important;
     }
+
     .channel-name {
       padding-left: 10px;
       padding-right: 10px;
       font-size: 22px !important;
       display: flex;
     }
+
     p {
       margin-bottom: 0px;
       padding-left: 12px;
@@ -89,6 +97,7 @@ img {
     border-radius: 40px;
     width: 34px;
     height: 34px;
+
     .mat-icon {
       font-size: 16px !important;
     }
@@ -111,6 +120,7 @@ img {
     height: 145px;
     border: 1px solid $LightPurple;
     transition: border-color 0.3s ease;
+
     &:hover,
     &:focus-within {
       border-color: $purple1;
@@ -146,26 +156,32 @@ img {
     padding-left: 20px;
     padding-right: 20px;
     justify-content: space-between;
+
     button {
       border: 0;
       cursor: pointer;
       background-color: transparent;
     }
+
     .buttons-left {
       font-size: 24px !important;
+
       .mat-icon {
         color: gray;
         border-radius: 50%;
         padding: 6px;
+
         &:hover {
           background-color: lightgray;
           color: $purple1;
         }
       }
     }
+
     .button-right {
       .mat-icon {
         color: $purple1;
+
         &:hover {
           color: $purple2;
         }
@@ -259,8 +275,10 @@ img {
   border-radius: 12px;
   white-space: nowrap;
   transition: background-color 0.2s;
+
   &:hover {
     background-color: $Bg;
+
     .hashtag {
       color: $purple3;
     }
@@ -328,11 +346,13 @@ img {
   justify-content: center;
   align-items: center;
   position: relative;
+
   span {
     height: 1px;
     width: 100%;
     background-color: $LightPurple;
   }
+
   p {
     font-family: "Nunito" !important;
     color: $LightPurple;
@@ -343,4 +363,13 @@ img {
     padding: 2px 10px;
     white-space: nowrap;
   }
+}
+
+.channel-info {
+  z-index: 90;
+  height: 100vh;
+  width: 100%;
+  position: absolute;
+  top: 0%;
+  left: 0%;
 }

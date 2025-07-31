@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, EventEmitter, inject, OnInit, Output, Renderer2, signal } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -51,13 +51,17 @@ export class ChannelInfoComponent implements OnInit {
   editName = false;
   editDescription = false;
 
+  constructor(private renderer: Renderer2) { }
+
   async ngOnInit(): Promise<void> {
     this.currentUser = this.userSession.getCurrentUser();
     this.channelId = this.route.snapshot.paramMap.get('id') || '';
+    this.renderer.setStyle(document.body, 'overflow', 'hidden');
     await this.loadChannel();
     await this.loadMembers();
   }
 
+  @Output() closeChannelInfo = new EventEmitter<string>();
 
   async loadChannel(): Promise<void> {
     const channels = await firstValueFrom(this.firestoreService.getChannels());
@@ -146,6 +150,7 @@ export class ChannelInfoComponent implements OnInit {
   }
 
   close(): void {
-    this.router.navigate(['/chat', this.channelId]);
+    // this.router.navigate(['/chat', this.channelId]);
+    this.closeChannelInfo.emit()
   }
 }
