@@ -22,6 +22,7 @@ import { SessionService } from '../../shared/services/currentUserSession.service
 import { onSnapshot } from 'firebase/firestore';
 import { MenuDialogComponent } from '../../shared/dialogs/menu-dialog/menu-dialog.component';
 import { DirectMessageService } from '../../shared/services/direct-message.service';
+import { AddChannelDialogComponent } from '../../shared/dialogs/add-channel-dialog/add-channel-dialog.component';
 
 @Component({
   selector: 'app-main-menu',
@@ -66,13 +67,7 @@ export class MainMenuComponent implements OnInit {
   directMessages: any[] = [];
   unsubCurrentUser;
 
-  constructor(
-    private router: Router,
-    private userService: UserService,
-    private userSession: SessionService,
-    private cdr: ChangeDetectorRef,
-    private directMessageService: DirectMessageService
-  ) {
+  constructor(private router: Router, private userService: UserService, private userSession: SessionService, private cdr: ChangeDetectorRef, private directMessageService: DirectMessageService) {
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras.state as {
       loginEmail: string;
@@ -330,7 +325,13 @@ export class MainMenuComponent implements OnInit {
   }
 
   addChannel() {
-    this.router.navigate(['/addChannelDialog']);
+    if (window.innerWidth < 800) {
+      this.router.navigate(['/addChannelDialog']);
+    } else {
+      this.dialog.open(AddChannelDialogComponent, {
+        panelClass: 'middle-dialog-panel'
+      });
+    }
   }
 
   selectChannel(channel: any): void {

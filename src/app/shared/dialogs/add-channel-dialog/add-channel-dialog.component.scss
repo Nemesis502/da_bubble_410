@@ -1,5 +1,14 @@
 @use "./../../../../styles.scss" as *;
 
+:host ::ng-deep .mat-mdc-form-field .mdc-line-ripple {
+    display: none !important;
+}
+
+:host ::ng-deep .mat-mdc-form-field-subscript-wrapper,
+:host ::ng-deep .mat-mdc-form-field-bottom-align::before {
+    display: none !important;
+}
+
 ::ng-deep .mat-mdc-text-field-wrapper {
     background-color: transparent !important;
 }
@@ -11,21 +20,23 @@
     opacity: 1 !important;
 }
 
+::ng-deep .middle-dialog-panel .mat-mdc-dialog-surface.mdc-dialog__surface {
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+    box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.18) !important;
+    overflow: hidden;
+    padding: 0;
+    background: white !important;
+}
+
 ::ng-deep .mat-mdc-input-element {
     color: black !important;
 }
 
 .text-form.focused ::ng-deep .mat-mdc-form-field-flex {
     border-color: $purple1 !important;
-}
-
-:host ::ng-deep .mat-mdc-form-field .mdc-line-ripple {
-    display: none !important;
-}
-
-:host ::ng-deep .mat-mdc-form-field-subscript-wrapper,
-:host ::ng-deep .mat-mdc-form-field-bottom-align::before {
-    display: none !important;
 }
 
 input,

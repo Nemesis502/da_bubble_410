@@ -1,10 +1,10 @@
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MenuDialogComponent } from '../menu-dialog/menu-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -22,7 +22,7 @@ import { MatDialog } from '@angular/material/dialog';
     CdkTextareaAutosize
   ],
   templateUrl: './add-channel-dialog.component.html',
-  styleUrl: './add-channel-dialog.component.scss'
+  styleUrls: ['./add-channel-dialog.component.scss', 'add-channel-dialog.media-query.component.scss']
 })
 export class AddChannelDialogComponent {
   readonly dialog = inject(MatDialog);
@@ -31,8 +31,21 @@ export class AddChannelDialogComponent {
   channelName = '';
   channelFocused = false;
   channelDescription = '';
+  screenWidth = window.innerWidth;
 
-  openAddPeoplMenu(): void {
+  constructor(private router: Router) { }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event): void {
+    this.screenWidth = (event.target as Window).innerWidth;
+  }
+
+  goToMain(): void {
+    this.router.navigate(['/main']);
+    this.dialog.closeAll();
+  }
+
+  openAddPeopleMenu(): void {
     this.dialog.open(MenuDialogComponent, {
       position: { bottom: '0' },
       maxWidth: '100vw',

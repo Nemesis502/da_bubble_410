@@ -1,7 +1,7 @@
 <section class="add-channel-dialog">
     <section class="add-channel-header">
         <h2 class="nuito24px700">Channel erstellen</h2>
-        <button mat-icon-button aria-label="Channel hinzufügen beenden" [routerLink]="'/main'">
+        <button mat-icon-button aria-label="Channel hinzufügen beenden" (click)="goToMain()">
             <mat-icon fontIcon="close"></mat-icon>
         </button>
     </section>
@@ -28,7 +28,7 @@
             cdkTextareaAutosize cdkAutosizeMinRows="1" cdkAutosizeMaxRows="10"></textarea>
     </section>
     <section class="create-new-channel">
-        <button mat-button class="create-channel-button" aria-label="Channel erstellen" [disabled]="channelName.length === 0" (click)="openAddPeoplMenu()">
+        <button mat-button class="create-channel-button" aria-label="Channel erstellen" [disabled]="channelName.length === 0" (click)="openAddPeopleMenu()">
             <span>Erstellen</span>
         </button>
     </section>

@@ -1,0 +1,16 @@
+@media screen and (min-width:800px) {
+    .add-channel-dialog {
+        padding: 40px;
+        width: calc(100% - 80px);
+    }
+}
+
+@media screen and (max-width:320px) {
+    ::ng-deep .mat-mdc-input-element::placeholder {
+        font-size: 16px !important;
+    }
+
+    textarea {
+        font-size: 16px;
+    }
+}
