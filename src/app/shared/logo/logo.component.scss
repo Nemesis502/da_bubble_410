@@ -1,15 +1,27 @@
 .logo {
-    margin: 26px 50px;
+    padding: 26px 50px;
+    box-sizing: border-box;
     width: 310px;
 }
 
-@media (max-width: 360px) {
+@media (max-width: 370px) {
     .logo {
         margin-inline: 5%;
         width: 200px;
 
         img {
             width: 250px;
+        }
+    }
+}
+
+@media (max-width: 350px) {
+    .logo {
+        margin-inline: 5%;
+        width: 200px;
+
+        img {
+            width: 200px;
         }
     }
 }

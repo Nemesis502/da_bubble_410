@@ -18,12 +18,7 @@ export class PrivacyPolicyComponent {
   constructor(private router: Router, private viewportScroller: ViewportScroller, private location: Location) { }
 
   goTo(id: string) {
-    // this.router.navigate(['privacyPolicy']).then(() => this.viewportScroller.scrollToAnchor(id));
     this.viewportScroller.scrollToAnchor(id);
-    // const el = document.getElementById(id);
-    // if (el) {
-    //   el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    // }
   }
 
   goBack() {
