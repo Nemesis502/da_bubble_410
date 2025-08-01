@@ -32,6 +32,7 @@ import { MenuDialogComponent } from '../../shared/dialogs/menu-dialog/menu-dialo
 import { MemberDialogComponent } from '../../shared/dialogs/member-dialog/member-dialog.component';
 import { ProfilDialogComponent } from '../../shared/dialogs/profil-dialog/profil-dialog.component';
 import { ChannelInfoComponent } from '../channel-info/channel-info.component';
+import { MentionService } from '../../shared/services/mentions.service';
 
 interface PickerPosition {
   top: number;
@@ -48,7 +49,7 @@ interface PickerPosition {
     CommonModule,
     MessageTemplateComponent,
     EmojiPickerComponent,
-    ChannelInfoComponent
+    ChannelInfoComponent,
   ],
   templateUrl: './chat-template.component.html',
   styleUrl: './chat-template.component.scss',
@@ -94,13 +95,21 @@ export class ChatTemplateComponent implements OnInit {
   isChannelInfoOpen: boolean = false;
 
   constructor(
+    private mentionService: MentionService,
     private router: Router,
     private route: ActivatedRoute,
     private elementRef: ElementRef,
     private channelService: ChannelsDirectMessageService,
     private firestore: Firestore
-  ) { }
+  ) {}
 
+  /**Initialization Functions */
+
+  /** Lifecycle hook that runs on component initialization.
+   *  - Fetches current user session
+   *  - Loads the route channel/conversation
+   *  - Fetches available channels
+   */
   async ngOnInit(): Promise<void> {
     this.currentUser = this.userSession.getCurrentUser();
 
@@ -114,6 +123,9 @@ export class ChatTemplateComponent implements OnInit {
     await this.fetchAllChannels();
   }
 
+  /** Resolves whether the provided ID in the route is a channel or a conversation.
+   *  - Loads appropriate data and sets flags accordingly.
+   */
   private async initializeChannelFromRoute(id: string): Promise<void> {
     if (!id) return;
 
@@ -136,7 +148,7 @@ export class ChatTemplateComponent implements OnInit {
 
       if (convSnap.exists()) {
         this.chatIsConversation = true;
-        this.selectedChannel = id
+        this.selectedChannel = id;
         this.chatIsChannel = false;
         this.selectedChannel = id;
         console.log(this.selectedChannel);
@@ -150,8 +162,12 @@ export class ChatTemplateComponent implements OnInit {
     }
   }
 
+  /** Sets up conversation by:
+   *  - Resolving participants
+   *  - Loading other user info
+   *  - Loading existing messages
+   */
   private async handleConversationSetup(conversationId: string): Promise<void> {
-
     try {
       const convDocRef = doc(this.firestore, `conversations/${conversationId}`);
       const convSnap = await getDoc(convDocRef);
@@ -188,8 +204,10 @@ export class ChatTemplateComponent implements OnInit {
     }
   }
 
-  private loadMessagesForConversation(conversationId: string): void {
+  /**Message Loading Functions */
 
+  /** Loads enriched messages for a conversation using the service */
+  private loadMessagesForConversation(conversationId: string): void {
     this.channelService
       .getEnrichedConversationMessages(conversationId)
       .subscribe({
@@ -205,6 +223,25 @@ export class ChatTemplateComponent implements OnInit {
       });
   }
 
+  /** Loads enriched messages for a channel using the service */
+  loadMessagesForChannel(channel: any): void {
+    if (channel?.channelId) {
+      this.channelService.getEnrichedMessages(channel.channelId).subscribe({
+        next: (messages) => {
+          this.messages = messages;
+          this.scrollToBottom();
+          this.focusChatInput();
+        },
+        error: (error) => {
+          console.error('Error loading messages:', error);
+        },
+      });
+    }
+  }
+
+  /**User Info Function */
+
+  /** Fetches and stores profile info for the conversation partner */
   private async fetchOtherUserInfo(userId: string): Promise<void> {
     try {
       const userDocRef = doc(this.firestore, `users/${userId}`);
@@ -231,6 +268,9 @@ export class ChatTemplateComponent implements OnInit {
     }
   }
 
+  /**Channel Resolution Functions */
+
+  /** Attempts to resolve channel from cached channels or Firestore */
   private async resolveChannelById(channelId: string): Promise<any | null> {
     const knownChannels = this.channelService.getChannels();
     const matchedChannel = knownChannels.find((c) => c.channelId === channelId);
@@ -242,31 +282,20 @@ export class ChatTemplateComponent implements OnInit {
     return await this.channelService.getChannelById(channelId);
   }
 
+  /** Sets the currently active channel and loads its messages */
   private setActiveChannel(channel: any): void {
     this.selectedChannel = channel;
     this.channelService.setSelectedChannel(channel);
     this.loadMessagesForChannel(channel);
   }
 
-  loadMessagesForChannel(channel: any): void {
-    if (channel?.channelId) {
-      this.channelService.getEnrichedMessages(channel.channelId).subscribe({
-        next: (messages) => {
-          this.messages = messages;
-          this.scrollToBottom();
-          this.focusChatInput();
-        },
-        error: (error) => {
-          console.error('Error loading messages:', error);
-        },
-      });
-    }
-  }
+  /**All Message Sending and Editing Functions*/
 
-  navigateToMain(): void {
-    this.router.navigate(['/main']);
-  }
-
+  /** Handles sending of messages:
+   *  - New messages
+   *  - Edited messages
+   *  - Thread replies
+   */
   async sendMessage(): Promise<void> {
     const messageText = this.chatMessage.trim();
     const channelId = this.selectedChannel?.channelId;
@@ -287,9 +316,10 @@ export class ChatTemplateComponent implements OnInit {
       }
 
       this.afterMessageSend();
-    } catch (error) { }
+    } catch (error) {}
   }
 
+  /** Updates a message in a thread */
   private async updateThreadMessage(
     channelId: string,
     messageText: string
@@ -307,6 +337,7 @@ export class ChatTemplateComponent implements OnInit {
     this.loadThreadMessages();
   }
 
+  /** Sends a new message in a thread (channel or conversation) */
   private async sendThreadMessage(
     channelId: string,
     messageText: string,
@@ -331,7 +362,7 @@ export class ChatTemplateComponent implements OnInit {
     this.loadThreadMessages();
   }
 
-
+  /** Updates an existing message (non-thread) */
   private async updateExistingMessage(
     channelId: string,
     messageText: string
@@ -348,6 +379,7 @@ export class ChatTemplateComponent implements OnInit {
     this.editedMessage = null;
   }
 
+  /** Creates a new message in the appropriate Firestore collection */
   private async createNewMessage(
     channelId: string,
     messageText: string,
@@ -367,6 +399,7 @@ export class ChatTemplateComponent implements OnInit {
     await this.sendMessageInConversation(messageText, userId, channelId);
   }
 
+  /** Writes the message data to Firestore */
   async sendMessageInConversation(
     messageText: string,
     userId: string,
@@ -382,27 +415,20 @@ export class ChatTemplateComponent implements OnInit {
     console.log('Message sent successfully:', newMessage);
   }
 
+  /** Clears input and resets editing state after a message is sent */
   private afterMessageSend(): void {
     this.chatMessage = '';
   }
 
+  /** Puts a message into edit mode */
   startEditingMessage(message: any): void {
     this.chatMessage = message.text;
     this.editedMessage = message;
   }
 
-  openChannelInfo(): void {
-    // const channelId = this.selectedChannel?.channelId;
-    // if (!channelId) {
-    //   console.warn('Kein Channel ausgewählt');
-    //   return;
-    // }
+  /** All Thread Handlin Functions */
 
-    // this.router.navigate(['/channel-info', channelId]);
-    this.isChannelInfoOpen = true;
-  }
-
-
+  /** Opens a thread view for a specific message */
   handleReplyToMessage(messageId: string): void {
     this.chatIsThread = true;
     this.chatIsChannel = false;
@@ -415,6 +441,7 @@ export class ChatTemplateComponent implements OnInit {
     }, 100);
   }
 
+  /** Loads messages in the currently active thread */
   loadThreadMessages(): void {
     const channelId = this.selectedChannel?.channelId;
     const messageId = this.activeThreadMessageId;
@@ -422,14 +449,16 @@ export class ChatTemplateComponent implements OnInit {
     if (!messageId) return;
 
     if (this.chatIsConversation && channelId) {
-      // Load thread messages for a conversation
       this.channelService
         .getEnrichedConversationThreadMessages(channelId, messageId)
         .subscribe((messages) => {
           this.threadMessages$ = of(messages);
         });
 
-      const docRef = doc(this.firestore, `conversations/${channelId}/directMessages/${messageId}`);
+      const docRef = doc(
+        this.firestore,
+        `conversations/${channelId}/directMessages/${messageId}`
+      );
       getDoc(docRef).then((docSnap) => {
         if (docSnap.exists()) {
           const rawMsg = { id: docSnap.id, ...docSnap.data() };
@@ -443,14 +472,16 @@ export class ChatTemplateComponent implements OnInit {
         }
       });
     } else if (channelId) {
-      // Original channel thread logic
       this.channelService
         .getEnrichedThreadMessages(channelId, messageId)
         .subscribe((messages) => {
           this.threadMessages$ = of(messages);
         });
 
-      const docRef = doc(this.firestore, `channels/${channelId}/messages/${messageId}`);
+      const docRef = doc(
+        this.firestore,
+        `channels/${channelId}/messages/${messageId}`
+      );
       getDoc(docRef).then((docSnap) => {
         if (docSnap.exists()) {
           const rawMsg = { id: docSnap.id, ...docSnap.data() };
@@ -466,7 +497,7 @@ export class ChatTemplateComponent implements OnInit {
     }
   }
 
-
+  /** Sets the active thread message and fetches its data */
   async setActiveThreadMessage(messageId: string) {
     this.activeThreadMessageId = messageId;
 
@@ -497,6 +528,26 @@ export class ChatTemplateComponent implements OnInit {
     }
   }
 
+  /** Closes thread view and returns to channel view */
+  closeThreadView(): void {
+    this.chatIsThread = false;
+    if (!this.chatIsConversation) {
+      this.chatIsChannel = true;
+    }
+    const channelId = this.selectedChannel?.channelId;
+    if (channelId) {
+      this.router.navigate([`/chat/${channelId}`]);
+    }
+  }
+
+  /** All Navigation & Dialog Functions */
+
+  /** Navigates back to the main page */
+  navigateToMain(): void {
+    this.router.navigate(['/main']);
+  }
+
+  /** Opens the bottom menu dialog */
   openMenuDialog(): void {
     this.dialog.open(MenuDialogComponent, {
       position: { bottom: '0' },
@@ -508,7 +559,7 @@ export class ChatTemplateComponent implements OnInit {
       },
     });
   }
-
+  /** Opens the member list dialog for the current channel */
   openMemberDialog(): void {
     this.dialog.open(MemberDialogComponent, {
       position: { top: '122px' },
@@ -522,17 +573,7 @@ export class ChatTemplateComponent implements OnInit {
     });
   }
 
-  closeThreadView(): void {
-    this.chatIsThread = false;
-    if (!this.chatIsConversation) {
-      this.chatIsChannel = true;
-    }
-    const channelId = this.selectedChannel?.channelId;
-    if (channelId) {
-      this.router.navigate([`/chat/${channelId}`]);
-    }
-  }
-
+  /** Opens a profile dialog for the conversation partner */
   openProfileDialogOtherUser(): void {
     this.dialog.open(ProfilDialogComponent, {
       maxWidth: '90vw',
@@ -545,71 +586,14 @@ export class ChatTemplateComponent implements OnInit {
     });
   }
 
-  private scrollToBottom(): void {
-    setTimeout(() => {
-      if (this.chatBodyRef) {
-        const container = this.chatBodyRef.nativeElement;
-        container.scrollTop = container.scrollHeight;
-      }
-    }, 0);
+  /** Opens the channel info panel */
+  openChannelInfo(): void {
+    this.isChannelInfoOpen = true;
   }
 
-  focusChatInput(): void {
-    if (this.chatField) {
-      this.chatField.nativeElement.focus();
-    }
-  }
+  /** All Mention (@/#) Functions */
 
-  triggerMention(): void {
-    const textarea = this.chatField?.nativeElement;
-    if (!textarea) return;
-
-    const cursorPos = textarea.selectionStart;
-    const textBefore = this.chatMessage.slice(0, cursorPos);
-    const charBefore = textBefore.charAt(textBefore.length - 1);
-
-    if (charBefore === '@') {
-      this.removeMentionSymbol(cursorPos);
-    } else {
-      this.insertMentionSymbol(cursorPos);
-    }
-  }
-
-  private insertMentionSymbol(cursorPos: number): void {
-    const textarea = this.chatField?.nativeElement;
-    if (!textarea) return;
-
-    const textBefore = this.chatMessage.slice(0, cursorPos);
-    const textAfter = this.chatMessage.slice(cursorPos);
-
-    this.chatMessage = `${textBefore}@${textAfter}`;
-
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(cursorPos + 1, cursorPos + 1);
-    }, 0);
-
-    this.mentionPopupVisible = true;
-    this.fetchMentionableUsers();
-  }
-
-  private removeMentionSymbol(cursorPos: number): void {
-    const textarea = this.chatField?.nativeElement;
-    if (!textarea) return;
-
-    const textBefore = this.chatMessage.slice(0, cursorPos - 1);
-    const textAfter = this.chatMessage.slice(cursorPos);
-
-    this.chatMessage = `${textBefore}${textAfter}`;
-
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(cursorPos - 1, cursorPos - 1);
-    }, 0);
-
-    this.mentionPopupVisible = false;
-  }
-
+  /** Checks key input for @ or # triggers and handles UI accordingly */
   async checkMentionTrigger(event: KeyboardEvent): Promise<void> {
     const char = event.key;
 
@@ -627,110 +611,69 @@ export class ChatTemplateComponent implements OnInit {
     }, 0);
   }
 
-  private filterPopupLists(): void {
-    if (this.mentionPopupVisible) {
-      const term = this.getCurrentTriggerTerm('@');
-      if (term !== null) {
-        this.filterMentionableUsers(term);
-      } else {
-        this.filteredMentionableUsers = this.mentionableUsers;
-      }
-    }
-
-    if (this.hashtagPopupVisible) {
-      const term = this.getCurrentTriggerTerm('#');
-      if (term !== null) {
-        this.filterChannels(term);
-      } else {
-        this.filteredChannels = this.allChannels;
-      }
-    }
-  }
-
-  private async handleMentionTrigger(): Promise<void> {
-    this.mentionPopupVisible = true;
-    await this.fetchMentionableUsers();
-  }
-
-  private handleHashtagTrigger(): void {
-    this.hashtagPopupVisible = true;
-  }
-
-  private closeAllPopups(): void {
-    this.mentionPopupVisible = false;
-    this.hashtagPopupVisible = false;
-  }
-
-  private cleanupMentionAndHashtag(): void {
-    if (!this.chatMessage.includes('@')) {
-      this.mentionPopupVisible = false;
-    }
-    if (!this.chatMessage.includes('#')) {
-      this.hashtagPopupVisible = false;
-    }
-  }
-
-  async fetchMentionableUsers(): Promise<void> {
+  /** Fetches list of users that can be mentioned */
+  private async fetchMentionableUsers(): Promise<void> {
     if (!this.selectedChannel?.channelId) return;
 
     try {
-      const channelDocRef = doc(
-        this.firestore,
-        `channels/${this.selectedChannel.channelId}`
+      this.mentionableUsers = await this.mentionService.fetchMentionableUsers(
+        this.selectedChannel.channelId
       );
-      const channelDocSnap = await getDoc(channelDocRef);
-
-      if (!channelDocSnap.exists()) {
-        console.warn('Channel document does not exist');
-        return;
-      }
-
-      const channelData = channelDocSnap.data();
-      const memberIds: string[] = channelData['members'] || [];
-
-      const userPromises = memberIds.map(async (userId) => {
-        const userDocSnap = await getDoc(
-          doc(this.firestore, `users/${userId}`)
-        );
-        if (userDocSnap.exists()) {
-          const data = userDocSnap.data();
-          return {
-            id: userId,
-            userName: data['userName'],
-            profilePic: data['profilePic'] || 'default',
-            status: data['status'] ?? false,
-          };
-        }
-        return null;
-      });
-
-      const users = (await Promise.all(userPromises)).filter(Boolean);
-
-      this.mentionableUsers = users as {
-        id: string;
-        userName: string;
-        profilePic: string;
-        status: boolean;
-      }[];
     } catch (error) {
       console.error('Error fetching mentionable users:', error);
     }
   }
 
+  /** Fetches all channels for #hashtag reference */
   private async fetchAllChannels(): Promise<void> {
     try {
-      const channelsCol = collection(this.firestore, 'channels');
-      const snapshot = await getDocs(channelsCol);
-
-      this.allChannels = snapshot.docs.map((docSnap) => ({
-        id: docSnap.id,
-        name: docSnap.data()['name'] ?? 'Unnamed Channel',
-      }));
+      this.allChannels = await this.mentionService.fetchAllChannels();
     } catch (error) {
       console.error('Error fetching channels:', error);
     }
   }
 
+  /** Filters user list for @ mentions */
+  private filterMentionableUsers(term: string): void {
+    this.filteredMentionableUsers = this.mentionService.filterUsers(
+      this.mentionableUsers,
+      term
+    );
+  }
+
+  /** Filters channel list for # hashtags */
+  private filterChannels(term: string): void {
+    this.filteredChannels = this.mentionService.filterChannels(
+      this.allChannels,
+      term
+    );
+  }
+
+  /** Selects a user for mention and inserts their name into the text */
+  selectMentionUser(userName: string): void {
+    const textarea = this.chatField?.nativeElement;
+    if (!textarea) return;
+
+    const cursorPos = textarea.selectionStart;
+    const textBefore = this.chatMessage.slice(0, cursorPos);
+    const textAfter = this.chatMessage.slice(cursorPos);
+
+    const atIndex = textBefore.lastIndexOf('@');
+    if (atIndex === -1) return;
+
+    const newText = textBefore.slice(0, atIndex) + `@${userName} ` + textAfter;
+
+    this.chatMessage = newText;
+
+    const newCursorPos = atIndex + userName.length + 2;
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+    });
+    this.mentionPopupVisible = false;
+  }
+
+  /** Selects a channel for hashtag and inserts it into the text */
   selectHashtagChannel(channelName: string): void {
     const textarea = this.chatField?.nativeElement;
     if (!textarea) return;
@@ -756,61 +699,142 @@ export class ChatTemplateComponent implements OnInit {
     this.hashtagPopupVisible = false;
   }
 
-  selectMentionUser(userName: string): void {
-    const textarea = this.chatField?.nativeElement;
-    if (!textarea) return;
-
-    const cursorPos = textarea.selectionStart;
-    const textBefore = this.chatMessage.slice(0, cursorPos);
-    const textAfter = this.chatMessage.slice(cursorPos);
-
-    const atIndex = textBefore.lastIndexOf('@');
-    if (atIndex === -1) return;
-
-    const newText = textBefore.slice(0, atIndex) + `@${userName} ` + textAfter;
-
-    this.chatMessage = newText;
-
-    const newCursorPos = atIndex + userName.length + 2;
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(newCursorPos, newCursorPos);
-    });
-    this.mentionPopupVisible = false;
-  }
-
-
+  /** Determines what term (if any) the user is currently typing after @ or # */
   private getCurrentTriggerTerm(triggerChar: '@' | '#'): string | null {
     const textarea = this.chatField?.nativeElement;
     if (!textarea) return null;
 
     const cursorPos = textarea.selectionStart;
+
+    return this.mentionService.getCurrentTriggerTerm(
+      this.chatMessage,
+      cursorPos,
+      triggerChar
+    );
+  }
+
+  /** Triggers mention popup manually (button or keyboard) */
+  triggerMention(): void {
+    const textarea = this.chatField?.nativeElement;
+    if (!textarea) return;
+
+    const cursorPos = textarea.selectionStart;
     const textBefore = this.chatMessage.slice(0, cursorPos);
+    const charBefore = textBefore.charAt(textBefore.length - 1);
 
-    const lastTriggerIndex = textBefore.lastIndexOf(triggerChar);
-    if (lastTriggerIndex === -1) return null;
+    if (charBefore === '@') {
+      this.removeMentionSymbol(cursorPos);
+    } else {
+      this.insertMentionSymbol(cursorPos);
+    }
+  }
 
-    const term = textBefore.slice(lastTriggerIndex + 1);
+  /** Inserts '@' at current cursor position and shows popup */
+  private insertMentionSymbol(cursorPos: number): void {
+    const textarea = this.chatField?.nativeElement;
+    if (!textarea) return;
 
-    if (term.includes(' ') || term.includes('@') || term.includes('#')) {
-      return null;
+    const textBefore = this.chatMessage.slice(0, cursorPos);
+    const textAfter = this.chatMessage.slice(cursorPos);
+
+    this.chatMessage = `${textBefore}@${textAfter}`;
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(cursorPos + 1, cursorPos + 1);
+    }, 0);
+
+    this.mentionPopupVisible = true;
+    this.fetchMentionableUsers();
+  }
+
+  /** Removes '@' symbol and closes popup */
+  private removeMentionSymbol(cursorPos: number): void {
+    const textarea = this.chatField?.nativeElement;
+    if (!textarea) return;
+
+    const textBefore = this.chatMessage.slice(0, cursorPos - 1);
+    const textAfter = this.chatMessage.slice(cursorPos);
+
+    this.chatMessage = `${textBefore}${textAfter}`;
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(cursorPos - 1, cursorPos - 1);
+    }, 0);
+
+    this.mentionPopupVisible = false;
+  }
+
+  /** Handles @ mention UI trigger */
+  private async handleMentionTrigger(): Promise<void> {
+    this.mentionPopupVisible = true;
+    await this.fetchMentionableUsers();
+  }
+
+  /** Handles # hashtag UI trigger */
+  private handleHashtagTrigger(): void {
+    this.hashtagPopupVisible = true;
+  }
+
+  /** Closes all active mention/hashtag popups */
+  private closeAllPopups(): void {
+    this.mentionPopupVisible = false;
+    this.hashtagPopupVisible = false;
+  }
+  /** Hides popups if user deleted all triggers */
+  private cleanupMentionAndHashtag(): void {
+    if (!this.chatMessage.includes('@')) {
+      this.mentionPopupVisible = false;
+    }
+    if (!this.chatMessage.includes('#')) {
+      this.hashtagPopupVisible = false;
+    }
+  }
+
+  /** Filters popup lists after user types */
+  private filterPopupLists(): void {
+    if (this.mentionPopupVisible) {
+      const term = this.getCurrentTriggerTerm('@');
+      if (term !== null) {
+        this.filterMentionableUsers(term);
+      } else {
+        this.filteredMentionableUsers = this.mentionableUsers;
+      }
     }
 
-    return term.toLowerCase();
+    if (this.hashtagPopupVisible) {
+      const term = this.getCurrentTriggerTerm('#');
+      if (term !== null) {
+        this.filterChannels(term);
+      } else {
+        this.filteredChannels = this.allChannels;
+      }
+    }
   }
 
-  private filterMentionableUsers(term: string): void {
-    this.filteredMentionableUsers = this.mentionableUsers.filter(user =>
-      user.userName.toLowerCase().includes(term)
-    );
+  /** All DOM Utilities */
+
+  /** Scrolls chat container to the bottom */
+  private scrollToBottom(): void {
+    setTimeout(() => {
+      if (this.chatBodyRef) {
+        const container = this.chatBodyRef.nativeElement;
+        container.scrollTop = container.scrollHeight;
+      }
+    }, 0);
   }
 
-  private filterChannels(term: string): void {
-    this.filteredChannels = this.allChannels.filter(channel =>
-      channel.name.toLowerCase().includes(term)
-    );
+  /** Focuses the message input field */
+  focusChatInput(): void {
+    if (this.chatField) {
+      this.chatField.nativeElement.focus();
+    }
   }
 
+  /** All Emoji Picker related functions */
+
+  /** Toggles emoji picker and calculates its position */
   toggleEmojiPicker(event: MouseEvent): void {
     event.stopPropagation();
     this.emojiPickerVisible = !this.emojiPickerVisible;
@@ -824,6 +848,7 @@ export class ChatTemplateComponent implements OnInit {
     }
   }
 
+  /** Inserts selected emoji into current cursor position */
   addEmoji(emoji: string): void {
     if (this.chatField) {
       const textarea = this.chatField.nativeElement;
@@ -841,10 +866,12 @@ export class ChatTemplateComponent implements OnInit {
     }
   }
 
+  /** Handles manual closing of emoji picker */
   onPickerClosed() {
     this.emojiPickerVisible = false;
   }
 
+  /** Hides emoji picker when clicking outside */
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const pickerElement = this.elementRef.nativeElement.querySelector(

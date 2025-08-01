@@ -23,6 +23,7 @@ import {
 } from '@angular/fire/firestore';
 import { appUser } from '../../interfaces/user.interface';
 import { SessionService } from '../../shared/services/currentUserSession.service';
+import { MentionService } from '../../shared/services/mentions.service';
 
 interface PickerPosition {
   top: number;
@@ -85,6 +86,7 @@ export class NewMessageComponent implements OnInit {
   pickerPosition: PickerPosition = { top: 0, left: 0 };
 
   constructor(
+    private mentionService: MentionService ,
     private router: Router,
     private route: ActivatedRoute,
     private elementRef: ElementRef,
@@ -155,15 +157,6 @@ export class NewMessageComponent implements OnInit {
     console.warn('No valid #channel or @user mention');
   }
 
-  private extractMention(input: string): string | null {
-    const match = input.match(/@([\wÀ-ÿ .'-]+)/);
-    return match ? match[1].trim() : null;
-  }
-
-  private extractChannel(input: string): string | null {
-    const match = input.match(/#([^\s#@]+)/);
-    return match ? match[1].trim() : null;
-  }
   private async sendMessageToConversation(userName: string): Promise<void> {
     const mentionedUser = this.mentionableUsers.find(
       (user) => user.userName.toLowerCase() === userName.toLowerCase()
@@ -267,6 +260,15 @@ export class NewMessageComponent implements OnInit {
     }
   }
 
+
+private extractMention(input: string): string | null {
+  return this.mentionService.extractMention(input);
+}
+
+private extractChannel(input: string): string | null {
+  return this.mentionService.extractChannel(input);
+}
+
   triggerMention(): void {
     const textarea = this.chatField?.nativeElement;
     if (!textarea) return;
@@ -317,33 +319,30 @@ export class NewMessageComponent implements OnInit {
     this.mentionPopupVisible = false;
   }
 
-  async checkMentionTrigger(event: KeyboardEvent): Promise<void> {
-    const char = event.key;
+async checkMentionTrigger(event: KeyboardEvent): Promise<void> {
+  const char = event.key;
 
-    if (char === '@') {
-      await this.handleMentionTrigger();
-    } else if (char === '#') {
-      this.handleHashtagTrigger();
-    } else if ([' ', 'Enter', 'Escape'].includes(char)) {
-      this.closeAllPopups();
-    }
-
-    setTimeout(() => {
-      this.cleanupMentionAndHashtag();
-
-      const mentionKeyword = this.extractLastMentionKeyword(this.chatMessage);
-      this.mentionPopupVisible = this.chatMessage.includes('@');
-      this.searchMentionUsers = this.mentionableUsers.filter((user) =>
-        user.userName.toLowerCase().includes(mentionKeyword.toLowerCase())
-      );
-
-      const hashtagKeyword = this.extractLastHashtagKeyword(this.chatMessage);
-      this.hashtagPopupVisible = this.chatMessage.includes('#');
-      this.searchHashtagChannels = this.allChannels.filter((channel) =>
-        channel.name.toLowerCase().includes(hashtagKeyword.toLowerCase())
-      );
-    }, 0);
+  if (char === '@') {
+    await this.handleMentionTrigger();
+  } else if (char === '#') {
+    this.handleHashtagTrigger();
+  } else if ([' ', 'Enter', 'Escape'].includes(char)) {
+    this.closeAllPopups();
   }
+
+  setTimeout(() => {
+    this.cleanupMentionAndHashtag();
+
+    const mentionKeyword = this.extractLastMentionKeyword(this.chatMessage);
+    this.mentionPopupVisible = this.chatMessage.includes('@');
+    this.searchMentionUsers = this.mentionService.filterUsers(this.mentionableUsers, mentionKeyword);
+
+    const hashtagKeyword = this.extractLastHashtagKeyword(this.chatMessage);
+    this.hashtagPopupVisible = this.chatMessage.includes('#');
+    this.searchHashtagChannels = this.mentionService.filterChannels(this.allChannels, hashtagKeyword);
+  }, 0);
+}
+
 
   async checkSearchFieldTrigger(event: KeyboardEvent): Promise<void> {
     const char = event.key;
@@ -393,40 +392,23 @@ export class NewMessageComponent implements OnInit {
     }
   }
 
-  async fetchMentionableUsers(): Promise<void> {
-    try {
-      const usersCollectionRef = collection(this.firestore, 'users');
-      const querySnapshot = await getDocs(usersCollectionRef);
+async fetchMentionableUsers(): Promise<void> {
+  try {
+    const channelId = this.selectedChannel?.id || 'defaultChannelId';
 
-      const users = querySnapshot.docs.map((docSnap) => {
-        const data = docSnap.data();
-        return {
-          id: docSnap.id,
-          userName: data['userName'],
-          profilePic: data['profilePic'] || 'default',
-          status: data['status'] ?? false,
-        };
-      });
-
-      this.mentionableUsers = users;
-    } catch (error) {
-      console.error('Error fetching all users:', error);
-    }
+    this.mentionableUsers = await this.mentionService.fetchMentionableUsers(channelId);
+  } catch (error) {
+    console.error('Error fetching mentionable users:', error);
   }
+}
 
-  private async fetchAllChannels(): Promise<void> {
-    try {
-      const channelsCol = collection(this.firestore, 'channels');
-      const snapshot = await getDocs(channelsCol);
-
-      this.allChannels = snapshot.docs.map((docSnap) => ({
-        id: docSnap.id,
-        name: docSnap.data()['name'] ?? 'Unnamed Channel',
-      }));
-    } catch (error) {
-      console.error('Error fetching channels:', error);
-    }
+private async fetchAllChannels(): Promise<void> {
+  try {
+    this.allChannels = await this.mentionService.fetchAllChannels();
+  } catch (error) {
+    console.error('Error fetching all channels:', error);
   }
+}
 
   selectHashtagChannel(channelName: string): void {
     const textarea = this.chatField?.nativeElement;
@@ -476,23 +458,17 @@ export class NewMessageComponent implements OnInit {
     this.mentionPopupVisible = false;
   }
 
-  async handleSearchFieldKey(event: KeyboardEvent): Promise<void> {
-    setTimeout(() => {
-      const mentionKeyword = this.extractLastMentionKeyword(this.searchInput);
-      this.searchFieldMentionVisible = this.searchInput.includes('@');
+async handleSearchFieldKey(event: KeyboardEvent): Promise<void> {
+  setTimeout(() => {
+    const mentionKeyword = this.extractLastMentionKeyword(this.searchInput);
+    this.searchFieldMentionVisible = this.searchInput.includes('@');
+    this.searchMentionUsers = this.mentionService.filterUsers(this.mentionableUsers, mentionKeyword);
 
-      this.searchMentionUsers = this.mentionableUsers.filter((user) =>
-        user.userName.toLowerCase().includes(mentionKeyword.toLowerCase())
-      );
-
-      const hashtagKeyword = this.extractLastHashtagKeyword(this.searchInput);
-      this.searchFieldHashtagVisible = this.searchInput.includes('#');
-
-      this.searchHashtagChannels = this.allChannels.filter((channel) =>
-        channel.name.toLowerCase().includes(hashtagKeyword.toLowerCase())
-      );
-    }, 0);
-  }
+    const hashtagKeyword = this.extractLastHashtagKeyword(this.searchInput);
+    this.searchFieldHashtagVisible = this.searchInput.includes('#');
+    this.searchHashtagChannels = this.mentionService.filterChannels(this.allChannels, hashtagKeyword);
+  }, 0);
+}
 
   insertMentionInSearch(userName: string): void {
     const textarea = this.searchField.nativeElement;
@@ -536,13 +512,11 @@ export class NewMessageComponent implements OnInit {
     this.searchFieldHashtagVisible = false;
   }
 
-  private extractLastMentionKeyword(text: string): string {
-    const match = text.match(/@([\wÀ-ÿ .'-]*)$/);
-    return match ? match[1] : '';
-  }
+private extractLastMentionKeyword(text: string): string {
+  return this.mentionService.extractLastMentionKeyword(text);
+}
 
-  private extractLastHashtagKeyword(text: string): string {
-    const match = text.match(/#([\wÀ-ÿ .'-]*)$/);
-    return match ? match[1] : '';
-  }
+private extractLastHashtagKeyword(text: string): string {
+  return this.mentionService.extractLastHashtagKeyword(text);
+}
 }
