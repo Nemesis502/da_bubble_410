@@ -248,6 +248,7 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
 
   /** Select reaction emoji for a message */
   async selectReaction(reaction: string, message: any): Promise<void> {
+    console.log('step 1', message)
     try {
       let channelId: string;
 
@@ -273,6 +274,23 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
     }
     this.closeAllReactionPickers();
   }
+
+getLastTwoReactions(message: any): string[] {
+  if (!message?.reactions || message.reactions.length === 0) {
+    return ['✅', '👍'];
+  }
+
+  const sortedReactions = [...message.reactions].sort((a, b) => {
+    const aTime = a.timestamp?.seconds || 0;
+    const bTime = b.timestamp?.seconds || 0;
+    return bTime - aTime;
+  });
+
+  const lastTwo = sortedReactions.slice(0, 2).map((r) => r.reaction || r.type || '');
+
+  return lastTwo;
+}
+
 
   /** UI Interaction Handlers  */
 
