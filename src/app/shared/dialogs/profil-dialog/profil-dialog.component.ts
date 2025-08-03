@@ -20,7 +20,7 @@ import { Router } from '@angular/router';
     MatIconModule
   ],
   templateUrl: './profil-dialog.component.html',
-  styleUrl: './profil-dialog.component.scss'
+  styleUrls: ['./profil-dialog.component.scss', './profil-dialog.media-query.component.scss'],
 })
 export class ProfilDialogComponent {
   readonly dialog = inject(MatDialog);

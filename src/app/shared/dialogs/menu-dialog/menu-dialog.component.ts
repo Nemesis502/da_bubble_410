@@ -111,7 +111,8 @@ export class MenuDialogComponent implements OnInit {
   openProfileDialog(): void {
     this.closeDialog();
     this.dialog.open(ProfilDialogComponent, {
-      maxWidth: '90vw',
+      maxWidth: '398px',
+      maxHeight: '600px',
       panelClass: 'bottom-dialog-panel',
       data: {
         user: this.currentUser,
