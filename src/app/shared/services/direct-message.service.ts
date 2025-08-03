@@ -48,11 +48,13 @@ async ensureSelfConversationExists(): Promise<void> {
   const existingConversation = await this.firestoreService.getSelfConversation(userId);
 
   if (!existingConversation) {
-    const newConversation = {
-      participants: [userId, userId],
-      createdAt: new Date(),
-      isPrivateNote: true,
-    };
+const newConversation = {
+  participants: [userId, userId],
+  participantIdsSorted: `${userId}_${userId}`,  // <-- add this
+  createdAt: new Date(),
+  isPrivateNote: true,
+};
+
 
     await this.firestoreService.createConversation(newConversation);
     console.log('Created self-conversation for user:', userId);

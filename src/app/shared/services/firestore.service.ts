@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { collection, collectionData, docData, Firestore } from '@angular/fire/firestore';
-import { addDoc, doc, getDoc, getDocs, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
+import { addDoc, doc, getDoc, getDocs, limit, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
 import { Observable } from 'rxjs';
 import { Channel } from '../../interfaces/channel.interface';
 
@@ -62,19 +62,24 @@ export class FirestoreService {
   return null;
 }
 
-async getSelfConversation(userId: string): Promise<any | null> {
+getSelfConversation(userId: string): Promise<any | null> {
+  const participantKey = `${userId}_${userId}`;
   const conversationsRef = collection(this.firestore, 'conversations');
   const q = query(
     conversationsRef,
-    where('members', 'array-contains', userId),
-    where('isPrivateNote', '==', true)
+    where('isPrivateNote', '==', true),
+    where('participantIdsSorted', '==', participantKey),
+    limit(1)
   );
 
-  const querySnapshot = await getDocs(q);
-  const conversations = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-  return conversations.length > 0 ? conversations[0] : null;
+  return getDocs(q).then(snapshot => {
+    if (!snapshot.empty) {
+      return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+    }
+    return null;
+  });
 }
+
 
   async createConversation(conversation: any): Promise<void> {
     const conversationsRef = collection(this.firestore, 'conversations');
