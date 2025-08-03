@@ -8,6 +8,7 @@ import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MenuDialogComponent } from '../menu-dialog/menu-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { timeout } from 'rxjs';
 
 @Component({
   selector: 'app-add-channel-dialog',
@@ -32,12 +33,25 @@ export class AddChannelDialogComponent {
   channelFocused = false;
   channelDescription = '';
   screenWidth = window.innerWidth;
-
+  screeenSmall = false;
   constructor(private router: Router) { }
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event): void {
     this.screenWidth = (event.target as Window).innerWidth;
+
+    if (this.screenWidth < 800 && this.screeenSmall === false) {
+      this.screeenSmall = true;
+      this.dialog.closeAll();
+      this.router.navigate(['/addChannelDialog']);
+      this.document.body.classList.remove('no-scroll');
+    } if (this.screenWidth >= 800 && this.screeenSmall === true) {
+      this.screeenSmall = false;
+      this.router.navigate(['/main']);
+      this.dialog.open(AddChannelDialogComponent, {
+        panelClass: 'middle-dialog-panel'
+      });
+    }
   }
 
   goToMain(): void {
