@@ -167,42 +167,48 @@ export class ChatTemplateComponent implements OnInit {
    *  - Loading other user info
    *  - Loading existing messages
    */
-  private async handleConversationSetup(conversationId: string): Promise<void> {
-    try {
-      const convDocRef = doc(this.firestore, `conversations/${conversationId}`);
-      const convSnap = await getDoc(convDocRef);
+private async handleConversationSetup(conversationId: string): Promise<void> {
+  try {
+    const convDocRef = doc(this.firestore, `conversations/${conversationId}`);
+    const convSnap = await getDoc(convDocRef);
 
-      if (!convSnap.exists()) {
-        console.warn('Conversation not found:', conversationId);
-        return;
-      }
-
-      const data = convSnap.data();
-      const participants: string[] = data['participants'] || [];
-
-      const currentUserId = this.currentUser?.id;
-      if (!currentUserId) {
-        console.warn('Current user not available');
-        return;
-      }
-
-      const otherUserId = participants.find((id) => id !== currentUserId);
-      if (!otherUserId) {
-        console.warn('No other user in conversation');
-        return;
-      }
-
-      await this.fetchOtherUserInfo(otherUserId);
-
-      this.selectedChannel = { channelId: conversationId };
-
-      this.loadMessagesForConversation(conversationId);
-      this.chatIsChannel = false;
-      console.log('Conversation setup complete. Other user:', this.otherUser);
-    } catch (error) {
-      console.error('Error during conversation setup:', error);
+    if (!convSnap.exists()) {
+      console.warn('Conversation not found:', conversationId);
+      return;
     }
+
+    const data = convSnap.data();
+    const participants: string[] = data['participants'] || [];
+
+    const currentUserId = this.currentUser?.id;
+    if (!currentUserId) {
+      console.warn('Current user not available');
+      return;
+    }
+
+    let otherUserId: string;
+
+    const uniqueParticipants = Array.from(new Set(participants));
+    if (uniqueParticipants.length === 1 && uniqueParticipants[0] === currentUserId) {
+
+      otherUserId = currentUserId;
+    } else {
+
+      otherUserId = participants.find((id) => id !== currentUserId)!;
+    }
+
+    await this.fetchOtherUserInfo(otherUserId);
+
+    this.selectedChannel = { channelId: conversationId };
+
+    this.loadMessagesForConversation(conversationId);
+    this.chatIsChannel = false;
+    console.log('Conversation setup complete. Other user:', this.otherUser);
+  } catch (error) {
+    console.error('Error during conversation setup:', error);
   }
+}
+
 
   /**Message Loading Functions */
 

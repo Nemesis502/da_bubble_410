@@ -24,8 +24,6 @@ export class DirectMessageService {
     });
   }
 
-
-
 async findAndOpenConversation(loggedUserId: string, targetUserId: string): Promise<void> {
   if (!loggedUserId || !targetUserId) {
     throw new Error('User IDs are required');
@@ -40,6 +38,26 @@ if (loggedUserId === targetUserId){
     this.router.navigate(['/chat', conversation.id]);
   } else {
     console.warn('No conversation found between users');
+  }
+}
+
+async ensureSelfConversationExists(): Promise<void> {
+  if (!this.currentUser) return;
+
+  const userId = this.currentUser.id!;
+  const existingConversation = await this.firestoreService.getSelfConversation(userId);
+
+  if (!existingConversation) {
+    const newConversation = {
+      participants: [userId, userId],
+      createdAt: new Date(),
+      isPrivateNote: true,
+    };
+
+    await this.firestoreService.createConversation(newConversation);
+    console.log('Created self-conversation for user:', userId);
+  } else {
+    console.log('Self-conversation already exists for user:', userId);
   }
 }
 

@@ -67,7 +67,13 @@ export class MainMenuComponent implements OnInit {
   directMessages: any[] = [];
   unsubCurrentUser;
 
-  constructor(private router: Router, private userService: UserService, private userSession: SessionService, private cdr: ChangeDetectorRef, private directMessageService: DirectMessageService) {
+  constructor(
+    private router: Router,
+    private userService: UserService,
+    private userSession: SessionService,
+    private cdr: ChangeDetectorRef,
+    private directMessageService: DirectMessageService
+  ) {
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras.state as {
       loginEmail: string;
@@ -94,6 +100,8 @@ export class MainMenuComponent implements OnInit {
       this.currentLoginEmail = sessionUser.email!;
       this.subCurrentUser();
       this.directMessageService.setCurrentUser(this.currentUser);
+
+      await this.directMessageService.ensureSelfConversationExists();
     }
 
     if (!this.gastLogin && this.currentLoginId) {
@@ -329,7 +337,7 @@ export class MainMenuComponent implements OnInit {
       this.router.navigate(['/addChannelDialog']);
     } else {
       this.dialog.open(AddChannelDialogComponent, {
-        panelClass: 'middle-dialog-panel'
+        panelClass: 'middle-dialog-panel',
       });
     }
   }
@@ -344,24 +352,47 @@ export class MainMenuComponent implements OnInit {
     this.router.navigate(['/chat', channel.channelId]);
   }
 
-  selectDirectMessage(user: appUser): void {
-    if (!user || !user.id) {
-      console.error('User oder user.id ist undefined:', user);
-      return;
-    }
-
-    const conversation = this.directMessages.find((conv) =>
-      conv.participants.includes(user.id)
-    );
-
-    if (!conversation || !conversation.id) {
-      console.error('Keine passende Konversation gefunden für:', user);
-      return;
-    }
-
-    this.channelDirectMessageData.setSelectedDirectMessage(user);
-    this.router.navigate(['/chat', conversation.id]);
+selectDirectMessage(user: appUser): void {
+  if (!user || !user.id) {
+    console.error('User oder user.id ist undefined:', user);
+    return;
   }
+
+  const currentUserId = this.currentUser?.id;
+  if (!currentUserId) {
+    console.error('Current user is not set');
+    return;
+  }
+
+  console.log('Target User ID:', user.id);
+  console.log('Current User ID:', currentUserId);
+
+  const conversation = this.findConversationBetweenUsers(user.id, currentUserId);
+
+  if (!conversation || !conversation.id) {
+    console.error('Keine passende Konversation gefunden für:', user);
+    return;
+  }
+
+  this.channelDirectMessageData.setSelectedDirectMessage(user);
+  this.router.navigate(['/chat', conversation.id]);
+}
+
+private findConversationBetweenUsers(userId1: string, userId2: string): any | null {
+  return this.directMessages.find((conv) => {
+    const participants: string[] = conv.members || conv.participants;
+
+
+
+
+    const sortedParticipants = [...participants].sort();
+    const sortedIds = [userId1, userId2].sort();
+
+    return sortedParticipants[0] === sortedIds[0] && sortedParticipants[1] === sortedIds[1];
+  }) || null;
+}
+
+
 
   selectDirectMessageGast(user: DirectMessage): void {
     this.router.navigate(['/chat', user.name]);

@@ -62,6 +62,25 @@ export class FirestoreService {
   return null;
 }
 
+async getSelfConversation(userId: string): Promise<any | null> {
+  const conversationsRef = collection(this.firestore, 'conversations');
+  const q = query(
+    conversationsRef,
+    where('members', 'array-contains', userId),
+    where('isPrivateNote', '==', true)
+  );
+
+  const querySnapshot = await getDocs(q);
+  const conversations = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+  return conversations.length > 0 ? conversations[0] : null;
+}
+
+  async createConversation(conversation: any): Promise<void> {
+    const conversationsRef = collection(this.firestore, 'conversations');
+    await addDoc(conversationsRef, conversation);
+  }
+
   addChannel(channel: Omit<Channel, 'channelId'>) {
     const channelCollection = collection(this.firestore, 'channels');
     return addDoc(channelCollection, channel);
