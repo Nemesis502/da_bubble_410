@@ -23,7 +23,7 @@ import { UserService } from '../../services/user.services';
     FormsModule
   ],
   templateUrl: './profil-edit-dialog.component.html',
-  styleUrl: './profil-edit-dialog.component.scss'
+  styleUrls: ['./profil-edit-dialog.component.scss', 'profil-edit-dialog.media-query.component.scss']
 })
 export class ProfilEditDialogComponent {
   newName = '';

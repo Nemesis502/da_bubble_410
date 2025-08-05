@@ -46,8 +46,7 @@ export class ProfilDialogComponent {
   openProfilEditDialog() {
     this.onClose();
     this.dialog.open(ProfilEditDialogComponent, {
-      maxWidth: '90vw',
-      panelClass: 'bottom-dialog-panel'
+      panelClass: 'middle-dialog-panel',
     });
   }
 
