@@ -50,7 +50,7 @@ async ensureSelfConversationExists(): Promise<void> {
   if (!existingConversation) {
 const newConversation = {
   participants: [userId, userId],
-  participantIdsSorted: `${userId}_${userId}`,  // <-- add this
+  participantIdsSorted: `${userId}_${userId}`, 
   createdAt: new Date(),
   isPrivateNote: true,
 };

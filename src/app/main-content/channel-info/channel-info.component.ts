@@ -150,7 +150,6 @@ export class ChannelInfoComponent implements OnInit {
   }
 
   close(): void {
-    // this.router.navigate(['/chat', this.channelId]);
     this.closeChannelInfo.emit()
   }
 }
