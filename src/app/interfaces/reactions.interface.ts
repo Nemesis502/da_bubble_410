@@ -1,6 +1,8 @@
+import { Timestamp } from "firebase/firestore";
+
 export interface Reactions {
     reactionID?: string;
     reactorID: string;
-    timestamp: Date;
+    timestamp: Timestamp;
     type: string;
 }

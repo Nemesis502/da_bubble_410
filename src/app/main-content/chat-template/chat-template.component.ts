@@ -374,7 +374,7 @@ private async handleConversationSetup(conversationId: string): Promise<void> {
     messageText: string
   ): Promise<void> {
     if (!this.editedMessage?.id) return;
-
+ 
     const messageRef = doc(
       this.firestore,
       `channels/${channelId}/messages/${this.editedMessage.id}`
