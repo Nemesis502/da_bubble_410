@@ -239,10 +239,17 @@
       (pickerClosed)="onPickerClosed()"
     ></app-emoji-picker>
   </section>
-  @if (isChannelInfoOpen) {
+  @if (isChannelInfoOpen && isMobile) {
   <app-channel-info
     class="channel-info"
     (closeChannelInfo)="isChannelInfoOpen = false"
   ></app-channel-info>
+  } @if (isChannelInfoOpen && !isMobile) {
+  <section class="channel-dialog">
+    <app-channel-info
+      class="channel-info-desktop"
+      (closeChannelInfo)="isChannelInfoOpen = false"
+    ></app-channel-info>
+  </section>
   }
 </div>

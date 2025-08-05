@@ -365,6 +365,16 @@ img {
   }
 }
 
+.channel-dialog {
+  position: fixed;
+  display: flex;
+  background-color: #0000005f !important;
+  z-index: 999;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+}
+
 .channel-info {
   z-index: 90;
   height: 100vh;
@@ -372,4 +382,10 @@ img {
   position: absolute;
   top: 0%;
   left: 0%;
+}
+
+.channel-info-desktop {
+  z-index: 90;
+  position: absolute;
+  width: 90%;
 }

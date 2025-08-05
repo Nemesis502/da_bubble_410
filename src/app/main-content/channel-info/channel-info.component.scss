@@ -37,6 +37,7 @@ input {
     background-color: white;
     box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.08);
 
+
     mat-icon {
         width: 25px;
         height: 25px;
@@ -56,6 +57,10 @@ input {
     }
 }
 
+.border-top {
+    border-top-right-radius: 30px;
+}
+
 .main {
     display: flex;
     flex-direction: column;
@@ -68,6 +73,11 @@ input {
     section {
         width: 100%;
     }
+}
+
+.border-bottom {
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
 }
 
 .title-with-edit {

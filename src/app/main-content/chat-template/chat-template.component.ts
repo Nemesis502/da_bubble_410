@@ -16,7 +16,7 @@ import { MessageTemplateComponent } from '../message-template/message-template.c
 import { EmojiPickerComponent } from '../emoji-picker/emoji-picker.component';
 import { ChannelInfoComponent } from '../channel-info/channel-info.component';
 import { ChatService } from '../../shared/services/chat.service';
-import { ChatUIService } from '../../shared/services/chat-ui.service'; 
+import { ChatUIService } from '../../shared/services/chat-ui.service';
 import { SessionService } from '../../shared/services/currentUserSession.service';
 import { appUser } from '../../interfaces/user.interface';
 
@@ -54,8 +54,8 @@ export class ChatTemplateComponent implements OnInit {
 
   // Component State (reduced)
   currentUser: appUser | null = null;
-  otherUser: appUser | null = null; 
-  selectedChannel: any = null; 
+  otherUser: appUser | null = null;
+  selectedChannel: any = null;
   chatMessage: string = '';
   editedMessage: any = null;
 
@@ -72,11 +72,13 @@ export class ChatTemplateComponent implements OnInit {
   emojiPickerVisible: boolean = false;
   pickerPosition: PickerPosition = { top: 0, left: 0 };
   isChannelInfoOpen: boolean = false;
-
+  isMobile: boolean = false;
   chatIsThread: boolean = false;
   chatIsChannel: boolean = false;
   chatIsConversation: boolean = false;
   messages: any[] = [];
+  width: number = window.innerWidth;
+
   constructor() {
     this.chatUIService.init(
       this.chatField,
@@ -88,6 +90,7 @@ export class ChatTemplateComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.currentUser = this.userSession.getCurrentUser();
+    this.isMobile = this.width < 999;
 
     this.route.paramMap.subscribe(async (params) => {
       const id = params.get('id');
@@ -99,7 +102,7 @@ export class ChatTemplateComponent implements OnInit {
       }
     });
     this.chatService.isThread$.subscribe((isThread) => {
-      this.chatIsThread = isThread; 
+      this.chatIsThread = isThread;
       console.log('Thread state updated:', this.chatIsThread);
     });
     this.chatService.messages$.subscribe((messages) => {

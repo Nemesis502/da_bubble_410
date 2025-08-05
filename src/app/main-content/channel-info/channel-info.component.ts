@@ -47,13 +47,15 @@ export class ChannelInfoComponent implements OnInit {
   newChannelName = '';
   channelDescriptionInput = '';
   newChannelDescription = '';
-
+  isMobile: boolean = false;
   editName = false;
   editDescription = false;
+  width: number = window.innerWidth;
 
   constructor(private renderer: Renderer2) { }
 
   async ngOnInit(): Promise<void> {
+    this.isMobile = this.width < 999;
     this.currentUser = this.userSession.getCurrentUser();
     this.channelId = this.route.snapshot.paramMap.get('id') || '';
     this.renderer.setStyle(document.body, 'overflow', 'hidden');
