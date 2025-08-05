@@ -70,7 +70,10 @@ export class LogingPageComponent {
   updateErrorMessagePassword() {
     if (this.password.hasError('required')) {
       this.errorMessagePassword = 'Bitte geben Sie ein Passwort ein';
-    } else {
+    } else if (this.password.hasError('falsePassword')) {
+      this.errorMessagePassword = 'Falsche E-Mail-Adresse oder Passwort';
+    }
+    else {
       this.errorMessagePassword = '';
     }
   }
@@ -110,19 +113,20 @@ export class LogingPageComponent {
 
   checkValideLogIn() {
     const email = this.email.value?.trim().toLowerCase() || '';
-    
+
     const password = this.password.value || '';
     this.authService.login(email, password).then((userCredential) => {
-        this.router.navigate(['main'], {
-          state: {
-            loginEmail: userCredential.user.email,
-            loginId: userCredential.user.uid
-          }});
-      }).catch((error) => {
-        console.error("Login fehlgeschlagen:", error.message);
-        this.LogInError = true;
-        this.updateErrorLogIn();
+      this.router.navigate(['main'], {
+        state: {
+          loginEmail: userCredential.user.email,
+          loginId: userCredential.user.uid
+        }
       });
+    }).catch((error) => {
+      console.error("Login fehlgeschlagen:", error.message);
+      this.LogInError = true;
+      this.updateErrorLogIn();
+    });
   }
 
   loginGuest() {
@@ -136,8 +140,7 @@ export class LogingPageComponent {
 
   updateErrorLogIn() {
     if (this.LogInError) {
-      this.password.markAsTouched();
-      this.errorMessagePassword = 'Falsche E-Mail-Adresse oder Passwort';
+      this.password.setErrors({ falsePassword: true });
     } else {
       this.errorMessagePassword = '';
     }
