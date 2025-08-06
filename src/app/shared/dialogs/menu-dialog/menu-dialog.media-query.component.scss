@@ -1,0 +1,22 @@
+@media screen and (min-width: 800px) {
+    .menu-dialog {
+        align-items: center;
+        gap: 15px;
+
+        &.from-main-menu {
+            padding: 30px;
+        }
+
+        .handle {
+            display: none;
+        }
+
+        .btn {
+            justify-content: center;
+
+            mat-icon {
+                display: none;
+            }
+        }
+    }
+}

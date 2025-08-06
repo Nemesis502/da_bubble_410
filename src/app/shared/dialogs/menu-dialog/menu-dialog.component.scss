@@ -9,11 +9,24 @@
     display: none !important;
 }
 
-::ng-deep .bottom-dialog-panel .mat-mdc-dialog-surface.mdc-dialog__surface {
+::ng-deep .bottom-dialog-panel,
+::ng-deep .mat-mdc-dialog-surface.mdc-dialog__surface {
     border-top-left-radius: 30px !important;
     border-top-right-radius: 30px !important;
     border-bottom-left-radius: 0 !important;
     border-bottom-right-radius: 0 !important;
+    box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.18) !important;
+    overflow: hidden;
+    padding: 0;
+    background: white !important;
+}
+
+::ng-deep .top-right-dialog-panel,
+::ng-deep .mat-mdc-dialog-surface.mdc-dialog__surface {
+    border-top-left-radius: 30px !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-left-radius: 30px !important;
+    border-bottom-right-radius: 30px !important;
     box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.18) !important;
     overflow: hidden;
     padding: 0;

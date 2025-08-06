@@ -26,6 +26,8 @@ import { timeout } from 'rxjs';
   styleUrls: ['./add-channel-dialog.component.scss', 'add-channel-dialog.media-query.component.scss']
 })
 export class AddChannelDialogComponent {
+  @HostListener('window:resize', ['$event'])
+
   readonly dialog = inject(MatDialog);
   readonly document = inject(DOCUMENT);
 
@@ -36,7 +38,6 @@ export class AddChannelDialogComponent {
   screeenSmall = false;
   constructor(private router: Router) { }
 
-  @HostListener('window:resize', ['$event'])
   onResize(event: Event): void {
     this.screenWidth = (event.target as Window).innerWidth;
 

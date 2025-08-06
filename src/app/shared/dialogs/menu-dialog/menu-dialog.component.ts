@@ -6,8 +6,9 @@ import {
   OnInit,
   ViewChild,
   ElementRef,
+  HostListener,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -45,13 +46,15 @@ import { Channel } from '../../../interfaces/channel.interface';
     MatAutocompleteModule,
   ],
   templateUrl: './menu-dialog.component.html',
-  styleUrls: ['./menu-dialog.component.scss'],
+  styleUrls: ['./menu-dialog.component.scss', './menu-dialog.media-query.component.scss'],
 })
 export class MenuDialogComponent implements OnInit {
   @ViewChild('inputField') inputField!: ElementRef<HTMLInputElement>;
+  @HostListener('window:resize', ['$event'])
 
   // readonly Injects
   readonly dialog = inject(MatDialog);
+  readonly document = inject(DOCUMENT);
   readonly dialogRef = inject(MatDialogRef<MenuDialogComponent>);
   readonly authService = inject(AuthService);
   readonly announcer = inject(LiveAnnouncer);
@@ -75,6 +78,8 @@ export class MenuDialogComponent implements OnInit {
   isProfilHovered = false;
   autocompleteIsOpen = false;
   isGastLogin = false;
+  screenWidth = window.innerWidth;
+  screeenSmall = false;
 
   constructor(
     private router: Router,
@@ -91,6 +96,38 @@ export class MenuDialogComponent implements OnInit {
   ) {
     this.isGastLogin = this.data.gastLogin!;
     this.currentUser = this.userSession.getCurrentUser();
+  }
+
+  onResize(event: Event): void {
+    this.screenWidth = (event.target as Window).innerWidth;
+    console.log(`Screen width: ${this.screenWidth}`);
+    console.log(`Screen small: ${this.screeenSmall}`);
+
+    if (this.screenWidth < 800 && this.screeenSmall === false) {
+      this.screeenSmall = true;
+      this.dialog.closeAll();
+      this.dialog.open(MenuDialogComponent, {
+        position: { bottom: '0' },
+        maxWidth: '100vw',
+        width: '100vw',
+        panelClass: 'bottom-dialog-panel',
+        data: {
+          source: 'main-menu',
+        },
+      });
+    } if (this.screenWidth >= 800 && this.screeenSmall === true) {
+      this.screeenSmall = false;
+      this.dialog.closeAll();
+      this.dialog.open(MenuDialogComponent, {
+        position: { top: '80px', right: '16px' },
+        maxWidth: '282px',
+        maxHeight: '181px',
+        panelClass: 'top-right-dialog-panel',
+        data: {
+          source: 'main-menu',
+        }
+      });
+    }
   }
 
   async ngOnInit(): Promise<void> {
@@ -116,7 +153,7 @@ export class MenuDialogComponent implements OnInit {
       panelClass: 'bottom-dialog-panel',
       data: {
         user: this.currentUser,
-        loggedUser: this.currentUser?.id, 
+        loggedUser: this.currentUser?.id,
         isUser: true,
       },
     });
