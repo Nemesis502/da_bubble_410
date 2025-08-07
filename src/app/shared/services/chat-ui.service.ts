@@ -51,7 +51,7 @@ export class ChatUIService {
   private mentionableUsers: any[] = [];
   private allChannels: any[] = [];
 
-  constructor() {}
+  constructor() { }
 
   /**
    * Initializes the service with references to the component's DOM and state.
@@ -71,13 +71,27 @@ export class ChatUIService {
 
   // --- Dialog Functions ---
   openMenuDialog(): void {
-    this.dialog.open(MenuDialogComponent, {
-      position: { bottom: '0' },
-      maxWidth: '100vw',
-      width: '100vw',
-      panelClass: 'bottom-dialog-panel',
-      data: { source: 'main-menu' },
-    });
+    if (window.innerWidth < 800) {
+      this.dialog.open(MenuDialogComponent, {
+        position: { bottom: '0' },
+        maxWidth: '100vw',
+        width: '100vw',
+        panelClass: 'bottom-dialog-panel',
+        data: {
+          source: 'main-menu',
+        },
+      });
+    } else {
+      this.dialog.open(MenuDialogComponent, {
+        position: { top: '80px', right: '16px' },
+        maxWidth: '282px',
+        maxHeight: '181px',
+        panelClass: 'top-right-dialog-panel',
+        data: {
+          source: 'main-menu',
+        }
+      });
+    }
   }
 
   openMemberDialog(channelId: string): void {

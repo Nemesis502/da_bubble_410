@@ -50,7 +50,6 @@ import { Channel } from '../../../interfaces/channel.interface';
 })
 export class MenuDialogComponent implements OnInit {
   @ViewChild('inputField') inputField!: ElementRef<HTMLInputElement>;
-  @HostListener('window:resize', ['$event'])
 
   // readonly Injects
   readonly dialog = inject(MatDialog);
@@ -98,10 +97,9 @@ export class MenuDialogComponent implements OnInit {
     this.currentUser = this.userSession.getCurrentUser();
   }
 
+  @HostListener('window:resize', ['$event'])
   onResize(event: Event): void {
     this.screenWidth = (event.target as Window).innerWidth;
-    console.log(`Screen width: ${this.screenWidth}`);
-    console.log(`Screen small: ${this.screeenSmall}`);
 
     if (this.screenWidth < 800 && this.screeenSmall === false) {
       this.screeenSmall = true;
@@ -111,9 +109,7 @@ export class MenuDialogComponent implements OnInit {
         maxWidth: '100vw',
         width: '100vw',
         panelClass: 'bottom-dialog-panel',
-        data: {
-          source: 'main-menu',
-        },
+        data: this.data
       });
     } if (this.screenWidth >= 800 && this.screeenSmall === true) {
       this.screeenSmall = false;
@@ -123,9 +119,7 @@ export class MenuDialogComponent implements OnInit {
         maxWidth: '282px',
         maxHeight: '181px',
         panelClass: 'top-right-dialog-panel',
-        data: {
-          source: 'main-menu',
-        }
+        data: this.data
       });
     }
   }

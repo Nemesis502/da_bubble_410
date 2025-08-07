@@ -26,8 +26,6 @@ import { timeout } from 'rxjs';
   styleUrls: ['./add-channel-dialog.component.scss', 'add-channel-dialog.media-query.component.scss']
 })
 export class AddChannelDialogComponent {
-  @HostListener('window:resize', ['$event'])
-
   readonly dialog = inject(MatDialog);
   readonly document = inject(DOCUMENT);
 
@@ -38,6 +36,7 @@ export class AddChannelDialogComponent {
   screeenSmall = false;
   constructor(private router: Router) { }
 
+  @HostListener('window:resize', ['$event'])
   onResize(event: Event): void {
     this.screenWidth = (event.target as Window).innerWidth;
 
@@ -46,7 +45,7 @@ export class AddChannelDialogComponent {
       this.dialog.closeAll();
       this.router.navigate(['/addChannelDialog']);
       this.document.body.classList.remove('no-scroll');
-    } if (this.screenWidth >= 800 && this.screeenSmall === true) {
+    } else if (this.screenWidth >= 800 && this.screeenSmall === true) {
       this.screeenSmall = false;
       this.router.navigate(['/main']);
       this.dialog.open(AddChannelDialogComponent, {
@@ -61,16 +60,28 @@ export class AddChannelDialogComponent {
   }
 
   openAddPeopleMenu(): void {
-    this.dialog.open(MenuDialogComponent, {
-      position: { bottom: '0' },
-      maxWidth: '100vw',
-      width: '100vw',
-      panelClass: 'bottom-dialog-panel',
-      data: {
-        source: 'add-channel',
-        channelName: this.channelName,
-        channelDescription: this.channelDescription
-      }
-    });
+    if (this.screenWidth < 800) {
+      this.dialog.open(MenuDialogComponent, {
+        position: { bottom: '0' },
+        maxWidth: '100vw',
+        width: '100vw',
+        panelClass: 'bottom-dialog-panel',
+        data: {
+          source: 'add-channel',
+          channelName: this.channelName,
+          channelDescription: this.channelDescription
+        }
+      });
+    } else if (this.screenWidth >= 800) {
+      this.dialog.closeAll();
+      this.dialog.open(MenuDialogComponent, {
+        panelClass: 'middle-dialog-panel',
+        data: {
+          source: 'add-channel',
+          channelName: this.channelName,
+          channelDescription: this.channelDescription
+        }
+      });
+    }
   }
 }

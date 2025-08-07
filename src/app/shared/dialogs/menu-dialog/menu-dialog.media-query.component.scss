@@ -1,9 +1,12 @@
 @media screen and (min-width: 800px) {
     .menu-dialog {
-        align-items: center;
-        gap: 15px;
-
         &.from-main-menu {
+            align-items: center;
+            gap: 15px;
+            padding: 30px;
+        }
+
+        &.from-add-channel {
             padding: 30px;
         }
 

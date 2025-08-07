@@ -393,18 +393,12 @@ export class MainMenuComponent implements OnInit {
   private findConversationBetweenUsers(userId1: string, userId2: string): any | null {
     return this.directMessages.find((conv) => {
       const participants: string[] = conv.members || conv.participants;
-
-
-
-
       const sortedParticipants = [...participants].sort();
       const sortedIds = [userId1, userId2].sort();
 
       return sortedParticipants[0] === sortedIds[0] && sortedParticipants[1] === sortedIds[1];
     }) || null;
   }
-
-
 
   selectDirectMessageGast(user: DirectMessage): void {
     this.router.navigate(['/chat', user.name]);
