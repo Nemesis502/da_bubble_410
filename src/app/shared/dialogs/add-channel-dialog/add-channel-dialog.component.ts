@@ -39,7 +39,6 @@ export class AddChannelDialogComponent {
   @HostListener('window:resize', ['$event'])
   onResize(event: Event): void {
     this.screenWidth = (event.target as Window).innerWidth;
-
     if (this.screenWidth < 800 && this.screeenSmall === false) {
       this.screeenSmall = true;
       this.dialog.closeAll();

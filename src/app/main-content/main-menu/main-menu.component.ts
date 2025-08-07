@@ -275,24 +275,24 @@ export class MainMenuComponent implements OnInit {
     }
   }
 
-  private filterAsUser(
-    query: string,
-    isChannel: boolean,
-    isDirect: boolean
-  ): void {
-    if (isChannel) {
-      this.filteredChannels = this.searchService.filterFirestoreChannels(query);
-      this.filteredDirectMessages = [];
-    } else if (isDirect) {
-      this.filteredDirectMessages =
-        this.searchService.filterFirestoreDirectMessages(query);
-      this.filteredChannels = [];
-    } else {
-      this.filteredChannels = this.searchService.filterFirestoreChannels(query);
-      this.filteredDirectMessages =
-        this.searchService.filterFirestoreDirectMessages(query);
-    }
-  }
+  // private filterAsUser(
+  //   query: string,
+  //   isChannel: boolean,
+  //   isDirect: boolean
+  // ): void {
+  //   if (isChannel) {
+  //     this.filteredChannels = this.searchService.filterFirestoreChannels(query);
+  //     this.filteredDirectMessages = [];
+  //   } else if (isDirect) {
+  //     this.filteredDirectMessages =
+  //       this.searchService.filterFirestoreDirectMessages(query);
+  //     this.filteredChannels = [];
+  //   } else {
+  //     this.filteredChannels = this.searchService.filterFirestoreChannels(query);
+  //     this.filteredDirectMessages =
+  //       this.searchService.filterFirestoreDirectMessages(query);
+  //   }
+  // }
 
   filterDirectMessageUsers(): void {
     const otherUserIds = this.directMessages
