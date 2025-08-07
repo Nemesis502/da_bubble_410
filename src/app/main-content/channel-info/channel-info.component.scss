@@ -68,7 +68,6 @@ input {
     gap: 25px;
     padding: 20px 16px;
     background-color: white;
-    // height: 100%;
 
     section {
         width: 100%;
@@ -268,9 +267,10 @@ textarea,
 @media only screen and (min-width: 1000px) {
     .main {
         padding: 40px 40px;
+        box-shadow: 0px 6px 10px 0px #00000033;
     }
 
-    .members {
-        height: 200px;
+    .members-section {
+        display: none;
     }
 }
