@@ -19,27 +19,19 @@ import { appUser } from '../../interfaces/user.interface';
 export class ChatService {
   private firestore = inject(Firestore);
   private channelService = inject(ChannelsDirectMessageService);
-
-  // State Subjects
   private _selectedChannel = new BehaviorSubject<any>(null);
   selectedChannel$ = this._selectedChannel.asObservable();
-
   private _otherUser = new BehaviorSubject<appUser | null>(null);
   otherUser$ = this._otherUser.asObservable();
-
   private _messages = new BehaviorSubject<any[]>([]);
   messages$ = this._messages.asObservable();
-
   private _threadMessages = new BehaviorSubject<any[] | null>(null);
   threadMessages$ = this._threadMessages.asObservable();
-
   private _activeThreadMessage = new BehaviorSubject<any | null>(null);
   activeThreadMessage$ = this._activeThreadMessage.asObservable();
-
   private _isThread = new BehaviorSubject<boolean>(false);
   isThread$ = this._isThread.asObservable();
 
-  // Chat context flags
   isConversation: boolean = false;
   isThread: boolean = false;
   activeThreadMessageId: string = '';
