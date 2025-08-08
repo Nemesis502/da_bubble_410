@@ -72,8 +72,8 @@
           {{ otherUser?.userName }}
         </p>
       </ng-container>
-      <!-- Channel name -->
       <p class="channel-name nuito18px700">
+        <!-- Thread view -->
         <ng-container *ngIf="chatIsThread">
           Thread <span class="channel-hash">#</span>
           <span class="channel-name-thread">
@@ -82,17 +82,17 @@
             }}
           </span>
         </ng-container>
-        <ng-container
-          (click)="openChannelInfo()"
-          *ngIf="chatIsChannel"
-          #normalChannelName
-        >
-          {{ selectedChannel?.name }}
+
+        <!-- Normal channel view -->
+        <ng-container *ngIf="chatIsChannel && !chatIsThread">
+          <span (click)="openChannelInfo()" class="clickable-channel-name">
+            {{ selectedChannel?.name }}
+          </span>
         </ng-container>
       </p>
 
       <mat-icon
-        *ngIf="chatIsChannel"
+        *ngIf="chatIsChannel && !chatIsThread"
         (click)="openChannelInfo()"
         class="mat-icon-top"
         fontIcon="keyboard_arrow_down"
@@ -110,7 +110,7 @@
     </button>
 
     <!-- Normal view: show Add User button -->
-    <ng-container *ngIf="chatIsChannel">
+    <ng-container *ngIf="chatIsChannel && !chatIsThread">
       <button class="add-user-button" (click)="openMemberDialog()">
         <mat-icon class="mat-icon-top" fontIcon="person_add_alt"></mat-icon>
       </button>

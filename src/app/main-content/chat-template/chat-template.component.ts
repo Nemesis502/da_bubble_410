@@ -111,9 +111,13 @@ export class ChatTemplateComponent implements OnInit {
     this.chatService.isThread$.subscribe((isThread) => {
       this.chatIsThread = isThread;
       console.log('Thread state updated:', this.chatIsThread);
+      setTimeout(() => this.scrollToBottom(), 100);
+      this.focusChatInput();
     });
     this.chatService.messages$.subscribe((messages) => {
       this.messages = messages;
+      setTimeout(() => this.scrollToBottom(), 100);
+      this.focusChatInput();
     });
     this.chatService.selectedChannel$.subscribe((channel) => {
       this.selectedChannel = channel;
@@ -202,7 +206,7 @@ export class ChatTemplateComponent implements OnInit {
     if (this.isThreadView) return;
     const channelId = this.selectedChannel?.channelId;
     if (channelId) {
-      this.router.navigate([`/chat/${channelId}`]);
+      this.router.navigate([`/chat-container/${channelId}`]);
     }
   }
 
