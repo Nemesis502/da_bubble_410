@@ -138,7 +138,7 @@ export class ChatTemplateComponent implements OnInit {
     this.chatUIService.pickerPosition$.subscribe(
       (val) => (this.pickerPosition = val)
     );
-    this.scrollToBottom();
+
     this.chatUIService.fetchAllChannels();
   }
 

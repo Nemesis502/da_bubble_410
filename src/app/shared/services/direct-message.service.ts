@@ -30,6 +30,7 @@ async findAndOpenConversation(loggedUserId: string, targetUserId: string): Promi
   }
 if (loggedUserId === targetUserId){
       console.log(loggedUserId, targetUserId)
+  console.log('feature coming soon')
 }
   const conversation = await this.firestoreService.getConversationBetweenUsers(loggedUserId, targetUserId);
 
@@ -53,8 +54,14 @@ const newConversation = {
   createdAt: new Date(),
   isPrivateNote: true,
 };
+
+
     await this.firestoreService.createConversation(newConversation);
+    console.log('Created self-conversation for user:', userId);
   } else {
+    console.log('Self-conversation already exists for user:', userId);
   }
 }
+
+
 }

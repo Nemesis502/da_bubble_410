@@ -1,9 +1,13 @@
 import { inject, Injectable, ElementRef } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { BehaviorSubject } from 'rxjs';
+
+// Dialog Components
 import { MenuDialogComponent } from '../dialogs/menu-dialog/menu-dialog.component';
 import { MemberDialogComponent } from '../dialogs/member-dialog/member-dialog.component';
 import { ProfilDialogComponent } from '../dialogs/profil-dialog/profil-dialog.component';
+
+// Other Services
 import { MentionService } from './mentions.service';
 import { appUser } from '../../interfaces/user.interface';
 
@@ -218,7 +222,7 @@ export class ChatUIService {
       this.removeMentionSymbol(cursorPos);
     } else {
       this.insertMentionSymbol(cursorPos);
-      await this.fetchMentionableUsers(channelId); 
+      await this.fetchMentionableUsers(channelId); // Fetch users when triggering manually
     }
   }
 

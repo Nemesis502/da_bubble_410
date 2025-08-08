@@ -73,10 +73,10 @@
         </p>
       </ng-container>
       <!-- Channel name -->
-      <p class="channel-name nuito18px700" (click)="openChannelInfo()">
-        <ng-container *ngIf="chatIsThread" >
+      <p class="channel-name nuito18px700">
+        <ng-container *ngIf="chatIsThread">
           Thread <span class="channel-hash">#</span>
-          <span class="channel-name-thread" >
+          <span class="channel-name-thread">
             {{
               chatIsConversation ? otherUser?.userName : selectedChannel?.name
             }}
