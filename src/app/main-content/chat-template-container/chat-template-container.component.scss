@@ -1,0 +1,21 @@
+.chat-template-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  gap: 1rem;
+  padding: 0.5rem;
+
+  .chat-view {
+    flex: 1;
+    border: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    overflow: hidden;
+  }
+
+  .thread-view {
+    border-left: 2px solid #ccc;
+    background-color: #fafafa;
+  }
+}

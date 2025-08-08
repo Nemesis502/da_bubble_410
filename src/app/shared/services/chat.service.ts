@@ -344,19 +344,24 @@ export class ChatService {
   }
 
   /** Opens a thread view for a specific message */
-   openThread(messageId: string): void {
-       console.log(this._isThread.getValue(), messageId);
-       this._isThread.next(true); 
-       this.activeThreadMessageId = messageId;
-       const channelId = this._selectedChannel.getValue()?.channelId;
-       if (channelId) {
-           this.loadThreadMessages(channelId, messageId);
-           this.setActiveThreadMessage(channelId, messageId);
-       }
-   }
+openThread(messageId: string, forceThreadToggle: boolean = true): void {
+  // Only toggle thread state for mobile or if explicitly forced
+  if (forceThreadToggle) {
+    this._isThread.next(true);
+  }
+
+  this.activeThreadMessageId = messageId;
+  const channelId = this._selectedChannel.getValue()?.channelId;
+
+  if (channelId) {
+    this.loadThreadMessages(channelId, messageId);
+    this.setActiveThreadMessage(channelId, messageId);
+  }
+}
+
 
   /** Loads messages in the currently active thread */
-  private loadThreadMessages(channelId: string, messageId: string): void {
+ loadThreadMessages(channelId: string, messageId: string): void {
     if (!messageId) return;
 
     if (this.isConversation) {

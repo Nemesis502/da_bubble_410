@@ -3,6 +3,7 @@ import {
   ElementRef,
   HostListener,
   inject,
+  Input,
   OnInit,
   ViewChild,
 } from '@angular/core';
@@ -19,7 +20,7 @@ import { ChatService } from '../../shared/services/chat.service';
 import { ChatUIService } from '../../shared/services/chat-ui.service';
 import { SessionService } from '../../shared/services/currentUserSession.service';
 import { appUser } from '../../interfaces/user.interface';
-
+import { map, startWith } from 'rxjs/operators';
 interface PickerPosition {
   top: number;
   left: number;
@@ -41,6 +42,8 @@ interface PickerPosition {
   styleUrl: './chat-template.component.scss',
 })
 export class ChatTemplateComponent implements OnInit {
+  @Input() isThreadView: boolean = false;
+
   private userSession = inject(SessionService);
   private chatService = inject(ChatService);
   private chatUIService = inject(ChatUIService);
@@ -92,15 +95,19 @@ export class ChatTemplateComponent implements OnInit {
     this.currentUser = this.userSession.getCurrentUser();
     this.isMobile = this.width < 999;
 
-    this.route.paramMap.subscribe(async (params) => {
-      const id = params.get('id');
-      if (id) {
-        await this.chatService.initializeChat(id, this.currentUser?.id);
-        this.chatIsConversation = this.chatService.isConversation;
-        this.chatIsThread = this.chatService.isThread;
-        this.chatIsChannel = !this.chatService.isConversation;
-      }
-    });
+    if (!this.isThreadView) {
+      // Nur für Hauptchat
+      this.route.paramMap.subscribe(async (params) => {
+        const id = params.get('id');
+        if (id) {
+          await this.chatService.initializeChat(id, this.currentUser?.id);
+          this.chatIsConversation = this.chatService.isConversation;
+          this.chatIsThread = this.chatService.isThread;
+          this.chatIsChannel = !this.chatService.isConversation;
+        }
+      });
+    }
+
     this.chatService.isThread$.subscribe((isThread) => {
       this.chatIsThread = isThread;
       console.log('Thread state updated:', this.chatIsThread);
@@ -114,8 +121,14 @@ export class ChatTemplateComponent implements OnInit {
       this.chatUIService.fetchAllChannels();
     });
     this.chatService.otherUser$.subscribe((user) => (this.otherUser = user));
-    this.messages$ = this.chatService.messages$;
-    this.threadMessages$ = this.chatService.threadMessages$;
+
+    this.messages$ = this.isThreadView
+      ? this.chatService.threadMessages$.pipe(
+          map((messages) => messages ?? []),
+          startWith([]) // Optional: sofort initialisieren
+        )
+      : this.chatService.messages$;
+
     this.chatService.activeThreadMessage$.subscribe(
       (msg) => (this.activeThreadMessage = msg)
     );
@@ -154,7 +167,7 @@ export class ChatTemplateComponent implements OnInit {
 
     const chatContext = {
       isConversation: this.chatService.isConversation,
-      isThread: this.chatService.isThread,
+      isThread: this.isThreadView || this.chatService.isThread,
       activeThreadMessageId: this.chatService.activeThreadMessageId,
       editedMessage: this.editedMessage,
     };
@@ -186,6 +199,7 @@ export class ChatTemplateComponent implements OnInit {
 
   closeThreadView(): void {
     this.chatService.closeThread();
+    if (this.isThreadView) return;
     const channelId = this.selectedChannel?.channelId;
     if (channelId) {
       this.router.navigate([`/chat/${channelId}`]);

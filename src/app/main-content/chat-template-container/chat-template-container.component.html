@@ -1,0 +1,19 @@
+<!-- Mobile: nur eine Chat-Instanz -->
+<ng-container *ngIf="isMobile; else desktopView">
+  <app-chat-template></app-chat-template>
+</ng-container>
+
+<!-- Desktop: zwei Instanzen nebeneinander -->
+<ng-template #desktopView>
+  <div class="chat-template-container">
+    <!-- Main Chat -->
+    <app-chat-template class="chat-view" [isThreadView]="false"></app-chat-template>
+
+    <!-- Thread Chat (nur wenn offen) -->
+    <app-chat-template
+      *ngIf="threadIsOpen$ | async"
+      class="chat-view thread-view"
+      [isThreadView]="true"
+    ></app-chat-template>
+  </div>
+</ng-template>

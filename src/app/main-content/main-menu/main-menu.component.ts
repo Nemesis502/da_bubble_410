@@ -354,41 +354,39 @@ export class MainMenuComponent implements OnInit {
     }
   }
 
-  selectChannel(channel: any): void {
-    if (!channel || !channel.channelId) {
-      console.error('Channel oder channelId ist undefined:', channel);
-      return;
-    }
-
-    this.channelDirectMessageData.setSelectedChannel(channel);
-    this.router.navigate(['/chat', channel.channelId]);
+selectChannel(channel: any): void {
+  if (!channel || !channel.channelId) {
+    console.error('Channel oder channelId ist undefined:', channel);
+    return;
   }
 
-  selectDirectMessage(user: appUser): void {
-    if (!user || !user.id) {
-      console.error('User oder user.id ist undefined:', user);
-      return;
-    }
+  this.channelDirectMessageData.setSelectedChannel(channel);
+  this.router.navigate(['/chat-container', channel.channelId]);
+}
 
-    const currentUserId = this.currentUser?.id;
-    if (!currentUserId) {
-      console.error('Current user is not set');
-      return;
-    }
-
-    console.log('Target User ID:', user.id);
-    console.log('Current User ID:', currentUserId);
-
-    const conversation = this.findConversationBetweenUsers(user.id, currentUserId);
-
-    if (!conversation || !conversation.id) {
-      console.error('Keine passende Konversation gefunden für:', user);
-      return;
-    }
-
-    this.channelDirectMessageData.setSelectedDirectMessage(user);
-    this.router.navigate(['/chat', conversation.id]);
+selectDirectMessage(user: appUser): void {
+  if (!user || !user.id) {
+    console.error('User oder user.id ist undefined:', user);
+    return;
   }
+
+  const currentUserId = this.currentUser?.id;
+  if (!currentUserId) {
+    console.error('Current user is not set');
+    return;
+  }
+
+  const conversation = this.findConversationBetweenUsers(user.id, currentUserId);
+
+  if (!conversation || !conversation.id) {
+    console.error('Keine passende Konversation gefunden für:', user);
+    return;
+  }
+
+  this.channelDirectMessageData.setSelectedDirectMessage(user);
+  // neue Route:
+  this.router.navigate(['/chat-container', conversation.id]);
+}
 
   private findConversationBetweenUsers(userId1: string, userId2: string): any | null {
     return this.directMessages.find((conv) => {
