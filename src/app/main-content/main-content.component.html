@@ -1,1 +1,21 @@
-<p>main-content works!</p>
+<app-header [currentUser]="currentUser"></app-header>
+
+<section class="main">
+    <button class="show-main-menu" (click)="showMainMenu = !showMainMenu">
+        <p>Workspace-Menü schließen</p>
+        <mat-icon fontIcon="close"></mat-icon>
+    </button>
+    @if (showMainMenu) {
+        <section class="left">
+            <app-main-menu></app-main-menu>
+        </section>
+    }
+    <section class="center">
+        <!-- <app-chat-template></app-chat-template> -->
+    </section>
+    @if (showThread) {
+        <section class="right">
+            
+        </section>
+    }
+</section>

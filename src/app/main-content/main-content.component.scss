@@ -1,0 +1,50 @@
+@use "./../../styles.scss" as *;
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    padding: 32px 45px 16px;
+    width: 100vw;
+    height: 70px;
+}
+
+.main {
+    display: flex;
+}
+
+.show-main-menu {
+    z-index: 1000;
+    position: absolute;
+    top: 65%;
+    left: -144px;
+    display: flex;
+    gap: 20px;
+    border: 0;
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+    padding: 12px 20px;
+    height: 56px;
+    width: 347px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    transform: rotate(-90deg);
+
+    p {
+        margin: 0;
+        width: 253px;
+        height: 24px;
+        font-family: "Nunito";
+        font-size: 20px;
+        font-weight: 500;
+    }
+    
+    &:hover {
+        p, mat-icon {
+            color: $purple3;
+        }
+    }
+}
+
+.left {
+    padding-left: 20px;
+}

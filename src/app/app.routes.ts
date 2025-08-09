@@ -12,6 +12,7 @@ import { ChannelInfoComponent } from './main-content/channel-info/channel-info.c
 import { NewMessageComponent } from './main-content/new-message/new-message.component';
 import { AddChannelDialogComponent } from './shared/dialogs/add-channel-dialog/add-channel-dialog.component';
 import { ChatTemplateContainerComponent } from './main-content/chat-template-container/chat-template-container.component';
+import { MainContentComponent } from './main-content/main-content.component';
 
 export const routes: Routes = [
   { path: '', component: LogingPageComponent },
@@ -19,7 +20,7 @@ export const routes: Routes = [
   { path: 'resetPassword', component: ResetPasswordComponent },
   { path: 'newPassword', component: NewPasswordComponent },
   { path: 'singIn/chooseAvatar', component: ChooseAvatarPageComponent },
-  { path: 'main', component: MainMenuComponent },
+  { path: 'main', component: MainContentComponent },
   { path: 'legalNotice', component: LegalNoticeComponent },
   { path: 'privacyPolicy', component: PrivacyPolicyComponent },
   { path: 'addChannelDialog', component: AddChannelDialogComponent },
