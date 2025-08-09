@@ -22,31 +22,6 @@
     display: none !important;
 }
 
-.main-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px;
-    width: calc(100% - 32px);
-    height: 48px;
-
-    .logo-name {
-        padding-inline: 6px;
-        width: 161px;
-        height: 45px;
-        object-fit: fill;
-    }
-
-    button {
-        border: 0;
-        background-color: transparent;
-
-        img {
-            width: 50px;
-        }
-    }
-}
-
 .menu {
     width: 100%;
     height: calc(100vh - 80px);

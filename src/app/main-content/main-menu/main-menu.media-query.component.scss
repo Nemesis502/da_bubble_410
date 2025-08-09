@@ -1,5 +1,11 @@
 @use "./../../../styles.scss" as *;
 
+@media screen and (min-height: 940px) {
+    .header {
+        display: none;
+    }
+}
+
 @media screen and (max-width: 360px) {
     .nuito27px {
         font-size: 26px !important;

@@ -23,6 +23,7 @@ import { onSnapshot } from 'firebase/firestore';
 import { MenuDialogComponent } from '../../shared/dialogs/menu-dialog/menu-dialog.component';
 import { DirectMessageService } from '../../shared/services/direct-message.service';
 import { AddChannelDialogComponent } from '../../shared/dialogs/add-channel-dialog/add-channel-dialog.component';
+import { HeaderComponent } from '../../shared/header/header.component';
 
 @Component({
   selector: 'app-main-menu',
@@ -36,6 +37,7 @@ import { AddChannelDialogComponent } from '../../shared/dialogs/add-channel-dial
     MatIconModule,
     MatSelectModule,
     MatDividerModule,
+    HeaderComponent
   ],
   templateUrl: './main-menu.component.html',
   styleUrls: [
@@ -275,25 +277,6 @@ export class MainMenuComponent implements OnInit {
     }
   }
 
-  // private filterAsUser(
-  //   query: string,
-  //   isChannel: boolean,
-  //   isDirect: boolean
-  // ): void {
-  //   if (isChannel) {
-  //     this.filteredChannels = this.searchService.filterFirestoreChannels(query);
-  //     this.filteredDirectMessages = [];
-  //   } else if (isDirect) {
-  //     this.filteredDirectMessages =
-  //       this.searchService.filterFirestoreDirectMessages(query);
-  //     this.filteredChannels = [];
-  //   } else {
-  //     this.filteredChannels = this.searchService.filterFirestoreChannels(query);
-  //     this.filteredDirectMessages =
-  //       this.searchService.filterFirestoreDirectMessages(query);
-  //   }
-  // }
-
   filterDirectMessageUsers(): void {
     const otherUserIds = this.directMessages
       .map((conv) =>
@@ -320,30 +303,6 @@ export class MainMenuComponent implements OnInit {
     this.updateFilteredResults();
   }
 
-  openMenuDialog(): void {
-    if (window.innerWidth < 800) {
-      this.dialog.open(MenuDialogComponent, {
-        position: { bottom: '0' },
-        maxWidth: '100vw',
-        width: '100vw',
-        panelClass: 'bottom-dialog-panel',
-        data: {
-          source: 'main-menu',
-        },
-      });
-    } else {
-      this.dialog.open(MenuDialogComponent, {
-        position: { top: '80px', right: '16px' },
-        maxWidth: '282px',
-        maxHeight: '181px',
-        panelClass: 'top-right-dialog-panel',
-        data: {
-          source: 'main-menu',
-        }
-      });
-    }
-  }
-
   addChannel() {
     if (window.innerWidth < 800) {
       this.router.navigate(['/addChannelDialog']);
@@ -354,39 +313,39 @@ export class MainMenuComponent implements OnInit {
     }
   }
 
-selectChannel(channel: any): void {
-  if (!channel || !channel.channelId) {
-    console.error('Channel oder channelId ist undefined:', channel);
-    return;
+  selectChannel(channel: any): void {
+    if (!channel || !channel.channelId) {
+      console.error('Channel oder channelId ist undefined:', channel);
+      return;
+    }
+
+    this.channelDirectMessageData.setSelectedChannel(channel);
+    this.router.navigate(['/chat-container', channel.channelId]);
   }
 
-  this.channelDirectMessageData.setSelectedChannel(channel);
-  this.router.navigate(['/chat-container', channel.channelId]);
-}
+  selectDirectMessage(user: appUser): void {
+    if (!user || !user.id) {
+      console.error('User oder user.id ist undefined:', user);
+      return;
+    }
 
-selectDirectMessage(user: appUser): void {
-  if (!user || !user.id) {
-    console.error('User oder user.id ist undefined:', user);
-    return;
+    const currentUserId = this.currentUser?.id;
+    if (!currentUserId) {
+      console.error('Current user is not set');
+      return;
+    }
+
+    const conversation = this.findConversationBetweenUsers(user.id, currentUserId);
+
+    if (!conversation || !conversation.id) {
+      console.error('Keine passende Konversation gefunden für:', user);
+      return;
+    }
+
+    this.channelDirectMessageData.setSelectedDirectMessage(user);
+    // neue Route:
+    this.router.navigate(['/chat-container', conversation.id]);
   }
-
-  const currentUserId = this.currentUser?.id;
-  if (!currentUserId) {
-    console.error('Current user is not set');
-    return;
-  }
-
-  const conversation = this.findConversationBetweenUsers(user.id, currentUserId);
-
-  if (!conversation || !conversation.id) {
-    console.error('Keine passende Konversation gefunden für:', user);
-    return;
-  }
-
-  this.channelDirectMessageData.setSelectedDirectMessage(user);
-  // neue Route:
-  this.router.navigate(['/chat-container', conversation.id]);
-}
 
   private findConversationBetweenUsers(userId1: string, userId2: string): any | null {
     return this.directMessages.find((conv) => {
