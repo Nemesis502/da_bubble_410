@@ -100,6 +100,12 @@ input {
                 color: $TextGray !important;
             }
         }
+
+        &:hover {
+            span {
+                color: $purple1 !important;
+            }
+        }
     }
 
     .mat-icon {
@@ -177,6 +183,19 @@ textarea,
         font-weight: 400 !important;
         color: $purple3 !important;
     }
+}
+
+.edit-pen {
+    display: block;
+}
+
+.edit-span {
+    display: none;
+    color: $purple3;
+    font-family: "Nunito";
+    font-weight: 600;
+    font-size: 18px;
+    letter-spacing: 0;
 }
 
 .members {
@@ -272,5 +291,20 @@ textarea,
 
     .members-section {
         display: none;
+    }
+
+    .edit-pen {
+        display: none;
+    }
+
+    .edit-span {
+        display: block;
+    }
+
+    .title-with-edit {
+        .mat-mdc-icon-button {
+            width: unset;
+            background-color: unset;
+        }
     }
 }

@@ -18,7 +18,8 @@
           (click)="editName = !editName"
           aria-label="Bearbeiten"
         >
-          <mat-icon fontSet="material-icons-outlined">edit</mat-icon>
+          <mat-icon class="edit-pen" fontSet="material-icons-outlined">edit</mat-icon>
+          <span class="edit-span">Bearbeiten</span>
         </button>
         } @else if (newChannelName.trim().length === 0) {
         <button
@@ -63,7 +64,8 @@
           (click)="editDescription = !editDescription"
           aria-label="Bearbeiten"
         >
-          <mat-icon fontSet="material-icons-outlined">edit</mat-icon>
+          <mat-icon class="edit-pen" fontSet="material-icons-outlined">edit</mat-icon>
+          <span class="edit-span">Bearbeiten</span>
         </button>
         } @else if (newChannelDescription.trim().length === 0) {
         <button
