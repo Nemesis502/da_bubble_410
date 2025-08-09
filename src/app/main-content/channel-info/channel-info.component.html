@@ -14,20 +14,23 @@
         <span class="nuito18px700">Channel-Name</span>
         @if (!editName) {
         <button
+          class="edit-button"
           mat-icon-button
           (click)="editName = !editName"
           aria-label="Bearbeiten"
         >
           <mat-icon class="edit-pen" fontSet="material-icons-outlined">edit</mat-icon>
-          <span class="edit-span">Bearbeiten</span>
+          <span>Bearbeiten</span>
         </button>
         } @else if (newChannelName.trim().length === 0) {
         <button
+          class="edit-button"
           mat-icon-button
           (click)="editName = !editName"
           aria-label="Bearbeiten schließen"
         >
-          <mat-icon fontIcon=" close"></mat-icon>
+          <mat-icon class="edit-pen" fontIcon="close"></mat-icon>
+          <span>Speichern</span>
         </button>
         } @else {
         <button mat-icon-button (click)="saveName()" aria-label="Speichern">
@@ -60,20 +63,25 @@
         <span class="nuito18px700">Beschreibung</span>
         @if (!editDescription) {
         <button
+          class="edit-button"
           mat-icon-button
           (click)="editDescription = !editDescription"
           aria-label="Bearbeiten"
         >
-          <mat-icon class="edit-pen" fontSet="material-icons-outlined">edit</mat-icon>
-          <span class="edit-span">Bearbeiten</span>
+          <mat-icon class="edit-pen" fontSet="material-icons-outlined"
+            >edit</mat-icon
+          >
+          <span>Bearbeiten</span>
         </button>
         } @else if (newChannelDescription.trim().length === 0) {
         <button
+          class="edit-button"
           mat-icon-button
           (click)="editDescription = !editDescription"
           aria-label="Bearbeiten schließen"
         >
-          <mat-icon fontIcon=" close"></mat-icon>
+          <mat-icon class="edit-pen" fontIcon=" close"></mat-icon>
+          <span>Speichern</span>
         </button>
         } @else {
         <button

@@ -100,12 +100,6 @@ input {
                 color: $TextGray !important;
             }
         }
-
-        &:hover {
-            span {
-                color: $purple1 !important;
-            }
-        }
     }
 
     .mat-icon {
@@ -185,17 +179,27 @@ textarea,
     }
 }
 
-.edit-pen {
-    display: block;
+.edit-button {
+    span {
+        display: none;
+        color: $purple3;
+        font-family: "Nunito";
+        font-weight: 600;
+        font-size: 18px;
+        letter-spacing: 0;
+        transition: ease-out 100ms;
+    }
+
+    &:hover {
+        span {
+            color: #444df2;
+            font-weight: bold;
+        }
+    }
 }
 
-.edit-span {
-    display: none;
-    color: $purple3;
-    font-family: "Nunito";
-    font-weight: 600;
-    font-size: 18px;
-    letter-spacing: 0;
+.edit-pen {
+    display: block;
 }
 
 .members {
@@ -297,8 +301,10 @@ textarea,
         display: none;
     }
 
-    .edit-span {
-        display: block;
+    .edit-button {
+        span {
+            display: block;
+        }
     }
 
     .title-with-edit {
