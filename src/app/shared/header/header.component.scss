@@ -4,14 +4,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px;
-    width: calc(100% - 32px);
+    padding: 32px 45px;
+    width: calc(100% - 90px);
     height: 48px;
 
     .logo-name {
         padding-inline: 6px;
-        width: 161px;
-        height: 45px;
+        width: 242px;
+        height: 70px;
         object-fit: fill;
     }
 
@@ -27,7 +27,13 @@
         }
 
         img {
-            width: 50px;
+            width: 70px;
+        }
+
+        mat-icon {
+            width: 30px;
+            height: 30px;
+            font-size: 30px;
         }
     }
 }
