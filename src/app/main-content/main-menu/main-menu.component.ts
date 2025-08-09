@@ -9,10 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
 import { SearchService } from '../../shared/services/search.service';
-import {
-  ChannelsDirectMessageService,
-  DirectMessage,
-} from '../../shared/services/channels-direct-message.service';
+import {  ChannelsDirectMessageService,  DirectMessage } from '../../shared/services/channels-direct-message.service';
 import { FirestoreService } from '../../shared/services/firestore.service';
 import { Router } from '@angular/router';
 import { UserService } from '../../shared/services/user.services';

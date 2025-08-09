@@ -1,0 +1,67 @@
+@use "./../../../styles.scss" as *;
+
+:host ::ng-deep .mat-mdc-text-field-wrapper {
+    background-color: transparent !important;
+}
+
+:host ::ng-deep .mat-mdc-input-element::placeholder {
+    font-family: "Nunito" !important;
+    font-size: 24px !important;
+    font-weight: 400 !important;
+    color: $TextGray !important;
+    opacity: 1 !important;
+}
+
+:host ::ng-deep .mat-mdc-input-element {
+    color: black !important;
+}
+
+:host ::ng-deep .mat-mdc-form-field-infix {
+    padding-block: 20px;
+}
+
+:host ::ng-deep .mat-mdc-form-field .mdc-line-ripple {
+    display: none !important;
+}
+
+:host ::ng-deep .mat-mdc-form-field-subscript-wrapper,
+:host ::ng-deep .mat-mdc-form-field-bottom-align::before {
+    display: none !important;
+}
+
+input {
+    border: none;
+    padding-left: 20px;
+    width: calc(48vw - 40px);
+    height: 33px;
+    background-color: transparent;
+    outline: none;
+    font-family: "Nunito" !important;
+    font-size: 24px !important;
+    font-weight: 400 !important;
+}
+
+.search-form {
+    margin-block: 16px;
+    border: 1px solid;
+    border-color: $LightPurple;
+    border-radius: 42px;
+    color: $TextGray;
+    background-color: white;
+
+    .search-full-width {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        width: 50vw;
+        height: 70px;
+
+        .mat-icon {
+            padding-right: 32px;
+            font-size: 35px;
+            width: 35px;
+            height: 35px;
+            color: $TextGray;
+        }
+    }
+}

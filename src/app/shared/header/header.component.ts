@@ -4,13 +4,15 @@ import { MatDialog } from '@angular/material/dialog';
 import { appUser } from '../../interfaces/user.interface';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { SearchComponent } from '../search/search.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
   imports: [
     CommonModule,
-    MatIconModule
+    MatIconModule,
+    SearchComponent
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'

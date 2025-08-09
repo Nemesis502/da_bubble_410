@@ -8,11 +8,11 @@
 } @else {
 <section class="main-header">
     <img class="logo-name" src="./assets/img/logo-name.png" alt="Logo und Name" />
-
+    <app-search></app-search>
     <button aria-label="Menü öffnen" (click)="openMenuDialog()">
         <p class="nuito32px700">{{ currentUser?.userName }}</p>
         <img src="./assets/img/avatar/{{currentUser?.profilePic}}.png" alt="" aria-hidden="true" />
-        <mat-icon>keyboard_arrow_down</mat-icon>
+        <mat-icon fontIcon="keyboard_arrow_down"></mat-icon>
     </button>
 </section>
 }
