@@ -37,9 +37,11 @@
         font-size: 20px;
         font-weight: 500;
     }
-    
+
     &:hover {
-        p, mat-icon {
+
+        p,
+        mat-icon {
             color: $purple3;
         }
     }
@@ -47,4 +49,16 @@
 
 .left {
     padding-left: 20px;
+    width: 300px;
+    position: relative;
+    z-index: 10;
+    transition: transform 0.3s ease;
+
+    &.menu-closed {
+        transform: translateX(-100%);
+    }
+
+    &.menu-open {
+        transform: translateX(0);
+    }
 }
