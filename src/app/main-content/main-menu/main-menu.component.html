@@ -1,5 +1,5 @@
 <section class="main-menu">
-  <app-header class="header" [currentUser]="currentUser"></app-header>
+  <app-header class="main-header" [currentUser]="currentUser"></app-header>
   <section class="menu">
     <section class="menu-item">
       @if (isSearchActive) {
@@ -10,13 +10,13 @@
         </button>
       </section>
       }
-      <form class="search-form" role="search">
+      <!-- <form class="search-form" role="search">
         <mat-form-field appearance="fill" class="search-full-width">
           <input matInput placeholder="Gehe zu..." [(ngModel)]="searchTerm" name="searchTerm"
             aria-label="Suchfeld Gehe zu" (ngModelChange)="updateFilteredResults()" />
           <mat-icon matSuffix aria-hidden="true">search</mat-icon>
         </mat-form-field>
-      </form>
+      </form> -->
       <section class="menu-list">
         @if (isSearchActive) {
         @if (filteredChannels.length > 0) {
