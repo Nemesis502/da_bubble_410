@@ -1,0 +1,46 @@
+<form class="search-form" role="search">
+    <mat-form-field appearance="fill" class="search-full-width">
+        <input matInput placeholder="Devspace durchsuchen" [(ngModel)]="searchTerm" name="searchTerm"
+            aria-label="Suchfeld Gehe zu" (ngModelChange)="updateFilteredResults()" />
+        <mat-icon matSuffix aria-hidden="true" fontIcon="search"></mat-icon>
+    </mat-form-field>
+</form>
+<section>
+    @if (isSearchActive) {
+    @if (filteredChannels.length > 0) {
+    <section class="channels">
+        <div class="channel-list search" id="channel-list">
+            @for (channel of filteredChannels; track channel.channelId) {
+            <div class="channel-item" (click)="selectChannel(channel)">
+                <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
+                <p class="nuito17px400">{{ channel.name }}</p>
+            </div>
+            }
+        </div>
+    </section>
+    }
+    @if (filteredDirectMessages.length > 0) {
+    <section class="direct-message">
+        <div class="message-list search" id="direct-messages">
+            @if (gastLogin) {
+            @for (user of filteredDirectMessages; track user.name) {
+            <div class="message-item">
+                <img src="./assets/img/avatar/{{ user.img }}" alt="Avatar von {{ user.name }}" />
+                <div class="status {{ user.status }}"></div>
+                <p class="nuito17px400">{{ user.name }}</p>
+            </div>
+            }
+            } @else {
+            @for (user of filteredDirectMessages; track user.id) {
+            <div class="message-item">
+                <img src="./assets/img/avatar/{{ user.profilePic }}.png" alt="Avatar von {{ user.userName }}" />
+                <div class="status {{ user.status ? 'online' : 'offline' }}"></div>
+                <p class="nuito17px400">{{ user.userName }}</p>
+            </div>
+            }
+            }
+        </div>
+    </section>
+    }
+    }
+</section>

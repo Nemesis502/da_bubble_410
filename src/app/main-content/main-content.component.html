@@ -3,7 +3,7 @@
 <section class="main">
     <button class="show-main-menu" (click)="showMainMenu = !showMainMenu">
         <p>{{ showMainMenu ? 'Workspace-Menü schließen' : 'Workspace-Menü öffnen' }}</p>
-        <mat-icon fontIcon="chevron_left"></mat-icon>
+        <mat-icon fontIcon="{{ showMainMenu ? 'chevron_left' : 'chevron_right' }}"></mat-icon>
     </button>
     <section class="left" [class.menu-open]="showMainMenu" [class.menu-closed]="!showMainMenu">
         <app-main-menu></app-main-menu>
