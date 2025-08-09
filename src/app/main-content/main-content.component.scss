@@ -37,6 +37,10 @@
         font-weight: 500;
     }
 
+    mat-icon{
+        transform: rotate(90deg)
+    }
+
     &:hover {
 
         p,
