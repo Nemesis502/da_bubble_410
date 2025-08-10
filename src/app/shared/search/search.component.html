@@ -5,13 +5,13 @@
         <mat-icon matSuffix aria-hidden="true" fontIcon="search"></mat-icon>
     </mat-form-field>
 </form>
-<section>
+<section class="search-results">
     @if (isSearchActive) {
     @if (filteredChannels.length > 0) {
     <section class="channels">
-        <div class="channel-list search" id="channel-list">
+        <div class="list search" id="channel-list">
             @for (channel of filteredChannels; track channel.channelId) {
-            <div class="channel-item" (click)="selectChannel(channel)">
+            <div class="item" (click)="selectChannel(channel)">
                 <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
                 <p class="nuito17px400">{{ channel.name }}</p>
             </div>
@@ -21,10 +21,10 @@
     }
     @if (filteredDirectMessages.length > 0) {
     <section class="direct-message">
-        <div class="message-list search" id="direct-messages">
+        <div class="list search" id="direct-messages">
             @if (gastLogin) {
             @for (user of filteredDirectMessages; track user.name) {
-            <div class="message-item">
+            <div class="item" (click)="selectDirectMessageGast(user)">
                 <img src="./assets/img/avatar/{{ user.img }}" alt="Avatar von {{ user.name }}" />
                 <div class="status {{ user.status }}"></div>
                 <p class="nuito17px400">{{ user.name }}</p>
@@ -32,10 +32,13 @@
             }
             } @else {
             @for (user of filteredDirectMessages; track user.id) {
-            <div class="message-item">
+            <div class="item" (click)="selectDirectMessage(user)">
                 <img src="./assets/img/avatar/{{ user.profilePic }}.png" alt="Avatar von {{ user.userName }}" />
                 <div class="status {{ user.status ? 'online' : 'offline' }}"></div>
-                <p class="nuito17px400">{{ user.userName }}</p>
+                <p class="nuito17px400">
+                    {{ user.userName }}
+                    @if (currentUser?.id === user.id) {(Du)}
+                </p>
             </div>
             }
             }

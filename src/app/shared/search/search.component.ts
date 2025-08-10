@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldControl, MatFormFieldModule } from '@angular/material/form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { SearchService } from '../services/search.service';
-import { ChannelsDirectMessageService } from '../services/channels-direct-message.service';
+import { ChannelsDirectMessageService, DirectMessage } from '../services/channels-direct-message.service';
 import { FirestoreService } from '../services/firestore.service';
 import { appUser } from '../../interfaces/user.interface';
 import { FormsModule } from '@angular/forms';
@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
 import { onSnapshot } from 'firebase/firestore';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-search',
@@ -74,6 +75,62 @@ export class SearchComponent {
         this.unsubCurrentUser = this.subCurrentUser();
       }
     }
+  }
+
+  async ngOnInit(): Promise<void> {
+    const sessionUser = this.userSession.getCurrentUser();
+
+    if (!this.gastLogin && sessionUser && !this.currentLoginId) {
+      this.currentUser = sessionUser;
+      this.currentLoginId = sessionUser.id!;
+      this.currentLoginEmail = sessionUser.email!;
+      this.subCurrentUser();
+      this.directMessageService.setCurrentUser(this.currentUser);
+
+      await this.directMessageService.ensureSelfConversationExists();
+    }
+
+    if (!this.gastLogin && this.currentLoginId) {
+      await this.getCurrentUserLogIn();
+      console.log('current User', this.currentUser);
+      this.searchService.setCurrentUserId(this.currentLoginId);
+    }
+
+    if (!this.gastLogin) {
+      this.firestoreService.getChannels().subscribe((c) => {
+        this.channels = c;
+        this.userChannels = c.filter((channel) =>
+          channel.members.includes(this.currentLoginId)
+        );
+        this.searchService.setFirestoreChannels(c);
+      });
+
+      this.getAllUsers();
+
+      this.firestoreService
+        .getConversationsByUserId(this.currentLoginId)
+        .subscribe((conv) => {
+          this.directMessages = conv;
+          this.filterDirectMessageUsers();
+          this.searchService.setDirectMessagePartnerIds(
+            this.directMessages,
+            this.currentLoginId
+          );
+
+          this.updateFilteredResults();
+        });
+    }
+
+    this.updateFilteredResults();
+  }
+
+  async getCurrentUserLogIn() {
+    this.userService.updateUserStatusTrue(this.currentLoginId);
+    let userData = await firstValueFrom(
+      this.firestoreService.getUserById(this.currentLoginId)
+    );
+    this.currentUser = this.userService.setUserObject(userData, userData?.id);
+    this.userSession.setCurrentUser(this.currentUser);
   }
 
   loadGuestData() {
@@ -193,6 +250,11 @@ export class SearchComponent {
       this.filteredDirectMessages =
         this.searchService.filterFirestoreDirectMessages(query);
     }
+
+    console.log('Suchterm:', this.searchTerm);
+    console.log('Gefundene Channels:', this.filteredChannels);
+    console.log('Gefundene DMs:', this.filteredDirectMessages);
+
   }
 
   private filterAsGuest(query: string, isChannel: boolean, isDirect: boolean): void {
@@ -223,4 +285,41 @@ export class SearchComponent {
     return this.searchTerm.trim().length > 0;
   }
 
+  selectDirectMessage(user: appUser): void {
+    if (!user || !user.id) {
+      console.error('User oder user.id ist undefined:', user);
+      return;
+    }
+
+    const currentUserId = this.currentUser?.id;
+    if (!currentUserId) {
+      console.error('Current user is not set');
+      return;
+    }
+
+    const conversation = this.findConversationBetweenUsers(user.id, currentUserId);
+
+    if (!conversation || !conversation.id) {
+      console.error('Keine passende Konversation gefunden für:', user);
+      return;
+    }
+
+    this.channelDirectMessageData.setSelectedDirectMessage(user);
+    // neue Route:
+    this.router.navigate(['/chat-container', conversation.id]);
+  }
+
+  private findConversationBetweenUsers(userId1: string, userId2: string): any | null {
+    return this.directMessages.find((conv) => {
+      const participants: string[] = conv.members || conv.participants;
+      const sortedParticipants = [...participants].sort();
+      const sortedIds = [userId1, userId2].sort();
+
+      return sortedParticipants[0] === sortedIds[0] && sortedParticipants[1] === sortedIds[1];
+    }) || null;
+  }
+
+  selectDirectMessageGast(user: DirectMessage): void {
+    this.router.navigate(['/chat', user.name]);
+  }
 }
