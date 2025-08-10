@@ -17,7 +17,6 @@ import { appUser } from '../../interfaces/user.interface';
 import { firstValueFrom } from 'rxjs';
 import { SessionService } from '../../shared/services/currentUserSession.service';
 import { onSnapshot } from 'firebase/firestore';
-import { MenuDialogComponent } from '../../shared/dialogs/menu-dialog/menu-dialog.component';
 import { DirectMessageService } from '../../shared/services/direct-message.service';
 import { AddChannelDialogComponent } from '../../shared/dialogs/add-channel-dialog/add-channel-dialog.component';
 import { HeaderComponent } from '../../shared/header/header.component';

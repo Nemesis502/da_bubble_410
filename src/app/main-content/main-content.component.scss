@@ -9,10 +9,11 @@
 
 .main {
     display: flex;
+    align-items: stretch;
 }
 
 .show-main-menu {
-    z-index: 1000;
+    z-index: 500;
     position: absolute;
     top: 65%;
     left: -144px;
@@ -37,7 +38,7 @@
         font-weight: 500;
     }
 
-    mat-icon{
+    mat-icon {
         transform: rotate(90deg)
     }
 
@@ -52,16 +53,62 @@
 
 .left {
     padding-left: 20px;
-    width: 20%;
+    flex: 0 0 20%;
+    max-width: 20%;
+    transition: transform 0.28s ease, flex-basis 0.28s ease, width 0.28s ease, padding 0.28s ease, opacity 0.28s ease;
     position: relative;
     z-index: 10;
-    transition: transform 0.3s ease;
 
     &.menu-closed {
         transform: translateX(-100%);
+        flex-basis: 0;
+        max-width: 0;
+        padding-left: 0;
+        width: 0;
+        opacity: 0;
+        pointer-events: none;
+        overflow: hidden;
     }
 
     &.menu-open {
         transform: translateX(0);
+        flex-basis: 20%;
+        max-width: 20%;
+        width: auto;
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+
+.center {
+    padding-inline: 20px;
+    flex: 1 1 auto;
+    min-width: 50%;
+    transition: width 0.28s ease;
+}
+
+.right {
+    padding-right: 20px;
+    flex: 0 0 30%;
+    max-width: 30%;
+
+    &.menu-closed {
+        transform: translateX(-100%);
+        flex-basis: 0;
+        max-width: 0;
+        padding-left: 0;
+        width: 0;
+        opacity: 0;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    &.menu-open {
+        transform: translateX(0);
+        flex-basis: 20%;
+        max-width: 20%;
+        width: auto;
+        opacity: 1;
+        pointer-events: auto;
     }
 }

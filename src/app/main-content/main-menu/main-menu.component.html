@@ -2,7 +2,7 @@
   <app-header class="main-header" [currentUser]="currentUser"></app-header>
   <section class="menu">
     <section class="menu-item">
-      @if (isSearchActive) {
+      <!-- @if (isSearchActive) {
       <section class="search-header">
         <span class="nuito18px700">Suche</span>
         <button mat-icon-button aria-label="Suche beenden" (click)="closeSearch()">
@@ -10,7 +10,7 @@
         </button>
       </section>
       }
-      <!-- <form class="search-form" role="search">
+      <form class="search-form" role="search">
         <mat-form-field appearance="fill" class="search-full-width">
           <input matInput placeholder="Gehe zu..." [(ngModel)]="searchTerm" name="searchTerm"
             aria-label="Suchfeld Gehe zu" (ngModelChange)="updateFilteredResults()" />
@@ -18,7 +18,7 @@
         </mat-form-field>
       </form> -->
       <section class="menu-list">
-        @if (isSearchActive) {
+        <!-- @if (isSearchActive) {
         @if (filteredChannels.length > 0) {
         <section class="channels">
           <div class="channel-list search" id="channel-list">
@@ -54,7 +54,7 @@
           </div>
         </section>
         }
-        }
+        } -->
         @if (!isSearchActive) {
         <section class="channels">
           <div class="header">
