@@ -1,0 +1,40 @@
+@use "./../styles.scss" as *;
+
+.channel-dialog {
+    position: fixed;
+    display: flex;
+    background-color: #0000005f !important;
+    z-index: 999;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.auto-logout-banner {
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 30px;
+    padding: 20px 10px;
+}
+
+.button {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin: 20px 0 20px 0;
+    width: 100%;
+    max-width: 320px;
+    height: 55px;
+    border-radius: 25px;
+    color: white;
+    border: unset;
+    background-color: $purple1 !important;
+
+    &:hover {
+        background-color: $purple2 !important;
+    }
+}

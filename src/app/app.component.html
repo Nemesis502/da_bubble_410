@@ -1,1 +1,16 @@
+
 <router-outlet></router-outlet>
+
+@if (activity.inactivity$ | async) {
+<section class="channel-dialog">
+  <div class="auto-logout-banner">
+    <h2 class="nuito32px700">Du warst zu lange inaktiv.</h2>
+    <p class="figtree17px400">
+      Wegen deiner Pause hat dich das System rausgeschmissen – Zeit, wieder
+      einzusteigen!
+    </p>
+    <p class="figtree17px400">Bitte melde dich erneut an!</p>
+    <button class="button nuito18px700">Ausloggen</button>
+  </div>
+</section>
+}

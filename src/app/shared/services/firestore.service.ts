@@ -48,38 +48,37 @@ export class FirestoreService {
   }
 
   async getConversationBetweenUsers(userAId: string, userBId: string): Promise<any | null> {
-  const ref = collection(this.firestore, 'conversations');
-  const q = query(ref, where('participants', 'array-contains', userAId));
-  const snapshot = await getDocs(q);
+    const ref = collection(this.firestore, 'conversations');
+    const q = query(ref, where('participants', 'array-contains', userAId));
+    const snapshot = await getDocs(q);
 
-  for (const docSnap of snapshot.docs) {
-    const data = docSnap.data();
-    if (data['participants'].includes(userBId)) {
-      return { id: docSnap.id, ...data };
+    for (const docSnap of snapshot.docs) {
+      const data = docSnap.data();
+      if (data['participants'].includes(userBId)) {
+        return { id: docSnap.id, ...data };
+      }
     }
+
+    return null;
   }
 
-  return null;
-}
+  getSelfConversation(userId: string): Promise<any | null> {
+    const participantKey = `${userId}_${userId}`;
+    const conversationsRef = collection(this.firestore, 'conversations');
+    const q = query(
+      conversationsRef,
+      where('isPrivateNote', '==', true),
+      where('participantIdsSorted', '==', participantKey),
+      limit(1)
+    );
 
-getSelfConversation(userId: string): Promise<any | null> {
-  const participantKey = `${userId}_${userId}`;
-  const conversationsRef = collection(this.firestore, 'conversations');
-  const q = query(
-    conversationsRef,
-    where('isPrivateNote', '==', true),
-    where('participantIdsSorted', '==', participantKey),
-    limit(1)
-  );
-
-  return getDocs(q).then(snapshot => {
-    if (!snapshot.empty) {
-      return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
-    }
-    return null;
-  });
-}
-
+    return getDocs(q).then(snapshot => {
+      if (!snapshot.empty) {
+        return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+      }
+      return null;
+    });
+  }
 
   async createConversation(conversation: any): Promise<void> {
     const conversationsRef = collection(this.firestore, 'conversations');

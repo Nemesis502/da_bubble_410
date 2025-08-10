@@ -7,6 +7,7 @@ import {
   ViewChild,
   ElementRef,
   HostListener,
+  Injectable,
 } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
@@ -32,7 +33,7 @@ import { firstValueFrom } from 'rxjs';
 import { FirestoreService } from '../../../shared/services/firestore.service';
 import { ChannelsDirectMessageService } from '../../../shared/services/channels-direct-message.service';
 import { Channel } from '../../../interfaces/channel.interface';
-
+// @Injectable({ providedIn: 'root' })
 @Component({
   selector: 'app-menu-dialog',
   standalone: true,
@@ -48,6 +49,7 @@ import { Channel } from '../../../interfaces/channel.interface';
   templateUrl: './menu-dialog.component.html',
   styleUrls: ['./menu-dialog.component.scss', './menu-dialog.media-query.component.scss'],
 })
+
 export class MenuDialogComponent implements OnInit {
   @ViewChild('inputField') inputField!: ElementRef<HTMLInputElement>;
 

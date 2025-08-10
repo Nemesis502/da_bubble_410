@@ -42,6 +42,7 @@ import { HeaderComponent } from '../../shared/header/header.component';
     './main-menu.media-query.component.scss',
   ],
 })
+
 export class MainMenuComponent implements OnInit {
   readonly dialog = inject(MatDialog);
   readonly searchService = inject(SearchService);
