@@ -12,7 +12,7 @@
 }
 
 .show-main-menu {
-    z-index: 1000;
+    z-index: 500;
     position: absolute;
     top: 65%;
     left: -144px;
@@ -64,4 +64,9 @@
     &.menu-open {
         transform: translateX(0);
     }
+}
+
+.center {
+    padding-inline: 20px;
+    min-width: 50%;
 }

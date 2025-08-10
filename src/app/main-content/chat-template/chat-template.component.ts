@@ -5,6 +5,7 @@ import {
   inject,
   Input,
   OnInit,
+  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -39,10 +40,14 @@ interface PickerPosition {
     ChannelInfoComponent,
   ],
   templateUrl: './chat-template.component.html',
-  styleUrl: './chat-template.component.scss',
+  styleUrls: [
+    './chat-template.component.scss',
+    './chat-template.media-query.component.scss'
+  ]
 })
 export class ChatTemplateComponent implements OnInit {
   @Input() isThreadView: boolean = false;
+  @Input() chatId!: string | null;
 
   private userSession = inject(SessionService);
   private chatService = inject(ChatService);
@@ -128,9 +133,9 @@ export class ChatTemplateComponent implements OnInit {
 
     this.messages$ = this.isThreadView
       ? this.chatService.threadMessages$.pipe(
-          map((messages) => messages ?? []),
-          startWith([]) // Optional: sofort initialisieren
-        )
+        map((messages) => messages ?? []),
+        startWith([]) // Optional: sofort initialisieren
+      )
       : this.chatService.messages$;
 
     this.chatService.activeThreadMessage$.subscribe(
@@ -157,6 +162,15 @@ export class ChatTemplateComponent implements OnInit {
     );
 
     this.chatUIService.fetchAllChannels();
+  }
+
+  async ngOnChanges(changes: SimpleChanges) {
+    if (changes['chatId'] && this.chatId) {
+      await this.chatService.initializeChat(this.chatId, this.currentUser?.id);
+      this.chatIsConversation = this.chatService.isConversation;
+      this.chatIsThread = this.chatService.isThread;
+      this.chatIsChannel = !this.chatService.isConversation;
+    }
   }
 
   // Message Sending & Editing

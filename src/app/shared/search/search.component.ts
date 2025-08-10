@@ -250,11 +250,6 @@ export class SearchComponent {
       this.filteredDirectMessages =
         this.searchService.filterFirestoreDirectMessages(query);
     }
-
-    console.log('Suchterm:', this.searchTerm);
-    console.log('Gefundene Channels:', this.filteredChannels);
-    console.log('Gefundene DMs:', this.filteredDirectMessages);
-
   }
 
   private filterAsGuest(query: string, isChannel: boolean, isDirect: boolean): void {
