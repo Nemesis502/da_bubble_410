@@ -2,7 +2,7 @@
 import { Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-const INACTIVITY_MS = 1 * 60 * 1000; // 20 Minuten
+const INACTIVITY_MS = 100 * 60 * 1000; // 20 Minuten
 const LS_KEY = 'lastActivityAt';
 
 @Injectable({ providedIn: 'root' })
