@@ -4,11 +4,13 @@ import { filter } from 'rxjs';
 import { ActivityService } from './shared/services/activity.service';
 import { AsyncPipe } from '@angular/common';
 import { Auth } from '@angular/fire/auth';
+import { SessionService } from './shared/services/currentUserSession.service';
+import { AccountService } from './shared/services/account.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, AsyncPipe, ],
+  imports: [RouterOutlet, AsyncPipe,],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 
@@ -21,13 +23,13 @@ export class AppComponent implements OnDestroy {
     .pipe(filter(e => e instanceof NavigationEnd))
     .subscribe(() => this.activity.bumpOnNavigation());
 
-  constructor(private auth: Auth) { this.activity.init(); }
+  constructor(private auth: Auth, private session: SessionService, private account: AccountService) { this.activity.init(); }
 
   confirmAutoLogOut() {
-    // z.B. Dialog schließen / Banner verstecken
     this.activity.resetFlag();
-    // Optional: wirklich ausloggen + redirect:
-    // this.auth.signOut().then(() => this.router.navigate(['/']));
+    let uid = this.session.getCurrentUser()?.id
+    console.log(uid);
+    this.account.logoutAndMarkOffline(uid);
   }
 
   ngOnDestroy() {

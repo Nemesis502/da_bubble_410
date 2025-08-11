@@ -10,7 +10,7 @@ export class InactivityGuard implements CanActivate, CanMatch {
     private activity: ActivityService,
     private router: Router,
     private auth: Auth
-  ) {}
+  ) { }
 
   async canActivate(): Promise<boolean | UrlTree> {
     return this.evaluate();
@@ -22,10 +22,10 @@ export class InactivityGuard implements CanActivate, CanMatch {
 
   private async evaluate(): Promise<boolean | UrlTree> {
     if (this.activity.isExpired()) {
-      try { await this.auth.signOut(); } catch {}
-      return this.router.parseUrl('/'); // zurück zum Login
+      try { await this.auth.signOut(); } catch { }
+      return this.router.parseUrl('/');
     }
-    // Zählt als Aktivität
+
     this.activity.bumpOnNavigation();
     return true;
   }

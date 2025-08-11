@@ -9,10 +9,6 @@ export class AccountService {
   private users = inject(UserService);
   private router = inject(Router);
 
-  /**
-   * Loggt aus, setzt den User-Status in Firestore auf false
-   * und navigiert zurück zur Startseite.
-   */
   async logoutAndMarkOffline(userId?: string) {
     try {
       await this.auth.logout();

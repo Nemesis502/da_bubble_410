@@ -33,6 +33,7 @@ import { firstValueFrom } from 'rxjs';
 import { FirestoreService } from '../../../shared/services/firestore.service';
 import { ChannelsDirectMessageService } from '../../../shared/services/channels-direct-message.service';
 import { Channel } from '../../../interfaces/channel.interface';
+import { AccountService } from '../../services/account.service';
 // @Injectable({ providedIn: 'root' })
 @Component({
   selector: 'app-menu-dialog',
@@ -93,7 +94,8 @@ export class MenuDialogComponent implements OnInit {
       gastLogin?: boolean;
     },
     private userService: UserService,
-    private userSession: SessionService
+    private userSession: SessionService,
+    private account: AccountService
   ) {
     this.isGastLogin = this.data.gastLogin!;
     this.currentUser = this.userSession.getCurrentUser();
@@ -159,11 +161,8 @@ export class MenuDialogComponent implements OnInit {
       this.router.navigate(['/']);
       this.closeDialog();
     } else {
-      this.authService.logout().then(() => {
-        this.userService.updateUserStatusFalse(this.currentUser?.id!);
-        this.router.navigate(['/']);
-        this.closeDialog();
-      });
+      this.account.logoutAndMarkOffline(this.currentUser?.id!)
+      this.closeDialog();
     }
   }
 

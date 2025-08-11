@@ -9,7 +9,7 @@ const LS_KEY = 'lastActivityAt';
 export class ActivityService {
   private timeoutId: any = null;
 
-  // <- REAKTIV: emits true wenn Inaktivität erkannt
+
   private _inactivity$ = new BehaviorSubject<boolean>(false);
   readonly inactivity$ = this._inactivity$.asObservable();
 
@@ -69,12 +69,10 @@ export class ActivityService {
     this.askStillThere();
   }
 
-  // <- HIER wird getriggert
   askStillThere() {
-    this._inactivity$.next(true); // feuert Event
+    this._inactivity$.next(true);
   }
 
-  // Optional: zurücksetzen, z.B. nach Dialog schließen
   resetFlag() {
     this._inactivity$.next(false);
   }
