@@ -1,7 +1,7 @@
 
 <router-outlet></router-outlet>
 
-@if (activity.inactivity$ | async) {
+@if (showAutoLogoutInfo) {
 <section class="channel-dialog">
   <div class="auto-logout-banner">
     <h2 class="nuito32px700">Du warst zu lange inaktiv.</h2>

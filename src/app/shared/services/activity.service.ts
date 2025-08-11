@@ -9,7 +9,6 @@ const LS_KEY = 'lastActivityAt';
 export class ActivityService {
   private timeoutId: any = null;
 
-
   private _inactivity$ = new BehaviorSubject<boolean>(false);
   readonly inactivity$ = this._inactivity$.asObservable();
 
@@ -70,7 +69,11 @@ export class ActivityService {
   }
 
   askStillThere() {
+    // Info-Stream für UI
     this._inactivity$.next(true);
+
+    // Marker für andere Tabs/Fenster
+    localStorage.setItem('autoLoggedOut', '1');
   }
 
   resetFlag() {
