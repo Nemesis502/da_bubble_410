@@ -102,7 +102,6 @@ export class ChatTemplateComponent implements OnInit {
     this.isMobile = this.width < 999;
 
     if (!this.isThreadView) {
-      // Nur für Hauptchat
       this.route.paramMap.subscribe(async (params) => {
         const id = params.get('id');
         if (id) {
@@ -110,34 +109,38 @@ export class ChatTemplateComponent implements OnInit {
           this.chatIsConversation = this.chatService.isConversation;
           this.chatIsThread = this.chatService.isThread;
           this.chatIsChannel = !this.chatService.isConversation;
+
+          this.messages$ = this.chatService.messages$;
         }
       });
+    } else {
+      this.messages$ = this.chatService.threadMessages$.pipe(
+        map((messages) => messages ?? []),
+        startWith([])
+      );
     }
 
     this.chatService.isThread$.subscribe((isThread) => {
       this.chatIsThread = isThread;
-      console.log('Thread state updated:', this.chatIsThread);
       setTimeout(() => this.scrollToBottom(), 100);
       this.focusChatInput();
     });
+
     this.chatService.messages$.subscribe((messages) => {
       this.messages = messages;
-      setTimeout(() => this.scrollToBottom(), 100);
-      this.focusChatInput();
+      if (messages.length) {
+        setTimeout(() => this.scrollToBottom(), 100);
+        this.focusChatInput();
+      }
     });
+
     this.chatService.selectedChannel$.subscribe((channel) => {
       this.selectedChannel = channel;
       this.chatUIService.fetchMentionableUsers(channel?.channelId);
       this.chatUIService.fetchAllChannels();
     });
-    this.chatService.otherUser$.subscribe((user) => (this.otherUser = user));
 
-    this.messages$ = this.isThreadView
-      ? this.chatService.threadMessages$.pipe(
-        map((messages) => messages ?? []),
-        startWith([]) // Optional: sofort initialisieren
-      )
-      : this.chatService.messages$;
+    this.chatService.otherUser$.subscribe((user) => (this.otherUser = user));
 
     this.chatService.activeThreadMessage$.subscribe(
       (msg) => (this.activeThreadMessage = msg)
