@@ -66,6 +66,7 @@ export class ChatTemplateComponent implements OnInit {
   selectedChannel: any = null;
   chatMessage: string = '';
   editedMessage: any = null;
+  threadMessages: any[] = [];
 
   // Observables for reactive data
   messages$: Observable<any[]> = of([]);
