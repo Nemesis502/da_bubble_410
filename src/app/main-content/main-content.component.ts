@@ -44,7 +44,6 @@ export class MainContentComponent {
   ) { }
 
   ngOnInit(): void {
-    // hole aktuellen User
     this.currentUser = this.userSession.getCurrentUser();
     this.currentLoginId = this.currentUser?.id ?? '';
 
@@ -59,21 +58,19 @@ export class MainContentComponent {
       console.log('Firestore channels:', channels);
       this.channels = channels;
 
-      // fallback: falls currentLoginId leer ist, nimm alle Channels (oder warne)
       if (!this.currentLoginId) {
         console.warn('currentLoginId ist leer — Channel-Filter nach Mitgliedern wird übersprungen.');
       }
 
-      // benutze members-Filter nur wenn aktuelle ID vorhanden
       this.userChannels = this.currentLoginId
         ? channels.filter((channel) => channel.members?.includes(this.currentLoginId))
-        : channels.slice(); // kopiere alle Channels
+        : channels.slice();
 
       this.searchService.setFirestoreChannels(channels);
 
       if (this.userChannels.length > 0) {
         const first = this.userChannels[0];
-        // prüfe welches Feld die ID enthält: channelId oder id
+
         this.currentChatId = first.channelId ?? first.id ?? null;
         console.log('Erster Channel (userChannels[0]):', first);
         console.log('Setze currentChatId auf:', this.currentChatId);
@@ -83,5 +80,10 @@ export class MainContentComponent {
     }, (err) => {
       console.error('Fehler beim Laden der Channels:', err);
     });
+  }
+
+  onChatSelected(chatId: string): void {
+    this.currentChatId = chatId;
+    console.log('Chat-ID gesetzt:', this.currentChatId);
   }
 }

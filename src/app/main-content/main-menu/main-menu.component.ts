@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,7 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
 import { SearchService } from '../../shared/services/search.service';
-import {  ChannelsDirectMessageService,  DirectMessage } from '../../shared/services/channels-direct-message.service';
+import { ChannelsDirectMessageService, DirectMessage } from '../../shared/services/channels-direct-message.service';
 import { FirestoreService } from '../../shared/services/firestore.service';
 import { Router } from '@angular/router';
 import { UserService } from '../../shared/services/user.services';
@@ -43,6 +43,8 @@ import { HeaderComponent } from '../../shared/header/header.component';
 })
 
 export class MainMenuComponent implements OnInit {
+  @Output() chatSelected = new EventEmitter<string>();
+
   readonly dialog = inject(MatDialog);
   readonly searchService = inject(SearchService);
   readonly channelDirectMessageData = inject(ChannelsDirectMessageService);
@@ -317,7 +319,12 @@ export class MainMenuComponent implements OnInit {
     }
 
     this.channelDirectMessageData.setSelectedChannel(channel);
-    this.router.navigate(['/chat-container', channel.channelId]);
+
+    if (window.innerWidth >= 800) {
+      this.chatSelected.emit(channel.channelId);
+    } else {
+      this.router.navigate(['/chat-container', channel.channelId]);
+    }
   }
 
   selectDirectMessage(user: appUser): void {
@@ -333,15 +340,18 @@ export class MainMenuComponent implements OnInit {
     }
 
     const conversation = this.findConversationBetweenUsers(user.id, currentUserId);
-
     if (!conversation || !conversation.id) {
       console.error('Keine passende Konversation gefunden für:', user);
       return;
     }
 
     this.channelDirectMessageData.setSelectedDirectMessage(user);
-    // neue Route:
-    this.router.navigate(['/chat-container', conversation.id]);
+
+    if (window.innerWidth >= 800) {
+      this.chatSelected.emit(conversation.id);
+    } else {
+      this.router.navigate(['/chat-container', conversation.id]);
+    }
   }
 
   private findConversationBetweenUsers(userId1: string, userId2: string): any | null {
