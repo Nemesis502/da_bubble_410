@@ -5,7 +5,7 @@
         <mat-icon fontIcon="{{ showMainMenu ? 'chevron_left' : 'chevron_right' }}"></mat-icon>
     </button>
     <section class="left" [class.menu-open]="showMainMenu" [class.menu-closed]="!showMainMenu">
-        <app-main-menu></app-main-menu>
+        <app-main-menu (chatSelected)="onChatSelected($event)"></app-main-menu>
     </section>
     <section class="center">
         <app-chat-template [chatId]="currentChatId"></app-chat-template>
