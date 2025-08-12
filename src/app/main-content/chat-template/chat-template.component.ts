@@ -1,10 +1,12 @@
 import {
   Component,
   ElementRef,
+  EventEmitter,
   HostListener,
   inject,
   Input,
   OnInit,
+  Output,
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
@@ -48,6 +50,9 @@ interface PickerPosition {
 export class ChatTemplateComponent implements OnInit {
   @Input() isThreadView: boolean = false;
   @Input() chatId!: string | null;
+  @Input() threadId!: string | null;
+  @Output() threadOpened = new EventEmitter<string>();
+  @Output() threadClosed = new EventEmitter<void>();
 
   private userSession = inject(SessionService);
   private chatService = inject(ChatService);
@@ -101,24 +106,20 @@ export class ChatTemplateComponent implements OnInit {
     this.currentUser = this.userSession.getCurrentUser();
     this.isMobile = this.width < 999;
 
-    if (!this.isThreadView) {
-      this.route.paramMap.subscribe(async (params) => {
-        const id = params.get('id');
-        if (id) {
-          await this.chatService.initializeChat(id, this.currentUser?.id);
-          this.chatIsConversation = this.chatService.isConversation;
-          this.chatIsThread = this.chatService.isThread;
-          this.chatIsChannel = !this.chatService.isConversation;
+    if (this.threadId) {
+      this.isThreadView = true;
+      await this.chatService.initializeChat(this.threadId, this.currentUser?.id);
+    } else if (this.chatId) {
+      this.isThreadView = false;
+      await this.chatService.initializeChat(this.chatId, this.currentUser?.id);
+    }
 
-          this.messages$ = this.chatService.messages$;
-        }
-      });
-    } else {
-      this.messages$ = this.chatService.threadMessages$.pipe(
+    this.messages$ = this.isThreadView
+      ? this.chatService.threadMessages$.pipe(
         map((messages) => messages ?? []),
         startWith([])
-      );
-    }
+      )
+      : this.chatService.messages$;
 
     this.chatService.isThread$.subscribe((isThread) => {
       this.chatIsThread = isThread;
@@ -169,11 +170,17 @@ export class ChatTemplateComponent implements OnInit {
   }
 
   async ngOnChanges(changes: SimpleChanges) {
-    if (changes['chatId'] && this.chatId) {
+    if (changes['threadId'] && this.threadId) {
+      this.isThreadView = true;
+      await this.chatService.initializeChat(this.threadId, this.currentUser?.id);
+      this.messages$ = this.chatService.threadMessages$.pipe(
+        map((messages) => messages ?? []),
+        startWith([])
+      );
+    } else if (changes['chatId'] && this.chatId) {
+      this.isThreadView = false;
       await this.chatService.initializeChat(this.chatId, this.currentUser?.id);
-      this.chatIsConversation = this.chatService.isConversation;
-      this.chatIsThread = this.chatService.isThread;
-      this.chatIsChannel = !this.chatService.isConversation;
+      this.messages$ = this.chatService.messages$;
     }
   }
 
@@ -214,19 +221,25 @@ export class ChatTemplateComponent implements OnInit {
 
   // Thread Handling
   handleReplyToMessage(messageId: string): void {
-    console.log('Opening thread for message ID:', messageId);
-    this.chatService.openThread(messageId);
-    this.scrollToBottom();
+    this.threadOpened.emit(messageId);
   }
-
   closeThreadView(): void {
-    this.chatService.closeThread();
-    if (this.isThreadView) return;
-    const channelId = this.selectedChannel?.channelId;
-    if (channelId) {
-      this.router.navigate([`/chat-container/${channelId}`]);
-    }
+    this.threadClosed.emit();
   }
+  // handleReplyToMessage(messageId: string): void {
+  //   console.log('Opening thread for message ID:', messageId);
+  //   this.chatService.openThread(messageId);
+  //   this.scrollToBottom();
+  // }
+
+  // closeThreadView(): void {
+  //   this.chatService.closeThread();
+  //   if (this.isThreadView) return;
+  //   const channelId = this.selectedChannel?.channelId;
+  //   if (channelId) {
+  //     this.router.navigate([`/chat-container/${channelId}`]);
+  //   }
+  // }
 
   // Navigation & Dialogs (delegated to ChatUIService)
   navigateToMain(): void {

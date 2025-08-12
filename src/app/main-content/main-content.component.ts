@@ -10,6 +10,7 @@ import { appUser } from '../interfaces/user.interface';
 import { SessionService } from '../shared/services/currentUserSession.service';
 import { SearchService } from '../shared/services/search.service';
 import { FirestoreService } from '../shared/services/firestore.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-main-content',
@@ -33,23 +34,21 @@ export class MainContentComponent {
   channels: any[] = [];
   userChannels: any[] = [];
   currentChatId: string | null = null;
+  currentThreadId: string | null = null;
 
   currentLoginId = '';
 
   showMainMenu = true;
-  showThread = false
+  showThread = false;
 
   constructor(
     private userSession: SessionService,
+    private router: Router,
   ) { }
 
   ngOnInit(): void {
     this.currentUser = this.userSession.getCurrentUser();
     this.currentLoginId = this.currentUser?.id ?? '';
-
-    console.log('ngOnInit — currentUser:', this.currentUser);
-    console.log('ngOnInit — currentLoginId:', this.currentLoginId);
-
     this.loadAllChannels();
   }
 
@@ -70,11 +69,20 @@ export class MainContentComponent {
 
       if (this.userChannels.length > 0) {
         const first = this.userChannels[0];
+        const firstId = first.channelId ?? first.id ?? null;
 
-        this.currentChatId = first.channelId ?? first.id ?? null;
-        console.log('Erster Channel (userChannels[0]):', first);
-        console.log('Setze currentChatId auf:', this.currentChatId);
-      } else {
+        if (window.innerWidth >= 800) {
+          this.currentChatId = firstId;
+          this.showThread = false;
+          this.currentThreadId = null;
+          console.log('Desktop: Hauptchat geladen →', this.currentChatId);
+        } else {
+          if (firstId) {
+            this.router.navigate(['/chat-container', firstId]);
+          }
+        }
+      }
+      else {
         console.warn('Keine userChannels gefunden.');
       }
     }, (err) => {
@@ -84,6 +92,21 @@ export class MainContentComponent {
 
   onChatSelected(chatId: string): void {
     this.currentChatId = chatId;
+    this.showThread = false;
+    this.currentThreadId = null;
     console.log('Chat-ID gesetzt:', this.currentChatId);
   }
+
+  openThread(threadId: string): void {
+    this.currentThreadId = threadId;
+    this.showThread = true;
+    console.log('Thread geöffnet in Right →', this.currentThreadId);
+  }
+
+  closeThread(): void {
+    this.showThread = false;
+    this.currentThreadId = null;
+    console.log('Thread geschlossen → Right leer');
+  }
+
 }

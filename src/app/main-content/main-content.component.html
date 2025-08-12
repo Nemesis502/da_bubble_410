@@ -1,18 +1,23 @@
 <app-header [currentUser]="currentUser"></app-header>
+
 <section class="main">
     <button class="show-main-menu" (click)="showMainMenu = !showMainMenu">
         <p>{{ showMainMenu ? 'Workspace-Menü schließen' : 'Workspace-Menü öffnen' }}</p>
         <mat-icon fontIcon="{{ showMainMenu ? 'chevron_left' : 'chevron_right' }}"></mat-icon>
     </button>
+
     <section class="left" [class.menu-open]="showMainMenu" [class.menu-closed]="!showMainMenu">
         <app-main-menu (chatSelected)="onChatSelected($event)"></app-main-menu>
     </section>
+
     <section class="center">
-        <app-chat-template [chatId]="currentChatId"></app-chat-template>
+        <app-chat-template [chatId]="currentChatId" (threadOpened)="openThread($event)"></app-chat-template>
     </section>
+
     @if (showThread) {
     <section class="right">
-
+        <app-chat-template [threadId]="currentThreadId" [isThreadView]="true"
+            (threadClosed)="closeThread()"></app-chat-template>
     </section>
     }
 </section>
