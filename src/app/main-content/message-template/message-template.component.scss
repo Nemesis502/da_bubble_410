@@ -10,11 +10,13 @@
   justify-content: center;
   align-items: center;
   position: relative;
+
   span {
     height: 1px;
     width: 100%;
     background-color: $LightPurple;
   }
+
   p {
     font-family: "Nunito" !important;
     position: absolute;
@@ -35,6 +37,8 @@
   padding-right: 16px;
   display: flex;
   padding-top: 10px;
+
+
 }
 
 .msg-own-body {
@@ -49,6 +53,7 @@
   display: flex;
   align-items: center;
   padding-bottom: 8px;
+
   button {
     padding-left: 0px;
     padding-right: 0px;
@@ -65,6 +70,7 @@
   align-items: center;
   flex-direction: row-reverse;
   padding-bottom: 8px;
+
   button {
     padding-left: 0px;
     padding-right: 0px;
@@ -106,6 +112,7 @@
   border-top-left-radius: 0;
   width: fit-content;
   min-width: 100px;
+
   .msg-text {
     font-family: "nunito";
     font-weight: 400;
@@ -122,6 +129,7 @@
   border-top-right-radius: 0;
   width: fit-content;
   min-width: 100px;
+
   .msg-text {
     font-family: "nunito";
     font-weight: 400;
@@ -136,6 +144,7 @@
   display: flex;
   margin-top: 8px;
   align-items: center;
+
   button {
     background-color: transparent;
     border: none;
@@ -144,7 +153,13 @@
     font-weight: 400;
     color: $purple3;
     padding: 0px;
+
+    &:hover {
+      color: $purple1;
+      font-weight: bold;
+    }
   }
+
   .answer-time {
     margin-left: 20px;
     font-family: "nunito";
@@ -160,6 +175,7 @@
   margin-top: 8px;
   align-items: center;
   justify-content: flex-end;
+
   button {
     background-color: transparent;
     border: none;
@@ -169,6 +185,7 @@
     color: $purple3;
     padding: 0px;
   }
+
   .answer-time {
     margin-left: 20px;
     font-family: "nunito";
@@ -184,6 +201,7 @@
   flex-direction: row-reverse;
   align-items: center;
   flex-wrap: wrap;
+
   .reaction {
     margin-top: 8px;
     margin-bottom: 8px;
@@ -199,6 +217,7 @@
     font-family: "Nunito" !important;
     position: relative;
   }
+
   .reaction-popup {
     position: absolute;
     bottom: 20px;
@@ -228,6 +247,7 @@
   align-items: center;
   flex-direction: row;
   flex-wrap: wrap;
+
   .reaction {
     margin-top: 8px;
     margin-bottom: 8px;
@@ -242,6 +262,7 @@
     font-family: "Nunito" !important;
     position: relative;
   }
+
   .reaction-popup {
     position: absolute;
     bottom: 20px;
@@ -266,6 +287,7 @@
 
 .msg-active {
   background-color: $Bg;
+
   .msg-content {
     background-color: white;
   }
@@ -278,6 +300,22 @@
 .msg,
 .msg-own {
   position: relative;
+}
+
+.msg {
+  &:hover {
+    background-color: $Bg;
+    cursor: pointer;
+
+    .msg-content {
+      background-color: white;
+    }
+
+    // .popup-menu {
+    //   opacity: 1;
+    //   visibility: visible;
+    // }
+  }
 }
 
 .popup-menu {
@@ -299,6 +337,7 @@
   visibility: hidden;
   opacity: 0;
   transition: opacity 0.2s, visibility 0.2s;
+
   button {
     font-size: 20px;
     border: none;
@@ -309,6 +348,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+
     &:hover {
       background-color: lightgray;
     }
@@ -325,6 +365,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
   &:hover {
     background-color: lightgray;
   }
@@ -355,6 +396,7 @@
   visibility: hidden;
   opacity: 0;
   transition: opacity 0.2s, visibility 0.2s;
+
   button {
     font-size: 20px;
     border: none;
@@ -365,6 +407,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+
     &:hover {
       background-color: lightgray;
     }
@@ -399,6 +442,7 @@
     padding-left: 10px;
     padding-right: 10px;
     border-radius: 20px;
+
     &:hover {
       background-color: $Bg;
       color: $purple3;
@@ -422,16 +466,17 @@
 }
 
 @media (max-width: 400px) {
-.msg-answers {
-  button{
-    font-size: 16px !important;
+  .msg-answers {
+    button {
+      font-size: 16px !important;
+    }
   }
-}
+
   .msg-own-answers {
-  button{
-    font-size: 16px !important;
+    button {
+      font-size: 16px !important;
+    }
   }
-}
 }
 
 .mention {
@@ -451,4 +496,3 @@
   padding: 0 6px;
   cursor: pointer;
 }
-
