@@ -3,7 +3,7 @@ import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MainMenuComponent } from './main-menu/main-menu.component';
-import { ChatTemplateContainerComponent } from './chat-template-container/chat-template-container.component';
+// import { ChatTemplateContainerComponent } from './chat-template-container/threads.component';
 import { ChatTemplateComponent } from './chat-template/chat-template.component';
 import { HeaderComponent } from '../shared/header/header.component';
 import { appUser } from '../interfaces/user.interface';
@@ -11,6 +11,7 @@ import { SessionService } from '../shared/services/currentUserSession.service';
 import { SearchService } from '../shared/services/search.service';
 import { FirestoreService } from '../shared/services/firestore.service';
 import { Router } from '@angular/router';
+import { ThreadsComponent } from './threads/threads.component';
 
 @Component({
   selector: 'app-main-content',
@@ -21,7 +22,8 @@ import { Router } from '@angular/router';
     MatButtonModule,
     MainMenuComponent,
     ChatTemplateComponent,
-    HeaderComponent
+    HeaderComponent,
+    ThreadsComponent
   ],
   templateUrl: './main-content.component.html',
   styleUrls: ['./main-content.component.scss']

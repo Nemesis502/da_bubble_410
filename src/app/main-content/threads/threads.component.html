@@ -1,0 +1,44 @@
+<section class="chat-body" #chatBody>
+  <!-- Thread view -->
+  @if (chatIsThread) {
+  <!-- Parent (active) thread message -->
+  @if (activeThreadMessage) {
+  <app-message-template
+    [chatIsThread]="chatIsThread"
+    [messages]="[activeThreadMessage]"
+    [currentUser]="currentUser?.id || ''"
+    [currentChannelId]="selectedChannel?.channelId"
+    (editMessage)="startEditingMessage()"
+    (replyToMessage)="handleReplyToMessage()"
+  ></app-message-template>
+  }
+
+  <!-- Antworten counter -->
+  <!-- @if (threadMessages.length > 0) {
+    <div class="msg-header">
+      <p>{{ threadMessages.length }} Antworten</p>
+      <span></span>
+    </div>
+
+
+    <app-message-template [chatIsThread]="chatIsThread" [messages]="threadMessages"
+      [currentUser]="currentUser?.id || ''" [currentChannelId]="selectedChannel?.channelId"
+      (editMessage)="startEditingMessage()"
+      (replyToMessage)="handleReplyToMessage()"></app-message-template>
+    } -->
+  <div class="msg-header">
+    <p>{{ threadChannel.text }} Antworten</p>
+    <span></span>
+  </div>
+  } @else {
+  <!-- Full channel chat view -->
+  <app-message-template
+    [chatIsThread]="chatIsThread"
+    [messages]="messages"
+    [currentUser]="currentUser?.id || ''"
+    [currentChannelId]="selectedChannel?.channelId"
+    (editMessage)="startEditingMessage()"
+    (replyToMessage)="handleReplyToMessage()"
+  ></app-message-template>
+  }
+</section>

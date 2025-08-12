@@ -359,8 +359,7 @@ openThread(messageId: string, forceThreadToggle: boolean = true): void {
   }
 }
 
-
-  /** Loads messages in the currently active thread */
+ /** Loads messages in the currently active thread */
  loadThreadMessages(channelId: string, messageId: string): void {
     if (!messageId) return;
 

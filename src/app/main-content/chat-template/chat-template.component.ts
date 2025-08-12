@@ -137,6 +137,7 @@ export class ChatTemplateComponent implements OnInit {
 
     this.chatService.selectedChannel$.subscribe((channel) => {
       this.selectedChannel = channel;
+          console.log("Channel:",this.selectedChannel);
       this.chatUIService.fetchMentionableUsers(channel?.channelId);
       this.chatUIService.fetchAllChannels();
     });
@@ -221,6 +222,8 @@ export class ChatTemplateComponent implements OnInit {
 
   // Thread Handling
   handleReplyToMessage(messageId: string): void {
+    console.log(messageId);
+
     this.threadOpened.emit(messageId);
   }
   closeThreadView(): void {

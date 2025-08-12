@@ -1,29 +1,12 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, from, of, Observable } from 'rxjs';
 import {
-  Firestore,
-  getDoc,
-  collectionData,
-  collection,
-  doc,
-  setDoc,
-  query,
-  where,
-  getDocs,
-  writeBatch,
-  Timestamp,
-  orderBy,
-  limit,
-  serverTimestamp,
-  addDoc,
-  CollectionReference,
-  QueryConstraint,
-  DocumentData,
+  Firestore, getDoc, collectionData, collection, doc, setDoc, query, where, getDocs, writeBatch, Timestamp, orderBy, limit, serverTimestamp, addDoc, CollectionReference, QueryConstraint, DocumentData,
 } from '@angular/fire/firestore';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { Channel } from '../../interfaces/channel.interface';
 import { appUser } from '../../interfaces/user.interface';
-import { Reactions } from '../../interfaces/reactions.interface'; 
+import { Reactions } from '../../interfaces/reactions.interface';
 
 export interface DirectMessage {
   name: string;
@@ -46,7 +29,7 @@ export interface EnrichedMessage {
   formattedTime: string;
   username: string;
   avatar: string;
-  reactions?: any[]; 
+  reactions?: any[];
   answersCount?: number;
   lastAnswerTime?: string | null;
   [key: string]: any;
@@ -56,7 +39,7 @@ export interface EnrichedMessage {
   providedIn: 'root',
 })
 export class ChannelsDirectMessageService {
-  constructor(private firestore: Firestore) {}
+  constructor(private firestore: Firestore) { }
 
   // --- Static Data (Consider if these should be dynamic) ---
   private channelsForGast: string[] = ['Entwicklerteam', 'Office-Team'];
@@ -93,7 +76,7 @@ export class ChannelsDirectMessageService {
     return collection(this.firestore, `channels/${channelId}/messages`);
   }
 
-  private getChannelThreadMessagesCollection(channelId: string, messageId: string): CollectionReference {
+  getChannelThreadMessagesCollection(channelId: string, messageId: string): CollectionReference {
     return collection(this.firestore, `channels/${channelId}/messages/${messageId}/threadMessages`);
   }
 
@@ -106,7 +89,7 @@ export class ChannelsDirectMessageService {
   }
 
   // --- Generic Data Fetching ---
-private getData<T>(collectionRef: CollectionReference, options?: { idField?: string, queryConstraints?: QueryConstraint[] }): Observable<T[]> {
+  getData<T>(collectionRef: CollectionReference, options?: { idField?: string, queryConstraints?: QueryConstraint[] }): Observable<T[]> {
     let q = query(collectionRef);
     if (options?.queryConstraints) {
       q = query(collectionRef, ...options.queryConstraints);
@@ -201,7 +184,7 @@ private getData<T>(collectionRef: CollectionReference, options?: { idField?: str
       catchError(() => of([]))
     );
 
-    const isChannelMainMessage = message.id && !message.parentMessageId && contextId.length > 10; 
+    const isChannelMainMessage = message.id && !message.parentMessageId && contextId.length > 10;
     const answersCount$ = isChannelMainMessage ? this.getThreadMessageCount(contextId, message.id) : of(0);
     const lastAnswer$ = isChannelMainMessage ? this.getLatestThreadMessage(contextId, message.id) : of(null);
 
@@ -351,8 +334,8 @@ private getData<T>(collectionRef: CollectionReference, options?: { idField?: str
       await setDoc(doc(reactionsCollection), {
         reactorID,
         type: reactionType,
-        timestamp: Timestamp.now(), 
-      } as Reactions); 
+        timestamp: Timestamp.now(),
+      } as Reactions);
       console.log('Reaction added for reactorID:', reactorID);
     }
   }
@@ -384,7 +367,7 @@ private getData<T>(collectionRef: CollectionReference, options?: { idField?: str
       text: messageText,
       timestamp: serverTimestamp(),
       senderID: userId,
-      channelId: conversationId, 
+      channelId: conversationId,
     };
     return addDoc(threadCollection, newMessage).then(() =>
       console.log('Thread message added to DM')
