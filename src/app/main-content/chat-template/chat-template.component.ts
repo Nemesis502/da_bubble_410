@@ -105,7 +105,6 @@ export class ChatTemplateComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.currentUser = this.userSession.getCurrentUser();
     this.isMobile = this.width < 999;
-
     if (this.threadId) {
       this.isThreadView = true;
       await this.chatService.initializeChat(this.threadId, this.currentUser?.id);
@@ -137,7 +136,6 @@ export class ChatTemplateComponent implements OnInit {
 
     this.chatService.selectedChannel$.subscribe((channel) => {
       this.selectedChannel = channel;
-          console.log("Channel:",this.selectedChannel);
       this.chatUIService.fetchMentionableUsers(channel?.channelId);
       this.chatUIService.fetchAllChannels();
     });

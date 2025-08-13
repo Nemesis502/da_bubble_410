@@ -7,9 +7,17 @@
     </button>
     <button class="profile-btn" (click)="openMenuDialog()">
       @if (currentUser?.profilePic) {
-      <img [src]="'./assets/img/avatar/' + currentUser?.profilePic + '.png'" alt="User Avatar" aria-hidden="true" />
+      <img
+        [src]="'./assets/img/avatar/' + currentUser?.profilePic + '.png'"
+        alt="User Avatar"
+        aria-hidden="true"
+      />
       } @else {
-      <img src="./assets/img/avatar/0.png" alt="Default Avatar" aria-hidden="true" />
+      <img
+        src="./assets/img/avatar/0.png"
+        alt="Default Avatar"
+        aria-hidden="true"
+      />
       }
     </button>
   </section>
@@ -24,58 +32,95 @@
       }
 
       <!-- Show other user avatar + name if chatIsConversation -->
-      @if (chatIsConversation && !chatIsThread) {
-      @if (otherUser?.profilePic) {
-      <img (click)="openProfileDialogOtherUser()" class="other-user-avatar"
-        [src]="'./assets/img/avatar/' + otherUser?.profilePic + '.png'" alt="{{ otherUser?.userName }}'s avatar" />
+      @if (chatIsConversation && !chatIsThread) { @if (otherUser?.profilePic) {
+      <img
+        (click)="openProfileDialogOtherUser()"
+        class="other-user-avatar"
+        [src]="'./assets/img/avatar/' + otherUser?.profilePic + '.png'"
+        alt="{{ otherUser?.userName }}'s avatar"
+      />
       } @else {
-      <img class="other-user-avatar" src="./assets/img/avatar/0.png" alt="Default Avatar" />
+      <img
+        class="other-user-avatar"
+        src="./assets/img/avatar/0.png"
+        alt="Default Avatar"
+      />
       }
 
-      <div (click)="openProfileDialogOtherUser()" class="status-dot"
-        [ngClass]="{ online: otherUser?.status, offline: !otherUser?.status }"></div>
-      <p class="other-user-name nuito18px700" (click)="openProfileDialogOtherUser()">
+      <div
+        (click)="openProfileDialogOtherUser()"
+        class="status-dot"
+        [ngClass]="{ online: otherUser?.status, offline: !otherUser?.status }"
+      ></div>
+      <p
+        class="other-user-name nuito18px700"
+        (click)="openProfileDialogOtherUser()"
+      >
         {{ otherUser?.userName }}
       </p>
       }
 
       <p class="channel-name nuito18px700">
         <!-- Thread view -->
-        @if (chatIsThread) {
-        Thread <span class="channel-hash">#</span>
+        @if (chatIsThread) { Thread <span class="channel-hash">#</span>
         <span class="channel-name-thread">
-          {{
-          chatIsConversation ? otherUser?.userName : selectedChannel?.name
-          }}
+          {{ chatIsConversation ? otherUser?.userName : selectedChannel?.name }}
         </span>
         }
 
         <!-- Normal channel view -->
-        @if (chatIsChannel && !chatIsThread) {
+        <!-- @if (chatIsChannel && !chatIsThread) {
         <span (click)="openChannelInfo()" class="clickable-channel-name">
           {{ selectedChannel?.name }}
         </span>
-        }
+        } -->
+
+        <span (click)="openChannelInfo()" class="clickable-channel-name">
+          # {{ selectedChannel?.name }}
+        </span>
       </p>
 
-      @if (chatIsChannel && !chatIsThread) {
-      <mat-icon (click)="openChannelInfo()" class="mat-icon-top" fontIcon="keyboard_arrow_down"></mat-icon>
-      }
+      <!-- @if (chatIsChannel && !chatIsThread) {
+      <mat-icon
+        (click)="openChannelInfo()"
+        class="mat-icon-top"
+        fontIcon="keyboard_arrow_down"
+      ></mat-icon>
+      } -->
+
+      <mat-icon
+        (click)="openChannelInfo()"
+        class="mat-icon-top"
+        fontIcon="keyboard_arrow_down"
+      ></mat-icon>
     </button>
 
     <!-- Thread view: show X button -->
     @if (chatIsThread) {
-    <button class="x-button" (click)="closeThreadView()" aria-label="Close Thread">
+    <button
+      class="x-button"
+      (click)="closeThreadView()"
+      aria-label="Close Thread"
+    >
       <mat-icon fontIcon="close"></mat-icon>
     </button>
     }
 
     <!-- Normal view: show Add User button -->
-    @if (chatIsChannel && !chatIsThread) {
+    <!-- @if (chatIsChannel && !chatIsThread) {
     <button class="add-user-button" (click)="openMemberDialog()">
       <mat-icon class="mat-icon-top" fontIcon="person_add_alt"></mat-icon>
     </button>
-    }
+    } -->
+    <img
+      (click)="openProfileDialogOtherUser()"
+      class="other-user-avatar"
+      [src]="'./assets/img/avatar/' + otherUser?.profilePic + '.png'"
+      alt="{{ otherUser?.userName }}'s avatar"
+    />
+    <button class="add-user-button" (click)="openMemberDialog()">
+      <mat-icon class="mat-icon-top" fontIcon="person_add_alt"></mat-icon>
+    </button>
   </section>
 
   <section class="chat-body" #chatBody>
@@ -83,10 +128,14 @@
     @if (chatIsThread) {
     <!-- Parent (active) thread message -->
     @if (activeThreadMessage) {
-    <app-message-template [chatIsThread]="chatIsThread" [messages]="[activeThreadMessage]"
-      [currentUser]="currentUser?.id || ''" [currentChannelId]="selectedChannel?.channelId"
+    <app-message-template
+      [chatIsThread]="chatIsThread"
+      [messages]="[activeThreadMessage]"
+      [currentUser]="currentUser?.id || ''"
+      [currentChannelId]="selectedChannel?.channelId"
       (editMessage)="startEditingMessage($event)"
-      (replyToMessage)="handleReplyToMessage($event)"></app-message-template>
+      (replyToMessage)="handleReplyToMessage($event)"
+    ></app-message-template>
     }
 
     <!-- Antworten counter -->
@@ -97,42 +146,60 @@
     </div>
 
     <!-- Replies to thread -->
-    <app-message-template [chatIsThread]="chatIsThread" [messages]="threadMessages"
-      [currentUser]="currentUser?.id || ''" [currentChannelId]="selectedChannel?.channelId"
+    <app-message-template
+      [chatIsThread]="chatIsThread"
+      [messages]="threadMessages"
+      [currentUser]="currentUser?.id || ''"
+      [currentChannelId]="selectedChannel?.channelId"
       (editMessage)="startEditingMessage($event)"
-      (replyToMessage)="handleReplyToMessage($event)"></app-message-template>
-    }
-    } @else {
+      (replyToMessage)="handleReplyToMessage($event)"
+    ></app-message-template>
+    } } @else {
     <!-- Full channel chat view -->
-    <app-message-template [chatIsThread]="chatIsThread" [messages]="messages" [currentUser]="currentUser?.id || ''"
-      [currentChannelId]="selectedChannel?.channelId" (editMessage)="startEditingMessage($event)"
-      (replyToMessage)="handleReplyToMessage($event)"></app-message-template>
+    <app-message-template
+      [chatIsThread]="chatIsThread"
+      [messages]="messages"
+      [currentUser]="currentUser?.id || ''"
+      [currentChannelId]="selectedChannel?.channelId"
+      (editMessage)="startEditingMessage($event)"
+      (replyToMessage)="handleReplyToMessage($event)"
+    ></app-message-template>
     }
   </section>
 
   <section class="chat-interface">
     <mat-card class="chat-card" appearance="outlined">
-      <textarea [(ngModel)]="chatMessage" id="chat-field" #chatField (keydown)="checkMentionTrigger($event)"
+      <textarea
+        [(ngModel)]="chatMessage"
+        id="chat-field"
+        #chatField
+        (keydown)="checkMentionTrigger($event)"
         [placeholder]="
           chatIsThread
             ? 'Antworten...'
             : chatIsChannel
             ? 'Nachricht an #' + (selectedChannel?.name || '')
             : 'Nachricht an ' + (otherUser?.userName || '')
-        "></textarea>
+        "
+      ></textarea>
 
       <!--  @ Popup -->
       @if (mentionPopupVisible) {
       <div class="mention-popup">
         @for (user of filteredMentionableUsers; track user) {
         <div class="mention-user" (click)="selectMentionUser(user.userName)">
-          <img class="avatar" [src]="'./../../../assets/img/avatar/' + user.profilePic + '.png'" alt="avatar" />
-          <div class="status-dot" [ngClass]="{ online: user.status, offline: !user.status }"></div>
+          <img
+            class="avatar"
+            [src]="'./../../../assets/img/avatar/' + user.profilePic + '.png'"
+            alt="avatar"
+          />
+          <div
+            class="status-dot"
+            [ngClass]="{ online: user.status, offline: !user.status }"
+          ></div>
           <span class="mention-name nuito17px400">
-            {{ user.userName
-            }}@if(user.userName === currentUser?.userName) {
-            (Du)
-            }
+            {{ user.userName }}@if(user.userName === currentUser?.userName) {
+            (Du) }
           </span>
         </div>
         }
@@ -171,17 +238,25 @@
 
     <!-- Emoji Picker -->
     @if (emojiPickerVisible) {
-    <app-emoji-picker [pickerPosition]="pickerPosition" (emojiSelected)="addEmoji($event)"
-      (pickerClosed)="onPickerClosed()"></app-emoji-picker>
+    <app-emoji-picker
+      [pickerPosition]="pickerPosition"
+      (emojiSelected)="addEmoji($event)"
+      (pickerClosed)="onPickerClosed()"
+    ></app-emoji-picker>
     }
   </section>
 
   @if (isChannelInfoOpen && isMobile) {
-  <app-channel-info class="channel-info" (closeChannelInfo)="isChannelInfoOpen = false"></app-channel-info>
-  }
-  @if (isChannelInfoOpen && !isMobile) {
+  <app-channel-info
+    class="channel-info"
+    (closeChannelInfo)="isChannelInfoOpen = false"
+  ></app-channel-info>
+  } @if (isChannelInfoOpen && !isMobile) {
   <section class="channel-dialog">
-    <app-channel-info class="channel-info-desktop" (closeChannelInfo)="isChannelInfoOpen = false"></app-channel-info>
+    <app-channel-info
+      class="channel-info-desktop"
+      (closeChannelInfo)="isChannelInfoOpen = false"
+    ></app-channel-info>
   </section>
   }
 </div>

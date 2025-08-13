@@ -90,6 +90,8 @@ export class MainContentComponent {
     }, (err) => {
       console.error('Fehler beim Laden der Channels:', err);
     });
+
+
   }
 
   onChatSelected(chatId: string): void {
