@@ -25,11 +25,12 @@
     ></app-chat-template>
   </section>
 
-  @if (showThread) {
+@if (showThread) {
   <section class="right">
-    <!-- <app-chat-template [threadId]="currentThreadId" [isThreadView]="true"
-            (threadClosed)="closeThread()"></app-chat-template> -->
-    <app-threads></app-threads>
+    <app-threads
+      [threadId]="currentThreadId"
+      (threadClosed)="closeThread()"
+    ></app-threads>
   </section>
-  }
+}
 </section>

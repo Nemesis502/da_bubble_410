@@ -1,0 +1,393 @@
+@use "./../../../styles.scss" as *;
+
+.comp-body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  margin: 0;
+  background-color: white !important;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 16px;
+  padding-right: 16px;
+  height: 80px;
+  background-color: $Bg;
+
+  button {
+    border: 0;
+    background-color: transparent;
+    height: 62px;
+    cursor: pointer;
+    padding: 0px;
+  }
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+
+  p {
+    margin-bottom: 0px;
+    margin-left: 10px;
+  }
+
+  img {
+    height: 50px;
+    width: 50px;
+  }
+}
+
+img {
+  height: 50px;
+  width: 50px;
+}
+
+.mat-icon-top {
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.chat-header {
+  box-shadow: 0 4px 6px -4px rgba(0, 0, 0, 0.2);
+  background-color: white;
+  height: 60px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  button {
+    border: 0;
+    cursor: pointer;
+  }
+
+  .channel-button {
+    background-color: transparent;
+    display: flex;
+    margin-left: 16px;
+    align-items: center;
+
+    .mat-icon-top {
+      font-size: 16px !important;
+    }
+
+    .channel-name {
+      padding-left: 10px;
+      padding-right: 10px;
+      font-size: 22px !important;
+      display: flex;
+    }
+
+    p {
+      margin-bottom: 0px;
+      padding-left: 12px;
+    }
+  }
+
+  .add-user-button {
+    background-color: $Bg;
+    margin-right: 16px;
+    border-radius: 40px;
+    width: 34px;
+    height: 34px;
+
+    .mat-icon {
+      font-size: 16px !important;
+    }
+  }
+}
+
+.chat-interface {
+  background-color: white;
+  margin-left: 16px;
+  margin-right: 16px;
+  margin-bottom: 30px;
+  flex-shrink: 0;
+  width: calc(100% - 32px);
+  border-radius: 30px;
+  height: 145px;
+
+  .chat-card {
+    background-color: white !important;
+    border-radius: 20px;
+    height: 145px;
+    border: 1px solid $LightPurple;
+    transition: border-color 0.3s ease;
+
+    &:hover,
+    &:focus-within {
+      border-color: $purple1;
+    }
+  }
+
+  textarea {
+    border: 0;
+    height: 100%;
+    margin-top: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 52px;
+    font-family: "Nunito" !important;
+    font-size: 16px;
+    border: none;
+    outline: none;
+    resize: none;
+    box-shadow: none;
+  }
+
+  textarea:focus {
+    border: none;
+    outline: none;
+    box-shadow: none;
+  }
+
+  .chat-buttons {
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+    justify-content: space-between;
+
+    button {
+      border: 0;
+      cursor: pointer;
+      background-color: transparent;
+    }
+
+    .buttons-left {
+      font-size: 24px !important;
+
+      .mat-icon {
+        color: gray;
+        border-radius: 50%;
+        padding: 6px;
+
+        &:hover {
+          background-color: lightgray;
+          color: $purple1;
+        }
+      }
+    }
+
+    .button-right {
+      .mat-icon {
+        color: $purple1;
+
+        &:hover {
+          color: $purple2;
+        }
+
+        &:active {
+          color: $purple2;
+        }
+      }
+    }
+  }
+}
+
+.chat-body {
+  padding-top: 10px;
+  margin-bottom: 10px;
+  flex-direction: column;
+  display: flex;
+  flex-grow: 1;
+  overflow-y: scroll;
+  width: 100%;
+}
+
+.mention-popup {
+  position: absolute;
+  z-index: 999;
+  width: fit-content;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  border-bottom-left-radius: 0px;
+  border: 1px solid #adb0d9;
+  background-color: white;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  overflow-y: auto;
+  max-height: 177px;
+  scrollbar-width: none;
+  bottom: 90%;
+  left: 25px;
+}
+
+.mention-user {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  gap: 10px;
+
+  &:hover {
+    background-color: $Bg;
+  }
+
+  .avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+  }
+
+  .status-dot {
+    position: absolute;
+    left: 45px;
+    margin: 35px 0 0 0;
+    border: 2px solid white;
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+  }
+
+  .online {
+    background-color: #2ecc71;
+  }
+
+  .offline {
+    background-color: #bdc3c7;
+  }
+
+  .mention-name {
+    padding-left: 0px;
+    margin-left: 0px;
+  }
+}
+
+.hashtag-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 12px;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: $Bg;
+
+    .hashtag {
+      color: $purple3;
+    }
+  }
+}
+
+.hashtag-name {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  gap: 4px;
+}
+
+.hashtag {
+  color: black;
+  font-weight: bold;
+  padding-right: 12px;
+  font-size: 20px;
+}
+
+.channel-hash {
+  color: $purple2;
+  font-size: 20px;
+  padding-right: 8px;
+  padding-left: 8px;
+}
+
+.channel-name-thread {
+  color: $purple2;
+  font-size: 14px;
+  display: flex;
+  text-align: center;
+}
+
+.x-button {
+  cursor: pointer;
+  background-color: white;
+}
+
+.status-dot {
+  position: absolute;
+  left: 45px;
+  margin: 42px 0 0 12px;
+  border: 2px solid white;
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+}
+
+.online {
+  background-color: #2ecc71;
+}
+
+.offline {
+  background-color: #bdc3c7;
+}
+
+.msg-header {
+  padding-left: 16px;
+  padding-right: 16px;
+  height: 35px;
+  display: flex;
+  width: calc(100% - 32px);
+  align-items: center;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+
+  span {
+    height: 1px;
+    width: 100%;
+    background-color: $LightPurple;
+  }
+
+  p {
+    font-family: "Nunito" !important;
+    color: $LightPurple;
+    font-size: 18px;
+    z-index: 1;
+    margin-bottom: 0px;
+    padding-bottom: 0px;
+    padding: 2px 10px;
+    white-space: nowrap;
+  }
+}
+
+.channel-dialog {
+  position: fixed;
+  display: flex;
+  background-color: #0000005f !important;
+  z-index: 999;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.channel-info {
+  z-index: 90;
+  height: 100vh;
+  width: 100%;
+  position: absolute;
+  top: 0%;
+  left: 0%;
+}
+
+.channel-info-desktop {
+  z-index: 90;
+  position: absolute;
+  width: 74%;
+  top: 18%;
+  left: 24%;
+}

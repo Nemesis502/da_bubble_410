@@ -1,44 +1,115 @@
-<section class="chat-body" #chatBody>
-  <!-- Thread view -->
-  @if (chatIsThread) {
-  <!-- Parent (active) thread message -->
-  @if (activeThreadMessage) {
-  <app-message-template
-    [chatIsThread]="chatIsThread"
-    [messages]="[activeThreadMessage]"
-    [currentUser]="currentUser?.id || ''"
-    [currentChannelId]="selectedChannel?.channelId"
-    (editMessage)="startEditingMessage()"
-    (replyToMessage)="handleReplyToMessage()"
-  ></app-message-template>
-  }
+<div class="comp-body">
+  <!-- Thread header -->
+  <section class="chat-header">
+    <p class="channel-name nuito18px700">
+      Thread
+      <span class="channel-hash">#</span>
+      <span class="channel-name-thread">{{ selectedChannel?.name }}</span>
+    </p>
+    <button class="x-button" (click)="closeThreadView()" aria-label="Close Thread">
+      <mat-icon fontIcon="close"></mat-icon>
+    </button>
+  </section>
 
-  <!-- Antworten counter -->
-  <!-- @if (threadMessages.length > 0) {
-    <div class="msg-header">
-      <p>{{ threadMessages.length }} Antworten</p>
-      <span></span>
-    </div>
+  <!-- Thread messages -->
+  <section class="chat-body" #chatBody>
+    <!-- Parent message -->
+    @if (activeThreadMessage) {
+      <app-message-template
+        [chatIsThread]="true"
+        [messages]="[activeThreadMessage]"
+        [currentUser]="currentUser?.id || ''"
+        [currentChannelId]="selectedChannel?.channelId"
+        (editMessage)="startEditingMessage($event)"
+      ></app-message-template>
+    }
 
+    <!-- Replies -->
+    @if (threadMessages.length > 0) {
+      <div class="msg-header">
+        <p>{{ threadMessages.length }} Antworten</p>
+        <span></span>
+      </div>
+      <app-message-template
+        [chatIsThread]="true"
+        [messages]="threadMessages"
+        [currentUser]="currentUser?.id || ''"
+        [currentChannelId]="selectedChannel?.channelId"
+        (editMessage)="startEditingMessage($event)"
+      ></app-message-template>
+    }
+  </section>
 
-    <app-message-template [chatIsThread]="chatIsThread" [messages]="threadMessages"
-      [currentUser]="currentUser?.id || ''" [currentChannelId]="selectedChannel?.channelId"
-      (editMessage)="startEditingMessage()"
-      (replyToMessage)="handleReplyToMessage()"></app-message-template>
-    } -->
-  <div class="msg-header">
-    <p>{{ threadChannel.text }} Antworten</p>
-    <span></span>
-  </div>
-  } @else {
-  <!-- Full channel chat view -->
-  <app-message-template
-    [chatIsThread]="chatIsThread"
-    [messages]="messages"
-    [currentUser]="currentUser?.id || ''"
-    [currentChannelId]="selectedChannel?.channelId"
-    (editMessage)="startEditingMessage()"
-    (replyToMessage)="handleReplyToMessage()"
-  ></app-message-template>
-  }
-</section>
+  <!-- Input field -->
+  <section class="chat-interface">
+    <mat-card class="chat-card" appearance="outlined">
+      <textarea
+        [(ngModel)]="chatMessage"
+        id="chat-field"
+        #chatField
+        placeholder="Antworten..."
+      ></textarea>
+
+      <!-- Mention popup -->
+      @if (mentionPopupVisible) {
+        <div class="mention-popup">
+          @for (user of filteredMentionableUsers; track user) {
+            <div class="mention-user" (click)="selectMentionUser(user.userName)">
+              <img
+                class="avatar"
+                [src]="'./../../../assets/img/avatar/' + user.profilePic + '.png'"
+                alt="avatar"
+              />
+              <div
+                class="status-dot"
+                [ngClass]="{ online: user.status, offline: !user.status }"
+              ></div>
+              <span class="mention-name nuito17px400">
+                {{ user.userName }}
+                @if(user.userName === currentUser?.userName) { (Du) }
+              </span>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Hashtag popup -->
+      @if (hashtagPopupVisible) {
+        <div class="mention-popup">
+          @for (channel of filteredChannels; track channel) {
+            <div class="hashtag-item" (click)="selectHashtagChannel(channel.name)">
+              <span class="hashtag-name nuito17px400">
+                <span class="hashtag">#</span>{{ channel.name }}
+              </span>
+            </div>
+          }
+        </div>
+      }
+
+      <mat-card-actions class="chat-buttons">
+        <div class="buttons-left">
+          <button (click)="toggleEmojiPicker($event)">
+            <mat-icon fontIcon="insert_emoticon"></mat-icon>
+          </button>
+          <button (click)="triggerMention()">
+            <mat-icon fontIcon="alternate_email"></mat-icon>
+          </button>
+        </div>
+        <div class="button-right">
+          <button (click)="sendMessage()">
+            <mat-icon fontIcon="send"></mat-icon>
+          </button>
+        </div>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- Emoji picker -->
+    @if (emojiPickerVisible) {
+      <app-emoji-picker
+        [pickerPosition]="pickerPosition"
+        (emojiSelected)="addEmoji($event)"
+        (pickerClosed)="onPickerClosed()"
+      ></app-emoji-picker>
+    }
+  </section>
+</div>

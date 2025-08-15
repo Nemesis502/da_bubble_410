@@ -379,7 +379,7 @@ openThread(messageId: string, forceThreadToggle: boolean = true): void {
   }
 
   /** Sets the active thread message and fetches its data */
-  private async setActiveThreadMessage(channelId: string, messageId: string) {
+   async setActiveThreadMessage(channelId: string, messageId: string) {
     let docRef;
     if (this.isConversation) {
       docRef = doc(
