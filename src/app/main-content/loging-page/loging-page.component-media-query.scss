@@ -32,8 +32,9 @@
 @media only screen and (min-width: 600px) {
 
     .logIn-Section {
-        margin: 11px 30px 0 30px;
-        gap: 65px;
+        // margin: 11px 30px 0 30px;
+        margin: 0 30px 0 30px;
+        gap: 13px;
     }
 
     .header-desktop {
@@ -89,7 +90,13 @@
     &.skip-animation {
         animation: none;
         opacity: 1;
+
+
     }
+}
+
+.d-none {
+    display: none;
 }
 
 @keyframes nameToRight {
