@@ -302,7 +302,8 @@
   position: relative;
 }
 
-.msg {
+.msg,
+.msg-own {
   &:hover {
     background-color: $Bg;
     cursor: pointer;
@@ -311,7 +312,7 @@
       background-color: white;
     }
 
-    .popup-menu {
+    .popup-menu,.popup-menu-own {
       opacity: 1;
       visibility: visible;
     }
@@ -321,7 +322,7 @@
 .popup-menu {
   position: absolute;
   bottom: 65%;
-  left: 40%;
+  left: 10%;
   transform: translateX(-10%);
   background: white;
   border: 1px solid #adb0d9;
@@ -454,13 +455,13 @@
 @media (min-width: 650px) {
   .popup-menu {
     bottom: 65%;
-    left: 70%;
+    left: 62%;
     transform: translateX(-10%);
   }
 
   .popup-menu-own {
     bottom: 65%;
-    right: 70%;
+    right: 55%;
     transform: translateX(10%);
   }
 }
