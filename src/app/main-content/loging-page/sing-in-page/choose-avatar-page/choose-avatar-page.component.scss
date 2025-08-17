@@ -66,6 +66,7 @@
     img {
         height: 40px;
         width: 40px;
+        transition: ease-out 100ms;
     }
 
     &:hover {
@@ -138,10 +139,12 @@
     img {
         height: 120px;
         width: 120px;
+        border-radius: 100px;
+        border: 8px solid transparent;
+        transition: ease-out 100ms;
 
         &:hover {
-            border: 8px #e6e6e6 solid;
-            border-radius: 100px;
+            border-color: #e6e6e6;
             cursor: pointer;
         }
     }
@@ -166,10 +169,12 @@
         cursor: pointer;
         height: 48px;
         width: 48px;
+        border: 8px solid transparent;
+        border-radius: 100px;
+        transition: ease-out 100ms;
 
         &:hover {
-            border: 8px #e6e6e6 solid;
-            border-radius: 100px;
+            border-color: #e6e6e6;
         }
     }
 }
@@ -251,6 +256,9 @@ form {
 
 .link-container {
     padding: 10px 15px;
+    transition: ease-out 100ms;
+    border: 1px transparent solid !important;
+    border-radius: 25px !important;
 
     a {
         color: $purple2;
@@ -258,8 +266,7 @@ form {
     }
 
     &:hover {
-        border: 1px $LightPurple solid !important;
-        border-radius: 25px !important;
+        border-color: $LightPurple  !important;
         cursor: pointer;
 
         a {

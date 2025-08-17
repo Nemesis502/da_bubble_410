@@ -39,6 +39,9 @@
 
 .link-container {
     padding: 10px 15px;
+    transition: ease-out 100ms;
+    border-radius: 25px !important;
+    border: 1px transparent solid !important;
 
     a {
         color: $purple2;
@@ -46,8 +49,7 @@
     }
 
     &:hover {
-        border: 1px $LightPurple solid !important;
-        border-radius: 25px !important;
+        border-color: $LightPurple !important;
         cursor: pointer;
 
         a {

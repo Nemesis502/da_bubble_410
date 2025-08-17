@@ -151,9 +151,11 @@ mat-form-field {
     .mat-mdc-text-field-wrapper {
         border-radius: 100px;
         height: 58px;
+        transition: ease-out 100ms;
+        border: 1px solid transparent !important;
 
         &:hover {
-            border: 1px $TextGray solid !important;
+            border-color: $TextGray !important;
             cursor: pointer;
         }
     }
@@ -176,6 +178,7 @@ mat-form-field {
         text-decoration: none;
         padding: 5px 15px;
         border-radius: 30px;
+        transition: ease-out 100ms;
 
         &:hover {
             background-color: $Bg;
@@ -237,6 +240,8 @@ mat-form-field {
         border: 0;
         border-radius: 100px;
         padding: 15px 0px 15px 0px;
+        border: 1px solid transparent !important;
+        transition: ease-out 100ms;
 
         p {
             color: $purple1;
@@ -244,7 +249,7 @@ mat-form-field {
 
         &:hover {
             cursor: pointer;
-            border: 1px $purple2 solid !important;
+            border-color: $purple2 !important;
 
             p {
                 font-weight: 700 !important;
@@ -271,6 +276,7 @@ mat-form-field {
 
 .login-button {
     background-color: $purple1 !important;
+    transition: ease-out 100ms;
 
     &:hover {
         background-color: $purple2 !important;
@@ -281,6 +287,7 @@ mat-form-field {
     color: $purple1 !important;
     border: 1px $purple2 solid !important;
     border-radius: 25px !important;
+    transition: ease-out 100ms;
 
     &:hover {
         color: white !important;
@@ -315,6 +322,8 @@ mat-form-field {
     }
 
     button {
+        transition: ease-out 100ms;
+
         >span {
             color: $purple2;
         }
