@@ -24,6 +24,7 @@ import { ChatUIService } from '../../shared/services/chat-ui.service';
 import { SessionService } from '../../shared/services/currentUserSession.service';
 import { appUser } from '../../interfaces/user.interface';
 import { map, startWith } from 'rxjs/operators';
+import { FirestoreService } from '../../shared/services/firestore.service';
 interface PickerPosition {
   top: number;
   left: number;
@@ -44,8 +45,8 @@ interface PickerPosition {
   templateUrl: './chat-template.component.html',
   styleUrls: [
     './chat-template.component.scss',
-    './chat-template.media-query.component.scss'
-  ]
+    './chat-template.media-query.component.scss',
+  ],
 })
 export class ChatTemplateComponent implements OnInit {
   @Input() isThreadView: boolean = false;
@@ -72,7 +73,7 @@ export class ChatTemplateComponent implements OnInit {
   chatMessage: string = '';
   editedMessage: any = null;
   threadMessages: any[] = [];
-
+  members: any[] = [];
   // Observables for reactive data
   messages$: Observable<any[]> = of([]);
   threadMessages$: Observable<any[] | null> = of(null);
@@ -93,7 +94,7 @@ export class ChatTemplateComponent implements OnInit {
   messages: any[] = [];
   width: number = window.innerWidth;
 
-  constructor() {
+  constructor(private firestoreService: FirestoreService) {
     this.chatUIService.init(
       this.chatField,
       this.elementRef,
@@ -107,7 +108,10 @@ export class ChatTemplateComponent implements OnInit {
     this.isMobile = this.width < 999;
     if (this.threadId) {
       this.isThreadView = true;
-      await this.chatService.initializeChat(this.threadId, this.currentUser?.id);
+      await this.chatService.initializeChat(
+        this.threadId,
+        this.currentUser?.id
+      );
     } else if (this.chatId) {
       this.isThreadView = false;
       await this.chatService.initializeChat(this.chatId, this.currentUser?.id);
@@ -115,9 +119,9 @@ export class ChatTemplateComponent implements OnInit {
 
     this.messages$ = this.isThreadView
       ? this.chatService.threadMessages$.pipe(
-        map((messages) => messages ?? []),
-        startWith([])
-      )
+          map((messages) => messages ?? []),
+          startWith([])
+        )
       : this.chatService.messages$;
 
     this.chatService.isThread$.subscribe((isThread) => {
@@ -166,12 +170,16 @@ export class ChatTemplateComponent implements OnInit {
     );
 
     this.chatUIService.fetchAllChannels();
+    this.fetchChannelMembers();
   }
 
   async ngOnChanges(changes: SimpleChanges) {
     if (changes['threadId'] && this.threadId) {
       this.isThreadView = true;
-      await this.chatService.initializeChat(this.threadId, this.currentUser?.id);
+      await this.chatService.initializeChat(
+        this.threadId,
+        this.currentUser?.id
+      );
       this.messages$ = this.chatService.threadMessages$.pipe(
         map((messages) => messages ?? []),
         startWith([])
@@ -181,7 +189,9 @@ export class ChatTemplateComponent implements OnInit {
       await this.chatService.initializeChat(this.chatId, this.currentUser?.id);
       this.messages$ = this.chatService.messages$;
     }
-  }
+     if (changes['chatId'] && this.chatId) {
+      await this.fetchChannelMembers();
+  }}
 
   // Message Sending & Editing
   async sendMessage(): Promise<void> {
@@ -318,6 +328,16 @@ export class ChatTemplateComponent implements OnInit {
   focusChatInput(): void {
     if (this.chatField) {
       this.chatField.nativeElement.focus();
+    }
+  }
+
+    private fetchChannelMembers() {
+    if (this.chatId) {
+      this.firestoreService.getChannelMembers(this.chatId).subscribe(memberIds => {
+        this.firestoreService.getUsersByIds(memberIds).subscribe(users => {
+          this.members = users;
+        });
+      });
     }
   }
 }

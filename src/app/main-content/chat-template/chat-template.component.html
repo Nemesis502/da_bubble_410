@@ -112,15 +112,27 @@
       <mat-icon class="mat-icon-top" fontIcon="person_add_alt"></mat-icon>
     </button>
     } -->
-    <img
-      (click)="openProfileDialogOtherUser()"
-      class="other-user-avatar"
-      [src]="'./assets/img/avatar/' + otherUser?.profilePic + '.png'"
-      alt="{{ otherUser?.userName }}'s avatar"
-    />
-    <button class="add-user-button" (click)="openMemberDialog()">
-      <mat-icon class="mat-icon-top" fontIcon="person_add_alt"></mat-icon>
-    </button>
+    <div class="chat-header-members">
+      <div class="member-display" (click)="openMemberDialog()">
+        <!-- Show first 3 profile pics -->
+        <ng-container *ngFor="let member of members; let i = index">
+          <img
+            *ngIf="i < 3"
+            class="member-avatar"
+            [src]="'./assets/img/avatar/' + member.profilePic + '.png'"
+            [alt]="member.userName + ' avatar'"
+            [title]="member.userName"
+          />
+        </ng-container>
+        <!-- If more than 3 members, show a "+N" badge -->
+        <span class="member-count nuito18px700" *ngIf="members.length > 3">
+          {{ members.length }}
+        </span>
+      </div>
+      <button class="add-user-button" (click)="openMemberDialog()">
+        <mat-icon class="mat-icon-top" fontIcon="person_add_alt"></mat-icon>
+      </button>
+    </div>
   </section>
 
   <section class="chat-body" #chatBody>

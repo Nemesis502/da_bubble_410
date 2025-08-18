@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { collection, collectionData, docData, Firestore } from '@angular/fire/firestore';
 import { addDoc, doc, getDoc, getDocs, limit, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { Channel } from '../../interfaces/channel.interface';
 
 @Injectable({ providedIn: 'root' })
@@ -107,5 +107,18 @@ export class FirestoreService {
 
   getChannelDocRef(channelId: string) {
     return doc(this.firestore, 'channels', channelId);
+  }
+
+   getChannelMembers(channelId: string): Observable<any[]> {
+    const channelRef = this.getChannelDocRef(channelId);
+    return docData(channelRef).pipe(
+      map(channelData => channelData?.['members'] || [])
+    );
+  }
+  getUsersByIds(userIds: string[]): Observable<any[]> {
+    const userRefs = userIds.map(uid => doc(this.firestore, 'users', uid));
+    return collectionData(collection(this.firestore, 'users'), { idField: 'id' }).pipe(
+      map(users => users.filter(user => userIds.includes(user.id)))
+    );
   }
 }
