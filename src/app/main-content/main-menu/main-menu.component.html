@@ -1,8 +1,21 @@
 <section class="main-menu">
+  @if (isSmallScreen) {
   <app-header class="main-header" [currentUser]="currentUser"></app-header>
+  }
   <section class="menu">
+    @if (!isSmallScreen) {
+    <section class="devspace-header">
+      <div>
+        <img src="./assets/img/workspace-logo.png" alt="">
+        <p class="nuito24px700">Devspace</p>
+      </div>
+      <button class="new-chat-btn-big" aria-label="Neuen Chat starten" (click)="openNewMessage()">
+        <img src="./assets/img/menu/new-chat.png" alt="">
+      </button>
+    </section>
+    }
     <section class="menu-item">
-      <!-- @if (isSearchActive) {
+      @if (isSearchActive && isSmallScreen) {
       <section class="search-header">
         <span class="nuito18px700">Suche</span>
         <button mat-icon-button aria-label="Suche beenden" (click)="closeSearch()">
@@ -10,15 +23,17 @@
         </button>
       </section>
       }
+      @if (isSmallScreen) {
       <form class="search-form" role="search">
         <mat-form-field appearance="fill" class="search-full-width">
           <input matInput placeholder="Gehe zu..." [(ngModel)]="searchTerm" name="searchTerm"
             aria-label="Suchfeld Gehe zu" (ngModelChange)="updateFilteredResults()" />
           <mat-icon matSuffix aria-hidden="true">search</mat-icon>
         </mat-form-field>
-      </form> -->
+      </form>
+      }
       <section class="menu-list">
-        <!-- @if (isSearchActive) {
+        @if (isSearchActive && isSmallScreen) {
         @if (filteredChannels.length > 0) {
         <section class="channels">
           <div class="channel-list search" id="channel-list">
@@ -54,7 +69,7 @@
           </div>
         </section>
         }
-        } -->
+        }
         @if (!isSearchActive) {
         <section class="channels">
           <div class="header">
@@ -130,13 +145,17 @@
           }
         </section>
         }
+        @if (isSmallScreen) {
         <button (click)="openNewMessage()" class="new-chat-btn" mat-icon-button aria-label="Neuen Chat starten">
           <img src="./assets/img/menu/new-chat-white.png" alt="" aria-hidden="true" />
         </button>
+        }
       </section>
     </section>
   </section>
 </section>
+@if (isSmallScreen) {
 <div class="landscape-warning">
   Bitte drehen Sie Ihr Gerät zurück ins Hochformat.
 </div>
+}

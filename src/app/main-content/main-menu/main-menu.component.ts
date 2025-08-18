@@ -57,7 +57,7 @@ export class MainMenuComponent implements OnInit {
   currentLoginId = '';
   currentLoginEmail = '';
   searchTerm = '';
-
+  isSmallScreen = window.innerWidth < 800;
   filteredChannels: any[] = [];
   filteredDirectMessages: any[] = [];
   channels: any[] = [];

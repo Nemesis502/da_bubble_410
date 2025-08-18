@@ -28,6 +28,43 @@
     background-color: white;
 }
 
+.devspace-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 32px;
+    padding-inline: 10%;
+
+    div {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        p {
+            margin: 0;
+        }
+    }
+
+    .new-chat-btn-big {
+        margin: 0;
+        border: 0;
+        border-radius: 30px;
+        padding: 0;
+        width: 40px;
+        height: 40px;
+        background-color: white;
+
+        &:hover {
+            background-color: $Bg;
+        }
+
+        img {
+            width: 24px;
+            height: 24px;
+        }
+    }
+}
+
 .menu-item {
     padding: 5%;
     padding-bottom: 3%;
@@ -74,6 +111,7 @@
 .channels {
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .header {
