@@ -126,6 +126,7 @@ export class ChatTemplateComponent implements OnInit {
 
     this.chatService.isThread$.subscribe((isThread) => {
       this.chatIsThread = isThread;
+      this.updateChatContext();
       setTimeout(() => this.scrollToBottom(), 100);
       this.focusChatInput();
     });
@@ -140,6 +141,7 @@ export class ChatTemplateComponent implements OnInit {
 
     this.chatService.selectedChannel$.subscribe((channel) => {
       this.selectedChannel = channel;
+      this.updateChatContext();
       this.chatUIService.fetchMentionableUsers(channel?.channelId);
       this.chatUIService.fetchAllChannels();
     });
@@ -189,9 +191,13 @@ export class ChatTemplateComponent implements OnInit {
       await this.chatService.initializeChat(this.chatId, this.currentUser?.id);
       this.messages$ = this.chatService.messages$;
     }
-     if (changes['chatId'] && this.chatId) {
+    if (changes['chatId'] && this.chatId) {
       await this.fetchChannelMembers();
-  }}
+    }
+      if (changes['threadId'] || changes['chatId']) {
+    this.updateChatContext();
+  }
+  }
 
   // Message Sending & Editing
   async sendMessage(): Promise<void> {
@@ -331,13 +337,31 @@ export class ChatTemplateComponent implements OnInit {
     }
   }
 
-    private fetchChannelMembers() {
+  private fetchChannelMembers() {
     if (this.chatId) {
-      this.firestoreService.getChannelMembers(this.chatId).subscribe(memberIds => {
-        this.firestoreService.getUsersByIds(memberIds).subscribe(users => {
-          this.members = users;
+      this.firestoreService
+        .getChannelMembers(this.chatId)
+        .subscribe((memberIds) => {
+          this.firestoreService.getUsersByIds(memberIds).subscribe((users) => {
+            this.members = users;
+          });
         });
-      });
     }
   }
+
+private updateChatContext(): void {
+  this.chatIsThread = false;
+  this.chatIsChannel = false;
+  this.chatIsConversation = false;
+
+  if (this.isThreadView || this.chatService.isThread) {
+    this.chatIsThread = true;
+  } else if (this.otherUser) {
+    // Direct conversation takes priority over channel
+    this.chatIsConversation = true;
+  } else if (this.selectedChannel) {
+    this.chatIsChannel = true;
+  }
+}
+
 }

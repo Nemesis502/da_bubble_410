@@ -24,13 +24,6 @@
 
   <section class="chat-header">
     <button class="channel-button">
-      <!-- Show "numbers" icon only when not in thread view -->
-      @if (chatIsChannel) {
-      <mat-icon (click)="openChannelInfo()" fontSet="material-icons-outlined">
-        numbers
-      </mat-icon>
-      }
-
       <!-- Show other user avatar + name if chatIsConversation -->
       @if (chatIsConversation && !chatIsThread) { @if (otherUser?.profilePic) {
       <img
@@ -74,10 +67,11 @@
           {{ selectedChannel?.name }}
         </span>
         } -->
-
+        @if(chatIsChannel){
         <span (click)="openChannelInfo()" class="clickable-channel-name">
           # {{ selectedChannel?.name }}
         </span>
+        }
       </p>
 
       <!-- @if (chatIsChannel && !chatIsThread) {
@@ -87,12 +81,13 @@
         fontIcon="keyboard_arrow_down"
       ></mat-icon>
       } -->
-
+      @if (chatIsChannel && !chatIsConversation){
       <mat-icon
         (click)="openChannelInfo()"
         class="mat-icon-top"
         fontIcon="keyboard_arrow_down"
-      ></mat-icon>
+      ></mat-icon
+      >}
     </button>
 
     <!-- Thread view: show X button -->
@@ -129,9 +124,11 @@
           {{ members.length }}
         </span>
       </div>
+      @if (chatIsChannel && !chatIsConversation){
       <button class="add-user-button" (click)="openMemberDialog()">
         <mat-icon class="mat-icon-top" fontIcon="person_add_alt"></mat-icon>
       </button>
+      }
     </div>
   </section>
 
