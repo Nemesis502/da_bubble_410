@@ -175,30 +175,29 @@ export class ChatTemplateComponent implements OnInit {
     this.fetchChannelMembers();
   }
 
-  async ngOnChanges(changes: SimpleChanges) {
-    if (changes['threadId'] && this.threadId) {
-      this.isThreadView = true;
-      await this.chatService.initializeChat(
-        this.threadId,
-        this.currentUser?.id
-      );
-      this.messages$ = this.chatService.threadMessages$.pipe(
-        map((messages) => messages ?? []),
-        startWith([])
-      );
-    } else if (changes['chatId'] && this.chatId) {
-      this.isThreadView = false;
-      await this.chatService.initializeChat(this.chatId, this.currentUser?.id);
-      this.messages$ = this.chatService.messages$;
+async ngOnChanges(changes: SimpleChanges) {
+  if (changes['threadId'] && this.threadId) {
+    this.isThreadView = true;
+    await this.chatService.initializeChat(this.threadId, this.currentUser?.id);
+    this.messages$ = this.chatService.threadMessages$.pipe(
+      map((messages) => messages ?? []),
+      startWith([])
+    );
+  } else if (changes['chatId'] && this.chatId) {
+    this.isThreadView = false;
+    if (!changes['chatId'].firstChange) {
+      this.otherUser = null;
     }
-    if (changes['chatId'] && this.chatId) {
-      await this.fetchChannelMembers();
-    }
-      if (changes['threadId'] || changes['chatId']) {
-    this.updateChatContext();
+    
+    await this.chatService.initializeChat(this.chatId, this.currentUser?.id);
+    this.messages$ = this.chatService.messages$;
   }
+  if (changes['chatId'] && this.chatId) {
+    await this.fetchChannelMembers();
   }
-
+ 
+  this.updateChatContext();
+}
   // Message Sending & Editing
   async sendMessage(): Promise<void> {
     const messageText = this.chatMessage.trim();
@@ -353,15 +352,12 @@ private updateChatContext(): void {
   this.chatIsThread = false;
   this.chatIsChannel = false;
   this.chatIsConversation = false;
-
   if (this.isThreadView || this.chatService.isThread) {
     this.chatIsThread = true;
   } else if (this.otherUser) {
-    // Direct conversation takes priority over channel
     this.chatIsConversation = true;
   } else if (this.selectedChannel) {
     this.chatIsChannel = true;
-  }
-}
+  }}
 
 }
