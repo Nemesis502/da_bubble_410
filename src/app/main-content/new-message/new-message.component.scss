@@ -284,3 +284,14 @@ img {
   border-bottom-left-radius: 20px !important;
   border-top-left-radius: 0px !important;
 }
+
+@media screen and (min-width: 1024px) {
+  .header {
+    display: none;
+  }
+
+.comp-body{
+    height: calc(100vh - 130px);
+    border-radius: 30px;
+}  
+}

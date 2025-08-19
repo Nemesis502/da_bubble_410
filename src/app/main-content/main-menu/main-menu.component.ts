@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  inject,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,7 +16,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
 import { SearchService } from '../../shared/services/search.service';
-import { ChannelsDirectMessageService, DirectMessage } from '../../shared/services/channels-direct-message.service';
+import {
+  ChannelsDirectMessageService,
+  DirectMessage,
+} from '../../shared/services/channels-direct-message.service';
 import { FirestoreService } from '../../shared/services/firestore.service';
 import { Router } from '@angular/router';
 import { UserService } from '../../shared/services/user.services';
@@ -33,7 +43,7 @@ import { HeaderComponent } from '../../shared/header/header.component';
     MatIconModule,
     MatSelectModule,
     MatDividerModule,
-    HeaderComponent
+    HeaderComponent,
   ],
   templateUrl: './main-menu.component.html',
   styleUrls: [
@@ -41,10 +51,10 @@ import { HeaderComponent } from '../../shared/header/header.component';
     './main-menu.media-query.component.scss',
   ],
 })
-
 export class MainMenuComponent implements OnInit {
   @Output() chatSelected = new EventEmitter<string>();
-
+  @Output() newMessage = new EventEmitter<void>();
+  @Output() closeNewMessage = new EventEmitter<void>();
   readonly dialog = inject(MatDialog);
   readonly searchService = inject(SearchService);
   readonly channelDirectMessageData = inject(ChannelsDirectMessageService);
@@ -319,7 +329,7 @@ export class MainMenuComponent implements OnInit {
     }
 
     this.channelDirectMessageData.setSelectedChannel(channel);
-
+    this.closeNewMessage.emit();
     if (window.innerWidth >= 800) {
       this.chatSelected.emit(channel.channelId);
     } else {
@@ -339,14 +349,17 @@ export class MainMenuComponent implements OnInit {
       return;
     }
 
-    const conversation = this.findConversationBetweenUsers(user.id, currentUserId);
+    const conversation = this.findConversationBetweenUsers(
+      user.id,
+      currentUserId
+    );
     if (!conversation || !conversation.id) {
       console.error('Keine passende Konversation gefunden für:', user);
       return;
     }
 
     this.channelDirectMessageData.setSelectedDirectMessage(user);
-
+    this.closeNewMessage.emit();
     if (window.innerWidth >= 800) {
       this.chatSelected.emit(conversation.id);
     } else {
@@ -354,14 +367,22 @@ export class MainMenuComponent implements OnInit {
     }
   }
 
-  private findConversationBetweenUsers(userId1: string, userId2: string): any | null {
-    return this.directMessages.find((conv) => {
-      const participants: string[] = conv.members || conv.participants;
-      const sortedParticipants = [...participants].sort();
-      const sortedIds = [userId1, userId2].sort();
+  private findConversationBetweenUsers(
+    userId1: string,
+    userId2: string
+  ): any | null {
+    return (
+      this.directMessages.find((conv) => {
+        const participants: string[] = conv.members || conv.participants;
+        const sortedParticipants = [...participants].sort();
+        const sortedIds = [userId1, userId2].sort();
 
-      return sortedParticipants[0] === sortedIds[0] && sortedParticipants[1] === sortedIds[1];
-    }) || null;
+        return (
+          sortedParticipants[0] === sortedIds[0] &&
+          sortedParticipants[1] === sortedIds[1]
+        );
+      }) || null
+    );
   }
 
   selectDirectMessageGast(user: DirectMessage): void {
@@ -369,6 +390,7 @@ export class MainMenuComponent implements OnInit {
   }
 
   openNewMessage(): void {
-    this.router.navigate(['/new-message', this.currentUser?.id]);
+    this.newMessage.emit();
+    console.log('emitted');
   }
 }

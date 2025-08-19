@@ -12,6 +12,7 @@ import { SearchService } from '../shared/services/search.service';
 import { FirestoreService } from '../shared/services/firestore.service';
 import { Router } from '@angular/router';
 import { ThreadsComponent } from './threads/threads.component';
+import { NewMessageComponent } from "./new-message/new-message.component";
 
 @Component({
   selector: 'app-main-content',
@@ -23,10 +24,11 @@ import { ThreadsComponent } from './threads/threads.component';
     MainMenuComponent,
     ChatTemplateComponent,
     HeaderComponent,
-    ThreadsComponent
-  ],
+    ThreadsComponent,
+    NewMessageComponent
+],
   templateUrl: './main-content.component.html',
-  styleUrls: ['./main-content.component.scss']
+  styleUrls: ['./main-content.component.scss'],
 })
 export class MainContentComponent {
   readonly searchService = inject(SearchService);
@@ -37,16 +39,13 @@ export class MainContentComponent {
   userChannels: any[] = [];
   currentChatId: string | null = null;
   currentThreadId: string | null = null;
-
+  showNewMessage: boolean = false;
   currentLoginId = '';
 
   showMainMenu = true;
   showThread = false;
 
-  constructor(
-    private userSession: SessionService,
-    private router: Router,
-  ) { }
+  constructor(private userSession: SessionService, private router: Router) {}
 
   ngOnInit(): void {
     this.currentUser = this.userSession.getCurrentUser();
@@ -55,43 +54,47 @@ export class MainContentComponent {
   }
 
   loadAllChannels(): void {
-    this.firestoreService.getChannels().subscribe((channels) => {
-      console.log('Firestore channels:', channels);
-      this.channels = channels;
+    this.firestoreService.getChannels().subscribe(
+      (channels) => {
+        console.log('Firestore channels:', channels);
+        this.channels = channels;
 
-      if (!this.currentLoginId) {
-        console.warn('currentLoginId ist leer — Channel-Filter nach Mitgliedern wird übersprungen.');
-      }
-
-      this.userChannels = this.currentLoginId
-        ? channels.filter((channel) => channel.members?.includes(this.currentLoginId))
-        : channels.slice();
-
-      this.searchService.setFirestoreChannels(channels);
-
-      if (this.userChannels.length > 0) {
-        const first = this.userChannels[0];
-        const firstId = first.channelId ?? first.id ?? null;
-
-        if (window.innerWidth >= 800) {
-          this.currentChatId = firstId;
-          this.showThread = false;
-          this.currentThreadId = null;
-          console.log('Desktop: Hauptchat geladen →', this.currentChatId);
-        } else {
-          if (firstId) {
-            this.router.navigate(['/chat-container', firstId]);
-          }
+        if (!this.currentLoginId) {
+          console.warn(
+            'currentLoginId ist leer — Channel-Filter nach Mitgliedern wird übersprungen.'
+          );
         }
-      }
-      else {
-        console.warn('Keine userChannels gefunden.');
-      }
-    }, (err) => {
-      console.error('Fehler beim Laden der Channels:', err);
-    });
 
+        this.userChannels = this.currentLoginId
+          ? channels.filter((channel) =>
+              channel.members?.includes(this.currentLoginId)
+            )
+          : channels.slice();
 
+        this.searchService.setFirestoreChannels(channels);
+
+        if (this.userChannels.length > 0) {
+          const first = this.userChannels[0];
+          const firstId = first.channelId ?? first.id ?? null;
+
+          if (window.innerWidth >= 800) {
+            this.currentChatId = firstId;
+            this.showThread = false;
+            this.currentThreadId = null;
+            console.log('Desktop: Hauptchat geladen →', this.currentChatId);
+          } else {
+            if (firstId) {
+              this.router.navigate(['/chat-container', firstId]);
+            }
+          }
+        } else {
+          console.warn('Keine userChannels gefunden.');
+        }
+      },
+      (err) => {
+        console.error('Fehler beim Laden der Channels:', err);
+      }
+    );
   }
 
   onChatSelected(chatId: string): void {
@@ -113,4 +116,17 @@ export class MainContentComponent {
     console.log('Thread geschlossen → Right leer');
   }
 
+    openNewMessage(): void {
+     
+    if (window.innerWidth < 800) {
+      this.router.navigate(['/new-message', this.currentUser ?.id]);
+    } else {
+      this.showNewMessage = true; 
+       console.log('triggered', this.showNewMessage)
+    }
+  }
+  
+  closeNewMessage(): void {
+    this.showNewMessage = false;
+  }
 }
