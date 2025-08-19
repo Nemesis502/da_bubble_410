@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   EventEmitter,
@@ -48,7 +49,7 @@ interface PickerPosition {
     './chat-template.media-query.component.scss',
   ],
 })
-export class ChatTemplateComponent implements OnInit {
+export class ChatTemplateComponent implements AfterViewInit {
   @Input() isThreadView: boolean = false;
   @Input() chatId!: string | null;
   @Input() threadId!: string | null;
@@ -94,12 +95,21 @@ export class ChatTemplateComponent implements OnInit {
   messages: any[] = [];
   width: number = window.innerWidth;
 
-  constructor(private firestoreService: FirestoreService) {
+  constructor(private firestoreService: FirestoreService, private hostEl: ElementRef,) {
+    // this.chatUIService.init(
+    //   this.chatField,
+    //   this.elementRef,
+    //   () => this.chatMessage,
+    //   (msg) => (this.chatMessage = msg)
+    // );
+  }
+
+  ngAfterViewInit() {
     this.chatUIService.init(
       this.chatField,
-      this.elementRef,
+      this.hostEl,
       () => this.chatMessage,
-      (msg) => (this.chatMessage = msg)
+      (m) => this.chatMessage = m
     );
   }
 
@@ -119,9 +129,9 @@ export class ChatTemplateComponent implements OnInit {
 
     this.messages$ = this.isThreadView
       ? this.chatService.threadMessages$.pipe(
-          map((messages) => messages ?? []),
-          startWith([])
-        )
+        map((messages) => messages ?? []),
+        startWith([])
+      )
       : this.chatService.messages$;
 
     this.chatService.isThread$.subscribe((isThread) => {
@@ -175,29 +185,29 @@ export class ChatTemplateComponent implements OnInit {
     this.fetchChannelMembers();
   }
 
-async ngOnChanges(changes: SimpleChanges) {
-  if (changes['threadId'] && this.threadId) {
-    this.isThreadView = true;
-    await this.chatService.initializeChat(this.threadId, this.currentUser?.id);
-    this.messages$ = this.chatService.threadMessages$.pipe(
-      map((messages) => messages ?? []),
-      startWith([])
-    );
-  } else if (changes['chatId'] && this.chatId) {
-    this.isThreadView = false;
-    if (!changes['chatId'].firstChange) {
-      this.otherUser = null;
+  async ngOnChanges(changes: SimpleChanges) {
+    if (changes['threadId'] && this.threadId) {
+      this.isThreadView = true;
+      await this.chatService.initializeChat(this.threadId, this.currentUser?.id);
+      this.messages$ = this.chatService.threadMessages$.pipe(
+        map((messages) => messages ?? []),
+        startWith([])
+      );
+    } else if (changes['chatId'] && this.chatId) {
+      this.isThreadView = false;
+      if (!changes['chatId'].firstChange) {
+        this.otherUser = null;
+      }
+
+      await this.chatService.initializeChat(this.chatId, this.currentUser?.id);
+      this.messages$ = this.chatService.messages$;
     }
-    
-    await this.chatService.initializeChat(this.chatId, this.currentUser?.id);
-    this.messages$ = this.chatService.messages$;
+    if (changes['chatId'] && this.chatId) {
+      await this.fetchChannelMembers();
+    }
+
+    this.updateChatContext();
   }
-  if (changes['chatId'] && this.chatId) {
-    await this.fetchChannelMembers();
-  }
- 
-  this.updateChatContext();
-}
   // Message Sending & Editing
   async sendMessage(): Promise<void> {
     const messageText = this.chatMessage.trim();
@@ -348,16 +358,17 @@ async ngOnChanges(changes: SimpleChanges) {
     }
   }
 
-private updateChatContext(): void {
-  this.chatIsThread = false;
-  this.chatIsChannel = false;
-  this.chatIsConversation = false;
-  if (this.isThreadView || this.chatService.isThread) {
-    this.chatIsThread = true;
-  } else if (this.otherUser) {
-    this.chatIsConversation = true;
-  } else if (this.selectedChannel) {
-    this.chatIsChannel = true;
-  }}
+  private updateChatContext(): void {
+    this.chatIsThread = false;
+    this.chatIsChannel = false;
+    this.chatIsConversation = false;
+    if (this.isThreadView || this.chatService.isThread) {
+      this.chatIsThread = true;
+    } else if (this.otherUser) {
+      this.chatIsConversation = true;
+    } else if (this.selectedChannel) {
+      this.chatIsChannel = true;
+    }
+  }
 
 }
