@@ -18,6 +18,8 @@ import { ChannelsDirectMessageService } from '../../shared/services/channels-dir
 import { MatDialog } from '@angular/material/dialog';
 import { ProfilDialogComponent } from '../../shared/dialogs/profil-dialog/profil-dialog.component';
 import { appUser } from '../../interfaces/user.interface';
+import { FirestoreService } from '../../shared/services/firestore.service';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-message-template',
@@ -49,6 +51,7 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
     private elementRef: ElementRef,
     private renderer: Renderer2,
     private directMessageService: ChannelsDirectMessageService,
+    private firestoreService: FirestoreService,
     private dialog: MatDialog
   ) {
     this.clickListener = this.renderer.listen(
@@ -364,26 +367,23 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
   }
 
   /** Open user profile dialog */
-  openUserProfileDialog(message: any): void {
-    const user: appUser = {
-      id: message.senderID,
-      userName: message.username,
-      email: message.email || '',
-      profilePic: message.avatar || 0,
-      status: message.status ?? true,
-    };
-    const loggedUser = this.currentUser;
+openUserProfileDialog(message: any): void {
+  const loggedUserId = this.currentUser; 
+  const userId = message.senderID;
+
+  this.firestoreService.getUserById(userId).pipe(take(1)).subscribe((user: any) => {
+    if (!user) return;
 
     this.dialog.open(ProfilDialogComponent, {
       data: {
-        user: user,
-        loggedUser,
-        isUser: false,
+        user,                       
+        loggedUser: loggedUserId,   
+        isUser: user.id === loggedUserId
       },
       panelClass: 'bottom-dialog-panel',
     });
-  }
-
+  });
+}
   /**Reactor Names Tooltip */
 
   showReactorNames(reactors: string[], event: MouseEvent): void {
