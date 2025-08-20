@@ -208,6 +208,7 @@ export class ChatTemplateComponent implements AfterViewInit {
 
     this.updateChatContext();
   }
+  
   // Message Sending & Editing
   async sendMessage(): Promise<void> {
     const messageText = this.chatMessage.trim();

@@ -223,7 +223,7 @@ export class ChatUIService {
       this.removeMentionSymbol(cursorPos);
     } else {
       this.insertMentionSymbol(cursorPos);
-      await this.fetchMentionableUsers(channelId); // Fetch users when triggering manually
+      await this.fetchMentionableUsers(channelId); 
     }
   }
 

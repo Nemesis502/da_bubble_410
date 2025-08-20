@@ -202,6 +202,7 @@ img {
   flex-grow: 1;
   overflow-y: scroll;
   width: 100%;
+  justify-content: flex-end;
 }
 
 .mention-popup {
@@ -424,4 +425,48 @@ text-align: center;
   padding-left: 16px; 
 
   color: $purple3; 
+}
+
+.self-chat-placeholder{
+  display: flex;
+  flex-direction: column;
+  padding-left: 20px;
+  padding-bottom: 16px;
+}
+
+.self-chat-info{
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 32px;
+  img{
+    height: 80px;
+    width: 80px;
+    padding-right: 16px;
+  }
+  p{
+     font-size: 28px !important;
+  }
+}
+
+.self-chat-text{
+  display: flex;
+  .first{
+    font-weight: 700 !important;
+    color: rgb(75, 74, 74);
+  }
+  p{
+    color: gray;
+    font-size: 20px !important;
+    padding-right: 8px;
+  }
+}
+
+/* Desktop breakpoint (≥ 1000px) */
+@media screen and (min-width: 1000px) {
+  .chat-header {
+    height: 100px;
+    p, span{
+      font-size: 28px !important;
+    }
+  }
 }
