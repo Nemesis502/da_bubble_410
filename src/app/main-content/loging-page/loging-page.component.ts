@@ -69,7 +69,7 @@ export class LogingPageComponent {
 
   updateErrorMessagePassword() {
     console.log(this.password);
-    
+
     if (this.password.hasError('required')) {
       this.errorMessagePassword = 'Bitte geben Sie ein Passwort ein';
     } else if (this.password.hasError('falsePassword')) {
@@ -117,12 +117,21 @@ export class LogingPageComponent {
     const email = this.email.value?.trim().toLowerCase() || '';
     const password = this.password.value || '';
     this.authService.login(email, password).then((userCredential) => {
-      this.router.navigate(['main'], {
-        state: {
-          loginEmail: userCredential.user.email,
-          loginId: userCredential.user.uid
-        }
-      });
+      if (window.innerWidth < 800) {
+        this.router.navigate(['main-menu'], {
+          state: {
+            loginEmail: userCredential.user.email,
+            loginId: userCredential.user.uid
+          }
+        });
+      } else {
+        this.router.navigate(['main'], {
+          state: {
+            loginEmail: userCredential.user.email,
+            loginId: userCredential.user.uid
+          }
+        });
+      }
     }).catch((error) => {
       console.error("Login fehlgeschlagen:", error.message);
       this.LogInError = true;

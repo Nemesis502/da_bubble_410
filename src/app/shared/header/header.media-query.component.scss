@@ -1,0 +1,28 @@
+@use "./../../../styles.scss" as *;
+
+@media screen and (max-width: 800px) {
+    .main-header {
+        padding: 16px 20px;
+        width: calc(100% - 40px);
+        height: 56px;
+
+        .logo-name {
+            width: 161px;
+            height: 45px;
+        }
+
+        button {
+            gap: 10px;
+
+            img {
+                width: 50px;
+            }
+
+            mat-icon {
+                width: 24px;
+                height: 24px;
+                font-size: 24px;
+            }
+        }
+    }
+}

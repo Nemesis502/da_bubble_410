@@ -330,10 +330,10 @@ export class MainMenuComponent implements OnInit {
 
     this.channelDirectMessageData.setSelectedChannel(channel);
     this.closeNewMessage.emit();
-    if (window.innerWidth >= 800) {
-      this.chatSelected.emit(channel.channelId);
-    } else {
+    if (window.innerWidth < 800) {
       this.router.navigate(['/chat-container', channel.channelId]);
+    } else {
+      this.chatSelected.emit(channel.channelId);
     }
   }
 
@@ -360,10 +360,10 @@ export class MainMenuComponent implements OnInit {
 
     this.channelDirectMessageData.setSelectedDirectMessage(user);
     this.closeNewMessage.emit();
-    if (window.innerWidth >= 800) {
-      this.chatSelected.emit(conversation.id);
-    } else {
+    if (window.innerWidth < 800) {
       this.router.navigate(['/chat-container', conversation.id]);
+    } else {
+      this.chatSelected.emit(conversation.id);
     }
   }
 

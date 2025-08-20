@@ -21,6 +21,7 @@ export const routes: Routes = [
   { path: 'newPassword', component: NewPasswordComponent },
   { path: 'singIn/chooseAvatar', component: ChooseAvatarPageComponent },
   { path: 'main', component: MainContentComponent },
+  { path: 'main-menu', component: MainMenuComponent },
   { path: 'legalNotice', component: LegalNoticeComponent },
   { path: 'privacyPolicy', component: PrivacyPolicyComponent },
   { path: 'addChannelDialog', component: AddChannelDialogComponent },

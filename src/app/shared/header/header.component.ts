@@ -15,7 +15,7 @@ import { SearchComponent } from '../search/search.component';
     SearchComponent
   ],
   templateUrl: './header.component.html',
-  styleUrl: './header.component.scss'
+  styleUrls: ['./header.component.scss', './header.media-query.component.scss']
 })
 export class HeaderComponent {
   @Input() currentUser!: appUser | null;
