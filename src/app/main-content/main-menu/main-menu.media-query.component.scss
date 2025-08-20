@@ -1,14 +1,10 @@
 @use "./../../../styles.scss" as *;
 
 @media screen and (min-height: 840px) {
-    // .main-header {
-    //     display: none;
-    // }
-
     .menu {
         border-radius: 30px;
-            height: calc(100vh - 130px);
-
+        padding-bottom: 42px;
+        height: calc(100vh - 170px);
     }
 }
 
