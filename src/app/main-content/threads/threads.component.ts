@@ -47,7 +47,7 @@ export class ThreadsComponent implements OnInit, OnChanges {
   private userSession = inject(SessionService);
   private elementRef = inject(ElementRef);
 
-  @ViewChild('chatField') chatField!: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('chatFieldThread') chatFieldRef!: ElementRef<HTMLTextAreaElement>;
   @ViewChild('chatBody') chatBodyRef!: ElementRef;
 
   currentUser: appUser | null = null;
@@ -118,6 +118,14 @@ export class ThreadsComponent implements OnInit, OnChanges {
       }
     }
   }
+
+  ngAfterViewInit() {
+  this.chatUIService.setChatContext(
+    this.chatFieldRef,
+    () => this.chatMessage,
+    (msg) => this.chatMessage = msg
+  );
+}
 
   private async loadThreadData(): Promise<void> {
     if (!this.threadId || !this.selectedChannel?.channelId) {
@@ -235,13 +243,22 @@ export class ThreadsComponent implements OnInit, OnChanges {
   }
 
   private focusChatInput(): void {
-    if (this.chatField) {
-      this.chatField.nativeElement.focus();
+    if (this.chatFieldRef) {
+      this.chatFieldRef.nativeElement.focus();
     }
   }
 
   triggerMention(): void {
     this.chatUIService.triggerMention(this.selectedChannel?.channelId);
   }
+
+  setActiveChatField() {
+  this.chatUIService.setChatContext(
+    this.chatFieldRef,
+    () => this.chatMessage,
+    (msg) => this.chatMessage = msg
+  );
+}
+
 }
 

@@ -179,12 +179,12 @@
     messages.length === 0) {
     <div class="self-chat-placeholder">
       <div class="self-chat-info">
-         <img
-        [src]="'./assets/img/avatar/' + currentUser?.profilePic + '.png'"
-        alt="User Avatar"
-        aria-hidden="true"
-      />
-        <p class="nuito18px700">{{currentUser?.userName}} (Du)</p>
+        <img
+          [src]="'./assets/img/avatar/' + currentUser?.profilePic + '.png'"
+          alt="User Avatar"
+          aria-hidden="true"
+        />
+        <p class="nuito18px700">{{ currentUser?.userName }} (Du)</p>
       </div>
       <div class="self-chat-text">
         <p class="nuito17px400 first">Dieser Raum ist nur für dich da.</p>
@@ -202,7 +202,7 @@
     <mat-card class="chat-card" appearance="outlined">
       <textarea
         [(ngModel)]="chatMessage"
-        id="chat-field"
+        (focus)="setActiveChatField()"
         #chatField
         (keydown)="checkMentionTrigger($event)"
         [placeholder]="

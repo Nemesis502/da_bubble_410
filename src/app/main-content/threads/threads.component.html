@@ -44,9 +44,9 @@
   <section class="chat-interface">
     <mat-card class="chat-card" appearance="outlined">
       <textarea
+       (focus)="setActiveChatField()"
         [(ngModel)]="chatMessage"
-        id="chat-field"
-        #chatField
+        #chatFieldThread
         placeholder="Antworten..."
       ></textarea>
 

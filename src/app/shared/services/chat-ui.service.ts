@@ -45,13 +45,18 @@ export class ChatUIService {
   private _emojiPickerVisible = new BehaviorSubject<boolean>(false);
   emojiPickerVisible$ = this._emojiPickerVisible.asObservable();
 
-  private _pickerPosition = new BehaviorSubject<PickerPosition>({ top: 0, left: 0 });
+  private _pickerPosition = new BehaviorSubject<PickerPosition>({
+    top: 0,
+    left: 0,
+  });
   pickerPosition$ = this._pickerPosition.asObservable();
 
   private mentionableUsers: any[] = [];
   private allChannels: any[] = [];
-
-  constructor() { }
+  private _activeChatFieldRef: ElementRef<HTMLTextAreaElement> | null = null;
+  private _activeMessageGetter: (() => string) | null = null;
+  private _activeMessageSetter: ((msg: string) => void) | null = null;
+  constructor() {}
 
   /**
    * Initializes the service with references to the component's DOM and state.
@@ -63,7 +68,7 @@ export class ChatUIService {
     getChatMessage: () => string,
     setChatMessage: (msg: string) => void
   ): void {
-    console.log("was das: ",chatField);
+    console.log('was das: ', chatField);
     this.chatFieldRef = chatField;
     this.componentElementRef = componentElement;
     this.getChatMessage = getChatMessage;
@@ -90,7 +95,7 @@ export class ChatUIService {
         panelClass: 'top-right-dialog-panel',
         data: {
           source: 'main-menu',
-        }
+        },
       });
     }
   }
@@ -105,7 +110,10 @@ export class ChatUIService {
     });
   }
 
-  openProfileDialog(user: appUser | null, loggedUserId: string | undefined): void {
+  openProfileDialog(
+    user: appUser | null,
+    loggedUserId: string | undefined
+  ): void {
     this.dialog.open(ProfilDialogComponent, {
       maxWidth: '90vw',
       panelClass: 'bottom-dialog-panel',
@@ -115,7 +123,11 @@ export class ChatUIService {
 
   // --- Mention & Hashtag Functions ---
 
-  async handleChatInput(event: KeyboardEvent, chatMessage: string, channelId: string): Promise<void> {
+  async handleChatInput(
+    event: KeyboardEvent,
+    chatMessage: string,
+    channelId: string
+  ): Promise<void> {
     const char = event.key;
     this.setChatMessage(chatMessage); // Ensure service has latest message
 
@@ -136,7 +148,9 @@ export class ChatUIService {
   async fetchMentionableUsers(channelId: string): Promise<void> {
     if (!channelId) return;
     try {
-      this.mentionableUsers = await this.mentionService.fetchMentionableUsers(channelId);
+      this.mentionableUsers = await this.mentionService.fetchMentionableUsers(
+        channelId
+      );
       this._filteredMentionableUsers.next(this.mentionableUsers); // Update filtered list initially
     } catch (error) {
       console.error('Error fetching mentionable users:', error);
@@ -153,11 +167,15 @@ export class ChatUIService {
   }
 
   private filterMentionableUsers(term: string): void {
-    this._filteredMentionableUsers.next(this.mentionService.filterUsers(this.mentionableUsers, term));
+    this._filteredMentionableUsers.next(
+      this.mentionService.filterUsers(this.mentionableUsers, term)
+    );
   }
 
   private filterChannels(term: string): void {
-    this._filteredChannels.next(this.mentionService.filterChannels(this.allChannels, term));
+    this._filteredChannels.next(
+      this.mentionService.filterChannels(this.allChannels, term)
+    );
   }
 
   selectMentionUser(userName: string): void {
@@ -193,7 +211,8 @@ export class ChatUIService {
     const hashIndex = textBefore.lastIndexOf('#');
     if (hashIndex === -1) return;
 
-    const newText = textBefore.slice(0, hashIndex) + `#${channelName} ` + textAfter;
+    const newText =
+      textBefore.slice(0, hashIndex) + `#${channelName} ` + textAfter;
     this.setChatMessage(newText);
 
     const newCursorPos = hashIndex + channelName.length + 2;
@@ -208,7 +227,11 @@ export class ChatUIService {
     const textarea = this.chatFieldRef?.nativeElement;
     if (!textarea) return null;
     const cursorPos = textarea.selectionStart;
-    return this.mentionService.getCurrentTriggerTerm(this.getChatMessage(), cursorPos, triggerChar);
+    return this.mentionService.getCurrentTriggerTerm(
+      this.getChatMessage(),
+      cursorPos,
+      triggerChar
+    );
   }
 
   async triggerMention(channelId: string): Promise<void> {
@@ -223,7 +246,7 @@ export class ChatUIService {
       this.removeMentionSymbol(cursorPos);
     } else {
       this.insertMentionSymbol(cursorPos);
-      await this.fetchMentionableUsers(channelId); 
+      await this.fetchMentionableUsers(channelId);
     }
   }
 
@@ -317,24 +340,25 @@ export class ChatUIService {
     }
   }
 
-  addEmoji(emoji: string): void {
-    console.log(this.chatFieldRef);
-    
-    if (this.chatFieldRef) {
-      const textarea = this.chatFieldRef.nativeElement;
-      const cursorPos = textarea.selectionStart;
-      const textBefore = this.getChatMessage().slice(0, cursorPos);
-      const textAfter = this.getChatMessage().slice(cursorPos);
-      this.setChatMessage(`${textBefore}${emoji}${textAfter}`);
-      textarea.focus();
-      setTimeout(() => {
-        textarea.setSelectionRange(
-          cursorPos + emoji.length,
-          cursorPos + emoji.length
-        );
-      }, 0);
-    }
+addEmoji(emoji: string): void {
+  if (this._activeChatFieldRef && this._activeMessageGetter && this._activeMessageSetter) {
+    const textarea = this._activeChatFieldRef.nativeElement;
+    const cursorPos = textarea.selectionStart;
+    const textBefore = this._activeMessageGetter().slice(0, cursorPos);
+    const textAfter = this._activeMessageGetter().slice(cursorPos);
+
+    this._activeMessageSetter(`${textBefore}${emoji}${textAfter}`);
+    textarea.focus();
+
+    setTimeout(() => {
+      textarea.setSelectionRange(
+        cursorPos + emoji.length,
+        cursorPos + emoji.length
+      );
+    }, 0);
   }
+}
+
 
   onPickerClosed(): void {
     this._emojiPickerVisible.next(false);
@@ -355,5 +379,15 @@ export class ChatUIService {
     ) {
       this._emojiPickerVisible.next(false);
     }
+  }
+
+  setChatContext(
+    chatFieldRef: ElementRef<HTMLTextAreaElement>,
+    getMessage: () => string,
+    setMessage: (msg: string) => void
+  ) {
+    this._activeChatFieldRef = chatFieldRef;
+    this._activeMessageGetter = getMessage;
+    this._activeMessageSetter = setMessage;
   }
 }

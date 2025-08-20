@@ -64,7 +64,7 @@ export class ChatTemplateComponent implements AfterViewInit {
   private elementRef = inject(ElementRef);
 
   // View Children
-  @ViewChild('chatField') chatField!: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('chatField') chatFieldRef!: ElementRef<HTMLTextAreaElement>;
   @ViewChild('chatBody') private chatBodyRef!: ElementRef;
 
   // Component State (reduced)
@@ -106,11 +106,16 @@ export class ChatTemplateComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.chatUIService.init(
-      this.chatField,
+      this.chatFieldRef,
       this.hostEl,
       () => this.chatMessage,
       (m) => this.chatMessage = m
     );
+    this.chatUIService.setChatContext(
+    this.chatFieldRef,
+    () => this.chatMessage,
+    (msg) => this.chatMessage = msg
+  );
   }
 
   async ngOnInit(): Promise<void> {
@@ -342,8 +347,8 @@ export class ChatTemplateComponent implements AfterViewInit {
   }
 
   focusChatInput(): void {
-    if (this.chatField) {
-      this.chatField.nativeElement.focus();
+    if (this.chatFieldRef) {
+      this.chatFieldRef.nativeElement.focus();
     }
   }
 
@@ -372,4 +377,11 @@ export class ChatTemplateComponent implements AfterViewInit {
     }
   }
 
+  setActiveChatField() {
+  this.chatUIService.setChatContext(
+    this.chatFieldRef,
+    () => this.chatMessage,
+    (msg) => this.chatMessage = msg
+  );
+}
 }
