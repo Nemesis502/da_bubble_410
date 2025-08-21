@@ -109,7 +109,7 @@ export class FirestoreService {
     return doc(this.firestore, 'channels', channelId);
   }
 
-   getChannelMembers(channelId: string): Observable<any[]> {
+  getChannelMembers(channelId: string): Observable<any[]> {
     const channelRef = this.getChannelDocRef(channelId);
     return docData(channelRef).pipe(
       map(channelData => channelData?.['members'] || [])

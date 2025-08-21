@@ -30,6 +30,7 @@ export class ChatTemplateContainerComponent implements OnInit {
 
     // Subscribe to the active thread message from service so container keeps track
     this.chatService.activeThreadMessage$.subscribe((msg) => {
+      console.log(msg);
       this.activeThreadMessageId = msg?.id ?? null;
     });
   }
@@ -37,8 +38,10 @@ export class ChatTemplateContainerComponent implements OnInit {
   // Called when main chat triggers opening a thread
   onOpenThread(messageId: string): void {
     this.activeThreadMessageId = messageId;
+    console.log(this.isMobile);
     // Also tell service to open thread view (non-mobile forces open here)
     if (!this.isMobile) {
+      
       this.chatService.openThread(messageId, false);
     }
   }

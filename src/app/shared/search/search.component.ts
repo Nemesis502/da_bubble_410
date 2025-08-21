@@ -15,6 +15,7 @@ import { onSnapshot } from 'firebase/firestore';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { firstValueFrom } from 'rxjs';
+import { Q } from '@angular/cdk/keycodes';
 
 @Component({
   selector: 'app-search',
@@ -79,49 +80,51 @@ export class SearchComponent {
 
   async ngOnInit(): Promise<void> {
     const sessionUser = this.userSession.getCurrentUser();
+    if (sessionUser?.id == "Guest") {
+      this.gastLogin = true;
+    } else {
+      if (!this.gastLogin && sessionUser && !this.currentLoginId) {
+        this.currentUser = sessionUser;
+        this.currentLoginId = sessionUser.id!;
+        this.currentLoginEmail = sessionUser.email!;
+        this.subCurrentUser();
+        this.directMessageService.setCurrentUser(this.currentUser);
 
-    if (!this.gastLogin && sessionUser && !this.currentLoginId) {
-      this.currentUser = sessionUser;
-      this.currentLoginId = sessionUser.id!;
-      this.currentLoginEmail = sessionUser.email!;
-      this.subCurrentUser();
-      this.directMessageService.setCurrentUser(this.currentUser);
+        await this.directMessageService.ensureSelfConversationExists();
+      }
 
-      await this.directMessageService.ensureSelfConversationExists();
-    }
+      if (!this.gastLogin && this.currentLoginId) {
+        await this.getCurrentUserLogIn();
+        console.log('current User', this.currentUser);
+        this.searchService.setCurrentUserId(this.currentLoginId);
+      }
 
-    if (!this.gastLogin && this.currentLoginId) {
-      await this.getCurrentUserLogIn();
-      console.log('current User', this.currentUser);
-      this.searchService.setCurrentUserId(this.currentLoginId);
-    }
-
-    if (!this.gastLogin) {
-      this.firestoreService.getChannels().subscribe((c) => {
-        this.channels = c;
-        this.userChannels = c.filter((channel) =>
-          channel.members.includes(this.currentLoginId)
-        );
-        this.searchService.setFirestoreChannels(c);
-      });
-
-      this.getAllUsers();
-
-      this.firestoreService
-        .getConversationsByUserId(this.currentLoginId)
-        .subscribe((conv) => {
-          this.directMessages = conv;
-          this.filterDirectMessageUsers();
-          this.searchService.setDirectMessagePartnerIds(
-            this.directMessages,
-            this.currentLoginId
+      if (!this.gastLogin) {
+        this.firestoreService.getChannels().subscribe((c) => {
+          this.channels = c;
+          this.userChannels = c.filter((channel) =>
+            channel.members.includes(this.currentLoginId)
           );
-
-          this.updateFilteredResults();
+          this.searchService.setFirestoreChannels(c);
         });
-    }
 
-    this.updateFilteredResults();
+        this.getAllUsers();
+
+        this.firestoreService
+          .getConversationsByUserId(this.currentLoginId)
+          .subscribe((conv) => {
+            this.directMessages = conv;
+            this.filterDirectMessageUsers();
+            this.searchService.setDirectMessagePartnerIds(
+              this.directMessages,
+              this.currentLoginId
+            );
+
+            this.updateFilteredResults();
+          });
+      }
+    }
+    // this.updateFilteredResults();
   }
 
   async getCurrentUserLogIn() {
@@ -254,20 +257,35 @@ export class SearchComponent {
 
   private filterAsGuest(query: string, isChannel: boolean, isDirect: boolean): void {
     if (isChannel) {
-      this.filteredChannels = this.channelDirectMessageData
-        .getChannels()
-        .filter((c) => c.name.toLowerCase().startsWith(query));
+      this.loadGuestChannel(query)
       this.filteredDirectMessages = [];
     } else if (isDirect) {
-      this.filteredDirectMessages = this.channelDirectMessageData
-        .getDirectMessagesForGast()
-        .filter((dm) => dm.name.toLowerCase().startsWith(query));
+      this.loadGuestDM(query)
       this.filteredChannels = [];
     } else {
-      this.filteredChannels = this.searchService.filterFirestoreChannels(query);
-      this.filteredDirectMessages =
-        this.searchService.filterFirestoreDirectMessages(query);
+      this.loadGuestDMAndChannel(query)
     }
+  }
+
+  loadGuestChannel(query: string) {
+    this.filteredChannels = this.channelDirectMessageData
+      .getChannels()
+      .filter((c) => c.name.toLowerCase().startsWith(query));
+  }
+
+  loadGuestDM(query: string) {
+    this.filteredDirectMessages = this.channelDirectMessageData
+      .getDirectMessagesForGast()
+      .filter((dm) => dm.name.toLowerCase().startsWith(query));
+  }
+
+  loadGuestDMAndChannel(query: string) {
+    this.filteredChannels = this.channelDirectMessageData
+      .getChannels()
+      .filter((c) => c.name.toLowerCase().startsWith(query));
+    this.filteredDirectMessages = this.channelDirectMessageData
+      .getDirectMessagesForGast()
+      .filter((dm) => dm.name.toLowerCase().startsWith(query));
   }
 
   ngOnDestroy() {

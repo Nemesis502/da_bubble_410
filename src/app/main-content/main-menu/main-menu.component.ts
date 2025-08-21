@@ -104,7 +104,8 @@ export class MainMenuComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     const sessionUser = this.userSession.getCurrentUser();
-
+    console.log(sessionUser, "Desktop");
+    
     if (!this.gastLogin && sessionUser && !this.currentLoginId) {
       this.currentUser = sessionUser;
       this.currentLoginId = sessionUser.id!;

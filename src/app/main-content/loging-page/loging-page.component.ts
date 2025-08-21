@@ -68,8 +68,6 @@ export class LogingPageComponent {
   }
 
   updateErrorMessagePassword() {
-    console.log(this.password);
-
     if (this.password.hasError('required')) {
       this.errorMessagePassword = 'Bitte geben Sie ein Passwort ein';
     } else if (this.password.hasError('falsePassword')) {

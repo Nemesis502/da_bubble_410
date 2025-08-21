@@ -68,7 +68,6 @@ export class ChatUIService {
     getChatMessage: () => string,
     setChatMessage: (msg: string) => void
   ): void {
-    console.log('was das: ', chatField);
     this.chatFieldRef = chatField;
     this.componentElementRef = componentElement;
     this.getChatMessage = getChatMessage;
