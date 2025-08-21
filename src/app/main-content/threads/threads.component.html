@@ -44,6 +44,7 @@
   <section class="chat-interface">
     <mat-card class="chat-card" appearance="outlined">
       <textarea
+      (keydown)="checkMentionTriggerThread($event)"
        (focus)="setActiveChatField()"
         [(ngModel)]="chatMessage"
         #chatFieldThread

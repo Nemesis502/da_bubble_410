@@ -384,3 +384,12 @@ img {
   top: 18%;
   left: 24%;
 }
+
+@media screen and (min-width: 1000px) {
+  .chat-header {
+    height: 100px;
+    p, span{
+      font-size: 28px !important;
+    }
+  }
+}
