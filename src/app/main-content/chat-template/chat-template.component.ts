@@ -26,6 +26,11 @@ import { SessionService } from '../../shared/services/currentUserSession.service
 import { appUser } from '../../interfaces/user.interface';
 import { map, startWith } from 'rxjs/operators';
 import { FirestoreService } from '../../shared/services/firestore.service';
+import {
+  ChannelsDirectMessageService,
+  DirectMessage,
+} from '../../shared/services/channels-direct-message.service';
+import { Channel } from '../../interfaces/channel.interface';
 interface PickerPosition {
   top: number;
   left: number;
@@ -95,7 +100,11 @@ export class ChatTemplateComponent implements AfterViewInit {
   messages: any[] = [];
   width: number = window.innerWidth;
 
-  constructor(private firestoreService: FirestoreService, private hostEl: ElementRef,) {
+  constructor(
+    private firestoreService: FirestoreService,
+    private hostEl: ElementRef,
+    private channelDirectMessageData: ChannelsDirectMessageService
+  ) {
     // this.chatUIService.init(
     //   this.chatField,
     //   this.elementRef,
@@ -109,18 +118,65 @@ export class ChatTemplateComponent implements AfterViewInit {
       this.chatFieldRef,
       this.hostEl,
       () => this.chatMessage,
-      (m) => this.chatMessage = m
+      (m) => (this.chatMessage = m)
     );
     this.chatUIService.setChatContext(
-    this.chatFieldRef,
-    () => this.chatMessage,
-    (msg) => this.chatMessage = msg
-  );
+      this.chatFieldRef,
+      () => this.chatMessage,
+      (msg) => (this.chatMessage = msg)
+    );
   }
 
   async ngOnInit(): Promise<void> {
     this.currentUser = this.userSession.getCurrentUser();
     this.isMobile = this.width < 999;
+    this.channelDirectMessageData.selectedGuestDirectMessage$.subscribe(
+      (guestUser: DirectMessage | null) => {
+        if (guestUser) {
+          this.otherUser = {
+            id: 'guest_' + guestUser.name.replace(/\s+/g, '_'),
+            userName: guestUser.name,
+            profilePic: parseInt(guestUser.img.replace('.png', ''), 10),
+            status: guestUser.status === 'online',
+            email:
+              guestUser.name.replace(/\s+/g, '.').toLowerCase() +
+              '@guest.local',
+          } as appUser,
+          this.chatIsConversation = true;
+          this.chatIsChannel = false;
+          this.chatIsThread = false;
+          this.updateChatContext();
+
+          setTimeout(() => {
+            this.scrollToBottom();
+            this.focusChatInput();
+          }, 100);
+        }
+      }
+    );
+    this.channelDirectMessageData.selectedGuestChannel$.subscribe(
+  (channel: Channel | null) => {
+    if (channel) {
+      console.log(channel)
+      this.otherUser = null; 
+            this.messages$ = of([
+        {
+          text: `Willkommen im Channel #${channel.name}`,
+          senderID: 'system',
+          timestamp: { seconds: Date.now() / 1000 },
+        },
+      ]);
+      this.chatIsChannel = true;
+      this.chatIsConversation = false;
+      this.chatIsThread = false;
+      this.updateChatContext();
+
+      setTimeout(() => {
+        this.scrollToBottom();
+        this.focusChatInput();
+      }, 100);
+    }
+  });
     if (this.threadId) {
       this.isThreadView = true;
       await this.chatService.initializeChat(
@@ -134,9 +190,9 @@ export class ChatTemplateComponent implements AfterViewInit {
 
     this.messages$ = this.isThreadView
       ? this.chatService.threadMessages$.pipe(
-        map((messages) => messages ?? []),
-        startWith([])
-      )
+          map((messages) => messages ?? []),
+          startWith([])
+        )
       : this.chatService.messages$;
 
     this.chatService.isThread$.subscribe((isThread) => {
@@ -193,7 +249,10 @@ export class ChatTemplateComponent implements AfterViewInit {
   async ngOnChanges(changes: SimpleChanges) {
     if (changes['threadId'] && this.threadId) {
       this.isThreadView = true;
-      await this.chatService.initializeChat(this.threadId, this.currentUser?.id);
+      await this.chatService.initializeChat(
+        this.threadId,
+        this.currentUser?.id
+      );
       this.messages$ = this.chatService.threadMessages$.pipe(
         map((messages) => messages ?? []),
         startWith([])
@@ -213,7 +272,7 @@ export class ChatTemplateComponent implements AfterViewInit {
 
     this.updateChatContext();
   }
-  
+
   // Message Sending & Editing
   async sendMessage(): Promise<void> {
     const messageText = this.chatMessage.trim();
@@ -378,10 +437,10 @@ export class ChatTemplateComponent implements AfterViewInit {
   }
 
   setActiveChatField() {
-  this.chatUIService.setChatContext(
-    this.chatFieldRef,
-    () => this.chatMessage,
-    (msg) => this.chatMessage = msg
-  );
-}
+    this.chatUIService.setChatContext(
+      this.chatFieldRef,
+      () => this.chatMessage,
+      (msg) => (this.chatMessage = msg)
+    );
+  }
 }

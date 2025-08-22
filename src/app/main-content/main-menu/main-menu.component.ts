@@ -30,6 +30,7 @@ import { onSnapshot } from 'firebase/firestore';
 import { DirectMessageService } from '../../shared/services/direct-message.service';
 import { AddChannelDialogComponent } from '../../shared/dialogs/add-channel-dialog/add-channel-dialog.component';
 import { HeaderComponent } from '../../shared/header/header.component';
+import { Channel } from '../../interfaces/channel.interface';
 
 @Component({
   selector: 'app-main-menu',
@@ -386,9 +387,16 @@ export class MainMenuComponent implements OnInit {
     );
   }
 
-  selectDirectMessageGast(user: DirectMessage): void {
-    this.router.navigate(['/chat', user.name]);
-  }
+selectDirectMessageGast(user: DirectMessage): void {
+  this.channelDirectMessageData.setSelectedDirectMessageGast(user);
+  console.log(user)
+}
+
+selectGuestChannel(channel: Channel) {
+  this.channelDirectMessageData.setSelectedGuestChannel(channel);
+  console.log('Guest channel selected', channel);
+}
+
 
   openNewMessage(): void {
     this.newMessage.emit();

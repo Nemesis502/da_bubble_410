@@ -379,4 +379,20 @@ export class ChannelsDirectMessageService {
     const snap = await getDoc(channelRef);
     return snap.exists() ? { channelId, ...snap.data() } : null;
   }
+
+  private selectedGuestDirectMessageSource = new BehaviorSubject<DirectMessage | null>(null);
+selectedGuestDirectMessage$ = this.selectedGuestDirectMessageSource.asObservable();
+
+setSelectedDirectMessageGast(user: DirectMessage): void {
+  this.selectedGuestDirectMessageSource.next(user);
+}
+
+private selectedGuestChannelSource = new BehaviorSubject<Channel | null>(null);
+selectedGuestChannel$ = this.selectedGuestChannelSource.asObservable();
+
+setSelectedGuestChannel(channel: Channel) {
+  this.selectedGuestChannelSource.next(channel);
+}
+
+
 }

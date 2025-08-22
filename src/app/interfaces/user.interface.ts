@@ -3,5 +3,5 @@ export interface appUser {
     userName: string;
     profilePic: number;
     status: boolean;
-    email: string;
+    email?: string;
 }
