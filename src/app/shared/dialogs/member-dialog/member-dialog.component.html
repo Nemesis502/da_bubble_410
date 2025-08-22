@@ -37,12 +37,16 @@
     </mat-card-content>
     } @else {
     <mat-card-header class="member-dialog-header">
-        <mat-card-title class="nuito24px700">
+        <mat-card-title class="nuito24px700 title">
             Leute hinzufügen
+            <button mat-icon-button (click)="closeDialog()" aria-label="Close Member Dialog">
+                <mat-icon>close</mat-icon>
+            </button>
         </mat-card-title>
-        <button mat-icon-button (click)="closeDialog()" aria-label="Close Member Dialog">
-            <mat-icon>close</mat-icon>
-        </button>
+        <mat-card-subtitle class="channnel-name">
+            <mat-icon fontIcon="numbers"></mat-icon>
+            <p>{{ channel?.name}}</p>
+        </mat-card-subtitle>
     </mat-card-header>
     <mat-form-field class="add-people-input" appearance="fill">
         <mat-chip-grid #chipGrid aria-label="Leute hinzufügen">

@@ -88,6 +88,27 @@ input {
     align-items: center;
 }
 
+.title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 385px;
+}
+
+.channnel-name {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: $purple2;
+
+    p {
+        margin: 0;
+        font-family: "Nunito";
+        font-weight: 400;
+        font-size: 18px;
+    }
+}
+
 .members {
     display: grid;
     gap: 20px;
