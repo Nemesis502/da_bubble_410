@@ -104,14 +104,7 @@ export class ChatTemplateComponent implements AfterViewInit {
     private firestoreService: FirestoreService,
     private hostEl: ElementRef,
     private channelDirectMessageData: ChannelsDirectMessageService
-  ) {
-    // this.chatUIService.init(
-    //   this.chatField,
-    //   this.elementRef,
-    //   () => this.chatMessage,
-    //   (msg) => (this.chatMessage = msg)
-    // );
-  }
+  ) {}
 
   ngAfterViewInit() {
     this.chatUIService.init(
@@ -133,7 +126,7 @@ export class ChatTemplateComponent implements AfterViewInit {
     this.channelDirectMessageData.selectedGuestDirectMessage$.subscribe(
       (guestUser: DirectMessage | null) => {
         if (guestUser) {
-          this.otherUser = {
+          (this.otherUser = {
             id: 'guest_' + guestUser.name.replace(/\s+/g, '_'),
             userName: guestUser.name,
             profilePic: parseInt(guestUser.img.replace('.png', ''), 10),
@@ -141,8 +134,8 @@ export class ChatTemplateComponent implements AfterViewInit {
             email:
               guestUser.name.replace(/\s+/g, '.').toLowerCase() +
               '@guest.local',
-          } as appUser,
-          this.chatIsConversation = true;
+          } as appUser),
+            (this.chatIsConversation = true);
           this.chatIsChannel = false;
           this.chatIsThread = false;
           this.updateChatContext();
@@ -155,28 +148,33 @@ export class ChatTemplateComponent implements AfterViewInit {
       }
     );
     this.channelDirectMessageData.selectedGuestChannel$.subscribe(
-  (channel: Channel | null) => {
-    if (channel) {
-      console.log(channel)
-      this.otherUser = null; 
-            this.messages$ = of([
-        {
-          text: `Willkommen im Channel #${channel.name}`,
-          senderID: 'system',
-          timestamp: { seconds: Date.now() / 1000 },
-        },
-      ]);
-      this.chatIsChannel = true;
-      this.chatIsConversation = false;
-      this.chatIsThread = false;
-      this.updateChatContext();
+      (channel: Channel | null) => {
+        if (channel) {
+          this.otherUser = null;
+          this.messages$ = of([]);
+          this.chatIsChannel = true;
+          this.chatIsConversation = false;
+          this.chatIsThread = false;
+          this.selectedChannel = channel;
+          this.members =
+            channel.members?.map((id, index) => ({
+              id,
+              userName: id,
+              profilePic: index + 1, 
+              status: true,
+            })) || [];
+          this.updateChatContext();
+          this.chatService.isConversation = false;
+          this.chatService.isThread = false;
+          this.chatService['_selectedChannel'].next(channel);
 
-      setTimeout(() => {
-        this.scrollToBottom();
-        this.focusChatInput();
-      }, 100);
-    }
-  });
+          setTimeout(() => {
+            this.scrollToBottom();
+            this.focusChatInput();
+          }, 100);
+        }
+      }
+    );
     if (this.threadId) {
       this.isThreadView = true;
       await this.chatService.initializeChat(

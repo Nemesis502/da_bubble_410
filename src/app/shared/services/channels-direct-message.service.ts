@@ -52,8 +52,8 @@ export class ChannelsDirectMessageService {
     { name: 'Steffen Hoffmann', img: '4.png', status: 'online' },
   ];
   private channels: Channel[] = [
-    { channelId: 'T4GIOzIalU8W0In7whdV', name: 'Entwicklerteam', createdBy: 'NLErynp0gVTC1QIsBDnx', members: ['user1', 'user2', 'user3'], description: 'Channel des Entwicklerteams' },
-    { channelId: 'ABC123', name: 'Office-Team', createdBy: 'xyz', members: ['userA', 'userB'] },
+    { channelId: 'T4GIOzIalU8W0In7whdV', name: 'Entwicklerteam', createdBy: 'Elias Neumann', members: ['Frederik Beck', 'Steffen Hoffmann', 'Elias Neumann'], description: 'Channel des Entwicklerteams' },
+    { channelId: 'ABC123', name: 'Office-Team', createdBy: 'Noah Braun', members: ['Noah Braun', 'Frederik Beck'] },
   ];
 
   // --- Behavior Subjects for Selected Items ---
