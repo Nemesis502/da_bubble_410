@@ -59,10 +59,16 @@
                 </button>
             </mat-chip-row>
             }
+
             <input #inputField placeholder="Name eingeben" [matChipInputFor]="chipGrid"
                 [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="false"
+                (matChipInputTokenEnd)="addFromText($event)" [(ngModel)]="searchTerm" (ngModelChange)="filterUsers()"
+                [matAutocomplete]="auto" matAutocompletePosition="below" />
+
+            <!-- <input #inputField placeholder="Name eingeben" [matChipInputFor]="chipGrid"
+                [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="false"
                 (matChipInputTokenEnd)="addFromText($event)" (blur)="onInputBlur()" [(ngModel)]="searchTerm"
-                (ngModelChange)="filterUsers()" [matAutocomplete]="auto" matAutocompletePosition="below" />
+                (ngModelChange)="filterUsers()" [matAutocomplete]="auto" matAutocompletePosition="below" /> -->
         </mat-chip-grid>
         <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectUser($event.option.value)"
             (opened)="autocompleteOpened()" (closed)="autocompleteClosed()">

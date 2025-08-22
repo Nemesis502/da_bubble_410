@@ -9,7 +9,6 @@ import { SessionService } from '../../services/currentUserSession.service';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FirestoreService } from '../../services/firestore.service';
 import { firstValueFrom } from 'rxjs';
-import { MenuDialogComponent } from '../menu-dialog/menu-dialog.component';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
@@ -62,11 +61,6 @@ export class MemberDialogComponent {
     this.channelId = this.data.channelId;
     await this.loadChannel();
     await this.loadMembers();
-
-    // console.log('Channel ID:', this.channelId);
-    // console.log('Channel:', this.channel);
-    // console.log('Current User:', this.currentUser);
-    // console.log('Members:', this.members());
   }
 
   async loadChannel(): Promise<void> {
@@ -166,7 +160,7 @@ export class MemberDialogComponent {
   }
 
   filterUsers(): void {
-    const query = this.searchTerm.toLowerCase();
+    const query = (this.searchTerm || '').toString().toLowerCase();
     const membersInChannel = this.channelMembers();
 
     this.filteredUsers.set(
@@ -176,6 +170,12 @@ export class MemberDialogComponent {
         !membersInChannel.includes(user.id!)
       )
     );
+  }
+
+  onInputChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.searchTerm = (target.value ?? '').toString();
+    this.filterUsers();
   }
 
   selectUser(user: appUser): void {
@@ -189,7 +189,10 @@ export class MemberDialogComponent {
     this.searchTerm = '';
     this.filteredUsers.set(this.allUsers());
 
-    setTimeout(() => this.inputField?.nativeElement.focus(), 0);
+    if (this.inputField) {
+      this.inputField.nativeElement.value = '';
+      this.inputField.nativeElement.focus();
+    }
   }
 
   async addMembers(): Promise<void> {
