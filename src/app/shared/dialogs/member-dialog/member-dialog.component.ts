@@ -104,8 +104,8 @@ export class MemberDialogComponent {
   openAddPeopleDialog(): void {
     this.closeDialog();
     this.dialog.open(MemberDialogComponent, {
-      position: { top: '122px' },
-      width: '80vw',
+      position: { top: '190px', right: '45px' },
+      width: '415px',
       maxHeight: '75vh',
       panelClass: 'member-dialog',
       data: {

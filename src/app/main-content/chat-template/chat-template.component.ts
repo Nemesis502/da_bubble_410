@@ -343,6 +343,10 @@ export class ChatTemplateComponent implements AfterViewInit {
     this.chatUIService.openMemberDialog(this.selectedChannel?.channelId);
   }
 
+  openAddPeopleDialog(): void {
+    this.chatUIService.openAddPeopleDialog(this.selectedChannel?.channelId);
+  }
+
   openProfileDialogOtherUser(): void {
     this.chatUIService.openProfileDialog(this.otherUser, this.currentUser?.id);
   }

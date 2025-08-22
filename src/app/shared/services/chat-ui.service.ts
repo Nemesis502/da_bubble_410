@@ -56,18 +56,13 @@ export class ChatUIService {
   private _activeChatFieldRef: ElementRef<HTMLTextAreaElement> | null = null;
   private _activeMessageGetter: (() => string) | null = null;
   private _activeMessageSetter: ((msg: string) => void) | null = null;
-  constructor() {}
+  constructor() { }
 
   /**
    * Initializes the service with references to the component's DOM and state.
    * This is crucial for the service to interact with the component's input field.
    */
-  init(
-    chatField: ElementRef<HTMLTextAreaElement>,
-    componentElement: ElementRef,
-    getChatMessage: () => string,
-    setChatMessage: (msg: string) => void
-  ): void {
+  init(chatField: ElementRef<HTMLTextAreaElement>, componentElement: ElementRef, getChatMessage: () => string, setChatMessage: (msg: string) => void): void {
     this.chatFieldRef = chatField;
     this.componentElementRef = componentElement;
     this.getChatMessage = getChatMessage;
@@ -101,8 +96,8 @@ export class ChatUIService {
 
   openMemberDialog(channelId: string): void {
     this.dialog.open(MemberDialogComponent, {
-      position: { top: '122px' },
-      width: '80vw',
+      position: { top: '190px', right: '100px' },
+      width: '415px',
       maxHeight: '75vh',
       panelClass: 'member-dialog',
       data: { source: 'channel-chat', channelId: channelId },
@@ -117,6 +112,19 @@ export class ChatUIService {
       maxWidth: '90vw',
       panelClass: 'bottom-dialog-panel',
       data: { user: user, loggedUser: loggedUserId, isUser: false },
+    });
+  }
+
+  openAddPeopleDialog(channelId: string): void {
+    this.dialog.open(MemberDialogComponent, {
+      position: { top: '190px', right: '45px' },
+      width: '415px',
+      maxHeight: '75vh',
+      panelClass: 'member-dialog',
+      data: {
+        source: 'add-members',
+        channelId: channelId
+      }
     });
   }
 
@@ -339,25 +347,24 @@ export class ChatUIService {
     }
   }
 
-addEmoji(emoji: string): void {
-  if (this._activeChatFieldRef && this._activeMessageGetter && this._activeMessageSetter) {
-    const textarea = this._activeChatFieldRef.nativeElement;
-    const cursorPos = textarea.selectionStart;
-    const textBefore = this._activeMessageGetter().slice(0, cursorPos);
-    const textAfter = this._activeMessageGetter().slice(cursorPos);
+  addEmoji(emoji: string): void {
+    if (this._activeChatFieldRef && this._activeMessageGetter && this._activeMessageSetter) {
+      const textarea = this._activeChatFieldRef.nativeElement;
+      const cursorPos = textarea.selectionStart;
+      const textBefore = this._activeMessageGetter().slice(0, cursorPos);
+      const textAfter = this._activeMessageGetter().slice(cursorPos);
 
-    this._activeMessageSetter(`${textBefore}${emoji}${textAfter}`);
-    textarea.focus();
+      this._activeMessageSetter(`${textBefore}${emoji}${textAfter}`);
+      textarea.focus();
 
-    setTimeout(() => {
-      textarea.setSelectionRange(
-        cursorPos + emoji.length,
-        cursorPos + emoji.length
-      );
-    }, 0);
+      setTimeout(() => {
+        textarea.setSelectionRange(
+          cursorPos + emoji.length,
+          cursorPos + emoji.length
+        );
+      }, 0);
+    }
   }
-}
-
 
   onPickerClosed(): void {
     this._emojiPickerVisible.next(false);
