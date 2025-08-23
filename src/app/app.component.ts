@@ -29,7 +29,6 @@ export class AppComponent implements OnDestroy {
       .pipe(takeUntilDestroyed())
       .subscribe(async (inactive) => {
         if (!inactive) return;
-
         const uid = this.session.getCurrentUser()?.id;
         await this.account.logoutAndMarkOffline(uid);
         this.showAutoLogoutInfo = true;

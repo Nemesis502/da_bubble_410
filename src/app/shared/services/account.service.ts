@@ -10,13 +10,17 @@ export class AccountService {
   private router = inject(Router);
 
   async logoutAndMarkOffline(userId?: string) {
-    try {
-      await this.auth.logout();
-      if (userId) {
-        await this.users.updateUserStatusFalse(userId);
-      }
-    } finally {
+    if (userId === 'Guest') {
       this.router.navigate(['/']);
+    } else {
+      try {
+        await this.auth.logout();
+        if (userId) {
+          await this.users.updateUserStatusFalse(userId);
+        }
+      } finally {
+        this.router.navigate(['/']);
+      }
     }
   }
 }

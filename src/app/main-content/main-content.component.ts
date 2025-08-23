@@ -13,7 +13,6 @@ import { FirestoreService } from '../shared/services/firestore.service';
 import { Router } from '@angular/router';
 import { ThreadsComponent } from './threads/threads.component';
 import { NewMessageComponent } from "./new-message/new-message.component";
-import { ChannelsDirectMessageService } from '../shared/services/channels-direct-message.service';
 
 @Component({
   selector: 'app-main-content',
@@ -47,22 +46,8 @@ export class MainContentComponent {
   showMainMenu = true;
   showThread = false;
 
-  constructor(private userSession: SessionService, private router: Router, private channelService: ChannelsDirectMessageService) {
-    // const navigation = this.router.getCurrentNavigation();
-    // const state = navigation?.extras.state as {
-    //   loginEmail: string;
-    //   loginId: string;
-    // };
-    // if (state) {
-    //   if (state.loginId == 'Guest') {
-    //     this.gastLogin = true;
-    //     this.loadGuestData();
-    //     this.userSession.setCurrentUser(this.currentUser!);
-    //   } else {
-    //     this.loadUserData(state);
-    //     // this.unsubCurrentUser = this.subCurrentUser();
-    //   }
-    // }
+  constructor(private userSession: SessionService, private router: Router) {
+
   }
 
   ngOnInit(): void {

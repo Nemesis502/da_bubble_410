@@ -10,6 +10,7 @@ export class SessionService {
     setCurrentUser(currentUser: appUser) {
         this.currentLogingUser.next(currentUser);
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        
     }
 
     getCurrentUser(): appUser | null {
