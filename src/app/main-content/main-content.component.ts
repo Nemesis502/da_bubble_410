@@ -13,6 +13,8 @@ import { FirestoreService } from '../shared/services/firestore.service';
 import { Router } from '@angular/router';
 import { ThreadsComponent } from './threads/threads.component';
 import { NewMessageComponent } from "./new-message/new-message.component";
+import { UserService } from '../shared/services/user.services';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-main-content',
@@ -45,22 +47,38 @@ export class MainContentComponent {
   gastLogin = false;
   showMainMenu = true;
   showThread = false;
+  currentUser$ = this.userSession.currentLogingUser$;
 
-  constructor(private userSession: SessionService, private router: Router) {
-
+  constructor(private userSession: SessionService, private router: Router, private userService: UserService) {
+    const navigation = this.router.getCurrentNavigation();
+    const state = navigation?.extras.state as {
+      loginEmail: string;
+      loginId: string;
+    };
+    if (state) {
+      if (state.loginId == 'Guest') {
+        this.gastLogin = true;
+        this.loadGuestData();
+        this.userSession.setCurrentUser(this.currentUser!);
+      } else {
+        this.loadUserData(state);
+      }
+    }
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    await this.getCurrentUserLogIn()
     this.currentUser = this.userSession.getCurrentUser();
-    // console.log(this.currentUser);
     this.currentLoginId = this.currentUser?.id ?? '';
-    if (this.currentLoginId == "Guest") {
-      // this.userChannels = this.channelService.channels
-      // console.log(this.userChannels);
+    this.loadAllChannels();
+  }
 
-    } else {
-      this.loadAllChannels();
-    }
+  async getCurrentUserLogIn() {
+    let userData = await firstValueFrom(
+      this.firestoreService.getUserById(this.currentLoginId)
+    );
+    this.currentUser = this.userService.setUserObject(userData, userData?.id);
+    this.userSession.setCurrentUser(this.currentUser);
   }
 
   loadAllChannels(): void {

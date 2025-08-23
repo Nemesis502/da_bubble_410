@@ -70,7 +70,6 @@ export class SearchComponent {
       if (state.loginId == 'Guest') {
         this.gastLogin = true;
         this.loadGuestData();
-        this.userSession.setCurrentUser(this.currentUser!);
       } else {
         this.loadUserData(state);
         this.unsubCurrentUser = this.subCurrentUser();
@@ -133,7 +132,7 @@ export class SearchComponent {
       this.firestoreService.getUserById(this.currentLoginId)
     );
     this.currentUser = this.userService.setUserObject(userData, userData?.id);
-    this.userSession.setCurrentUser(this.currentUser);
+    // this.userSession.setCurrentUser(this.currentUser);
   }
 
   loadGuestData() {
@@ -164,7 +163,7 @@ export class SearchComponent {
           userData,
           this.currentLoginId
         );
-        this.userSession.setCurrentUser(user);
+        // this.userSession.setCurrentUser(user);
         this.currentUser = user;
         this.getAllUsers();
         this.cdr.detectChanges();

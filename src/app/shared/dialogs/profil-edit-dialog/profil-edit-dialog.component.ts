@@ -37,15 +37,27 @@ export class ProfilEditDialogComponent {
     this.dialogRef.close();
   }
 
-  saveNewUserName() {
-    if (this.currentUser?.id == 'Guest') {
-      this.currentUser.userName = this.newName;
-      this.userSession.setCurrentUser(this.currentUser!);
-      this.dialogRef.close();
-    } else {
-      this.userService.updateUserName(this.currentUser?.id!, this.newName).then(() =>
-        this.dialogRef.close()
-      )
+  // saveNewUserName() {
+  //   if (this.currentUser?.id == 'Guest') {
+  //     this.currentUser.userName = this.newName;
+  //     this.dialogRef.close();
+  //   } else {
+  //     this.userService.updateUserName(this.currentUser?.id!, this.newName).then(() =>
+  //       this.dialogRef.close()
+  //     )
+  //   }
+  // }
+
+  async saveNewUserName() {
+    if (!this.currentUser) return;
+    const updated: appUser = { ...this.currentUser, userName: this.newName };
+
+    if (this.currentUser.id !== 'Guest') {
+      await this.userService.updateUserName(this.currentUser.id!, this.newName);
     }
+
+    this.userSession.setCurrentUser(updated);
+
+    this.dialogRef.close(updated);
   }
 }

@@ -1,4 +1,4 @@
-<app-header [currentUser]="currentUser"></app-header>
+<app-header [currentUser]="(currentUser$ | async)"></app-header>
 
 <section class="main">
   <button class="show-main-menu" (click)="showMainMenu = !showMainMenu">
