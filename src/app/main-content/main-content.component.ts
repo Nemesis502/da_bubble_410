@@ -12,7 +12,7 @@ import { SearchService } from '../shared/services/search.service';
 import { FirestoreService } from '../shared/services/firestore.service';
 import { Router } from '@angular/router';
 import { ThreadsComponent } from './threads/threads.component';
-import { NewMessageComponent } from "./new-message/new-message.component";
+import { NewMessageComponent } from './new-message/new-message.component';
 import { UserService } from '../shared/services/user.services';
 import { firstValueFrom } from 'rxjs';
 
@@ -27,14 +27,13 @@ import { firstValueFrom } from 'rxjs';
     ChatTemplateComponent,
     HeaderComponent,
     ThreadsComponent,
-    NewMessageComponent
+    NewMessageComponent,
   ],
   templateUrl: './main-content.component.html',
   styleUrls: ['./main-content.component.scss'],
 })
 export class MainContentComponent {
   readonly searchService = inject(SearchService);
-  readonly firestoreService = inject(FirestoreService);
 
   currentUser: appUser | null = null;
   channels: any[] = [];
@@ -49,7 +48,12 @@ export class MainContentComponent {
   showThread = false;
   currentUser$ = this.userSession.currentLogingUser$;
 
-  constructor(private userSession: SessionService, private router: Router, private userService: UserService) {
+  constructor(
+    private userSession: SessionService,
+    private router: Router,
+    private userService: UserService,
+    private firestoreService: FirestoreService
+  ) {
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras.state as {
       loginEmail: string;
@@ -67,7 +71,10 @@ export class MainContentComponent {
   }
 
   async ngOnInit(): Promise<void> {
-    await this.getCurrentUserLogIn()
+    await this.firestoreService.deleteGuestChannels();
+    await this.firestoreService.deleteGuestConversations();
+    await this.firestoreService.deleteGuestMessages();
+    await this.getCurrentUserLogIn();
     this.currentUser = this.userSession.getCurrentUser();
     this.currentLoginId = this.currentUser?.id ?? '';
     this.loadAllChannels();
@@ -83,9 +90,7 @@ export class MainContentComponent {
 
   loadAllChannels(): void {
     this.firestoreService.getChannels().subscribe(
-
       (channels) => {
-
         console.log('Firestore channels:', channels);
         this.channels = channels;
 
@@ -97,8 +102,8 @@ export class MainContentComponent {
 
         this.userChannels = this.currentLoginId
           ? channels.filter((channel) =>
-            channel.members?.includes(this.currentLoginId)
-          )
+              channel.members?.includes(this.currentLoginId)
+            )
           : channels.slice();
 
         this.searchService.setFirestoreChannels(channels);
@@ -167,7 +172,7 @@ export class MainContentComponent {
       this.router.navigate(['/new-message', this.currentUser?.id]);
     } else {
       this.showNewMessage = true;
-      console.log('triggered', this.showNewMessage)
+      console.log('triggered', this.showNewMessage);
     }
   }
 
