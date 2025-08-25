@@ -59,6 +59,8 @@ export class MemberDialogComponent {
   async ngOnInit(): Promise<void> {
     this.currentUser = this.userSession.getCurrentUser();
     this.channelId = this.data.channelId;
+    console.log(this.currentUser?.id);
+    
     await this.loadChannel();
     await this.loadMembers();
   }

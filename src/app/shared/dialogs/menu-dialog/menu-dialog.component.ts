@@ -128,13 +128,14 @@ export class MenuDialogComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
+    if (this.currentUser?.id == "Guest") {
+      this.isGastLogin = true;
+    }
     await this.loadUsers();
-
     if (this.data.source === 'add-channel') {
       this.channelName = this.data.channelName || '';
       this.channelDescription = this.data.channelDescription || '';
     }
-
     if (this.data.source === 'channel-info') {
       this.channelId = this.data.channelId;
       await this.loadChannelMembers();
@@ -271,7 +272,6 @@ export class MenuDialogComponent implements OnInit {
   filterUsers(): void {
     const query = (this.searchTerm || '').toString().toLowerCase();
     const membersInChannel = this.channelMembers();
-
     this.filteredUsers.set(
       this.allUsers().filter(user =>
         user.userName.toLowerCase().startsWith(query) &&
