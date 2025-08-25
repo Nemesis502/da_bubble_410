@@ -105,7 +105,7 @@ export class MainMenuComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     const sessionUser = this.userSession.getCurrentUser();
-    
+
     if (!this.gastLogin && sessionUser && !this.currentLoginId) {
       this.currentUser = sessionUser;
       this.currentLoginId = sessionUser.id!;
@@ -386,13 +386,13 @@ export class MainMenuComponent implements OnInit {
     );
   }
 
-selectDirectMessageGast(user: DirectMessage): void {
-  this.channelDirectMessageData.setSelectedDirectMessageGast(user);
-}
+  selectDirectMessageGast(user: DirectMessage): void {
+    this.channelDirectMessageData.setSelectedDirectMessageGast(user);
+  }
 
-selectGuestChannel(channel: Channel): void {
-  this.channelDirectMessageData.setSelectedGuestChannel(channel);
-}
+  selectGuestChannel(channel: Channel): void {
+    this.channelDirectMessageData.setSelectedGuestChannel(channel);
+  }
 
   openNewMessage(): void {
     this.newMessage.emit();

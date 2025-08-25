@@ -8,7 +8,6 @@ import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MenuDialogComponent } from '../menu-dialog/menu-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
-import { timeout } from 'rxjs';
 
 @Component({
   selector: 'app-add-channel-dialog',

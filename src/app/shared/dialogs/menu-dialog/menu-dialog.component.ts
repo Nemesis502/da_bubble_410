@@ -274,31 +274,39 @@ export class MenuDialogComponent implements OnInit {
   }
 
   filterUsers(): void {
-    const query = this.searchTerm.toLowerCase();
+    const query = (this.searchTerm || '').toString().toLowerCase();
     const membersInChannel = this.channelMembers();
 
     this.filteredUsers.set(
-      this.allUsers().filter(
-        (user) =>
-          user.userName.toLowerCase().startsWith(query) &&
-          !this.peoples().some((p) => p.userName === user.userName) &&
-          !membersInChannel.includes(user.id!)
+      this.allUsers().filter(user =>
+        user.userName.toLowerCase().startsWith(query) &&
+        !this.peoples().some(p => p.userName === user.userName) &&
+        !membersInChannel.includes(user.id!)
       )
     );
   }
 
+  onInputChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.searchTerm = (target.value ?? '').toString();
+    this.filterUsers();
+  }
+
   selectUser(user: appUser): void {
     if (
-      !this.peoples().some((p) => p.userName === user.userName) &&
+      !this.peoples().some(p => p.userName === user.userName) &&
       !this.channelMembers().includes(user.id!)
     ) {
-      this.peoples.update((peoples) => [...peoples, user]);
+      this.peoples.update(peoples => [...peoples, user]);
     }
 
     this.searchTerm = '';
     this.filteredUsers.set(this.allUsers());
 
-    setTimeout(() => this.inputField?.nativeElement.focus(), 0);
+    if (this.inputField) {
+      this.inputField.nativeElement.value = '';
+      this.inputField.nativeElement.focus();
+    }
   }
 
   addFromText(event: MatChipInputEvent): void {
