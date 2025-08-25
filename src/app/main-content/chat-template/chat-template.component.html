@@ -302,12 +302,14 @@
   @if (isChannelInfoOpen && isMobile) {
   <app-channel-info
     class="channel-info"
+    [channelId]="selectedChannel?.channelId"
     (closeChannelInfo)="isChannelInfoOpen = false"
   ></app-channel-info>
   } @if (isChannelInfoOpen && !isMobile) {
   <section class="channel-dialog">
     <app-channel-info
       class="channel-info-desktop"
+      [channelId]="selectedChannel?.channelId"
       (closeChannelInfo)="isChannelInfoOpen = false"
     ></app-channel-info>
   </section>
