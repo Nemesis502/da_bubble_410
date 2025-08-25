@@ -88,7 +88,8 @@
           <div class="channel-list" id="channel-list">
             @if (gastLogin) {
             @for (channel of channelDirectMessageData.getChannels(); track channel) {
-            <div class="channel-item" (click)="selectGuestChannel(channel)">
+             
+            <div [ngClass]="{ 'd-none': channel.channelId === 'sJuCZwfLcDL9vhADHGB0' }" class="channel-item" (click)="selectGuestChannel(channel)">
               <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
               <p class="nuito17px400">{{ channel.name }}</p>
             </div>
