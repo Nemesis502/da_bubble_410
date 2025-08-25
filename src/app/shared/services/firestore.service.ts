@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { collection, collectionData, docData, Firestore } from '@angular/fire/firestore';
-import { addDoc, doc, getDoc, getDocs, limit, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
+import { addDoc, deleteDoc, doc, getDoc, getDocs, limit, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
 import { map, Observable } from 'rxjs';
 import { Channel } from '../../interfaces/channel.interface';
 
@@ -120,5 +120,45 @@ export class FirestoreService {
     return collectionData(collection(this.firestore, 'users'), { idField: 'id' }).pipe(
       map(users => users.filter(user => userIds.includes(user.id)))
     );
+  }
+async deleteGuestChannels(): Promise<void> {
+  const channelsRef = collection(this.firestore, 'channels');
+  const q = query(channelsRef, where('createdBy', '==', 'Guest'));
+  const snapshot = await getDocs(q);
+
+  const deletePromises = snapshot.docs.map(docSnap => deleteDoc(docSnap.ref));
+
+  await Promise.all(deletePromises);
+}
+
+async deleteGuestConversations(): Promise<void> {
+  const conversationsRef = collection(this.firestore, 'conversations');
+  const q = query(conversationsRef, where('participants', 'array-contains', 'Guest'));
+  const snapshot = await getDocs(q);
+
+  const deletePromises = snapshot.docs.map(docSnap => deleteDoc(docSnap.ref));
+
+  await Promise.all(deletePromises);
+}
+
+/** Deletes all messages sent by "Guest" under all channels */
+  async deleteGuestMessages(): Promise<void> {
+    const channelsRef = collection(this.firestore, 'channels');
+    const channelsSnap = await getDocs(channelsRef);
+
+    let totalDeleted = 0;
+
+    for (const channelDoc of channelsSnap.docs) {
+      const messagesRef = collection(this.firestore, `channels/${channelDoc.id}/messages`);
+      const messagesSnap = await getDocs(messagesRef);
+
+      const guestMessages = messagesSnap.docs.filter(msgDoc => msgDoc.data()['senderID'] === 'Guest');
+
+      const deletePromises = guestMessages.map(msgDoc => deleteDoc(msgDoc.ref));
+
+      await Promise.all(deletePromises);
+
+      totalDeleted += deletePromises.length;
+    }
   }
 }

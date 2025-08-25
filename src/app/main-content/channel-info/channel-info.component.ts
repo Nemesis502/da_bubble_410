@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, OnInit, Output, Renderer2, signal } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, Renderer2, signal, SimpleChanges } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -36,8 +36,7 @@ export class ChannelInfoComponent implements OnInit {
   readonly document = inject(DOCUMENT);
   readonly dialog = inject(MatDialog);
   readonly userSession = inject(SessionService);
-
-  channelId = '';
+@Input() channelId: string = '';
   channel: Channel | null = null;
   members = signal<appUser[]>([]);
   currentUser: appUser | null = null;
@@ -54,13 +53,20 @@ export class ChannelInfoComponent implements OnInit {
 
   constructor(private renderer: Renderer2) { }
 
-  async ngOnInit(): Promise<void> {
-    this.isMobile = this.width < 999;
+  async ngOnChanges(changes: SimpleChanges) {
+    if (changes['channelId'] && this.channelId) {
+      await this.loadChannel();
+      await this.loadMembers();
+    }
+  }
+
+  async ngOnInit() {
     this.currentUser = this.userSession.getCurrentUser();
-    this.channelId = this.route.snapshot.paramMap.get('id') || '';
-    this.renderer.setStyle(document.body, 'overflow', 'hidden');
-    await this.loadChannel();
-    await this.loadMembers();
+    this.isMobile = this.width < 999;
+    if (this.channelId) {
+      await this.loadChannel();
+      await this.loadMembers();
+    }
   }
 
   @Output() closeChannelInfo = new EventEmitter<string>();

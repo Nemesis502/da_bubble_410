@@ -1,10 +1,11 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, HostListener, inject, Input } from '@angular/core';
 import { MenuDialogComponent } from '../dialogs/menu-dialog/menu-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { appUser } from '../../interfaces/user.interface';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { SearchComponent } from '../search/search.component';
+import { LogoComponent } from '../logo/logo.component';
 
 @Component({
   selector: 'app-header',
@@ -19,11 +20,9 @@ import { SearchComponent } from '../search/search.component';
 })
 export class HeaderComponent {
   @Input() currentUser!: appUser | null;
-
   readonly dialog = inject(MatDialog);
 
   screenSmall = window.innerWidth < 800;
-
   openMenuDialog(): void {
     if (this.screenSmall) {
       this.dialog.open(MenuDialogComponent, {
@@ -47,5 +46,4 @@ export class HeaderComponent {
       });
     }
   }
-
 }

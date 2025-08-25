@@ -126,8 +126,11 @@ export class ChatTemplateComponent implements AfterViewInit {
     this.channelDirectMessageData.selectedGuestDirectMessage$.subscribe(
       (guestUser: DirectMessage | null) => {
         if (guestUser) {
+          this.selectedChannel = null;
+          this.messages$ = of([]);
+          this.messages = [];
           (this.otherUser = {
-            id: 'guest_' + guestUser.name.replace(/\s+/g, '_'),
+            id: guestUser.id,
             userName: guestUser.name,
             profilePic: parseInt(guestUser.img.replace('.png', ''), 10),
             status: guestUser.status === 'online',
@@ -138,6 +141,7 @@ export class ChatTemplateComponent implements AfterViewInit {
             (this.chatIsConversation = true);
           this.chatIsChannel = false;
           this.chatIsThread = false;
+                console.log( this.otherUser)
           this.updateChatContext();
 
           setTimeout(() => {
@@ -148,26 +152,25 @@ export class ChatTemplateComponent implements AfterViewInit {
       }
     );
     this.channelDirectMessageData.selectedGuestChannel$.subscribe(
-      (channel: Channel | null) => {
-        if (channel) {
+      async (channel: Channel | null) => {
+        if (channel && channel.channelId) {
           this.otherUser = null;
-          this.messages$ = of([]);
-          this.chatIsChannel = true;
           this.chatIsConversation = false;
           this.chatIsThread = false;
           this.selectedChannel = channel;
+          await this.chatService.initializeChat(
+            channel.channelId,
+            this.currentUser?.id
+          );
+          this.messages$ = this.chatService.messages$;
           this.members =
             channel.members?.map((id, index) => ({
               id,
               userName: id,
-              profilePic: index + 1, 
+              profilePic: index + 1,
               status: true,
             })) || [];
           this.updateChatContext();
-          this.chatService.isConversation = false;
-          this.chatService.isThread = false;
-          this.chatService['_selectedChannel'].next(channel);
-
           setTimeout(() => {
             this.scrollToBottom();
             this.focusChatInput();

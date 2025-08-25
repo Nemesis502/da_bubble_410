@@ -12,8 +12,9 @@ import { SearchService } from '../shared/services/search.service';
 import { FirestoreService } from '../shared/services/firestore.service';
 import { Router } from '@angular/router';
 import { ThreadsComponent } from './threads/threads.component';
-import { NewMessageComponent } from "./new-message/new-message.component";
-import { ChannelsDirectMessageService } from '../shared/services/channels-direct-message.service';
+import { NewMessageComponent } from './new-message/new-message.component';
+import { UserService } from '../shared/services/user.services';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-main-content',
@@ -26,14 +27,13 @@ import { ChannelsDirectMessageService } from '../shared/services/channels-direct
     ChatTemplateComponent,
     HeaderComponent,
     ThreadsComponent,
-    NewMessageComponent
+    NewMessageComponent,
   ],
   templateUrl: './main-content.component.html',
   styleUrls: ['./main-content.component.scss'],
 })
 export class MainContentComponent {
   readonly searchService = inject(SearchService);
-  readonly firestoreService = inject(FirestoreService);
 
   currentUser: appUser | null = null;
   channels: any[] = [];
@@ -46,43 +46,51 @@ export class MainContentComponent {
   gastLogin = false;
   showMainMenu = true;
   showThread = false;
+  currentUser$ = this.userSession.currentLogingUser$;
 
-  constructor(private userSession: SessionService, private router: Router, private channelService: ChannelsDirectMessageService) {
-    // const navigation = this.router.getCurrentNavigation();
-    // const state = navigation?.extras.state as {
-    //   loginEmail: string;
-    //   loginId: string;
-    // };
-    // if (state) {
-    //   if (state.loginId == 'Guest') {
-    //     this.gastLogin = true;
-    //     this.loadGuestData();
-    //     this.userSession.setCurrentUser(this.currentUser!);
-    //   } else {
-    //     this.loadUserData(state);
-    //     // this.unsubCurrentUser = this.subCurrentUser();
-    //   }
-    // }
+  constructor(
+    private userSession: SessionService,
+    private router: Router,
+    private userService: UserService,
+    private firestoreService: FirestoreService
+  ) {
+    const navigation = this.router.getCurrentNavigation();
+    const state = navigation?.extras.state as {
+      loginEmail: string;
+      loginId: string;
+    };
+    if (state) {
+      if (state.loginId == 'Guest') {
+        this.gastLogin = true;
+        this.loadGuestData();
+        this.userSession.setCurrentUser(this.currentUser!);
+      } else {
+        this.loadUserData(state);
+      }
+    }
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    await this.firestoreService.deleteGuestChannels();
+    await this.firestoreService.deleteGuestConversations();
+    await this.firestoreService.deleteGuestMessages();
+    await this.getCurrentUserLogIn();
     this.currentUser = this.userSession.getCurrentUser();
-    // console.log(this.currentUser);
     this.currentLoginId = this.currentUser?.id ?? '';
-    if (this.currentLoginId == "Guest") {
-      // this.userChannels = this.channelService.channels
-      // console.log(this.userChannels);
+    this.loadAllChannels();
+  }
 
-    } else {
-      this.loadAllChannels();
-    }
+  async getCurrentUserLogIn() {
+    let userData = await firstValueFrom(
+      this.firestoreService.getUserById(this.currentLoginId)
+    );
+    this.currentUser = this.userService.setUserObject(userData, userData?.id);
+    this.userSession.setCurrentUser(this.currentUser);
   }
 
   loadAllChannels(): void {
     this.firestoreService.getChannels().subscribe(
-
       (channels) => {
-
         console.log('Firestore channels:', channels);
         this.channels = channels;
 
@@ -94,8 +102,8 @@ export class MainContentComponent {
 
         this.userChannels = this.currentLoginId
           ? channels.filter((channel) =>
-            channel.members?.includes(this.currentLoginId)
-          )
+              channel.members?.includes(this.currentLoginId)
+            )
           : channels.slice();
 
         this.searchService.setFirestoreChannels(channels);
@@ -164,7 +172,7 @@ export class MainContentComponent {
       this.router.navigate(['/new-message', this.currentUser?.id]);
     } else {
       this.showNewMessage = true;
-      console.log('triggered', this.showNewMessage)
+      console.log('triggered', this.showNewMessage);
     }
   }
 

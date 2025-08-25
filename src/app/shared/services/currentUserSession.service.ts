@@ -4,6 +4,7 @@ import { appUser } from "../../interfaces/user.interface";
 
 @Injectable({ providedIn: 'root' })
 export class SessionService {
+    currentUser: appUser | null = null;
     private currentLogingUser = new BehaviorSubject<appUser | null>(null);
     currentLogingUser$ = this.currentLogingUser.asObservable();
 
@@ -18,5 +19,10 @@ export class SessionService {
             this.currentLogingUser.next(JSON.parse(local));
         }
         return this.currentLogingUser.value;
+    }
+
+    setBehaviorNull() {
+        this.currentLogingUser.next(null);
+        localStorage.removeItem('currentUser');
     }
 }

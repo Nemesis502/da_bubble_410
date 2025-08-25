@@ -9,6 +9,7 @@ import { appUser } from '../../interfaces/user.interface';
 import { Reactions } from '../../interfaces/reactions.interface';
 
 export interface DirectMessage {
+  id?: string;
   name: string;
   img: string;
   status: string;
@@ -44,16 +45,16 @@ export class ChannelsDirectMessageService {
   // --- Static Data (Consider if these should be dynamic) ---
   private channelsForGast: string[] = ['Entwicklerteam', 'Office-Team'];
   private directMessagesForGast: DirectMessage[] = [
-    { name: 'Frederik Beck (Du)', img: '3.png', status: 'online' },
-    { name: 'Sofia Müller', img: '5.png', status: 'online' },
-    { name: 'Noah Braun', img: '6.png', status: 'online' },
-    { name: 'Elise Roth', img: '1.png', status: 'offline' },
-    { name: 'Elias Neumann', img: '2.png', status: 'online' },
-    { name: 'Steffen Hoffmann', img: '4.png', status: 'online' },
+    {id:'Guest' ,name: 'Frederik Beck (Du)', img: '3.png', status: 'online' },
+    {id:'Sofia Müller', name: 'Sofia Müller', img: '5.png', status: 'online' },
+    {id:'Noah Braun', name: 'Noah Braun', img: '6.png', status: 'online' },
+    {id:'Elise Roth', name: 'Elise Roth', img: '1.png', status: 'offline' },
+    {id:'Elias Neumann', name: 'Elias Neumann', img: '2.png', status: 'online' },
+    {id:'Steffen Hoffmann', name: 'Steffen Hoffmann', img: '4.png', status: 'online' },
   ];
   private channels: Channel[] = [
-    { channelId: 'T4GIOzIalU8W0In7whdV', name: 'Entwicklerteam', createdBy: 'Elias Neumann', members: ['Frederik Beck', 'Steffen Hoffmann', 'Elias Neumann'], description: 'Channel des Entwicklerteams' },
-    { channelId: 'ABC123', name: 'Office-Team', createdBy: 'Noah Braun', members: ['Noah Braun', 'Frederik Beck'] },
+    { channelId: 'T4GIOzIalU8W0In7whdV', name: 'Entwicklerteam', createdBy: 'nQcydaYrtaiEfAkF7OyI', members: ['OIS2pHHhsKb7e0CSqCxKY6Bf7Yq2', 'tjZvScWKW7N2J5evnGCWnd9XUTF3', 'tiuC8xjLkZdjJRcMPij79utbPE12', 'nQcydaYrtaiEfAkF7OyI', 'Guest'], description: 'Channel des Entwicklerteams' },
+    { channelId: 'sJuCZwfLcDL9vhADHGB0', name: 'Office-Team', createdBy: 'nQcydaYrtaiEfAkF7OyI', members: ['Guest', 'nQcydaYrtaiEfAkF7OyI', 'tiuC8xjLkZdjJRcMPij79utbPE12'], description: 'Channel des Officeteams' },
   ];
 
   // --- Behavior Subjects for Selected Items ---

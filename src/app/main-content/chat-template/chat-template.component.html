@@ -108,6 +108,7 @@
     </button>
     } -->
     <div class="chat-header-members">
+       @if (chatIsChannel && !chatIsConversation){
       <div class="member-display" (click)="openMemberDialog()">
         <!-- Show first 3 profile pics -->
         <ng-container *ngFor="let member of members; let i = index">
@@ -123,7 +124,7 @@
         <span class="member-count nuito18px700" *ngIf="members.length > 0">
           {{ members.length }}
         </span>
-      </div>
+      </div>}
       @if (chatIsChannel && !chatIsConversation){
       <button class="add-user-button" (click)="openAddPeopleDialog()">
         <mat-icon class="mat-icon-top" fontIcon="person_add_alt"></mat-icon>
@@ -301,12 +302,14 @@
   @if (isChannelInfoOpen && isMobile) {
   <app-channel-info
     class="channel-info"
+    [channelId]="selectedChannel?.channelId"
     (closeChannelInfo)="isChannelInfoOpen = false"
   ></app-channel-info>
   } @if (isChannelInfoOpen && !isMobile) {
   <section class="channel-dialog">
     <app-channel-info
       class="channel-info-desktop"
+      [channelId]="selectedChannel?.channelId"
       (closeChannelInfo)="isChannelInfoOpen = false"
     ></app-channel-info>
   </section>

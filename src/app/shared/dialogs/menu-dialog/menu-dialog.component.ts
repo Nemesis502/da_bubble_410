@@ -157,13 +157,8 @@ export class MenuDialogComponent implements OnInit {
   }
 
   logout(): void {
-    if (this.currentUser?.id === 'Guest') {
-      this.router.navigate(['/']);
-      this.closeDialog();
-    } else {
-      this.account.logoutAndMarkOffline(this.currentUser?.id!)
-      this.closeDialog();
-    }
+    this.account.logoutAndMarkOffline(this.currentUser?.id!)
+    this.closeDialog();
   }
 
   // Add-Channel

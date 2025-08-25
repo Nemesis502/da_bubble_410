@@ -95,7 +95,7 @@ export class MainMenuComponent implements OnInit {
       if (state.loginId == 'Guest') {
         this.gastLogin = true;
         this.loadGuestData();
-        this.userSession.setCurrentUser(this.currentUser!);
+       this.userSession.setCurrentUser(this.currentUser!);
       } else {
         this.loadUserData(state);
         this.unsubCurrentUser = this.subCurrentUser();
@@ -176,7 +176,7 @@ export class MainMenuComponent implements OnInit {
           userData,
           this.currentLoginId
         );
-        this.userSession.setCurrentUser(user);
+       // this.userSession.setCurrentUser(user);
         this.currentUser = user;
         this.getAllUsers();
         this.cdr.detectChanges();
