@@ -97,9 +97,14 @@
           </button>
         </div>
         <div class="button-right">
+          @if(!editedMessage){
           <button (click)="sendMessage()">
-            <mat-icon fontIcon="send"></mat-icon>
-          </button>
+            <mat-icon fontIcon="send"></mat-icon></button
+          >} 
+          @if (editedMessage){
+            <button class="nuito18px700 abr-button" (click)="stopEditing()">Abbrechen</button>
+            <button class="nuito18px700 save-button" (click)="sendMessage()">Speichern</button>
+          }
         </div>
       </mat-card-actions>
     </mat-card>

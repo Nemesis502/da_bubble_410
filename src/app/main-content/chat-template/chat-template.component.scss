@@ -156,7 +156,7 @@ img {
     padding-left: 20px;
     padding-right: 20px;
     justify-content: space-between;
-
+    padding-bottom: 10px;
     button {
       border: 0;
       cursor: pointer;
@@ -472,7 +472,24 @@ img {
   color: $purple2;
   padding-left: 0px;
   padding-right: 0px;
-  &:hover{
+  &:hover {
     color: $purple1;
   }
+}
+
+.abr-button {
+  background-color: white;
+  color: $purple1;
+  outline: 2px solid $purple1;
+  border-radius: 20px;
+  padding: 10px;
+  margin-right: 16px;
+}
+
+.save-button {
+  background-color: $purple1 !important;
+  color: white;
+  outline: 2px solid $purple1;
+  border-radius: 20px;
+  padding: 10px;
 }

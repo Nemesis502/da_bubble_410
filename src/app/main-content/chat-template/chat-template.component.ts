@@ -309,6 +309,12 @@ export class ChatTemplateComponent implements AfterViewInit {
     this.focusChatInput();
   }
 
+  stopEditing(): void {
+  this.editedMessage = null;   
+  this.chatMessage = '';       
+  this.focusChatInput();       
+}
+
   // Thread Handling
   handleReplyToMessage(messageId: string): void {
     console.log(messageId);

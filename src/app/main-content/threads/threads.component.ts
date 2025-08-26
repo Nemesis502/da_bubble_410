@@ -1,4 +1,3 @@
-
 import {
   Component,
   ElementRef,
@@ -72,7 +71,7 @@ export class ThreadsComponent implements OnInit, OnChanges {
       this.selectedChannel = channel;
       this.threadUIService.fetchMentionableUsers(channel?.channelId);
       this.threadUIService.fetchAllChannels();
-      
+
       // If we have both channel and threadId, load the thread data
       if (channel && this.threadId) {
         this.loadThreadData();
@@ -118,21 +117,20 @@ export class ThreadsComponent implements OnInit, OnChanges {
     }
   }
 
-ngAfterViewInit() {
-  this.threadUIService.init(
-    this.chatFieldRef,
-    this.elementRef, 
-    () => this.chatMessage,
-    (msg) => (this.chatMessage = msg)
-  );
+  ngAfterViewInit() {
+    this.threadUIService.init(
+      this.chatFieldRef,
+      this.elementRef,
+      () => this.chatMessage,
+      (msg) => (this.chatMessage = msg)
+    );
 
-  this.threadUIService.setChatContext(
-    this.chatFieldRef,
-    () => this.chatMessage,
-    (msg) => (this.chatMessage = msg)
-  );
-}
-
+    this.threadUIService.setChatContext(
+      this.chatFieldRef,
+      () => this.chatMessage,
+      (msg) => (this.chatMessage = msg)
+    );
+  }
 
   private async loadThreadData(): Promise<void> {
     if (!this.threadId || !this.selectedChannel?.channelId) {
@@ -142,19 +140,19 @@ ngAfterViewInit() {
 
     console.log('Loading thread data for:', {
       threadId: this.threadId,
-      channelId: this.selectedChannel.channelId
+      channelId: this.selectedChannel.channelId,
     });
 
     try {
       this.chatService.activeThreadMessageId = this.threadId;
 
       await this.chatService.setActiveThreadMessage(
-        this.selectedChannel.channelId, 
+        this.selectedChannel.channelId,
         this.threadId
       );
 
       this.chatService.loadThreadMessages(
-        this.selectedChannel.channelId, 
+        this.selectedChannel.channelId,
         this.threadId
       );
     } catch (error) {
@@ -194,6 +192,12 @@ ngAfterViewInit() {
   startEditingMessage(message: any): void {
     this.chatMessage = message.text;
     this.editedMessage = message;
+    this.focusChatInput();
+  }
+
+  stopEditing(): void {
+    this.editedMessage = null;
+    this.chatMessage = '';
     this.focusChatInput();
   }
 
@@ -257,12 +261,10 @@ ngAfterViewInit() {
   }
 
   setActiveChatField() {
-  this.threadUIService.setChatContext(
-    this.chatFieldRef,
-    () => this.chatMessage,
-    (msg) => this.chatMessage = msg
-  );
+    this.threadUIService.setChatContext(
+      this.chatFieldRef,
+      () => this.chatMessage,
+      (msg) => (this.chatMessage = msg)
+    );
+  }
 }
-
-}
-

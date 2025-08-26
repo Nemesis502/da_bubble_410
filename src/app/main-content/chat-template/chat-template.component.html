@@ -108,7 +108,7 @@
     </button>
     } -->
     <div class="chat-header-members">
-       @if (chatIsChannel && !chatIsConversation){
+      @if (chatIsChannel && !chatIsConversation){
       <div class="member-display" (click)="openMemberDialog()">
         <!-- Show first 3 profile pics -->
         <ng-container *ngFor="let member of members; let i = index">
@@ -124,8 +124,8 @@
         <span class="member-count nuito18px700" *ngIf="members.length > 0">
           {{ members.length }}
         </span>
-      </div>}
-      @if (chatIsChannel && !chatIsConversation){
+      </div>
+      } @if (chatIsChannel && !chatIsConversation){
       <button class="add-user-button" (click)="openAddPeopleDialog()">
         <mat-icon class="mat-icon-top" fontIcon="person_add_alt"></mat-icon>
       </button>
@@ -210,10 +210,10 @@
       <div class="self-chat-text">
         <p class="nuito17px400">
           Diese unterhaltung findet nur zwischen
-          <button class="other-user-dm " (click)="openProfileDialogOtherUser()">
-           &#64;{{ otherUser?.userName }}
+          <button class="other-user-dm" (click)="openProfileDialogOtherUser()">
+            &#64;{{ otherUser?.userName }}
           </button>
-          und dir statt. 
+          und dir statt.
         </p>
       </div>
     </div>
@@ -282,9 +282,14 @@
           </button>
         </div>
         <div class="button-right">
+          @if(!editedMessage){
           <button (click)="sendMessage()">
-            <mat-icon fontIcon="send"></mat-icon>
-          </button>
+            <mat-icon fontIcon="send"></mat-icon></button
+          >} 
+          @if (editedMessage){
+            <button class="nuito18px700 abr-button" (click)="stopEditing()">Abbrechen</button>
+            <button class="nuito18px700 save-button" (click)="sendMessage()">Speichern</button>
+          }
         </div>
       </mat-card-actions>
     </mat-card>

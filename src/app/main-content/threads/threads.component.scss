@@ -385,6 +385,24 @@ img {
   left: 24%;
 }
 
+.abr-button {
+  background-color: white;
+  color: $purple1;
+  outline: 2px solid $purple1;
+  border-radius: 20px;
+  padding: 10px;
+  margin-right: 16px;
+}
+
+.save-button {
+  background-color: $purple1 !important;
+  color: white;
+  outline: 2px solid $purple1;
+  border-radius: 20px;
+  padding: 10px;
+}
+
+
 @media screen and (min-width: 1000px) {
   .chat-header {
     height: 100px;
