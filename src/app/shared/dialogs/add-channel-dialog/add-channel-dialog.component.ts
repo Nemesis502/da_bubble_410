@@ -53,7 +53,11 @@ export class AddChannelDialogComponent {
   }
 
   goToMain(): void {
-    this.router.navigate(['/main']);
+     if (this.screenWidth < 800) {
+      this.router.navigate(['/main-menu']);
+     } else {
+         this.router.navigate(['/main']);
+     }
     this.dialog.closeAll();
   }
 

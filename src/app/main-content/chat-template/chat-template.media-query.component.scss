@@ -1,6 +1,6 @@
 @use "./../../../styles.scss" as *;
 
-@media screen and (min-height: 840px) {
+@media screen and (min-height: 1000px) {
   .comp-body {
     border-radius: 30px;
     height: calc(100vh - 130px);
@@ -22,6 +22,40 @@
     p,
     span {
       font-size: 28px !important;
+    }
+  }
+}
+
+@media screen and (max-width: 999px) {
+  .channel-name {
+    span {
+      font-size: 18px !important;
+    }
+  }
+
+  .member-display {
+    height: 40px;
+    .member-avatar {
+      height: 30px;
+      width: 30px;
+    }
+  }
+}
+
+@media screen and (max-width: 800px) {
+  .abr-button {
+    font-size: 14px !important;
+  }
+
+  .save-button {
+    font-size: 14px !important;
+  }
+}
+
+@media screen and (max-width: 380px) {
+  .chat-header {
+    .channel-button {
+      margin-left: 0;
     }
   }
 }

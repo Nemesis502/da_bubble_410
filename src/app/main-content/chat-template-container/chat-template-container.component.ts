@@ -3,11 +3,19 @@ import { ChatService } from '../../shared/services/chat.service';
 import { Observable } from 'rxjs';
 import { ChatTemplateComponent } from '../chat-template/chat-template.component';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-chat-template-container',
   standalone: true,
-  templateUrl: './chat-template-container.component.html',
+  template: `
+    <app-chat-template
+      [chatId]="chatId"
+      [threadId]="activeThreadMessageId"
+      (threadOpened)="onOpenThread($event)"
+      (threadClosed)="activeThreadMessageId = null"
+    ></app-chat-template>
+  `,
   styleUrls: ['./chat-template-container.component.scss'],
   imports: [ChatTemplateComponent, CommonModule],
 })
@@ -15,8 +23,12 @@ export class ChatTemplateContainerComponent implements OnInit {
   isMobile: boolean = window.innerWidth < 999;
   threadIsOpen$: Observable<boolean>;
   activeThreadMessageId: string | null = null;
+  chatId: string | null = null;
 
-  constructor(private chatService: ChatService) {
+  constructor(
+    private chatService: ChatService,
+    private route: ActivatedRoute
+  ) {
     this.threadIsOpen$ = this.chatService.isThread$;
   }
 
@@ -28,20 +40,19 @@ export class ChatTemplateContainerComponent implements OnInit {
   ngOnInit(): void {
     this.onResize();
 
-    // Subscribe to the active thread message from service so container keeps track
+    this.route.paramMap.subscribe((params) => {
+      this.chatId = params.get('id');
+      console.log('ChatTemplateContainer chatId:', this.chatId);
+    });
+
     this.chatService.activeThreadMessage$.subscribe((msg) => {
-      console.log(msg);
       this.activeThreadMessageId = msg?.id ?? null;
     });
   }
 
-  // Called when main chat triggers opening a thread
   onOpenThread(messageId: string): void {
     this.activeThreadMessageId = messageId;
-    console.log(this.isMobile);
-    // Also tell service to open thread view (non-mobile forces open here)
     if (!this.isMobile) {
-      
       this.chatService.openThread(messageId, false);
     }
   }

@@ -341,7 +341,7 @@ export class ChatTemplateComponent implements AfterViewInit {
 
   // Navigation & Dialogs (delegated to ChatUIService)
   navigateToMain(): void {
-    this.router.navigate(['/main']);
+    this.router.navigate(['/main-menu']);
   }
 
   openMenuDialog(): void {
