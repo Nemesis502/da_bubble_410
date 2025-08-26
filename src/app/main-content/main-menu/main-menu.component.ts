@@ -77,7 +77,6 @@ export class MainMenuComponent implements OnInit {
   currentUser: appUser | null = null;
   allDirectMessages: appUser[] = [];
   directMessages: any[] = [];
-  isDemoChannelVisi: boolean = false;
   unsubCurrentUser;
 
   constructor(

@@ -53,11 +53,11 @@ export class AddChannelDialogComponent {
   }
 
   goToMain(): void {
-     if (this.screenWidth < 800) {
+    if (this.screenWidth < 800) {
       this.router.navigate(['/main-menu']);
-     } else {
-         this.router.navigate(['/main']);
-     }
+    } else {
+      this.router.navigate(['/main']);
+    }
     this.dialog.closeAll();
   }
 
@@ -84,6 +84,14 @@ export class AddChannelDialogComponent {
           channelDescription: this.channelDescription
         }
       });
+    }
+  }
+
+  onChannelFocus() {
+    this.channelFocused = true;
+
+    if (!this.channelName) {
+      this.channelName = 'Office-Team';
     }
   }
 }

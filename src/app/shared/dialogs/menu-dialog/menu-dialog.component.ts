@@ -164,40 +164,60 @@ export class MenuDialogComponent implements OnInit {
 
   // Add-Channel
   async createNewChannel(): Promise<void> {
-    if (this.isGastLogin) {
-      console.log('Gast-Login: Channel wird nicht gespeichert.');
-      return;
-    }
-
-    if (!this.currentUser) {
-      console.error('Kein eingeloggter User gefunden.');
-      return;
-    }
-
     if (this.isActive) {
       this.peoples.set(this.allUsers());
     }
+    if (this.isGastLogin) {
+      this.updateGuestChannel()
+    } else {
+      if (!this.currentUser) {
+        console.error('Kein eingeloggter User gefunden.');
+        return;
+      }
+      await this.createLiveChannel()
+    }
+  }
 
+  updateGuestChannel() {
+    const baseChannel: Omit<Channel, 'sJuCZwfLcDL9vhADHGB0'> = {
+      channelId: "sJuCZwfLcDL9vhADHGB0",
+      name: this.channelName,
+      description: this.channelDescription,
+      createdBy: this.currentUser!.id!,
+      members: Array.from(
+        new Set([...this.peoples().map((u) => u.id!), this.currentUser!.id!])
+      ),
+      messages: [],
+    };
+    this.channelsDirectMessageService.channels.push(baseChannel);
+    this.closeDialog();
+  }
+
+  async createLiveChannel() {
     const baseChannel: Omit<Channel, 'channelId'> = {
       name: this.channelName,
       description: this.channelDescription,
-      createdBy: this.currentUser.id!,
+      createdBy: this.currentUser!.id!,
       members: Array.from(
-        new Set([...this.peoples().map((u) => u.id!), this.currentUser.id!])
+        new Set([...this.peoples().map((u) => u.id!), this.currentUser!.id!])
       ),
       messages: [],
     };
 
     try {
-      const docRef = await this.firestoreService.addChannel(baseChannel);
-      await this.firestoreService.updateChannel(docRef.id, {
-        channelId: docRef.id,
-      });
-      this.closeDialog();
-      this.router.navigate(['/main']);
+      await this.uploadToFirebase(baseChannel)
     } catch (error) {
       console.error('Fehler beim Speichern des Channels:', error);
     }
+  }
+
+  async uploadToFirebase(baseChannel: Channel) {
+    const docRef = await this.firestoreService.addChannel(baseChannel);
+    await this.firestoreService.updateChannel(docRef.id, {
+      channelId: docRef.id,
+    });
+    this.closeDialog();
+    this.router.navigate(['/main']);
   }
 
   // Channel-Info
@@ -238,6 +258,7 @@ export class MenuDialogComponent implements OnInit {
       const guestUsers = this.channelsDirectMessageService
         .getDirectMessagesForGast()
         .map((dm) => ({
+          id: dm.id,
           userName: dm.name,
           profilePic: parseInt(dm.img.replace('.png', ''), 10) || 0,
           status: dm.status === 'online',

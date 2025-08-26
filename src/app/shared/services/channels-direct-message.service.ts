@@ -45,16 +45,15 @@ export class ChannelsDirectMessageService {
   // --- Static Data (Consider if these should be dynamic) ---
   private channelsForGast: string[] = ['Entwicklerteam', 'Office-Team'];
   private directMessagesForGast: DirectMessage[] = [
-    {id:'Guest' ,name: 'Frederik Beck (Du)', img: '3.png', status: 'online' },
+    {id:'Guest', name: 'Frederik Beck', img: '3.png', status: 'online' },
     {id:'Sofia Müller', name: 'Sofia Müller', img: '5.png', status: 'online' },
     {id:'Noah Braun', name: 'Noah Braun', img: '6.png', status: 'online' },
     {id:'Elise Roth', name: 'Elise Roth', img: '1.png', status: 'offline' },
     {id:'Elias Neumann', name: 'Elias Neumann', img: '2.png', status: 'online' },
     {id:'Steffen Hoffmann', name: 'Steffen Hoffmann', img: '4.png', status: 'online' },
   ];
-  private channels: Channel[] = [
-    { channelId: 'T4GIOzIalU8W0In7whdV', name: 'Entwicklerteam', createdBy: 'nQcydaYrtaiEfAkF7OyI', members: ['OIS2pHHhsKb7e0CSqCxKY6Bf7Yq2', 'tjZvScWKW7N2J5evnGCWnd9XUTF3', 'tiuC8xjLkZdjJRcMPij79utbPE12', 'nQcydaYrtaiEfAkF7OyI', 'Guest'], description: 'Channel des Entwicklerteams' },
-    { channelId: 'sJuCZwfLcDL9vhADHGB0', name: 'Office-Team', createdBy: 'nQcydaYrtaiEfAkF7OyI', members: ['Guest', 'nQcydaYrtaiEfAkF7OyI', 'tiuC8xjLkZdjJRcMPij79utbPE12'], description: 'Channel des Officeteams' },
+  channels: Channel[] = [
+    { channelId: 'T4GIOzIalU8W0In7whdV', name: 'Entwicklerteam', createdBy: 'Sofia Müller', members: ['Sofia Müller', 'Noah Braun','Guest'], description: 'Channel des Entwicklerteams' }
   ];
 
   // --- Behavior Subjects for Selected Items ---
@@ -394,6 +393,4 @@ selectedGuestChannel$ = this.selectedGuestChannelSource.asObservable();
 setSelectedGuestChannel(channel: Channel) {
   this.selectedGuestChannelSource.next(channel);
 }
-
-
 }
