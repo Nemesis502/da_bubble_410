@@ -15,6 +15,7 @@ import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { ChannelsDirectMessageService } from '../../services/channels-direct-message.service';
 
 @Component({
   selector: 'app-member-dialog',
@@ -39,7 +40,7 @@ export class MemberDialogComponent {
   readonly userSession = inject(SessionService);
   readonly dialog = inject(MatDialog);
   readonly announcer = inject(LiveAnnouncer);
-
+  readonly channelsDirectMessageService = inject(ChannelsDirectMessageService);
   readonly peoples = signal<appUser[]>([]);
   readonly allUsers = signal<appUser[]>([]);
   readonly separatorKeysCodes = [ENTER, COMMA] as const;
@@ -51,13 +52,16 @@ export class MemberDialogComponent {
   channelId = '';
   channel: Channel | null = null;
   currentUser: appUser | null = null;
-  autocompleteIsOpen = false;
+  autocompleteIsOpen = false
   isGastLogin = false;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: { channelId: any; source: string; }, private dialogRef: MatDialogRef<MemberDialogComponent>) { }
 
   async ngOnInit(): Promise<void> {
     this.currentUser = this.userSession.getCurrentUser();
+    if (this.currentUser?.id == "Guest") {
+      this.isGastLogin = true;
+    }
     this.channelId = this.data.channelId;
     console.log(this.currentUser?.id);
 
@@ -66,18 +70,26 @@ export class MemberDialogComponent {
   }
 
   async loadChannel(): Promise<void> {
-    const channels = await firstValueFrom(this.firestoreService.getChannels());
+    const channels = await this.whichChannels();
     const found = channels.find(c => c.channelId === this.channelId);
-
     if (found) {
       this.channel = found;
     }
   }
 
-  async loadMembers(): Promise<void> {
-    const users = await firstValueFrom(this.firestoreService.getUsers());
+  async whichChannels() {
+    if (this.isGastLogin) {
+      const guestChannels = this.channelsDirectMessageService.getChannels();
+      return guestChannels;
+    } else {
+      const liveChannels = await firstValueFrom(this.firestoreService.getChannels());
+      return liveChannels;
+    }
+  }
 
-    this.allUsers.set(users);
+  async loadMembers(): Promise<void> {
+    const users = await this.whichUsers();
+    this.allUsers.set(users)
 
     const memberList = users.filter((user: appUser) =>
       this.channel?.members.includes(user.id!)
@@ -91,6 +103,24 @@ export class MemberDialogComponent {
 
     this.members.set(sortedMembers);
     this.channelMembers.set(this.channel?.members ?? []);
+  }
+
+  async whichUsers() {
+    if (this.isGastLogin) {
+      let guestUser = this.channelsDirectMessageService
+        .getDirectMessagesForGast()
+        .map((dm) => ({
+          id: dm.id,
+          userName: dm.name,
+          profilePic: parseInt(dm.img.replace('.png', ''), 10) || 0,
+          status: dm.status === 'online',
+          email: '',
+        }));
+      return guestUser;
+    } else {
+      let liveUsers = await firstValueFrom(this.firestoreService.getUsers());
+      return liveUsers;
+    }
   }
 
   closeDialog(): void {

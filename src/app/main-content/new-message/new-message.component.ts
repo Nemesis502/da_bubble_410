@@ -101,7 +101,7 @@ export class NewMessageComponent implements OnInit {
   }
 
   navigateToMain(): void {
-    this.router.navigate(['/main']);
+    this.router.navigate(['/main-menu']);
   }
 
   toggleEmojiPicker(event: MouseEvent): void {

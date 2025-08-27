@@ -141,7 +141,7 @@ export class ChatTemplateComponent implements AfterViewInit {
             (this.chatIsConversation = true);
           this.chatIsChannel = false;
           this.chatIsThread = false;
-                console.log( this.otherUser)
+          console.log(this.otherUser);
           this.updateChatContext();
 
           setTimeout(() => {
@@ -178,23 +178,22 @@ export class ChatTemplateComponent implements AfterViewInit {
         }
       }
     );
-    if (this.threadId) {
-      this.isThreadView = true;
-      await this.chatService.initializeChat(
-        this.threadId,
-        this.currentUser?.id
-      );
-    } else if (this.chatId) {
-      this.isThreadView = false;
-      await this.chatService.initializeChat(this.chatId, this.currentUser?.id);
-    }
-
+  if (this.threadId) {
+    this.isThreadView = true;
+    await this.chatService.initializeChat(this.threadId, this.currentUser?.id);
+  } else if (this.chatId) {
+    this.isThreadView = false;
+    await this.chatService.initializeChat(this.chatId, this.currentUser?.id);
+  }
     this.messages$ = this.isThreadView
-      ? this.chatService.threadMessages$.pipe(
-          map((messages) => messages ?? []),
-          startWith([])
-        )
-      : this.chatService.messages$;
+    ? this.chatService.threadMessages$.pipe(
+        map((messages) => messages ?? []),
+        startWith([])
+      )
+    : this.chatService.messages$;
+     this.chatService.threadMessages$.subscribe((msgs) => {
+    this.threadMessages = msgs ?? [];
+  });
 
     this.chatService.isThread$.subscribe((isThread) => {
       this.chatIsThread = isThread;
@@ -244,6 +243,7 @@ export class ChatTemplateComponent implements AfterViewInit {
     );
 
     this.chatUIService.fetchAllChannels();
+    this.updateChatContext();
     this.fetchChannelMembers();
   }
 
@@ -310,34 +310,45 @@ export class ChatTemplateComponent implements AfterViewInit {
   }
 
   stopEditing(): void {
-  this.editedMessage = null;   
-  this.chatMessage = '';       
-  this.focusChatInput();       
-}
+    this.editedMessage = null;
+    this.chatMessage = '';
+    this.focusChatInput();
+  }
 
   // Thread Handling
   handleReplyToMessage(messageId: string): void {
-    console.log(messageId);
+    const isMobile = window.innerWidth < 1000;
 
-    this.threadOpened.emit(messageId);
+    if (!isMobile) {
+      // On small screens, just emit the event
+      console.log(
+        'Mobile: emitting threadOpened event for message ID:',
+        messageId
+      );
+      this.threadOpened.emit(messageId);
+    } else {
+      // On desktop, open the thread in-place
+      console.log(
+        'Desktop: opening thread in chat-template for message ID:',
+        messageId
+      );
+      this.chatService.openThread(messageId);
+      this.scrollToBottom();
+    }
   }
+
   closeThreadView(): void {
-    this.threadClosed.emit();
-  }
-  // handleReplyToMessage(messageId: string): void {
-  //   console.log('Opening thread for message ID:', messageId);
-  //   this.chatService.openThread(messageId);
-  //   this.scrollToBottom();
-  // }
+    const isMobile = window.innerWidth < 1000;
 
-  // closeThreadView(): void {
-  //   this.chatService.closeThread();
-  //   if (this.isThreadView) return;
-  //   const channelId = this.selectedChannel?.channelId;
-  //   if (channelId) {
-  //     this.router.navigate([`/chat-container/${channelId}`]);
-  //   }
-  // }
+    if (isMobile) {
+      this.chatService.closeThread();
+      this.isThreadView = false;
+      this.updateChatContext();
+      this.scrollToBottom();
+    } else {
+      this.threadClosed.emit();
+    }
+  }
 
   // Navigation & Dialogs (delegated to ChatUIService)
   navigateToMain(): void {
@@ -434,7 +445,7 @@ export class ChatTemplateComponent implements AfterViewInit {
     }
   }
 
-  private updateChatContext(): void {
+  updateChatContext(): void {
     this.chatIsThread = false;
     this.chatIsChannel = false;
     this.chatIsConversation = false;

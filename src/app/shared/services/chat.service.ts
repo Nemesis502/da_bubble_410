@@ -344,25 +344,28 @@ export class ChatService {
   }
 
   /** Opens a thread view for a specific message */
-openThread(messageId: string, forceThreadToggle: boolean = true): void {
-  // Only toggle thread state for mobile or if explicitly forced
+/** Opens a thread view for a specific message */
+async openThread(messageId: string, forceThreadToggle: boolean = true): Promise<void> {
   if (forceThreadToggle) {
     this._isThread.next(true);
   }
 
   this.activeThreadMessageId = messageId;
   const channelId = this._selectedChannel.getValue()?.channelId;
+  if (!channelId) return;
 
-  if (channelId) {
-    this.loadThreadMessages(channelId, messageId);
-    this.setActiveThreadMessage(channelId, messageId);
-  }
+  // Ensure parent message is loaded first
+  await this.setActiveThreadMessage(channelId, messageId);
+
+  // Load thread messages (replies)
+  this.loadThreadMessages(channelId, messageId);
 }
+
 
  /** Loads messages in the currently active thread */
  loadThreadMessages(channelId: string, messageId: string): void {
     if (!messageId) return;
-
+  console.log('loading messages')
     if (this.isConversation) {
       this.channelService
         .getEnrichedConversationThreadMessages(channelId, messageId)
@@ -374,8 +377,10 @@ openThread(messageId: string, forceThreadToggle: boolean = true): void {
         .getEnrichedThreadMessages(channelId, messageId)
         .subscribe((messages) => {
           this._threadMessages.next(messages);
+          console.log(messages)
         });
     }
+    console.log(this._threadMessages)
   }
 
   /** Sets the active thread message and fetches its data */
@@ -412,6 +417,7 @@ closeThread(): void {
        this.activeThreadMessageId = '';
        this._threadMessages.next(null);
        this._activeThreadMessage.next(null);
+       console.log(this.isThread)
    }
 
 }

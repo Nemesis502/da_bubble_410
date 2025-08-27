@@ -40,6 +40,37 @@
       width: 30px;
     }
   }
+.self-chat-placeholder {
+  padding-bottom: 0px;
+}
+.self-chat-info {
+  padding-bottom: 8px;
+  img {
+    height: 40px;
+    width: 40px;
+    padding-right: 16px;
+  }
+  p {
+    font-size: 16px !important;
+  }
+}
+
+.self-chat-text {
+  display: flex;
+  .first {
+    font-weight: 700 !important;
+    color: rgb(75, 74, 74);
+  }
+  p {
+    color: gray;
+    font-size: 14px !important;
+    padding-right: 8px;
+  }
+}
+
+.chat-interface{
+  margin-bottom: 10px;
+}
 }
 
 @media screen and (max-width: 800px) {
@@ -56,6 +87,9 @@
   .chat-header {
     .channel-button {
       margin-left: 0;
+      .status-dot{
+        left: 30px
+      }
     }
   }
 }

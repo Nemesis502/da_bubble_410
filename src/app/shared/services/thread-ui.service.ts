@@ -100,15 +100,19 @@ export class ThreadUIService {
     }
   }
 
-  openMemberDialog(channelId: string): void {
-    this.dialog.open(MemberDialogComponent, {
-      position: { top: '122px' },
-      width: '80vw',
-      maxHeight: '75vh',
-      panelClass: 'member-dialog',
-      data: { source: 'channel-chat', channelId: channelId },
-    });
-  }
+openMemberDialog(channelId: string): void {
+  const isMobile = window.innerWidth < 1000;
+
+  this.dialog.open(MemberDialogComponent, {
+    width: '415px',
+    maxHeight: '75vh',
+    panelClass: 'member-dialog',
+    data: { source: 'channel-chat', channelId: channelId },
+    position: isMobile
+      ? undefined 
+      : { top: '190px', right: '100px' },
+  });
+}
 
   openProfileDialog(
     user: appUser | null,

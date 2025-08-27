@@ -16,7 +16,7 @@
             <mat-form-field appearance="fill" class="text-full-width">
                 <mat-icon matPrefix aria-hidden="true" fontIcon="numbers"></mat-icon>
                 <input matInput placeholder="z.B. Kooperationsprojekte" aria-label="Channel-Name"
-                    [(ngModel)]="channelName" name="channelName" (focus)="channelFocused = true"
+                    [(ngModel)]="channelName" name="channelName" (focus)="onChannelFocus()"
                     (blur)="channelFocused = false" />
             </mat-form-field>
         </form>

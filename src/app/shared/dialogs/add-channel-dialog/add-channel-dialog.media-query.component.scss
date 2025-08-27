@@ -14,3 +14,9 @@
         font-size: 16px;
     }
 }
+
+@media screen and (max-width:1000px) {
+    .add-channel-dialog {
+        height: 100vh;
+    }
+}

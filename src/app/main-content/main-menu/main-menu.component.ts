@@ -64,7 +64,7 @@ export class MainMenuComponent implements OnInit {
   gastLogin = false;
   showChannels = true;
   showDirectMessages = true;
-
+  showNewMessage: boolean = false;
   currentLoginId = '';
   currentLoginEmail = '';
   searchTerm = '';
@@ -77,7 +77,6 @@ export class MainMenuComponent implements OnInit {
   currentUser: appUser | null = null;
   allDirectMessages: appUser[] = [];
   directMessages: any[] = [];
-  isDemoChannelVisi: boolean = false;
   unsubCurrentUser;
 
   constructor(
@@ -341,16 +340,33 @@ export class MainMenuComponent implements OnInit {
     );
   }
 
-  selectDirectMessageGast(user: DirectMessage): void {
-    this.channelDirectMessageData.setSelectedDirectMessageGast(user);
-  }
+selectDirectMessageGast(user: DirectMessage): void {
+  if (!user) return;
+    this.closeNewMessage.emit();
+  // Always update the BehaviorSubject
+  this.channelDirectMessageData.setSelectedDirectMessageGast(user);
 
-  selectGuestChannel(channel: Channel): void {
-    this.channelDirectMessageData.setSelectedGuestChannel(channel);
+  // On mobile, just close new message menu if needed
+  if (window.innerWidth < 800) {
+    this.closeNewMessage.emit();
   }
+};
+
+
+selectGuestChannel(channel: Channel): void {
+  this.channelDirectMessageData.setSelectedGuestChannel(channel);
+  this.closeNewMessage.emit();
+  // Navigate on small screens
+  if (window.innerWidth < 800 && channel.channelId) {
+    this.router.navigate(['/chat-container', channel.channelId]);
+  }
+}
 
   openNewMessage(): void {
-    this.newMessage.emit();
-    console.log('emitted');
+    if (window.innerWidth < 800) {
+      this.router.navigate(['/new-message', this.currentUser?.id]);
+    } else {
+      this.newMessage.emit();
+    }
   }
 }
