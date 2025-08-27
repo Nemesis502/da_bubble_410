@@ -104,7 +104,7 @@ export class ChatTemplateComponent implements AfterViewInit {
     private firestoreService: FirestoreService,
     private hostEl: ElementRef,
     private channelDirectMessageData: ChannelsDirectMessageService
-  ) {}
+  ) { }
 
   ngAfterViewInit() {
     this.chatUIService.init(
@@ -178,22 +178,22 @@ export class ChatTemplateComponent implements AfterViewInit {
         }
       }
     );
-  if (this.threadId) {
-    this.isThreadView = true;
-    await this.chatService.initializeChat(this.threadId, this.currentUser?.id);
-  } else if (this.chatId) {
-    this.isThreadView = false;
-    await this.chatService.initializeChat(this.chatId, this.currentUser?.id);
-  }
+    if (this.threadId) {
+      this.isThreadView = true;
+      await this.chatService.initializeChat(this.threadId, this.currentUser?.id);
+    } else if (this.chatId) {
+      this.isThreadView = false;
+      await this.chatService.initializeChat(this.chatId, this.currentUser?.id);
+    }
     this.messages$ = this.isThreadView
-    ? this.chatService.threadMessages$.pipe(
+      ? this.chatService.threadMessages$.pipe(
         map((messages) => messages ?? []),
         startWith([])
       )
-    : this.chatService.messages$;
-     this.chatService.threadMessages$.subscribe((msgs) => {
-    this.threadMessages = msgs ?? [];
-  });
+      : this.chatService.messages$;
+    this.chatService.threadMessages$.subscribe((msgs) => {
+      this.threadMessages = msgs ?? [];
+    });
 
     this.chatService.isThread$.subscribe((isThread) => {
       this.chatIsThread = isThread;
