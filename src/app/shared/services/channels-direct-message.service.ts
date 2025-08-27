@@ -44,16 +44,16 @@ export class ChannelsDirectMessageService {
 
   // --- Static Data (Consider if these should be dynamic) ---
   private channelsForGast: string[] = ['Entwicklerteam', 'Office-Team'];
-  private directMessagesForGast: DirectMessage[] = [
-    {id:'Guest', name: 'Frederik Beck', img: '3.png', status: 'online' },
-    {id:'Sofia Müller', name: 'Sofia Müller', img: '5.png', status: 'online' },
-    {id:'Noah Braun', name: 'Noah Braun', img: '6.png', status: 'online' },
-    {id:'Elise Roth', name: 'Elise Roth', img: '1.png', status: 'offline' },
-    {id:'Elias Neumann', name: 'Elias Neumann', img: '2.png', status: 'online' },
-    {id:'Steffen Hoffmann', name: 'Steffen Hoffmann', img: '4.png', status: 'online' },
+  directMessagesForGast: DirectMessage[] = [
+    { id: 'Guest', name: 'Frederik Beck', img: '3.png', status: 'online' },
+    { id: 'Sofia Müller', name: 'Sofia Müller', img: '5.png', status: 'online' },
+    { id: 'Noah Braun', name: 'Noah Braun', img: '6.png', status: 'online' },
+    { id: 'Elise Roth', name: 'Elise Roth', img: '1.png', status: 'offline' },
+    { id: 'Elias Neumann', name: 'Elias Neumann', img: '2.png', status: 'online' },
+    { id: 'Steffen Hoffmann', name: 'Steffen Hoffmann', img: '4.png', status: 'online' },
   ];
   channels: Channel[] = [
-    { channelId: 'T4GIOzIalU8W0In7whdV', name: 'Entwicklerteam', createdBy: 'Sofia Müller', members: ['Sofia Müller', 'Noah Braun','Guest'], description: 'Channel des Entwicklerteams' }
+    { channelId: 'T4GIOzIalU8W0In7whdV', name: 'Entwicklerteam', createdBy: 'Sofia Müller', members: ['Sofia Müller', 'Noah Braun', 'Guest'], description: 'Channel des Entwicklerteams' }
   ];
 
   // --- Behavior Subjects for Selected Items ---
@@ -381,16 +381,16 @@ export class ChannelsDirectMessageService {
   }
 
   private selectedGuestDirectMessageSource = new BehaviorSubject<DirectMessage | null>(null);
-selectedGuestDirectMessage$ = this.selectedGuestDirectMessageSource.asObservable();
+  selectedGuestDirectMessage$ = this.selectedGuestDirectMessageSource.asObservable();
 
-setSelectedDirectMessageGast(user: DirectMessage): void {
-  this.selectedGuestDirectMessageSource.next(user);
-}
+  setSelectedDirectMessageGast(user: DirectMessage): void {
+    this.selectedGuestDirectMessageSource.next(user);
+  }
 
-private selectedGuestChannelSource = new BehaviorSubject<Channel | null>(null);
-selectedGuestChannel$ = this.selectedGuestChannelSource.asObservable();
+  private selectedGuestChannelSource = new BehaviorSubject<Channel | null>(null);
+  selectedGuestChannel$ = this.selectedGuestChannelSource.asObservable();
 
-setSelectedGuestChannel(channel: Channel) {
-  this.selectedGuestChannelSource.next(channel);
-}
+  setSelectedGuestChannel(channel: Channel) {
+    this.selectedGuestChannelSource.next(channel);
+  }
 }

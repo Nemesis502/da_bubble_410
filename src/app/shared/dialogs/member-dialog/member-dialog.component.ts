@@ -227,7 +227,7 @@ export class MemberDialogComponent {
 
   async addMembers(): Promise<void> {
     if (this.isGastLogin) {
-      console.log('Gast-Login: Mitglieder werden nicht hinzugefügt.');
+      this.addGuestMembers();
       return;
     }
 
@@ -243,5 +243,17 @@ export class MemberDialogComponent {
     } catch (error) {
       console.error('Fehler beim Hinzufügen der Mitglieder:', error);
     }
+  }
+
+  addGuestMembers(): void {
+    const ids = this.peoples().map(u => u.id!).filter(Boolean);
+    const list = this.channelsDirectMessageService.getChannels();
+    const i = list.findIndex(c => c.channelId === this.channelId);
+    if (i === -1 || ids.length === 0) return;
+    const updated = { ...list[i], members: Array.from(new Set([...(list[i].members ?? []), ...ids])) };
+    list[i] = updated;
+    this.channelsDirectMessageService.setSelectedGuestChannel(updated);
+
+    this.dialogRef.close({ membersAdded: true });
   }
 }
