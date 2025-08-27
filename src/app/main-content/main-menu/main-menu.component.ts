@@ -388,7 +388,7 @@ export class MainMenuComponent implements OnInit {
 
 selectDirectMessageGast(user: DirectMessage): void {
   if (!user) return;
-
+    this.closeNewMessage.emit();
   // Always update the BehaviorSubject
   this.channelDirectMessageData.setSelectedDirectMessageGast(user);
 
@@ -401,7 +401,7 @@ selectDirectMessageGast(user: DirectMessage): void {
 
 selectGuestChannel(channel: Channel): void {
   this.channelDirectMessageData.setSelectedGuestChannel(channel);
-
+  this.closeNewMessage.emit();
   // Navigate on small screens
   if (window.innerWidth < 800 && channel.channelId) {
     this.router.navigate(['/chat-container', channel.channelId]);
@@ -412,8 +412,7 @@ selectGuestChannel(channel: Channel): void {
     if (window.innerWidth < 800) {
       this.router.navigate(['/new-message', this.currentUser?.id]);
     } else {
-      this.showNewMessage = true;
-      console.log('triggered', this.showNewMessage);
+      this.newMessage.emit();
     }
   }
 }
