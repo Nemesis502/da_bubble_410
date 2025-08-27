@@ -137,14 +137,18 @@ export class LogingPageComponent {
     });
   }
 
-  loginGuest() {
-    this.router.navigate(['main'], {
-      state: {
-        loginEmail: "email@beispiel.com",
-        loginId: "Guest"
-      }
-    });
-  }
+loginGuest() {
+  const isSmallScreen = window.innerWidth < 1000;
+  const targetRoute = isSmallScreen ? 'main-menu' : 'main';
+
+  this.router.navigate([targetRoute], {
+    state: {
+      loginEmail: 'email@beispiel.com',
+      loginId: 'Guest'
+    }
+  });
+}
+
 
   updateErrorLogIn() {
     if (this.LogInError) {

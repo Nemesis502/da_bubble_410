@@ -94,15 +94,20 @@ export class ChatUIService {
     }
   }
 
-  openMemberDialog(channelId: string): void {
-    this.dialog.open(MemberDialogComponent, {
-      position: { top: '190px', right: '100px' },
-      width: '415px',
-      maxHeight: '75vh',
-      panelClass: 'member-dialog',
-      data: { source: 'channel-chat', channelId: channelId },
-    });
-  }
+openMemberDialog(channelId: string): void {
+  const isMobile = window.innerWidth < 1000;
+
+  this.dialog.open(MemberDialogComponent, {
+    width: '415px',
+    maxHeight: '75vh',
+    panelClass: 'member-dialog',
+    data: { source: 'channel-chat', channelId: channelId },
+    position: isMobile
+      ? undefined 
+      : { top: '190px', right: '100px' },
+  });
+}
+
 
   openProfileDialog(
     user: appUser | null,
@@ -115,18 +120,22 @@ export class ChatUIService {
     });
   }
 
-  openAddPeopleDialog(channelId: string): void {
-    this.dialog.open(MemberDialogComponent, {
-      position: { top: '190px', right: '45px' },
-      width: '415px',
-      maxHeight: '75vh',
-      panelClass: 'member-dialog',
-      data: {
-        source: 'add-members',
-        channelId: channelId
-      }
-    });
-  }
+openAddPeopleDialog(channelId: string): void {
+  const isMobile = window.innerWidth < 1000;
+
+  this.dialog.open(MemberDialogComponent, {
+    width: '415px',
+    maxHeight: '75vh',
+    panelClass: 'member-dialog',
+    data: {
+      source: 'add-members',
+      channelId: channelId
+    },
+    position: isMobile
+      ? undefined   
+      : { top: '190px', right: '45px' }
+  });
+}
 
   // --- Mention & Hashtag Functions ---
 

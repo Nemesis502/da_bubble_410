@@ -64,7 +64,7 @@ export class MainMenuComponent implements OnInit {
   gastLogin = false;
   showChannels = true;
   showDirectMessages = true;
-
+  showNewMessage: boolean = false;
   currentLoginId = '';
   currentLoginEmail = '';
   searchTerm = '';
@@ -95,7 +95,7 @@ export class MainMenuComponent implements OnInit {
       if (state.loginId == 'Guest') {
         this.gastLogin = true;
         this.loadGuestData();
-       this.userSession.setCurrentUser(this.currentUser!);
+        this.userSession.setCurrentUser(this.currentUser!);
       } else {
         this.loadUserData(state);
         this.unsubCurrentUser = this.subCurrentUser();
@@ -176,7 +176,7 @@ export class MainMenuComponent implements OnInit {
           userData,
           this.currentLoginId
         );
-       // this.userSession.setCurrentUser(user);
+        // this.userSession.setCurrentUser(user);
         this.currentUser = user;
         this.getAllUsers();
         this.cdr.detectChanges();
@@ -386,16 +386,34 @@ export class MainMenuComponent implements OnInit {
     );
   }
 
-  selectDirectMessageGast(user: DirectMessage): void {
-    this.channelDirectMessageData.setSelectedDirectMessageGast(user);
-  }
+selectDirectMessageGast(user: DirectMessage): void {
+  if (!user) return;
 
-  selectGuestChannel(channel: Channel): void {
-    this.channelDirectMessageData.setSelectedGuestChannel(channel);
+  // Always update the BehaviorSubject
+  this.channelDirectMessageData.setSelectedDirectMessageGast(user);
+
+  // On mobile, just close new message menu if needed
+  if (window.innerWidth < 800) {
+    this.closeNewMessage.emit();
   }
+};
+
+
+selectGuestChannel(channel: Channel): void {
+  this.channelDirectMessageData.setSelectedGuestChannel(channel);
+
+  // Navigate on small screens
+  if (window.innerWidth < 800 && channel.channelId) {
+    this.router.navigate(['/chat-container', channel.channelId]);
+  }
+}
 
   openNewMessage(): void {
-    this.newMessage.emit();
-    console.log('emitted');
+    if (window.innerWidth < 800) {
+      this.router.navigate(['/new-message', this.currentUser?.id]);
+    } else {
+      this.showNewMessage = true;
+      console.log('triggered', this.showNewMessage);
+    }
   }
 }
