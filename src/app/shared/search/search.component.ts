@@ -15,7 +15,6 @@ import { onSnapshot } from 'firebase/firestore';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { firstValueFrom } from 'rxjs';
-import { Q } from '@angular/cdk/keycodes';
 
 @Component({
   selector: 'app-search',
@@ -123,7 +122,6 @@ export class SearchComponent {
           });
       }
     }
-    // this.updateFilteredResults();
   }
 
   async getCurrentUserLogIn() {
@@ -132,7 +130,6 @@ export class SearchComponent {
       this.firestoreService.getUserById(this.currentLoginId)
     );
     this.currentUser = this.userService.setUserObject(userData, userData?.id);
-    // this.userSession.setCurrentUser(this.currentUser);
   }
 
   loadGuestData() {
@@ -163,7 +160,6 @@ export class SearchComponent {
           userData,
           this.currentLoginId
         );
-        // this.userSession.setCurrentUser(user);
         this.currentUser = user;
         this.getAllUsers();
         this.cdr.detectChanges();
@@ -219,51 +215,15 @@ export class SearchComponent {
   }
 
   updateFilteredResults(): void {
-    const term = this.searchTerm.trim().toLowerCase();
-    const isChannelSearch = term.startsWith('#');
-    const isDirectSearch = term.startsWith('@');
-    const query = term.replace(/^[@#]/, '');
-
-    if (this.gastLogin) {
-      this.filterAsGuest(query, isChannelSearch, isDirectSearch);
-      return;
-    }
-
-    if (!this.directMessages || this.directMessages.length === 0) {
-      this.filteredChannels = [];
-      this.filteredDirectMessages = [];
-      return;
-    }
-
-    this.searchService.setDirectMessagePartnerIds(
+    const { channels, directMessages } = this.searchService.updateFilteredResults(
+      this.searchTerm,
+      this.gastLogin,
       this.directMessages,
       this.currentLoginId
     );
 
-    if (isChannelSearch) {
-      this.filteredChannels = this.searchService.filterFirestoreChannels(query);
-      this.filteredDirectMessages = [];
-    } else if (isDirectSearch) {
-      this.filteredDirectMessages =
-        this.searchService.filterFirestoreDirectMessages(query);
-      this.filteredChannels = [];
-    } else {
-      this.filteredChannels = this.searchService.filterFirestoreChannels(query);
-      this.filteredDirectMessages =
-        this.searchService.filterFirestoreDirectMessages(query);
-    }
-  }
-
-  private filterAsGuest(query: string, isChannel: boolean, isDirect: boolean): void {
-    if (isChannel) {
-      this.loadGuestChannel(query)
-      this.filteredDirectMessages = [];
-    } else if (isDirect) {
-      this.loadGuestDM(query)
-      this.filteredChannels = [];
-    } else {
-      this.loadGuestDMAndChannel(query)
-    }
+    this.filteredChannels = channels;
+    this.filteredDirectMessages = directMessages;
   }
 
   loadGuestChannel(query: string) {
@@ -317,7 +277,6 @@ export class SearchComponent {
     }
 
     this.channelDirectMessageData.setSelectedDirectMessage(user);
-    // neue Route:
     this.router.navigate(['/chat-container', conversation.id]);
   }
 

@@ -96,7 +96,7 @@ export class MainMenuComponent implements OnInit {
       if (state.loginId == 'Guest') {
         this.gastLogin = true;
         this.loadGuestData();
-       this.userSession.setCurrentUser(this.currentUser!);
+        this.userSession.setCurrentUser(this.currentUser!);
       } else {
         this.loadUserData(state);
         this.unsubCurrentUser = this.subCurrentUser();
@@ -177,7 +177,7 @@ export class MainMenuComponent implements OnInit {
           userData,
           this.currentLoginId
         );
-       // this.userSession.setCurrentUser(user);
+        // this.userSession.setCurrentUser(user);
         this.currentUser = user;
         this.getAllUsers();
         this.cdr.detectChanges();
@@ -223,39 +223,15 @@ export class MainMenuComponent implements OnInit {
   }
 
   updateFilteredResults(): void {
-    const term = this.searchTerm.trim().toLowerCase();
-    const isChannelSearch = term.startsWith('#');
-    const isDirectSearch = term.startsWith('@');
-    const query = term.replace(/^[@#]/, '');
-
-    if (this.gastLogin) {
-      this.filterAsGuest(query, isChannelSearch, isDirectSearch);
-      return;
-    }
-
-    if (!this.directMessages || this.directMessages.length === 0) {
-      this.filteredChannels = [];
-      this.filteredDirectMessages = [];
-      return;
-    }
-
-    this.searchService.setDirectMessagePartnerIds(
+    const { channels, directMessages } = this.searchService.updateFilteredResults(
+      this.searchTerm,
+      this.gastLogin,
       this.directMessages,
       this.currentLoginId
     );
 
-    if (isChannelSearch) {
-      this.filteredChannels = this.searchService.filterFirestoreChannels(query);
-      this.filteredDirectMessages = [];
-    } else if (isDirectSearch) {
-      this.filteredDirectMessages =
-        this.searchService.filterFirestoreDirectMessages(query);
-      this.filteredChannels = [];
-    } else {
-      this.filteredChannels = this.searchService.filterFirestoreChannels(query);
-      this.filteredDirectMessages =
-        this.searchService.filterFirestoreDirectMessages(query);
-    }
+    this.filteredChannels = channels;
+    this.filteredDirectMessages = directMessages;
   }
 
   get sortedUsers(): appUser[] {
@@ -264,28 +240,6 @@ export class MainMenuComponent implements OnInit {
       ...this.users.filter((u) => u.id === this.currentUser?.id),
       ...this.users.filter((u) => u.id !== this.currentUser?.id),
     ];
-  }
-
-  private filterAsGuest(
-    query: string,
-    isChannel: boolean,
-    isDirect: boolean
-  ): void {
-    if (isChannel) {
-      this.filteredChannels = this.channelDirectMessageData
-        .getChannels()
-        .filter((c) => c.name.toLowerCase().startsWith(query));
-      this.filteredDirectMessages = [];
-    } else if (isDirect) {
-      this.filteredDirectMessages = this.channelDirectMessageData
-        .getDirectMessagesForGast()
-        .filter((dm) => dm.name.toLowerCase().startsWith(query));
-      this.filteredChannels = [];
-    } else {
-      this.filteredChannels = this.searchService.filterFirestoreChannels(query);
-      this.filteredDirectMessages =
-        this.searchService.filterFirestoreDirectMessages(query);
-    }
   }
 
   filterDirectMessageUsers(): void {

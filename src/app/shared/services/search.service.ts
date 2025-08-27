@@ -9,7 +9,6 @@ import { appUser } from '../../interfaces/user.interface';
 export class SearchService {
   private firestoreChannels: Channel[] = [];
   private firestoreUsers: appUser[] = [];
-
   private currentUserId: string = '';
   private directMessagePartnerIds: string[] = [];
 
@@ -25,20 +24,6 @@ export class SearchService {
       .filter((id): id is string => typeof id === 'string');
   }
 
-  filterChannels(searchTerm: string): string[] {
-    const query = searchTerm.toLowerCase();
-    return this.data.getChannelsForGast().filter(c =>
-      c.toLowerCase().includes(query)
-    );
-  }
-
-  filterDirectMessages(searchTerm: string): DirectMessage[] {
-    const query = searchTerm.toLowerCase();
-    return this.data.getDirectMessagesForGast().filter(dm =>
-      dm.name.toLowerCase().includes(query)
-    );
-  }
-
   setFirestoreChannels(channels: Channel[]) {
     this.firestoreChannels = channels;
   }
@@ -47,23 +32,110 @@ export class SearchService {
     this.firestoreUsers = users;
   }
 
-  filterFirestoreChannels(searchTerm: string): Channel[] {
-    const query = searchTerm.toLowerCase();
+  /** Haupt-Methode für beide Komponenten */
+  updateFilteredResults(
+    searchTerm: string,
+    gastLogin: boolean,
+    directMessages: any[],
+    currentLoginId: string
+  ): { channels: any[]; directMessages: any[] } {
+    const term = searchTerm.trim().toLowerCase();
+    const isChannelSearch = term.startsWith('#');
+    const isDirectSearch = term.startsWith('@');
+    const query = term.replace(/^[@#]/, '');
 
-    return this.firestoreChannels
-      .filter(c =>
-        c.name.toLowerCase().includes(query) &&
-        c.members.includes(this.currentUserId)
-      );
+    if (gastLogin) {
+      return this.filterAsGuest(query, isChannelSearch, isDirectSearch);
+    }
+
+    if (!directMessages || directMessages.length === 0) {
+      return { channels: [], directMessages: [] };
+    }
+
+    this.setDirectMessagePartnerIds(directMessages, currentLoginId);
+
+    if (isChannelSearch) {
+      return { channels: this.filterFirestoreChannels(query), directMessages: [] };
+    } else if (isDirectSearch) {
+      return { channels: [], directMessages: this.filterFirestoreDirectMessages(query, directMessages) };
+    } else {
+      return {
+        channels: this.filterFirestoreChannels(query),
+        directMessages: this.filterFirestoreDirectMessages(query, directMessages),
+      };
+    }
   }
 
-  filterFirestoreDirectMessages(searchTerm: string): appUser[] {
-    const query = searchTerm.toLowerCase();
+  /** Gast-Suchen */
+  private filterAsGuest(query: string, isChannel: boolean, isDirect: boolean) {
+    if (isChannel) {
+      return { channels: this.loadGuestChannel(query), directMessages: [] };
+    } else if (isDirect) {
+      return { channels: [], directMessages: this.loadGuestDM(query) };
+    } else {
+      return this.loadGuestDMAndChannel(query);
+    }
+  }
 
+  private loadGuestChannel(query: string) {
+    return this.data.getChannels().filter(c => c.name.toLowerCase().startsWith(query));
+  }
+
+  private loadGuestDM(query: string) {
+    return this.data.getDirectMessagesForGast().filter(dm =>
+      dm.name.toLowerCase().startsWith(query)
+    );
+  }
+
+  private loadGuestDMAndChannel(query: string) {
+    return {
+      channels: this.loadGuestChannel(query),
+      directMessages: this.loadGuestDM(query),
+    };
+  }
+
+  /** Firestore-Suchen */
+  /** Filtert Channels inkl. Nachrichten */
+  private filterFirestoreChannels(searchTerm: string): Channel[] {
+    const query = searchTerm.toLowerCase();
+    return this.firestoreChannels.filter(c =>
+      c.members.includes(this.currentUserId) &&
+      (
+        c.name.toLowerCase().includes(query) ||                 // Name match
+        c.description?.toLowerCase().includes(query) ||        // Beschreibung match
+        c.messages?.some(msg => msg.text?.toLowerCase().includes(query)) // Nachrichten match
+      )
+    );
+  }
+
+  /** Filtert DMs inkl. Nachrichten */
+  private filterFirestoreDirectMessages(searchTerm: string, directMessages: any[]): appUser[] {
+    const query = searchTerm.toLowerCase();
     return this.firestoreUsers.filter(u =>
       !!u.id &&
       this.directMessagePartnerIds.includes(u.id) &&
-      u.userName.toLowerCase().includes(query)
+      (
+        u.userName.toLowerCase().includes(query) ||
+        this.directMessagesHasText(u.id, query, directMessages)
+      )
+    );
+  }
+
+
+  /** Prüft, ob DM Nachrichten den Suchbegriff enthalten */
+  private directMessagesHasText(
+    userId: string,
+    searchTerm: string,
+    directMessages: any[]
+  ): boolean {
+    const conversation = directMessages.find(conv =>
+      (conv.participants.includes(this.currentUserId) && conv.participants.includes(userId))
+    );
+
+    if (!conversation || !conversation.messages) return false;
+
+    return conversation.messages.some((msg: any) =>
+      msg.text?.toLowerCase().includes(searchTerm)
     );
   }
 }

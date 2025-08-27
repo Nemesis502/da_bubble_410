@@ -75,6 +75,7 @@ input {
     border: 1px solid$LightPurple;
     max-width: 300px;
     max-height: 500px;
+    overflow: hidden;
     background-color: white;
     z-index: 15;
 }
@@ -82,6 +83,7 @@ input {
 .list {
     display: flex;
     flex-direction: column;
+    max-height: 385px;
     overflow-y: auto;
 
     .item {

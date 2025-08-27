@@ -60,7 +60,7 @@ export class MemberDialogComponent {
     this.currentUser = this.userSession.getCurrentUser();
     this.channelId = this.data.channelId;
     console.log(this.currentUser?.id);
-    
+
     await this.loadChannel();
     await this.loadMembers();
   }
@@ -164,7 +164,6 @@ export class MemberDialogComponent {
   filterUsers(): void {
     const query = (this.searchTerm || '').toString().toLowerCase();
     const membersInChannel = this.channelMembers();
-
     this.filteredUsers.set(
       this.allUsers().filter(user =>
         user.userName.toLowerCase().startsWith(query) &&
