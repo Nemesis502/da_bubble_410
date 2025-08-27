@@ -253,7 +253,6 @@ export class MemberDialogComponent {
     const updated = { ...list[i], members: Array.from(new Set([...(list[i].members ?? []), ...ids])) };
     list[i] = updated;
     this.channelsDirectMessageService.setSelectedGuestChannel(updated);
-
     this.dialogRef.close({ membersAdded: true });
   }
 }
