@@ -137,3 +137,18 @@ input {
         }
     }
 }
+
+.column {
+    display: flex;
+    flex-direction: column;
+}
+
+.from-chat {
+    display: flex;
+    align-items: center;
+}
+
+.content {
+    display: flex;
+    align-items: center;
+}

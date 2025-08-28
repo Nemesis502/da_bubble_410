@@ -154,7 +154,7 @@ export class SearchService {
   async searchMessagesInMemberChannels(
     query: string,
     perChannelLimit = 200,
-    maxHitsPerChannel = 5
+    maxHitsPerChannel = 2
   ): Promise<Array<{ channel: Channel; hits: Array<{ id: string; text: string; timestamp: any }> }>> {
     if (!query || !this.currentUserId) return [];
     const q = query.toLowerCase();
@@ -178,7 +178,7 @@ export class SearchService {
         .slice(0, maxHitsPerChannel)
         .map(m => ({
           id: m.id,
-          text: m.text ?? '',   // immer string
+          text: m.text ?? '',
           timestamp: m.timestamp
         }));
 

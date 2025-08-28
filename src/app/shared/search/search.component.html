@@ -49,15 +49,20 @@
     <section class="content-results">
         <div class="list search" id="content-results">
             @for (result of filteredContentResults; track result.channel.channelId) {
-            <div class="item" (click)="selectChannel(result.channel)">
-                <mat-icon fontIcon="chat_outlined" aria-hidden="true"></mat-icon>
-                <div class="content">
+            <div class="item column" (click)="selectChannel(result.channel)">
+                <div class="from-chat">
+                    <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
                     <p class="nuito17px400">
-                        #{{ result.channel.name }}
+                        {{ result.channel.name }}
                     </p>
-                    @for (hit of result.hits; track hit.id) {
-                    <p class="snippet">„{{ hit.text }}“</p>
-                    }
+                </div>
+                <div class="content">
+                    <mat-icon fontIcon="chat_outlined" aria-hidden="true"></mat-icon>
+                    <div>
+                        @for (hit of result.hits; track hit.id) {
+                            <p class="snippet">„{{ hit.text }}, {{ hit.timestamp.toDate() | date:'dd-MM-yyyy HH:mm' }}“</p>
+                        }
+                    </div>
                 </div>
             </div>
             }

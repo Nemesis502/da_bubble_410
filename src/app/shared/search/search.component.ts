@@ -299,18 +299,16 @@ export class SearchComponent {
 
   private norm(v: any) { return (v ?? '').toString().toLowerCase(); }
 
-  async searchMessagesInMemberChannels(query: string, perChannelLimit = 200, maxHitsPerChannel = 5) {
+  async searchMessagesInMemberChannels(query: string, perChannelLimit = 200, maxHitsPerChannel = 1) {
     const q = this.norm(query);
     if (!q || !this.currentUser?.id) return [];
 
-    // 1) Mitglieds-Channels holen (einmaliger Snapshot)
     const memberChannels = await firstValueFrom(this.firestoreService.getMemberChannels(this.currentUser.id));
 
-    // 2) Pro Channel: letzte N Nachrichten laden und filtern
     const results: Array<{ channel: Channel; hits: Array<{ id: string; text: string; timestamp: any }> }> = [];
 
     for (const ch of memberChannels) {
-      if (!ch.channelId) continue; // ohne ID kein Abruf
+      if (!ch.channelId) continue;
 
       const msgs = await firstValueFrom(
         this.firestoreService.getRecentMessagesForChannel(ch.channelId, perChannelLimit)
@@ -321,13 +319,12 @@ export class SearchComponent {
         .slice(0, maxHitsPerChannel)
         .map(m => ({
           id: m.id,
-          text: m.text ?? '',   // <<< hier sicherstellen, dass text immer string ist
+          text: m.text ?? '',
           timestamp: m.timestamp
         }));
-
+        
       if (hits.length) results.push({ channel: ch, hits });
     }
-    console.log('Nachrichten', results);
 
     return results;
   }
