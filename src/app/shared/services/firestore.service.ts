@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { collection, collectionData, docData, Firestore } from '@angular/fire/firestore';
-import { addDoc, deleteDoc, doc, getDoc, getDocs, limit, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
+import { addDoc, deleteDoc, doc, getDoc, getDocs, limit, onSnapshot, orderBy, query, updateDoc, where } from 'firebase/firestore';
 import { map, Observable } from 'rxjs';
 import { Channel } from '../../interfaces/channel.interface';
 
@@ -121,27 +121,27 @@ export class FirestoreService {
       map(users => users.filter(user => userIds.includes(user.id)))
     );
   }
-async deleteGuestChannels(): Promise<void> {
-  const channelsRef = collection(this.firestore, 'channels');
-  const q = query(channelsRef, where('createdBy', '==', 'Guest'));
-  const snapshot = await getDocs(q);
+  async deleteGuestChannels(): Promise<void> {
+    const channelsRef = collection(this.firestore, 'channels');
+    const q = query(channelsRef, where('createdBy', '==', 'Guest'));
+    const snapshot = await getDocs(q);
 
-  const deletePromises = snapshot.docs.map(docSnap => deleteDoc(docSnap.ref));
+    const deletePromises = snapshot.docs.map(docSnap => deleteDoc(docSnap.ref));
 
-  await Promise.all(deletePromises);
-}
+    await Promise.all(deletePromises);
+  }
 
-async deleteGuestConversations(): Promise<void> {
-  const conversationsRef = collection(this.firestore, 'conversations');
-  const q = query(conversationsRef, where('participants', 'array-contains', 'Guest'));
-  const snapshot = await getDocs(q);
+  async deleteGuestConversations(): Promise<void> {
+    const conversationsRef = collection(this.firestore, 'conversations');
+    const q = query(conversationsRef, where('participants', 'array-contains', 'Guest'));
+    const snapshot = await getDocs(q);
 
-  const deletePromises = snapshot.docs.map(docSnap => deleteDoc(docSnap.ref));
+    const deletePromises = snapshot.docs.map(docSnap => deleteDoc(docSnap.ref));
 
-  await Promise.all(deletePromises);
-}
+    await Promise.all(deletePromises);
+  }
 
-/** Deletes all messages sent by "Guest" under all channels */
+  /** Deletes all messages sent by "Guest" under all channels */
   async deleteGuestMessages(): Promise<void> {
     const channelsRef = collection(this.firestore, 'channels');
     const channelsSnap = await getDocs(channelsRef);
@@ -160,5 +160,22 @@ async deleteGuestConversations(): Promise<void> {
 
       totalDeleted += deletePromises.length;
     }
+  }
+
+  // Letzte N Nachrichten eines Channels (nur Text & Timestamp, reicht hier)
+  getRecentMessagesForChannel(channelId: string, limitN = 200) {
+    const col = collection(this.firestore, `channels/${channelId}/messages`);
+    const q = query(col, orderBy('timestamp', 'desc'), limit(limitN));
+
+    return collectionData(q, { idField: 'id' }) as Observable<
+      Array<{ id: string; text?: string; timestamp: any }>
+    >;
+  }
+
+  // Channels des Users (du hast bereits getChannels(); hier filtern wir clientseitig)
+  getMemberChannels(userId: string): Observable<Channel[]> {
+    return this.getChannels().pipe(
+      map(chs => chs.filter(c => Array.isArray(c.members) && c.members.includes(userId)))
+    );
   }
 }

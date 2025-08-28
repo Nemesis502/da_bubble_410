@@ -2,17 +2,20 @@ import { Injectable } from '@angular/core';
 import { ChannelsDirectMessageService, DirectMessage } from './channels-direct-message.service';
 import { Channel } from '../../interfaces/channel.interface';
 import { appUser } from '../../interfaces/user.interface';
+import { firstValueFrom } from 'rxjs';
+import { FirestoreService } from './firestore.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SearchService {
-  private firestoreChannels: Channel[] = [];
-  private firestoreUsers: appUser[] = [];
-  private currentUserId: string = '';
-  private directMessagePartnerIds: string[] = [];
+  firestoreChannels: Channel[] = [];
+  firestoreUsers: appUser[] = [];
+  currentUserId: string = '';
+  directMessagePartnerIds: string[] = [];
 
-  constructor(private data: ChannelsDirectMessageService) { }
+  constructor(private data: ChannelsDirectMessageService, private firestoreService: FirestoreService
+  ) { }
 
   setCurrentUserId(userId: string) {
     this.currentUserId = userId;
@@ -33,35 +36,43 @@ export class SearchService {
   }
 
   /** Haupt-Methode für beide Komponenten */
-  updateFilteredResults(
+  async updateFilteredResults(
     searchTerm: string,
     gastLogin: boolean,
     directMessages: any[],
     currentLoginId: string
-  ): { channels: any[]; directMessages: any[] } {
+  ): Promise<{
+    channels: any[];
+    directMessages: any[];
+    contentResults: Array<{ channel: Channel; hits: Array<{ id: string; text: string; timestamp: any }> }>
+  }> {
     const term = searchTerm.trim().toLowerCase();
     const isChannelSearch = term.startsWith('#');
     const isDirectSearch = term.startsWith('@');
     const query = term.replace(/^[@#]/, '');
 
     if (gastLogin) {
-      return this.filterAsGuest(query, isChannelSearch, isDirectSearch);
+      const { channels, directMessages } = this.filterAsGuest(query, isChannelSearch, isDirectSearch);
+      return { channels, directMessages, contentResults: [] }; // Gast hat keine Message-Suche
     }
 
     if (!directMessages || directMessages.length === 0) {
-      return { channels: [], directMessages: [] };
+      return { channels: [], directMessages: [], contentResults: [] };
     }
 
     this.setDirectMessagePartnerIds(directMessages, currentLoginId);
 
     if (isChannelSearch) {
-      return { channels: this.filterFirestoreChannels(query), directMessages: [] };
+      return { channels: this.filterFirestoreChannels(query), directMessages: [], contentResults: [] };
     } else if (isDirectSearch) {
-      return { channels: [], directMessages: this.filterFirestoreDirectMessages(query, directMessages) };
+      return { channels: [], directMessages: this.filterFirestoreDirectMessages(query, directMessages), contentResults: [] };
     } else {
+      // Hier werden die Channel-Nachrichten durchsucht
+      const contentResults = await this.searchMessagesInMemberChannels(query);
       return {
         channels: this.filterFirestoreChannels(query),
         directMessages: this.filterFirestoreDirectMessages(query, directMessages),
+        contentResults
       };
     }
   }
@@ -137,5 +148,43 @@ export class SearchService {
     return conversation.messages.some((msg: any) =>
       msg.text?.toLowerCase().includes(searchTerm)
     );
+  }
+
+  /** Nachrichtensuche in Mitglieds-Channels */
+  async searchMessagesInMemberChannels(
+    query: string,
+    perChannelLimit = 200,
+    maxHitsPerChannel = 5
+  ): Promise<Array<{ channel: Channel; hits: Array<{ id: string; text: string; timestamp: any }> }>> {
+    if (!query || !this.currentUserId) return [];
+    const q = query.toLowerCase();
+
+    // Mitglieds-Channels abrufen
+    const memberChannels = await firstValueFrom(
+      this.firestoreService.getMemberChannels(this.currentUserId)
+    );
+
+    const results: Array<{ channel: Channel; hits: Array<{ id: string; text: string; timestamp: any }> }> = [];
+
+    for (const ch of memberChannels) {
+      if (!ch.channelId) continue;
+
+      const msgs = await firstValueFrom(
+        this.firestoreService.getRecentMessagesForChannel(ch.channelId, perChannelLimit)
+      );
+
+      const hits = (msgs ?? [])
+        .filter(m => (m.text ?? '').toLowerCase().includes(q))
+        .slice(0, maxHitsPerChannel)
+        .map(m => ({
+          id: m.id,
+          text: m.text ?? '',   // immer string
+          timestamp: m.timestamp
+        }));
+
+      if (hits.length) results.push({ channel: ch, hits });
+    }
+
+    return results;
   }
 }

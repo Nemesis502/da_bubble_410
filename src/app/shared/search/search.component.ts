@@ -15,6 +15,7 @@ import { onSnapshot } from 'firebase/firestore';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { firstValueFrom } from 'rxjs';
+import { Channel } from '../../interfaces/channel.interface';
 
 @Component({
   selector: 'app-search',
@@ -45,6 +46,7 @@ export class SearchComponent {
 
   filteredChannels: any[] = [];
   filteredDirectMessages: any[] = [];
+  filteredContentResults: Array<{ channel: Channel; hits: Array<{ id: string; text: string; timestamp: any }> }> = [];
   channels: any[] = [];
   userChannels: any[] = [];
   users: any[] = [];
@@ -214,8 +216,8 @@ export class SearchComponent {
     this.router.navigate(['/chat-container', channel.channelId]);
   }
 
-  updateFilteredResults(): void {
-    const { channels, directMessages } = this.searchService.updateFilteredResults(
+  async updateFilteredResults(): Promise<void> {
+    const { channels, directMessages, contentResults } = await this.searchService.updateFilteredResults(
       this.searchTerm,
       this.gastLogin,
       this.directMessages,
@@ -224,6 +226,7 @@ export class SearchComponent {
 
     this.filteredChannels = channels;
     this.filteredDirectMessages = directMessages;
+    this.filteredContentResults = contentResults;
   }
 
   loadGuestChannel(query: string) {
@@ -292,5 +295,40 @@ export class SearchComponent {
 
   selectDirectMessageGast(user: DirectMessage): void {
     this.router.navigate(['/chat', user.name]);
+  }
+
+  private norm(v: any) { return (v ?? '').toString().toLowerCase(); }
+
+  async searchMessagesInMemberChannels(query: string, perChannelLimit = 200, maxHitsPerChannel = 5) {
+    const q = this.norm(query);
+    if (!q || !this.currentUser?.id) return [];
+
+    // 1) Mitglieds-Channels holen (einmaliger Snapshot)
+    const memberChannels = await firstValueFrom(this.firestoreService.getMemberChannels(this.currentUser.id));
+
+    // 2) Pro Channel: letzte N Nachrichten laden und filtern
+    const results: Array<{ channel: Channel; hits: Array<{ id: string; text: string; timestamp: any }> }> = [];
+
+    for (const ch of memberChannels) {
+      if (!ch.channelId) continue; // ohne ID kein Abruf
+
+      const msgs = await firstValueFrom(
+        this.firestoreService.getRecentMessagesForChannel(ch.channelId, perChannelLimit)
+      );
+
+      const hits = (msgs ?? [])
+        .filter(m => this.norm(m.text ?? '').includes(q))
+        .slice(0, maxHitsPerChannel)
+        .map(m => ({
+          id: m.id,
+          text: m.text ?? '',   // <<< hier sicherstellen, dass text immer string ist
+          timestamp: m.timestamp
+        }));
+
+      if (hits.length) results.push({ channel: ch, hits });
+    }
+    console.log('Nachrichten', results);
+
+    return results;
   }
 }

@@ -45,5 +45,24 @@
         </div>
     </section>
     }
+    @if (filteredContentResults.length > 0) {
+    <section class="content-results">
+        <div class="list search" id="content-results">
+            @for (result of filteredContentResults; track result.channel.channelId) {
+            <div class="item" (click)="selectChannel(result.channel)">
+                <mat-icon fontIcon="chat_outlined" aria-hidden="true"></mat-icon>
+                <div class="content">
+                    <p class="nuito17px400">
+                        #{{ result.channel.name }}
+                    </p>
+                    @for (hit of result.hits; track hit.id) {
+                    <p class="snippet">„{{ hit.text }}“</p>
+                    }
+                </div>
+            </div>
+            }
+        </div>
+    </section>
+    }
     }
 </section>
