@@ -71,7 +71,10 @@ export class MainMenuComponent implements OnInit {
   isSmallScreen = window.innerWidth < 800;
   filteredChannels: any[] = [];
   filteredDirectMessages: any[] = [];
-  filteredContentResults: Array<{ channel: Channel; hits: Array<{ id: string; text: string; timestamp: any }> }> = [];
+  filteredContentResults: Array<{
+    channel: Channel;
+    hits: Array<{ id: string; text: string; timestamp: any }>;
+  }> = [];
   channels: any[] = [];
   userChannels: any[] = [];
   users: any[] = [];
@@ -156,6 +159,10 @@ export class MainMenuComponent implements OnInit {
     this.currentLoginId = state.loginId ?? '';
   }
 
+  get isGuestUser(): boolean {
+    return this.currentUser?.id === 'Guest';
+  }
+
   async getCurrentUserLogIn() {
     this.userService.updateUserStatusTrue(this.currentLoginId);
     let userData = await firstValueFrom(
@@ -223,12 +230,13 @@ export class MainMenuComponent implements OnInit {
   }
 
   async updateFilteredResults(): Promise<void> {
-    const { channels, directMessages, contentResults } = await this.searchService.updateFilteredResults(
-      this.searchTerm,
-      this.gastLogin,
-      this.directMessages,
-      this.currentLoginId
-    );
+    const { channels, directMessages, contentResults } =
+      await this.searchService.updateFilteredResults(
+        this.searchTerm,
+        this.gastLogin,
+        this.directMessages,
+        this.currentLoginId
+      );
 
     this.filteredChannels = channels;
     this.filteredDirectMessages = directMessages;
@@ -345,21 +353,20 @@ export class MainMenuComponent implements OnInit {
   selectDirectMessageGast(user: DirectMessage): void {
     if (!user) return;
     this.closeNewMessage.emit();
-  this.channelDirectMessageData.setSelectedDirectMessageGast(user);
-  if (window.innerWidth < 800) {
+    this.channelDirectMessageData.setSelectedDirectMessageGast(user);
+    if (window.innerWidth < 800) {
+      this.closeNewMessage.emit();
+      this.router.navigate(['/chat-container', 'guest', user.id]);
+    }
+  }
+
+  selectGuestChannel(channel: Channel): void {
+    this.channelDirectMessageData.setSelectedGuestChannel(channel);
     this.closeNewMessage.emit();
-     this.router.navigate(['/chat-container', 'guest', user.id]);
+    if (window.innerWidth < 800 && channel.channelId) {
+      this.router.navigate(['/chat-container', channel.channelId]);
+    }
   }
-};
-
-
-selectGuestChannel(channel: Channel): void {
-  this.channelDirectMessageData.setSelectedGuestChannel(channel);
-  this.closeNewMessage.emit();
-  if (window.innerWidth < 800 && channel.channelId) {
-    this.router.navigate(['/chat-container', channel.channelId]);
-  }
-}
 
   openNewMessage(): void {
     if (window.innerWidth < 800) {
