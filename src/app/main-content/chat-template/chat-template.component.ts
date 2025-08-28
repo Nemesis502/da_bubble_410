@@ -54,7 +54,7 @@ interface PickerPosition {
     './chat-template.media-query.component.scss',
   ],
 })
-export class ChatTemplateComponent implements AfterViewInit {
+export class ChatTemplateComponent implements AfterViewInit, OnInit {
   @Input() isThreadView: boolean = false;
   @Input() chatId!: string | null;
   @Input() threadId!: string | null;
@@ -99,12 +99,12 @@ export class ChatTemplateComponent implements AfterViewInit {
   chatIsConversation: boolean = false;
   messages: any[] = [];
   width: number = window.innerWidth;
-
+  isGuestChat: boolean = false;
   constructor(
     private firestoreService: FirestoreService,
     private hostEl: ElementRef,
     private channelDirectMessageData: ChannelsDirectMessageService
-  ) { }
+  ) {}
 
   ngAfterViewInit() {
     this.chatUIService.init(
@@ -126,6 +126,7 @@ export class ChatTemplateComponent implements AfterViewInit {
     this.channelDirectMessageData.selectedGuestDirectMessage$.subscribe(
       (guestUser: DirectMessage | null) => {
         if (guestUser) {
+          this.isGuestChat = true;
           this.selectedChannel = null;
           this.messages$ = of([]);
           this.messages = [];
@@ -141,7 +142,6 @@ export class ChatTemplateComponent implements AfterViewInit {
             (this.chatIsConversation = true);
           this.chatIsChannel = false;
           this.chatIsThread = false;
-          console.log(this.otherUser);
           this.updateChatContext();
 
           setTimeout(() => {
@@ -180,16 +180,19 @@ export class ChatTemplateComponent implements AfterViewInit {
     );
     if (this.threadId) {
       this.isThreadView = true;
-      await this.chatService.initializeChat(this.threadId, this.currentUser?.id);
+      await this.chatService.initializeChat(
+        this.threadId,
+        this.currentUser?.id
+      );
     } else if (this.chatId) {
       this.isThreadView = false;
       await this.chatService.initializeChat(this.chatId, this.currentUser?.id);
     }
     this.messages$ = this.isThreadView
       ? this.chatService.threadMessages$.pipe(
-        map((messages) => messages ?? []),
-        startWith([])
-      )
+          map((messages) => messages ?? []),
+          startWith([])
+        )
       : this.chatService.messages$;
     this.chatService.threadMessages$.subscribe((msgs) => {
       this.threadMessages = msgs ?? [];
@@ -201,7 +204,6 @@ export class ChatTemplateComponent implements AfterViewInit {
       setTimeout(() => this.scrollToBottom(), 100);
       this.focusChatInput();
     });
-
     this.chatService.messages$.subscribe((messages) => {
       this.messages = messages;
       if (messages.length) {
@@ -216,9 +218,9 @@ export class ChatTemplateComponent implements AfterViewInit {
       this.chatUIService.fetchMentionableUsers(channel?.channelId);
       this.chatUIService.fetchAllChannels();
     });
-
-    this.chatService.otherUser$.subscribe((user) => (this.otherUser = user));
-
+    if (!this.isGuestChat) {
+      this.chatService.otherUser$.subscribe((user) => (this.otherUser = user));
+    }
     this.chatService.activeThreadMessage$.subscribe(
       (msg) => (this.activeThreadMessage = msg)
     );
@@ -317,30 +319,16 @@ export class ChatTemplateComponent implements AfterViewInit {
 
   // Thread Handling
   handleReplyToMessage(messageId: string): void {
-    const isMobile = window.innerWidth < 1000;
-
-    if (!isMobile) {
-      // On small screens, just emit the event
-      console.log(
-        'Mobile: emitting threadOpened event for message ID:',
-        messageId
-      );
+    if (!this.isMobile) {
       this.threadOpened.emit(messageId);
     } else {
-      // On desktop, open the thread in-place
-      console.log(
-        'Desktop: opening thread in chat-template for message ID:',
-        messageId
-      );
       this.chatService.openThread(messageId);
       this.scrollToBottom();
     }
   }
 
   closeThreadView(): void {
-    const isMobile = window.innerWidth < 1000;
-
-    if (isMobile) {
+    if (this.isMobile) {
       this.chatService.closeThread();
       this.isThreadView = false;
       this.updateChatContext();

@@ -345,24 +345,21 @@ export class MainMenuComponent implements OnInit {
   selectDirectMessageGast(user: DirectMessage): void {
     if (!user) return;
     this.closeNewMessage.emit();
-    // Always update the BehaviorSubject
-    this.channelDirectMessageData.setSelectedDirectMessageGast(user);
-
-    // On mobile, just close new message menu if needed
-    if (window.innerWidth < 800) {
-      this.closeNewMessage.emit();
-    }
-  };
-
-
-  selectGuestChannel(channel: Channel): void {
-    this.channelDirectMessageData.setSelectedGuestChannel(channel);
+  this.channelDirectMessageData.setSelectedDirectMessageGast(user);
+  if (window.innerWidth < 800) {
     this.closeNewMessage.emit();
-    // Navigate on small screens
-    if (window.innerWidth < 800 && channel.channelId) {
-      this.router.navigate(['/chat-container', channel.channelId]);
-    }
+     this.router.navigate(['/chat-container', 'guest', user.id]);
   }
+};
+
+
+selectGuestChannel(channel: Channel): void {
+  this.channelDirectMessageData.setSelectedGuestChannel(channel);
+  this.closeNewMessage.emit();
+  if (window.innerWidth < 800 && channel.channelId) {
+    this.router.navigate(['/chat-container', channel.channelId]);
+  }
+}
 
   openNewMessage(): void {
     if (window.innerWidth < 800) {
