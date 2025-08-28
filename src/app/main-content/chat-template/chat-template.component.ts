@@ -121,14 +121,9 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
     );
   }
 
-  async ngOnInit() {
-    await this.loadChat();
-  }
-
-  private async loadChat(): Promise<void> {
+  async ngOnInit(): Promise<void> {
     this.currentUser = this.userSession.getCurrentUser();
     this.isMobile = this.width < 999;
-    console.log('triggered');
     // Initialize chat type and set chatIsChannel / chatIsConversation
     await this.initializeChatType();
 
@@ -216,7 +211,6 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
               profilePic: index + 1,
               status: true,
             })) || [];
-            console.log('triggered')
           this.chatIsChannel = true;
           this.chatIsConversation = false;
           setTimeout(() => {
@@ -315,16 +309,14 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
 
   async ngOnChanges(changes: SimpleChanges) {
     if (changes['chatId'] && this.chatId) {
-      console.log('Chat ID changed:', this.chatId);
-      await this.loadChat();
+      await this.ngOnInit();
       await this.chatService.initializeChat(this.chatId, this.currentUser?.id);
       this.messages$ = this.chatService.messages$;
       await this.fetchChannelMembers();
     }
-
+    await this.ngOnInit();
     if (changes['chatType'] && this.chatType) {
-      await this.loadChat();
-      console.log('Chat type changed:', this.chatType);
+      await this.ngOnInit();
       await this.initializeChatType();
     }
   }
@@ -511,11 +503,6 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
       this.chatIsChannel = false;
       this.chatIsConversation = false;
     }
-
-    console.log('Chat type initialized:', type, {
-      chatIsChannel: this.chatIsChannel,
-      chatIsConversation: this.chatIsConversation,
-    });
   }
 
   setActiveChatField() {
