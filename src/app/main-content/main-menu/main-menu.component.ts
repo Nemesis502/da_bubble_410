@@ -156,11 +156,6 @@ export class MainMenuComponent implements OnInit {
     this.currentLoginId = state.loginId ?? '';
   }
 
-  get isGuestUser(): boolean {
-  return this.currentUser?.id === 'Guest';
-}
-
-
   async getCurrentUserLogIn() {
     this.userService.updateUserStatusTrue(this.currentLoginId);
     let userData = await firstValueFrom(
