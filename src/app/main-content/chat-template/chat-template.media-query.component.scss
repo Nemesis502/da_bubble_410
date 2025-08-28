@@ -6,10 +6,6 @@
     height: calc(100vh - 130px);
   }
 
-  .header {
-    display: none;
-  }
-
   .chat-header {
     border-radius: 30px 30px 0 0;
   }
@@ -24,6 +20,10 @@
       font-size: 28px !important;
     }
   }
+
+  .header {
+    display: none;
+  }
 }
 
 @media screen and (max-width: 999px) {
@@ -35,42 +35,49 @@
 
   .member-display {
     height: 40px;
+
     .member-avatar {
       height: 30px;
       width: 30px;
     }
   }
-.self-chat-placeholder {
-  padding-bottom: 0px;
-}
-.self-chat-info {
-  padding-bottom: 8px;
-  img {
-    height: 40px;
-    width: 40px;
-    padding-right: 16px;
-  }
-  p {
-    font-size: 16px !important;
-  }
-}
 
-.self-chat-text {
-  display: flex;
-  .first {
-    font-weight: 700 !important;
-    color: rgb(75, 74, 74);
+  .self-chat-placeholder {
+    padding-bottom: 0px;
   }
-  p {
-    color: gray;
-    font-size: 14px !important;
-    padding-right: 8px;
-  }
-}
 
-.chat-interface{
-  margin-bottom: 10px;
-}
+  .self-chat-info {
+    padding-bottom: 8px;
+
+    img {
+      height: 40px;
+      width: 40px;
+      padding-right: 16px;
+    }
+
+    p {
+      font-size: 16px !important;
+    }
+  }
+
+  .self-chat-text {
+    display: flex;
+
+    .first {
+      font-weight: 700 !important;
+      color: rgb(75, 74, 74);
+    }
+
+    p {
+      color: gray;
+      font-size: 14px !important;
+      padding-right: 8px;
+    }
+  }
+
+  .chat-interface {
+    margin-bottom: 10px;
+  }
 }
 
 @media screen and (max-width: 800px) {
@@ -87,7 +94,8 @@
   .chat-header {
     .channel-button {
       margin-left: 0;
-      .status-dot{
+
+      .status-dot {
         left: 30px
       }
     }
