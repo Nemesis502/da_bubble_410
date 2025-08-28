@@ -47,7 +47,7 @@ export class MainContentComponent {
   showMainMenu = true;
   showThread = false;
   currentUser$ = this.userSession.currentLogingUser$;
-
+  currentChatType: 'channel' | 'conversation' | null = null;
   constructor(
     private userSession: SessionService,
     private router: Router,
@@ -86,6 +86,12 @@ export class MainContentComponent {
     );
     this.currentUser = this.userService.setUserObject(userData, userData?.id);
     this.userSession.setCurrentUser(this.currentUser);
+  }
+
+  onChatTypeSelected(type: 'channel' | 'conversation'): void {
+    console.log('Chat type selected:', type);
+    // Store it if needed for UI logic
+    this.currentChatType = type;
   }
 
   loadAllChannels(): void {

@@ -1,4 +1,4 @@
-<app-header [currentUser]="(currentUser$ | async)"></app-header>
+<app-header [currentUser]="currentUser$ | async"></app-header>
 
 <section class="main">
   <button class="show-main-menu" (click)="showMainMenu = !showMainMenu">
@@ -15,24 +15,34 @@
     [class.menu-open]="showMainMenu"
     [class.menu-closed]="!showMainMenu"
   >
-    <app-main-menu (closeNewMessage)="showNewMessage = false" (newMessage)="openNewMessage()" (chatSelected)="onChatSelected($event)"></app-main-menu>
+    <app-main-menu
+      (closeNewMessage)="showNewMessage = false"
+      (newMessage)="openNewMessage()"
+      (chatSelected)="onChatSelected($event)"
+      (chatTypeSelected)="onChatTypeSelected($event)"
+    ></app-main-menu>
   </section>
 
   <section class="center">
-    <app-chat-template *ngIf="!showNewMessage"
+    <app-chat-template
+      *ngIf="!showNewMessage"
       [chatId]="currentChatId"
+      [chatType]="currentChatType"
       (threadOpened)="openThread($event)"
     ></app-chat-template>
     <!-- Conditionally render the new message component -->
-    <app-new-message *ngIf="showNewMessage" (close)="closeNewMessage()"></app-new-message>
+    <app-new-message
+      *ngIf="showNewMessage"
+      (close)="closeNewMessage()"
+    ></app-new-message>
   </section>
 
-@if (showThread) {
+  @if (showThread) {
   <section class="right">
     <app-threads
       [threadId]="currentThreadId"
       (threadClosed)="closeThread()"
     ></app-threads>
   </section>
-}
+  }
 </section>

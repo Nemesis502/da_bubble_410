@@ -54,6 +54,7 @@ import { Channel } from '../../interfaces/channel.interface';
 })
 export class MainMenuComponent implements OnInit {
   @Output() chatSelected = new EventEmitter<string>();
+  @Output() chatTypeSelected = new EventEmitter<'channel' | 'conversation'>();
   @Output() newMessage = new EventEmitter<void>();
   @Output() closeNewMessage = new EventEmitter<void>();
   readonly dialog = inject(MatDialog);
@@ -296,9 +297,10 @@ export class MainMenuComponent implements OnInit {
     this.channelDirectMessageData.setSelectedChannel(channel);
     this.closeNewMessage.emit();
     if (window.innerWidth < 800) {
-      this.router.navigate(['/chat-container', channel.channelId]);
+      this.router.navigate(['/chat-container', 'channel', channel.channelId]);
     } else {
       this.chatSelected.emit(channel.channelId);
+      this.chatTypeSelected.emit('channel');
     }
   }
 
@@ -326,8 +328,13 @@ export class MainMenuComponent implements OnInit {
     this.channelDirectMessageData.setSelectedDirectMessage(user);
     this.closeNewMessage.emit();
     if (window.innerWidth < 800) {
-      this.router.navigate(['/chat-container', conversation.id]);
+      this.router.navigate([
+        '/chat-container',
+        'conversation',
+        conversation.id,
+      ]);
     } else {
+      this.chatTypeSelected.emit('conversation');
       this.chatSelected.emit(conversation.id);
     }
   }
@@ -356,15 +363,23 @@ export class MainMenuComponent implements OnInit {
     this.channelDirectMessageData.setSelectedDirectMessageGast(user);
     if (window.innerWidth < 800) {
       this.closeNewMessage.emit();
-      this.router.navigate(['/chat-container', 'guest', user.id]);
+      this.router.navigate([
+        '/chat-container',
+        'conversation',
+        'guest',
+        user.id,
+      ]);
+      this.chatTypeSelected.emit('conversation');
     }
   }
 
   selectGuestChannel(channel: Channel): void {
     this.channelDirectMessageData.setSelectedGuestChannel(channel);
     this.closeNewMessage.emit();
+         this.chatTypeSelected.emit('channel');
     if (window.innerWidth < 800 && channel.channelId) {
-      this.router.navigate(['/chat-container', channel.channelId]);
+      this.router.navigate(['/chat-container', 'channel', channel.channelId]);
+
     }
   }
 

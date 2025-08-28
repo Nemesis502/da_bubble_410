@@ -58,6 +58,7 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
   @Input() isThreadView: boolean = false;
   @Input() chatId!: string | null;
   @Input() threadId!: string | null;
+  @Input() chatType: 'channel' | 'conversation' | null = null;
   @Output() threadOpened = new EventEmitter<string>();
   @Output() threadClosed = new EventEmitter<void>();
 
@@ -120,9 +121,54 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
     );
   }
 
-  async ngOnInit(): Promise<void> {
+  async ngOnInit() {
+    await this.loadChat();
+  }
+
+  private async loadChat(): Promise<void> {
     this.currentUser = this.userSession.getCurrentUser();
     this.isMobile = this.width < 999;
+    console.log('triggered');
+    // Initialize chat type and set chatIsChannel / chatIsConversation
+    await this.initializeChatType();
+
+    // Always subscribe to guest-related observables (needed for guest handling)
+    if (!this.isMobile) {
+      this.subscribeToGuestDirectMessages();
+    }
+
+    this.subscribeToGuestChannels();
+
+    // Initialize the chat (thread or chatId)
+    await this.initializeChatBasedOnThreadOrChatId();
+
+    // Conditionally call only the relevant setup functions
+    if (this.chatIsChannel) {
+      this.setupMessagesObservable();
+      this.subscribeToMessages();
+      this.subscribeToSelectedChannel();
+      this.subscribeToActiveThreadMessage(); // optional, if channels can have threads
+      this.fetchChannelMembers();
+    } else if (this.chatIsConversation) {
+      this.setupMessagesObservable();
+      this.subscribeToMessages();
+      this.subscribeToOtherUser();
+      this.subscribeToActiveThreadMessage(); // optional, if conversations can have threads
+      if (this.isMobile) {
+        this.subscribeToGuestDirectMessages();
+      }
+    }
+
+    // Subscriptions common to both
+    this.subscribeToThreadMessages();
+    this.subscribeToThreadStatus();
+    this.subscribeToChatUIObservables();
+
+    // Fetch general channel info
+    this.chatUIService.fetchAllChannels();
+  }
+
+  private subscribeToGuestDirectMessages(): void {
     this.channelDirectMessageData.selectedGuestDirectMessage$.subscribe(
       (guestUser: DirectMessage | null) => {
         if (guestUser) {
@@ -141,9 +187,6 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
           } as appUser),
             (this.chatIsConversation = true);
           this.chatIsChannel = false;
-          this.chatIsThread = false;
-          this.updateChatContext();
-
           setTimeout(() => {
             this.scrollToBottom();
             this.focusChatInput();
@@ -151,6 +194,9 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
         }
       }
     );
+  }
+
+  private subscribeToGuestChannels(): void {
     this.channelDirectMessageData.selectedGuestChannel$.subscribe(
       async (channel: Channel | null) => {
         if (channel && channel.channelId) {
@@ -170,7 +216,9 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
               profilePic: index + 1,
               status: true,
             })) || [];
-          this.updateChatContext();
+            console.log('triggered')
+          this.chatIsChannel = true;
+          this.chatIsConversation = false;
           setTimeout(() => {
             this.scrollToBottom();
             this.focusChatInput();
@@ -178,6 +226,9 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
         }
       }
     );
+  }
+
+  private async initializeChatBasedOnThreadOrChatId(): Promise<void> {
     if (this.threadId) {
       this.isThreadView = true;
       await this.chatService.initializeChat(
@@ -188,22 +239,32 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
       this.isThreadView = false;
       await this.chatService.initializeChat(this.chatId, this.currentUser?.id);
     }
+  }
+
+  private setupMessagesObservable(): void {
     this.messages$ = this.isThreadView
       ? this.chatService.threadMessages$.pipe(
           map((messages) => messages ?? []),
           startWith([])
         )
       : this.chatService.messages$;
+  }
+
+  private subscribeToThreadMessages(): void {
     this.chatService.threadMessages$.subscribe((msgs) => {
       this.threadMessages = msgs ?? [];
     });
+  }
 
+  private subscribeToThreadStatus(): void {
     this.chatService.isThread$.subscribe((isThread) => {
       this.chatIsThread = isThread;
-      this.updateChatContext();
       setTimeout(() => this.scrollToBottom(), 100);
       this.focusChatInput();
     });
+  }
+
+  private subscribeToMessages(): void {
     this.chatService.messages$.subscribe((messages) => {
       this.messages = messages;
       if (messages.length) {
@@ -211,20 +272,27 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
         this.focusChatInput();
       }
     });
+  }
 
+  private subscribeToSelectedChannel(): void {
     this.chatService.selectedChannel$.subscribe((channel) => {
       this.selectedChannel = channel;
-      this.updateChatContext();
       this.chatUIService.fetchMentionableUsers(channel?.channelId);
       this.chatUIService.fetchAllChannels();
     });
-    if (!this.isGuestChat) {
-      this.chatService.otherUser$.subscribe((user) => (this.otherUser = user));
-    }
+  }
+
+  private subscribeToOtherUser(): void {
+    this.chatService.otherUser$.subscribe((user) => (this.otherUser = user));
+  }
+
+  private subscribeToActiveThreadMessage(): void {
     this.chatService.activeThreadMessage$.subscribe(
       (msg) => (this.activeThreadMessage = msg)
     );
+  }
 
+  private subscribeToChatUIObservables(): void {
     this.chatUIService.mentionPopupVisible$.subscribe(
       (val) => (this.mentionPopupVisible = val)
     );
@@ -243,37 +311,22 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
     this.chatUIService.pickerPosition$.subscribe(
       (val) => (this.pickerPosition = val)
     );
-
-    this.chatUIService.fetchAllChannels();
-    this.updateChatContext();
-    this.fetchChannelMembers();
   }
 
   async ngOnChanges(changes: SimpleChanges) {
-    if (changes['threadId'] && this.threadId) {
-      this.isThreadView = true;
-      await this.chatService.initializeChat(
-        this.threadId,
-        this.currentUser?.id
-      );
-      this.messages$ = this.chatService.threadMessages$.pipe(
-        map((messages) => messages ?? []),
-        startWith([])
-      );
-    } else if (changes['chatId'] && this.chatId) {
-      this.isThreadView = false;
-      if (!changes['chatId'].firstChange) {
-        this.otherUser = null;
-      }
-
+    if (changes['chatId'] && this.chatId) {
+      console.log('Chat ID changed:', this.chatId);
+      await this.loadChat();
       await this.chatService.initializeChat(this.chatId, this.currentUser?.id);
       this.messages$ = this.chatService.messages$;
-    }
-    if (changes['chatId'] && this.chatId) {
       await this.fetchChannelMembers();
     }
 
-    this.updateChatContext();
+    if (changes['chatType'] && this.chatType) {
+      await this.loadChat();
+      console.log('Chat type changed:', this.chatType);
+      await this.initializeChatType();
+    }
   }
 
   // Message Sending & Editing
@@ -331,7 +384,6 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
     if (this.isMobile) {
       this.chatService.closeThread();
       this.isThreadView = false;
-      this.updateChatContext();
       this.scrollToBottom();
     } else {
       this.threadClosed.emit();
@@ -433,17 +485,37 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
     }
   }
 
-  updateChatContext(): void {
-    this.chatIsThread = false;
-    this.chatIsChannel = false;
-    this.chatIsConversation = false;
-    if (this.isThreadView || this.chatService.isThread) {
-      this.chatIsThread = true;
-    } else if (this.otherUser) {
-      this.chatIsConversation = true;
-    } else if (this.selectedChannel) {
-      this.chatIsChannel = true;
+  private async initializeChatType(): Promise<void> {
+    let type: 'channel' | 'conversation' | null = null;
+
+    // Big screen: @Input chatType takes precedence
+    if (this.chatType) {
+      type = this.chatType;
+    } else {
+      // Small screen: read from route
+      const paramMap = this.route.snapshot.paramMap;
+      const routeType = paramMap.get('type');
+      if (routeType === 'channel' || routeType === 'conversation') {
+        type = routeType;
+      }
     }
+
+    if (type === 'channel') {
+      this.chatIsChannel = true;
+      this.chatIsConversation = false;
+    } else if (type === 'conversation') {
+      this.chatIsChannel = false;
+      this.chatIsConversation = true;
+    } else {
+      // fallback: reset both
+      this.chatIsChannel = false;
+      this.chatIsConversation = false;
+    }
+
+    console.log('Chat type initialized:', type, {
+      chatIsChannel: this.chatIsChannel,
+      chatIsConversation: this.chatIsConversation,
+    });
   }
 
   setActiveChatField() {

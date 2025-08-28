@@ -27,6 +27,6 @@ export const routes: Routes = [
   { path: 'addChannelDialog', component: AddChannelDialogComponent },
   { path: 'channel-info/:id', component: ChannelInfoComponent },
   { path: 'new-message/:id', component: NewMessageComponent },
-  { path: 'chat-container/:id', component: ChatTemplateContainerComponent },
-  { path: 'chat-container/guest/:guestId', component: ChatTemplateComponent },
+  { path: 'chat-container/:type/:id', component: ChatTemplateContainerComponent },
+  { path: 'chat-container/:type/guest/:guestId', component: ChatTemplateComponent },
 ];
