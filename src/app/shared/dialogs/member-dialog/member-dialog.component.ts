@@ -1,12 +1,23 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, Inject, inject, signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  Inject,
+  inject,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { appUser } from '../../../interfaces/user.interface';
 import { Channel } from '../../../interfaces/channel.interface';
 import { SessionService } from '../../services/currentUserSession.service';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { FirestoreService } from '../../services/firestore.service';
 import { firstValueFrom } from 'rxjs';
 import { FormsModule } from '@angular/forms';
@@ -28,10 +39,10 @@ import { ChannelsDirectMessageService } from '../../services/channels-direct-mes
     MatIconModule,
     MatFormFieldModule,
     MatChipsModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
   ],
   templateUrl: './member-dialog.component.html',
-  styleUrl: './member-dialog.component.scss'
+  styleUrl: './member-dialog.component.scss',
 })
 export class MemberDialogComponent {
   @ViewChild('inputField') inputField!: ElementRef<HTMLInputElement>;
@@ -52,14 +63,17 @@ export class MemberDialogComponent {
   channelId = '';
   channel: Channel | null = null;
   currentUser: appUser | null = null;
-  autocompleteIsOpen = false
+  autocompleteIsOpen = false;
   isGastLogin = false;
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { channelId: any; source: string; }, private dialogRef: MatDialogRef<MemberDialogComponent>) { }
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public data: { channelId: any; source: string },
+    private dialogRef: MatDialogRef<MemberDialogComponent>
+  ) {}
 
   async ngOnInit(): Promise<void> {
     this.currentUser = this.userSession.getCurrentUser();
-    if (this.currentUser?.id == "Guest") {
+    if (this.currentUser?.id == 'Guest') {
       this.isGastLogin = true;
     }
     this.channelId = this.data.channelId;
@@ -71,7 +85,7 @@ export class MemberDialogComponent {
 
   async loadChannel(): Promise<void> {
     const channels = await this.whichChannels();
-    const found = channels.find(c => c.channelId === this.channelId);
+    const found = channels.find((c) => c.channelId === this.channelId);
     if (found) {
       this.channel = found;
     }
@@ -82,14 +96,16 @@ export class MemberDialogComponent {
       const guestChannels = this.channelsDirectMessageService.getChannels();
       return guestChannels;
     } else {
-      const liveChannels = await firstValueFrom(this.firestoreService.getChannels());
+      const liveChannels = await firstValueFrom(
+        this.firestoreService.getChannels()
+      );
       return liveChannels;
     }
   }
 
   async loadMembers(): Promise<void> {
     const users = await this.whichUsers();
-    this.allUsers.set(users)
+    this.allUsers.set(users);
 
     const memberList = users.filter((user: appUser) =>
       this.channel?.members.includes(user.id!)
@@ -136,9 +152,9 @@ export class MemberDialogComponent {
       panelClass: 'member-dialog',
       data: {
         source: 'add-members',
-        channelId: this.channel?.channelId
-      }
-    })
+        channelId: this.channel?.channelId,
+      },
+    });
   }
 
   // Add-Members
@@ -146,9 +162,11 @@ export class MemberDialogComponent {
     const val = this.searchTerm.trim();
     if (!val) return;
 
-    const match = this.allUsers().find(u => u.userName.toLowerCase() === val.toLowerCase());
-    if (match && !this.peoples().some(p => p.userName === match.userName)) {
-      this.peoples.update(peoples => [...peoples, match]);
+    const match = this.allUsers().find(
+      (u) => u.userName.toLowerCase() === val.toLowerCase()
+    );
+    if (match && !this.peoples().some((p) => p.userName === match.userName)) {
+      this.peoples.update((peoples) => [...peoples, match]);
     }
 
     this.searchTerm = '';
@@ -158,7 +176,7 @@ export class MemberDialogComponent {
   }
 
   remove(people: appUser): void {
-    this.peoples.update(peoples => peoples.filter(p => p !== people));
+    this.peoples.update((peoples) => peoples.filter((p) => p !== people));
     this.announcer.announce(`Removed ${people.userName}`);
   }
 
@@ -166,9 +184,11 @@ export class MemberDialogComponent {
     const value = (event.value || '').trim();
     if (!value) return;
 
-    const match = this.allUsers().find(u => u.userName.toLowerCase() === value.toLowerCase());
-    if (match && !this.peoples().some(p => p.userName === match.userName)) {
-      this.peoples.update(peoples => [...peoples, match]);
+    const match = this.allUsers().find(
+      (u) => u.userName.toLowerCase() === value.toLowerCase()
+    );
+    if (match && !this.peoples().some((p) => p.userName === match.userName)) {
+      this.peoples.update((peoples) => [...peoples, match]);
     }
 
     this.searchTerm = '';
@@ -195,10 +215,11 @@ export class MemberDialogComponent {
     const query = (this.searchTerm || '').toString().toLowerCase();
     const membersInChannel = this.channelMembers();
     this.filteredUsers.set(
-      this.allUsers().filter(user =>
-        user.userName.toLowerCase().startsWith(query) &&
-        !this.peoples().some(p => p.userName === user.userName) &&
-        !membersInChannel.includes(user.id!)
+      this.allUsers().filter(
+        (user) =>
+          user.userName.toLowerCase().startsWith(query) &&
+          !this.peoples().some((p) => p.userName === user.userName) &&
+          !membersInChannel.includes(user.id!)
       )
     );
   }
@@ -211,10 +232,10 @@ export class MemberDialogComponent {
 
   selectUser(user: appUser): void {
     if (
-      !this.peoples().some(p => p.userName === user.userName) &&
+      !this.peoples().some((p) => p.userName === user.userName) &&
       !this.channelMembers().includes(user.id!)
     ) {
-      this.peoples.update(peoples => [...peoples, user]);
+      this.peoples.update((peoples) => [...peoples, user]);
     }
 
     this.searchTerm = '';
@@ -237,9 +258,19 @@ export class MemberDialogComponent {
       return;
     }
 
-    const membersToAdd = this.peoples().map(u => u.id!);
+    const membersToAdd = this.peoples().map((u) => u.id!);
     try {
-      await this.firestoreService.addMembersToChannel(this.data.channelId, membersToAdd);
+      await this.firestoreService.addMembersToChannel(
+        this.data.channelId,
+        membersToAdd
+      );
+      const updatedChannel: Channel = {
+        ...this.channel!,
+        members: Array.from(
+          new Set([...(this.channel?.members ?? []), ...membersToAdd])
+        ),
+      };
+      this.channelsDirectMessageService.setSelectedGuestChannel(updatedChannel);
       this.dialogRef.close({ membersAdded: true });
     } catch (error) {
       console.error('Fehler beim Hinzufügen der Mitglieder:', error);
@@ -247,11 +278,16 @@ export class MemberDialogComponent {
   }
 
   addGuestMembers(): void {
-    const ids = this.peoples().map(u => u.id!).filter(Boolean);
+    const ids = this.peoples()
+      .map((u) => u.id!)
+      .filter(Boolean);
     const list = this.channelsDirectMessageService.getChannels();
-    const i = list.findIndex(c => c.channelId === this.channelId);
+    const i = list.findIndex((c) => c.channelId === this.channelId);
     if (i === -1 || ids.length === 0) return;
-    const updated = { ...list[i], members: Array.from(new Set([...(list[i].members ?? []), ...ids])) };
+    const updated = {
+      ...list[i],
+      members: Array.from(new Set([...(list[i].members ?? []), ...ids])),
+    };
     list[i] = updated;
     this.channelsDirectMessageService.setSelectedGuestChannel(updated);
     this.dialogRef.close({ membersAdded: true });
