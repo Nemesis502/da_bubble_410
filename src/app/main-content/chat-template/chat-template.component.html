@@ -60,27 +60,12 @@
           {{ chatIsConversation ? otherUser?.userName : selectedChannel?.name }}
         </span>
         }
-
-        <!-- Normal channel view -->
-        <!-- @if (chatIsChannel && !chatIsThread) {
-        <span (click)="openChannelInfo()" class="clickable-channel-name">
-          {{ selectedChannel?.name }}
-        </span>
-        } -->
         @if(chatIsChannel){
         <span (click)="openChannelInfo()" class="clickable-channel-name">
           # {{ selectedChannel?.name }}
         </span>
         }
       </p>
-
-      <!-- @if (chatIsChannel && !chatIsThread) {
-      <mat-icon
-        (click)="openChannelInfo()"
-        class="mat-icon-top"
-        fontIcon="keyboard_arrow_down"
-      ></mat-icon>
-      } -->
       @if (chatIsChannel && !chatIsConversation){
       <mat-icon
         (click)="openChannelInfo()"
@@ -91,7 +76,7 @@
     </button>
 
     <!-- Thread view: show X button -->
-    @if (chatIsThread) {
+    @if (chatIsThread && isMobile) {
     <button
       class="x-button"
       (click)="closeThreadView()"
@@ -101,12 +86,6 @@
     </button>
     }
 
-    <!-- Normal view: show Add User button -->
-    <!-- @if (chatIsChannel && !chatIsThread) {
-    <button class="add-user-button" (click)="openMemberDialog()">
-      <mat-icon class="mat-icon-top" fontIcon="person_add_alt"></mat-icon>
-    </button>
-    } -->
     <div class="chat-header-members">
       @if (chatIsChannel && !chatIsConversation){
       <div class="member-display" (click)="openMemberDialog()">
@@ -135,7 +114,7 @@
 
   <section class="chat-body" #chatBody>
     <!-- Thread view -->
-    @if (chatIsThread) {
+    @if (chatIsThread && isMobile) {
     <!-- Parent (active) thread message -->
     @if (activeThreadMessage) {
     <app-message-template

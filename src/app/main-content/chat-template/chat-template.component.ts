@@ -134,8 +134,13 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
       onSelectedChannel: (c) => (this.selectedChannel = c),
       onOtherUser: (u) => (this.otherUser = u),
       onActiveThreadMessage: (msg) => {
-        this.chatIsThread = !!msg;
-        this.activeThreadMessage = msg;
+        if (this.isMobile) {
+          this.chatIsThread = !!msg;
+          this.activeThreadMessage = msg;
+        } else {
+          this.chatIsThread = false;
+          this.activeThreadMessage = null;
+        }
       },
       onMentionPopupVisible: (val) => (this.mentionPopupVisible = val),
       onHashtagPopupVisible: (val) => (this.hashtagPopupVisible = val),
@@ -272,6 +277,8 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
     if (!this.isMobile) {
       this.threadOpened.emit(messageId);
     } else {
+      this.chatIsChannel = false;
+      this.chatIsConversation = false;
       this.chatService.openThread(messageId);
       this.chatUIService.scrollToBottom();
     }
@@ -279,6 +286,7 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
 
   /** Closes thread view depending on screen type */
   closeThreadView(): void {
+    this.initializeChatType();
     if (this.isMobile) {
       this.chatService.closeThread();
       this.isThreadView = false;
