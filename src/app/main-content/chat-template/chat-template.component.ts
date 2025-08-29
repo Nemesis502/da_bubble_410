@@ -25,10 +25,14 @@ import { ChatService } from '../../shared/services/chat.service';
 import { ChatUIService } from '../../shared/services/chat-ui.service';
 import { SessionService } from '../../shared/services/currentUserSession.service';
 import { FirestoreService } from '../../shared/services/firestore.service';
-import { ChannelsDirectMessageService, DirectMessage } from '../../shared/services/channels-direct-message.service';
+import {
+  ChannelsDirectMessageService,
+  DirectMessage,
+} from '../../shared/services/channels-direct-message.service';
 import { appUser } from '../../interfaces/user.interface';
 import { Channel } from '../../interfaces/channel.interface';
 import { ChatActionsService } from '../../shared/services/chat-action.service';
+import { ChatGuestService } from '../../shared/services/chat-guest.service';
 
 interface PickerPosition {
   top: number;
@@ -51,7 +55,7 @@ interface PickerPosition {
   styleUrls: [
     './chat-template.component.scss',
     './chat-template.media-query.component.scss',
-    './chat-template.mention.component.scss'
+    './chat-template.mention.component.scss',
   ],
 })
 export class ChatTemplateComponent implements AfterViewInit, OnInit {
@@ -71,7 +75,7 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
   private route = inject(ActivatedRoute);
   private elementRef = inject(ElementRef);
   private chatActions = inject(ChatActionsService);
-
+  private guestService = inject(ChatGuestService);
   // ----------------------- ViewChild Elements -----------------------
   @ViewChild('chatField') chatFieldRef!: ElementRef<HTMLTextAreaElement>;
   @ViewChild('chatBody') private chatBodyRef!: ElementRef;
@@ -105,7 +109,7 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
   constructor(
     private firestoreService: FirestoreService,
     private hostEl: ElementRef,
-    private channelDirectMessageData: ChannelsDirectMessageService,
+    private channelDirectMessageData: ChannelsDirectMessageService
   ) {}
 
   // ----------------------- Lifecycle Hooks -----------------------
@@ -158,12 +162,6 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
     this.isMobile = this.width < 999;
   }
 
-  /** Sets up subscriptions for guest chats and channels */
-  private setupGuestSubscriptions(): void {
-    if (!this.isMobile) this.subscribeToGuestDirectMessages();
-    this.subscribeToGuestChannels();
-  }
-
   /** Sets up observables depending on chat type (channel or conversation) */
   private setupChatObservables(): void {
     if (this.chatIsChannel) {
@@ -177,7 +175,6 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
       this.subscribeToMessages();
       this.subscribeToOtherUser();
       this.subscribeToActiveThreadMessage();
-      if (this.isMobile) this.subscribeToGuestDirectMessages();
     }
   }
 
@@ -202,7 +199,7 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
     this.chatIsChannel = type === 'channel';
     this.chatIsConversation = type === 'conversation';
   }
-  
+
   /** Sets up messages observable depending on thread or main chat */
   private setupMessagesObservable(): void {
     this.messages$ = this.isThreadView
@@ -212,79 +209,57 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
         )
       : this.chatService.messages$;
   }
-  // ----------------------- Guest Chat Handling -----------------------
+// ----------------------- Guest Subscriptions -----------------------
+// Sets up all guest-related subscriptions for direct messages and channels
+private setupGuestSubscriptions(): void {
+  if (!this.isMobile) this.subscribeToGuestDirectMessages();
+  this.subscribeToGuestChannels();
+}
 
-  /** Subscribes to guest direct messages and sets state accordingly */
-  private subscribeToGuestDirectMessages(): void {
-    this.channelDirectMessageData.selectedGuestDirectMessage$.subscribe(
-      (guestUser: DirectMessage | null) => {
-        if (!guestUser) return;
-        this.setGuestChatState(guestUser);
-        this.chatUIService.scrollToBottom();
-      }
-    );
-  }
+// Subscribes to guest direct messages and updates component state via callback
+private subscribeToGuestDirectMessages(): void {
+  this.guestService.subscribeToGuestDirectMessages((user, isConversation) => {
+    this.setGuestDirectMessageState(user, isConversation);
+  });
+}
 
-  /** Updates component state for a selected guest direct message */
-  private setGuestChatState(guestUser: DirectMessage): void {
-    this.isGuestChat = true;
-    this.selectedChannel = null;
-    this.messages$ = of([]);
-    this.messages = [];
-    this.otherUser = this.mapGuestUser(guestUser);
-    this.chatIsConversation = true;
-    this.chatIsChannel = false;
-  }
+// Subscribes to guest channels and initializes chat state for the selected channel
+private subscribeToGuestChannels(): void {
+  this.guestService.subscribeToGuestChannels(async (channel) => {
+    if (!channel.channelId || !this.currentUser?.id) return;
+    await this.setGuestChannelState(channel);
+  });
+}
 
-  /** Maps guest direct message to appUser object */
-  private mapGuestUser(guestUser: DirectMessage): appUser {
-    return {
-      id: guestUser.id,
-      userName: guestUser.name,
-      profilePic: parseInt(guestUser.img.replace('.png', ''), 10),
-      status: guestUser.status === 'online',
-      email: guestUser.name.replace(/\s+/g, '.').toLowerCase() + '@guest.local',
-    } as appUser;
-  }
+// Updates component state when a guest direct message is selected
+private setGuestDirectMessageState(user: appUser, isConversation: boolean) {
+  this.otherUser = user;
+  this.isGuestChat = true;
+  this.selectedChannel = null;
+  this.messages$ = of([]);
+  this.messages = [];
+  this.chatIsConversation = isConversation;
+  this.chatIsChannel = !isConversation;
+  this.chatUIService.scrollToBottom();
+}
 
-  /** Subscribes to guest channels and sets state accordingly */
-  private subscribeToGuestChannels(): void {
-    this.channelDirectMessageData.selectedGuestChannel$.subscribe(
-      async (channel) => {
-        if (!channel?.channelId) return;
-        await this.setGuestChannelState(channel);
-        this.chatUIService.scrollToBottom();
-      }
-    );
-  }
+// Updates component state when a guest channel is selected and initializes the channel chat
+private async setGuestChannelState(channel: Channel) {
+  this.otherUser = null;
+  this.chatIsConversation = false;
+  this.chatIsThread = false;
+  this.selectedChannel = channel;
+  await this.chatService.initializeChat(
+    channel.channelId!,
+    this.currentUser!.id
+  );
+  this.messages$ = this.chatService.messages$;
+  this.members = this.guestService.mapChannelMembers(channel);
+  this.chatIsChannel = true;
+  this.chatUIService.scrollToBottom();
+}
 
-  /** Updates component state for a selected guest channel */
-  private async setGuestChannelState(channel: Channel): Promise<void> {
-    this.otherUser = null;
-    this.chatIsConversation = false;
-    this.chatIsThread = false;
-    this.selectedChannel = channel;
-    if (!channel?.channelId) return;
-    await this.chatService.initializeChat(
-      channel.channelId,
-      this.currentUser?.id
-    );
-    this.messages$ = this.chatService.messages$;
-    this.members = this.mapChannelMembers(channel);
-    this.chatIsChannel = true;
-  }
 
-  /** Maps channel members to a structured array for the component */
-  private mapChannelMembers(channel: Channel): any[] {
-    return (
-      channel.members?.map((id, i) => ({
-        id,
-        userName: id,
-        profilePic: i + 1,
-        status: true,
-      })) || []
-    );
-  }
   // ----------------------- Message Handling -----------------------
 
   /** Sends a chat message with context (thread, conversation, edited) */
@@ -296,14 +271,20 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
       this.editedMessage,
       this.isThreadView
     );
-    const reset = this.chatActions.resetChatInput(this.chatMessage, this.editedMessage);
+    const reset = this.chatActions.resetChatInput(
+      this.chatMessage,
+      this.editedMessage
+    );
     this.chatMessage = reset.chatMessage;
     this.editedMessage = reset.editedMessage;
   }
 
   /** Begins editing a message */
   startEditingMessage(message: any): void {
-    this.editedMessage = this.chatActions.startEditingMessage(this.chatMessage, message);
+    this.editedMessage = this.chatActions.startEditingMessage(
+      this.chatMessage,
+      message
+    );
     this.chatMessage = message.text;
   }
 
@@ -312,7 +293,7 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
     this.editedMessage = this.chatActions.stopEditing();
     this.chatMessage = '';
   }
-  
+
   // ----------------------- Thread Handling -----------------------
 
   /** Handles reply to a message, opens thread if mobile or emits event */
@@ -505,7 +486,7 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
   /** Sets the active chat field context for ChatUIService */
   setActiveChatField() {
     this.chatUIService.setChatContext(
-      this.chatFieldRef,  
+      this.chatFieldRef,
       () => this.chatMessage,
       (msg) => (this.chatMessage = msg)
     );
