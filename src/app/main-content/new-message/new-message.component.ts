@@ -153,8 +153,6 @@ export class NewMessageComponent implements OnInit {
       await this.sendMessageToChannel(channelName);
       return;
     }
-
-    console.warn('No valid #channel or @user mention');
   }
 
   private async sendMessageToConversation(userName: string): Promise<void> {
@@ -163,7 +161,6 @@ export class NewMessageComponent implements OnInit {
     );
 
     if (!mentionedUser || !this.currentUser?.id) {
-      console.warn(`User @${userName} not found or session invalid`);
       return;
     }
 
@@ -214,7 +211,6 @@ export class NewMessageComponent implements OnInit {
     );
 
     if (!matchedChannel || !this.currentUser?.id) {
-      console.warn(`Channel #${channelName} not found or session invalid`);
       return;
     }
 
@@ -398,7 +394,6 @@ async fetchMentionableUsers(): Promise<void> {
 
     this.mentionableUsers = await this.mentionService.fetchMentionableUsers(channelId);
   } catch (error) {
-    console.error('Error fetching mentionable users:', error);
   }
 }
 
@@ -406,7 +401,6 @@ private async fetchAllChannels(): Promise<void> {
   try {
     this.allChannels = await this.mentionService.fetchAllChannels();
   } catch (error) {
-    console.error('Error fetching all channels:', error);
   }
 }
 

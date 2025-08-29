@@ -174,7 +174,6 @@ export class ChatUIService {
       );
       this._filteredMentionableUsers.next(this.mentionableUsers); // Update filtered list initially
     } catch (error) {
-      console.error('Error fetching mentionable users:', error);
     }
   }
 
@@ -183,7 +182,6 @@ export class ChatUIService {
       this.allChannels = await this.mentionService.fetchAllChannels();
       this._filteredChannels.next(this.allChannels); // Update filtered list initially
     } catch (error) {
-      console.error('Error fetching channels:', error);
     }
   }
 

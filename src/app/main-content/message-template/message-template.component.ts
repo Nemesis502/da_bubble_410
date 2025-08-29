@@ -192,7 +192,6 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
           );
           message.reactions = groupedReactions;
         } catch (error) {
-          console.error('Error processing message reactions:', error);
         }
       }
     });
@@ -210,7 +209,6 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
       const emoji = reaction.type;
 
       if (!reaction.reactorID) {
-        console.warn('Skipping reaction with missing reactorID:', reaction);
         continue;
       }
 
@@ -218,11 +216,6 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
       try {
         reactorName = await this.fetchReactorName(reaction.reactorID);
       } catch (error) {
-        console.error(
-          'Error fetching reactor name for',
-          reaction.reactorID,
-          error
-        );
         reactorName = 'Unknown User';
       }
 
@@ -253,7 +246,6 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
 
   /** Select reaction emoji for a message */
   async selectReaction(reaction: string, message: any): Promise<void> {
-    console.log('step 1', message);
     try {
       let channelId: string;
 
@@ -275,7 +267,6 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
         this.currentUser
       );
     } catch (error) {
-      console.error('Failed to toggle reaction:', error);
     }
     this.closeAllReactionPickers();
   }
@@ -365,7 +356,6 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
 
   /** Emit reply to message event */
   onReplyClick(message: any): void {
-    console.log('Reply clicked for message:', message);
     this.replyToMessage.emit(message.id || message.messageID);
   }
 

@@ -124,7 +124,6 @@ export class MainMenuComponent implements OnInit {
 
     if (!this.gastLogin && this.currentLoginId) {
       await this.getCurrentUserLogIn();
-      console.log('current User', this.currentUser);
       this.searchService.setCurrentUserId(this.currentLoginId);
     }
 

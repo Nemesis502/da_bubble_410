@@ -84,13 +84,11 @@ export class ThreadsComponent implements OnInit, OnChanges {
     // Subscribe to active thread message
     this.chatService.activeThreadMessage$.subscribe((msg) => {
       this.activeThreadMessage = msg;
-      console.log('Active thread message updated:', this.activeThreadMessage);
     });
 
     // Subscribe to thread messages
     this.chatService.threadMessages$.subscribe((msgs) => {
       this.threadMessages = msgs ?? [];
-      console.log('Thread messages updated:', this.threadMessages);
     });
 
     // UI Service subscriptions
@@ -106,14 +104,10 @@ export class ThreadsComponent implements OnInit, OnChanges {
     this.threadUIService.filteredChannels$.subscribe(
       (v) => (this.filteredChannels = v)
     );
-
-    console.log('ThreadsComponent initialized with threadId:', this.threadId);
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes['threadId'] && this.threadId) {
-      console.log('Thread ID changed to:', this.threadId);
-
       if (this.selectedChannel?.channelId) {
         this.loadThreadData();
       }
@@ -137,15 +131,8 @@ export class ThreadsComponent implements OnInit, OnChanges {
 
   private async loadThreadData(): Promise<void> {
     if (!this.threadId || !this.selectedChannel?.channelId) {
-      console.warn('Cannot load thread data: missing threadId or channelId');
       return;
     }
-
-    console.log('Loading thread data for:', {
-      threadId: this.threadId,
-      channelId: this.selectedChannel.channelId,
-    });
-
     try {
       this.chatService.activeThreadMessageId = this.threadId;
 
@@ -159,7 +146,6 @@ export class ThreadsComponent implements OnInit, OnChanges {
         this.threadId
       );
     } catch (error) {
-      console.error('Error loading thread data:', error);
     }
   }
 

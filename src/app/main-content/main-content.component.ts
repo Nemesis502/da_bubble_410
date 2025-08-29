@@ -89,23 +89,15 @@ export class MainContentComponent {
   }
 
   onChatTypeSelected(type: 'channel' | 'conversation'): void {
-    console.log('Chat type selected:', type);
-    // Store it if needed for UI logic
     this.currentChatType = type;
   }
 
   loadAllChannels(): void {
     this.firestoreService.getChannels().subscribe(
       (channels) => {
-        console.log('Firestore channels:', channels);
         this.channels = channels;
-
         if (!this.currentLoginId) {
-          console.warn(
-            'currentLoginId ist leer — Channel-Filter nach Mitgliedern wird übersprungen.'
-          );
         }
-
         this.userChannels = this.currentLoginId
           ? channels.filter((channel) =>
               channel.members?.includes(this.currentLoginId)
@@ -122,7 +114,6 @@ export class MainContentComponent {
             this.currentChatId = firstId;
             this.showThread = false;
             this.currentThreadId = null;
-            console.log('Desktop: Hauptchat geladen →', this.currentChatId);
           } else {
             if (firstId) {
               this.router.navigate(['/chat-container', firstId]);
@@ -158,19 +149,16 @@ export class MainContentComponent {
     this.currentChatId = chatId;
     this.showThread = false;
     this.currentThreadId = null;
-    console.log('Chat-ID gesetzt:', this.currentChatId);
   }
 
   openThread(threadId: string): void {
     this.currentThreadId = threadId;
     this.showThread = true;
-    console.log('Thread geöffnet in Right →', this.currentThreadId);
   }
 
   closeThread(): void {
     this.showThread = false;
     this.currentThreadId = null;
-    console.log('Thread geschlossen → Right leer');
   }
 
   openNewMessage(): void {
@@ -178,7 +166,6 @@ export class MainContentComponent {
       this.router.navigate(['/new-message', this.currentUser?.id]);
     } else {
       this.showNewMessage = true;
-      console.log('triggered', this.showNewMessage);
     }
   }
 

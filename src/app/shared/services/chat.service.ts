@@ -89,10 +89,7 @@ export class ChatService {
         await this.handleConversationSetup(id, currentUserId);
         return;
       }
-
-      console.warn('Neither channel nor conversation found for ID:', id);
     } catch (error) {
-      console.error('Error resolving channel/conversation:', error);
     }
   }
 
@@ -108,7 +105,6 @@ export class ChatService {
       const convSnap = await getDoc(convDocRef);
 
       if (!convSnap.exists()) {
-        console.warn('Conversation not found:', conversationId);
         return;
       }
 
@@ -116,7 +112,6 @@ export class ChatService {
       const participants: string[] = data?.['participants'] || [];
 
       if (!currentUserId) {
-        console.warn('Current user not available');
         return;
       }
 
@@ -134,7 +129,6 @@ export class ChatService {
       await this.fetchOtherUserInfo(otherUserId);
       this.loadMessagesForConversation(conversationId);
     } catch (error) {
-      console.error('Error during conversation setup:', error);
     }
   }
 
@@ -146,8 +140,6 @@ export class ChatService {
       .getEnrichedConversationMessages(conversationId)
       .subscribe({
         next: (messages) => this._messages.next(messages),
-        error: (error) =>
-          console.error('Error loading enriched conversation messages:', error),
       });
   }
 
@@ -164,7 +156,6 @@ export class ChatService {
         const filtered = current.filter((m) => m.pending);
         this._messages.next([...filtered, ...messages]);
       },
-      error: (err) => console.error('Error loading channel messages:', err),
     });
   }
 
@@ -177,7 +168,6 @@ export class ChatService {
       const userSnap = await getDoc(userDocRef);
 
       if (!userSnap.exists()) {
-        console.warn(`User document not found for ID: ${userId}`);
         this._otherUser.next(null);
         return;
       }
@@ -191,7 +181,6 @@ export class ChatService {
         email: data?.['email'] || '',
       });
     } catch (error) {
-      console.error('Error fetching other user info:', error);
       this._otherUser.next(null);
     }
   }
@@ -256,7 +245,6 @@ export class ChatService {
         );
       }
     } catch (error) {
-      console.error('Error sending message:', error);
     }
   }
 
@@ -375,12 +363,8 @@ export class ChatService {
     };
 
     const docRef = await addDoc(messageCollectionRef, newMessage);
-
-    // Once Firestore assigns a real ID, optimistic will be overwritten
-    console.log('Message sent, awaiting enrichment:', docRef.id);
   }
 
-  /** Opens a thread view for a specific message */
   /** Opens a thread view for a specific message */
   async openThread(
     messageId: string,
@@ -404,7 +388,6 @@ export class ChatService {
   /** Loads messages in the currently active thread */
   loadThreadMessages(channelId: string, messageId: string): void {
     if (!messageId) return;
-    console.log('loading messages');
     if (this.isConversation) {
       this.channelService
         .getEnrichedConversationThreadMessages(channelId, messageId)
@@ -416,10 +399,8 @@ export class ChatService {
         .getEnrichedThreadMessages(channelId, messageId)
         .subscribe((messages) => {
           this._threadMessages.next(messages);
-          console.log(messages);
         });
     }
-    console.log(this._threadMessages);
   }
 
   /** Sets the active thread message and fetches its data */
@@ -456,6 +437,5 @@ export class ChatService {
     this.activeThreadMessageId = '';
     this._threadMessages.next(null);
     this._activeThreadMessage.next(null);
-    console.log(this.isThread);
   }
 }

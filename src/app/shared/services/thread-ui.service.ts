@@ -68,7 +68,6 @@ export class ThreadUIService {
     getChatMessage: () => string,
     setChatMessage: (msg: string) => void
   ): void {
-    console.log('was das: ', chatField);
     this.chatFieldRef = chatField;
     this.componentElementRef = componentElement;
     this.getChatMessage = getChatMessage;
@@ -157,7 +156,6 @@ openMemberDialog(channelId: string): void {
       );
       this._filteredMentionableUsers.next(this.mentionableUsers); // Update filtered list initially
     } catch (error) {
-      console.error('Error fetching mentionable users:', error);
     }
   }
 
@@ -166,7 +164,6 @@ openMemberDialog(channelId: string): void {
       this.allChannels = await this.mentionService.fetchAllChannels();
       this._filteredChannels.next(this.allChannels); // Update filtered list initially
     } catch (error) {
-      console.error('Error fetching channels:', error);
     }
   }
 

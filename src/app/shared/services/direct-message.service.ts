@@ -19,49 +19,46 @@ export class DirectMessageService {
   }
 
   private loadUserConversations(userId: string) {
-    this.firestoreService.getConversationsByUserId(userId).subscribe((convs) => {
-      this.directMessages = convs;
-    });
+    this.firestoreService
+      .getConversationsByUserId(userId)
+      .subscribe((convs) => {
+        this.directMessages = convs;
+      });
   }
 
-async findAndOpenConversation(loggedUserId: string, targetUserId: string): Promise<void> {
-  if (!loggedUserId || !targetUserId) {
-    throw new Error('User IDs are required');
+  async findAndOpenConversation(
+    loggedUserId: string,
+    targetUserId: string
+  ): Promise<void> {
+    if (!loggedUserId || !targetUserId) {
+      throw new Error('User IDs are required');
+    }
+    const conversation =
+      await this.firestoreService.getConversationBetweenUsers(
+        loggedUserId,
+        targetUserId
+      );
+
+    if (conversation && conversation.id) {
+      this.router.navigate(['/chat', conversation.id]);
+    }
   }
-if (loggedUserId === targetUserId){
-      console.log(loggedUserId, targetUserId)
-  console.log('feature coming soon')
-}
-  const conversation = await this.firestoreService.getConversationBetweenUsers(loggedUserId, targetUserId);
 
-  if (conversation && conversation.id) {
-    this.router.navigate(['/chat', conversation.id]);
-  } else {
-    console.warn('No conversation found between users');
+  async ensureSelfConversationExists(): Promise<void> {
+    if (!this.currentUser) return;
+
+    const userId = this.currentUser.id!;
+    const existingConversation =
+      await this.firestoreService.getSelfConversation(userId);
+
+    if (!existingConversation) {
+      const newConversation = {
+        participants: [userId, userId],
+        participantIdsSorted: `${userId}_${userId}`,
+        createdAt: new Date(),
+        isPrivateNote: true,
+      };
+      await this.firestoreService.createConversation(newConversation);
+    }
   }
-}
-
-async ensureSelfConversationExists(): Promise<void> {
-  if (!this.currentUser) return;
-
-  const userId = this.currentUser.id!;
-  const existingConversation = await this.firestoreService.getSelfConversation(userId);
-
-  if (!existingConversation) {
-const newConversation = {
-  participants: [userId, userId],
-  participantIdsSorted: `${userId}_${userId}`, 
-  createdAt: new Date(),
-  isPrivateNote: true,
-};
-
-
-    await this.firestoreService.createConversation(newConversation);
-    console.log('Created self-conversation for user:', userId);
-  } else {
-    console.log('Self-conversation already exists for user:', userId);
-  }
-}
-
-
 }

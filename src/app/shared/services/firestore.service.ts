@@ -97,7 +97,7 @@ export class FirestoreService {
 
   synFirebase(uid: string) {
     return onSnapshot(doc(this.firestore, 'users', uid), (doc) => {
-      console.log('current Data:', doc.data);
+      console.log();
     })
   }
 

@@ -97,7 +97,6 @@ export class ChannelsDirectMessageService {
     return collectionData(q, { idField: options?.idField || 'id' }).pipe(
       map((docs: DocumentData[]) => docs.map(doc => doc as T)), // <--- Map each document to type T
       catchError((error) => {
-        console.error('Error fetching data:', error);
         return of([]);
       })
     );
@@ -110,7 +109,6 @@ export class ChannelsDirectMessageService {
     return from(getDoc(userDocRef)).pipe(
       map((docSnapshot) => (docSnapshot.exists() ? docSnapshot.data() : null)),
       catchError((error) => {
-        console.error(`Error fetching user data for ${senderID}:`, error);
         return of(null);
       })
     );
@@ -118,14 +116,12 @@ export class ChannelsDirectMessageService {
 
   fetchReactorName(reactorID: string | undefined): Promise<string> {
     if (!reactorID || typeof reactorID !== 'string' || reactorID.trim() === '') {
-      console.warn('fetchReactorName called with invalid reactorID:', reactorID);
       return Promise.resolve('Unknown User');
     }
     const userDocRef = doc(this.firestore, 'users', reactorID);
     return getDoc(userDocRef)
       .then((docSnap) => (docSnap.exists() ? docSnap.data()?.['userName'] || 'Unknown User' : 'Unknown User'))
       .catch((error) => {
-        console.error('Error fetching reactor name for', reactorID, error);
         return 'Unknown User';
       });
   }
@@ -299,7 +295,6 @@ export class ChannelsDirectMessageService {
     reactorID: string
   ): Promise<void> {
     if (!reactorID) {
-      console.error('toggleReaction called with invalid reactorID:', reactorID);
       return;
     }
 
@@ -311,7 +306,6 @@ export class ChannelsDirectMessageService {
     } else if (contextType === 'conversation') {
       reactionsCollection = collection(this.firestore, `conversations/${channelOrConversationId}/directMessages/${messageId}/reactions`);
     } else {
-      console.error('Unknown context type for ID:', channelOrConversationId);
       return;
     }
     await this.toggleReactionInCollection(reactionsCollection, reactionType, reactorID);
@@ -329,14 +323,12 @@ export class ChannelsDirectMessageService {
       const batch = writeBatch(this.firestore);
       existingReactions.forEach((docSnap) => batch.delete(docSnap.ref));
       await batch.commit();
-      console.log('Reaction removed for reactorID:', reactorID);
     } else {
       await setDoc(doc(reactionsCollection), {
         reactorID,
         type: reactionType,
         timestamp: Timestamp.now(),
       } as Reactions);
-      console.log('Reaction added for reactorID:', reactorID);
     }
   }
 
@@ -353,7 +345,6 @@ export class ChannelsDirectMessageService {
       senderID,
       timestamp: Timestamp.now(),
     });
-    console.log('Thread message sent to:', threadMessageId);
   }
 
   sendConversationThreadMessage(
@@ -370,7 +361,7 @@ export class ChannelsDirectMessageService {
       channelId: conversationId,
     };
     return addDoc(threadCollection, newMessage).then(() =>
-      console.log('Thread message added to DM')
+      console.log()
     );
   }
 

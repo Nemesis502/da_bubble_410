@@ -42,7 +42,6 @@ export class ChatTemplateContainerComponent implements OnInit {
 
     this.route.paramMap.subscribe((params) => {
       this.chatId = params.get('id');
-      console.log('ChatTemplateContainer chatId:', this.chatId);
     });
 
     this.chatService.activeThreadMessage$.subscribe((msg) => {
