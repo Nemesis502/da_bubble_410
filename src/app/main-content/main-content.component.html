@@ -1,48 +1,30 @@
-<app-header [currentUser]="currentUser$ | async"></app-header>
+<app-header [currentUser]="currentUser$ | async" (chatSelected)="onChatSelected($event)"
+  (chatTypeSelected)="onChatTypeSelected($event)" (closeNewMessage)="closeNewMessage()">
+</app-header>
 
 <section class="main">
   <button class="show-main-menu" (click)="showMainMenu = !showMainMenu">
     <p>
       {{ showMainMenu ? "Workspace-Menü schließen" : "Workspace-Menü öffnen" }}
     </p>
-    <mat-icon
-      fontIcon="{{ showMainMenu ? 'chevron_left' : 'chevron_right' }}"
-    ></mat-icon>
+    <mat-icon fontIcon="{{ showMainMenu ? 'chevron_left' : 'chevron_right' }}"></mat-icon>
   </button>
 
-  <section
-    class="left"
-    [class.menu-open]="showMainMenu"
-    [class.menu-closed]="!showMainMenu"
-  >
-    <app-main-menu
-      (closeNewMessage)="showNewMessage = false"
-      (newMessage)="openNewMessage()"
-      (chatSelected)="onChatSelected($event)"
-      (chatTypeSelected)="onChatTypeSelected($event)"
-    ></app-main-menu>
+  <section class="left" [class.menu-open]="showMainMenu" [class.menu-closed]="!showMainMenu">
+    <app-main-menu (closeNewMessage)="showNewMessage = false" (newMessage)="openNewMessage()"
+      (chatSelected)="onChatSelected($event)" (chatTypeSelected)="onChatTypeSelected($event)"></app-main-menu>
   </section>
 
   <section class="center">
-    <app-chat-template
-      *ngIf="!showNewMessage"
-      [chatId]="currentChatId"
-      [chatType]="currentChatType"
-      (threadOpened)="openThread($event)"
-    ></app-chat-template>
+    <app-chat-template *ngIf="!showNewMessage" [chatId]="currentChatId" [chatType]="currentChatType"
+      (threadOpened)="openThread($event)"></app-chat-template>
     <!-- Conditionally render the new message component -->
-    <app-new-message
-      *ngIf="showNewMessage"
-      (close)="closeNewMessage()"
-    ></app-new-message>
+    <app-new-message *ngIf="showNewMessage" (close)="closeNewMessage()"></app-new-message>
   </section>
 
   @if (showThread) {
   <section class="right">
-    <app-threads
-      [threadId]="currentThreadId"
-      (threadClosed)="closeThread()"
-    ></app-threads>
+    <app-threads [threadId]="currentThreadId" (threadClosed)="closeThread()"></app-threads>
   </section>
   }
 </section>

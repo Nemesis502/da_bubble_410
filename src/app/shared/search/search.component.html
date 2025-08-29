@@ -45,10 +45,10 @@
         </div>
     </section>
     }
-    @if (filteredContentResults.length > 0) {
+    @if (filteredMessagesFromChannels.length > 0) {
     <section class="content-results">
         <div class="list search" id="content-results">
-            @for (result of filteredContentResults; track result.channel.channelId) {
+            @for (result of filteredMessagesFromChannels; track result.channel.channelId) {
             <div class="item column" (click)="selectChannel(result.channel)">
                 <div class="from-chat">
                     <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>

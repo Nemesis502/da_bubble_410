@@ -57,6 +57,7 @@ export class MainMenuComponent implements OnInit {
   @Output() chatTypeSelected = new EventEmitter<'channel' | 'conversation'>();
   @Output() newMessage = new EventEmitter<void>();
   @Output() closeNewMessage = new EventEmitter<void>();
+  
   readonly dialog = inject(MatDialog);
   readonly searchService = inject(SearchService);
   readonly channelDirectMessageData = inject(ChannelsDirectMessageService);

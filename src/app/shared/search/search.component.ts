@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, inject, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { SearchService } from '../services/search.service';
@@ -11,7 +11,7 @@ import { UserService } from '../services/user.services';
 import { SessionService } from '../services/currentUserSession.service';
 import { DirectMessageService } from '../services/direct-message.service';
 import { Router } from '@angular/router';
-import { onSnapshot } from 'firebase/firestore';
+import { onSnapshot, Timestamp } from 'firebase/firestore';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { firstValueFrom } from 'rxjs';
@@ -31,6 +31,10 @@ import { Channel } from '../../interfaces/channel.interface';
   styleUrl: './search.component.scss'
 })
 export class SearchComponent {
+  @Output() closeNewMessage = new EventEmitter<void>();
+  @Output() chatSelected = new EventEmitter<string>();
+  @Output() chatTypeSelected = new EventEmitter<'channel' | 'conversation'>();
+
   readonly dialog = inject(MatDialog);
   readonly searchService = inject(SearchService);
   readonly channelDirectMessageData = inject(ChannelsDirectMessageService);
@@ -46,7 +50,8 @@ export class SearchComponent {
 
   filteredChannels: any[] = [];
   filteredDirectMessages: any[] = [];
-  filteredContentResults: Array<{ channel: Channel; hits: Array<{ id: string; text: string; timestamp: any }> }> = [];
+  filteredMessagesFromChannels: Array<{ channel: Channel; hits: Array<{ id: string; text: string; timestamp: Timestamp }> }> = [];
+  filteredMessagesFromDirectMessages: Array<{ id: string; text: string; timestamp: Date }> = [];
   channels: any[] = [];
   userChannels: any[] = [];
   users: any[] = [];
@@ -207,14 +212,29 @@ export class SearchComponent {
   }
 
   selectChannel(channel: any): void {
-    if (!channel || !channel.channelId) {
+    if (!channel?.channelId) {
       console.error('Channel oder channelId ist undefined:', channel);
       return;
     }
 
     this.channelDirectMessageData.setSelectedChannel(channel);
-    this.router.navigate(['/chat-container', channel.channelId]);
+    this.closeNewMessage.emit();
+
+    const parentListens =
+      this.chatSelected.observers.length > 0 ||
+      this.chatTypeSelected.observers.length > 0;
+
+    // Einheitlicher Pfad wie bei DMs: /chat-container/:id
+    if (window.innerWidth < 800 || !parentListens) {
+      this.router.navigate(['/chat-container', 'channel', channel.channelId]); // Channel
+      return;
+    }
+
+    // Desktop + Parent hört zu
+    this.chatSelected.emit(channel.channelId);
+    this.chatTypeSelected.emit('channel');
   }
+
 
   async updateFilteredResults(): Promise<void> {
     const { channels, directMessages, contentResults } = await this.searchService.updateFilteredResults(
@@ -226,7 +246,7 @@ export class SearchComponent {
 
     this.filteredChannels = channels;
     this.filteredDirectMessages = directMessages;
-    this.filteredContentResults = contentResults;
+    this.filteredMessagesFromChannels = contentResults;
   }
 
   loadGuestChannel(query: string) {
@@ -322,7 +342,7 @@ export class SearchComponent {
           text: m.text ?? '',
           timestamp: m.timestamp
         }));
-        
+
       if (hits.length) results.push({ channel: ch, hits });
     }
 

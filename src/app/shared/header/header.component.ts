@@ -1,11 +1,10 @@
-import { Component, HostListener, inject, Input } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { MenuDialogComponent } from '../dialogs/menu-dialog/menu-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { appUser } from '../../interfaces/user.interface';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { SearchComponent } from '../search/search.component';
-import { LogoComponent } from '../logo/logo.component';
 
 @Component({
   selector: 'app-header',
@@ -19,6 +18,10 @@ import { LogoComponent } from '../logo/logo.component';
   styleUrls: ['./header.component.scss', './header.media-query.component.scss']
 })
 export class HeaderComponent {
+  @Output() chatSelected = new EventEmitter<string>();
+  @Output() chatTypeSelected = new EventEmitter<'channel' | 'conversation'>();
+  @Output() closeNewMessage = new EventEmitter<void>();
+
   @Input() currentUser!: appUser | null;
   readonly dialog = inject(MatDialog);
 
