@@ -150,7 +150,7 @@ export class ChatUIService {
     channelId: string
   ): Promise<void> {
     const char = event.key;
-    this.setChatMessage(chatMessage); // Ensure service has latest message
+    this.setChatMessage(chatMessage);
 
     if (char === '@') {
       await this.handleMentionTrigger(channelId);
@@ -172,7 +172,7 @@ export class ChatUIService {
       this.mentionableUsers = await this.mentionService.fetchMentionableUsers(
         channelId
       );
-      this._filteredMentionableUsers.next(this.mentionableUsers); // Update filtered list initially
+      this._filteredMentionableUsers.next(this.mentionableUsers); 
     } catch (error) {
     }
   }
@@ -180,7 +180,7 @@ export class ChatUIService {
   async fetchAllChannels(): Promise<void> {
     try {
       this.allChannels = await this.mentionService.fetchAllChannels();
-      this._filteredChannels.next(this.allChannels); // Update filtered list initially
+      this._filteredChannels.next(this.allChannels); 
     } catch (error) {
     }
   }

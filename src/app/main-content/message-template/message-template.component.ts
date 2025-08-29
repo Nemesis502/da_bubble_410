@@ -182,8 +182,6 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
         ? message.reactions.filter((reaction: any) => reaction.reactorID)
         : [],
     }));
-
-    // Process grouping asynchronously for each message
     this.messages.forEach(async (message) => {
       if (Array.isArray(message.reactions)) {
         try {

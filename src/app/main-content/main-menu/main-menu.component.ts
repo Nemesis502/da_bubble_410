@@ -185,7 +185,6 @@ export class MainMenuComponent implements OnInit {
           userData,
           this.currentLoginId
         );
-        // this.userSession.setCurrentUser(user);
         this.currentUser = user;
         this.getAllUsers();
         this.cdr.detectChanges();

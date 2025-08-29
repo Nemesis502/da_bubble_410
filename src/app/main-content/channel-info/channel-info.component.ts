@@ -126,7 +126,6 @@ export class ChannelInfoComponent implements OnChanges {
 
   async loadMembers(): Promise<void> {
     const users = await this.whichUsers();
-    // const users = await firstValueFrom(this.firestoreService.getUsers());
 
     const memberList = users.filter((user: appUser) =>
       this.channel?.members.includes(user.id!)

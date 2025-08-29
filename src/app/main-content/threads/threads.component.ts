@@ -56,7 +56,7 @@ export class ThreadsComponent implements OnInit, OnChanges {
   selectedChannel: any = null;
   editedMessage: any = null;
   chatMessage = '';
-  activeThreadMessage: any | null = null; // Initialize as null
+  activeThreadMessage: any | null = null;
   threadMessages: any[] = [];
 
   mentionPopupVisible = false;
@@ -68,30 +68,20 @@ export class ThreadsComponent implements OnInit, OnChanges {
 
   async ngOnInit(): Promise<void> {
     this.currentUser = this.userSession.getCurrentUser();
-
-    // Subscribe to selected channel
     this.chatService.selectedChannel$.subscribe((channel) => {
       this.selectedChannel = channel;
       this.threadUIService.fetchMentionableUsers(channel?.channelId);
       this.threadUIService.fetchAllChannels();
-
-      // If we have both channel and threadId, load the thread data
       if (channel && this.threadId) {
         this.loadThreadData();
       }
     });
-
-    // Subscribe to active thread message
     this.chatService.activeThreadMessage$.subscribe((msg) => {
       this.activeThreadMessage = msg;
     });
-
-    // Subscribe to thread messages
     this.chatService.threadMessages$.subscribe((msgs) => {
       this.threadMessages = msgs ?? [];
     });
-
-    // UI Service subscriptions
     this.threadUIService.mentionPopupVisible$.subscribe(
       (v) => (this.mentionPopupVisible = v)
     );

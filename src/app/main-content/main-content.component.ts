@@ -3,7 +3,6 @@ import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MainMenuComponent } from './main-menu/main-menu.component';
-// import { ChatTemplateContainerComponent } from './chat-template-container/threads.component';
 import { ChatTemplateComponent } from './chat-template/chat-template.component';
 import { HeaderComponent } from '../shared/header/header.component';
 import { appUser } from '../interfaces/user.interface';

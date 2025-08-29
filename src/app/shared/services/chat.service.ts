@@ -18,7 +18,7 @@ interface ChatMessage {
   text: string;
   senderID: string;
   timestamp: any;
-  pending?: boolean; // 👈 marks optimistic
+  pending?: boolean; 
 }
 
 @Injectable({
@@ -152,7 +152,6 @@ export class ChatService {
     this.channelService.getEnrichedMessages(channel.channelId).subscribe({
       next: (messages) => {
         const current = this._messages.getValue();
-        // Filter out optimistic ones whose real version has arrived
         const filtered = current.filter((m) => m.pending);
         this._messages.next([...filtered, ...messages]);
       },
@@ -335,13 +334,9 @@ export class ChatService {
       userName: currentUser?.userName,
       profilePic: currentUser?.profilePic,
       email: currentUser?.email,
-      status: true, // assume online
+      status: true, 
     };
-
-    // Push to BehaviorSubject immediately
     this._messages.next([...this._messages.getValue(), optimisticMessage]);
-
-    // Firestore write
     let messageCollectionRef;
     if (isConversation) {
       messageCollectionRef = collection(
@@ -377,11 +372,7 @@ export class ChatService {
     this.activeThreadMessageId = messageId;
     const channelId = this._selectedChannel.getValue()?.channelId;
     if (!channelId) return;
-
-    // Ensure parent message is loaded first
     await this.setActiveThreadMessage(channelId, messageId);
-
-    // Load thread messages (replies)
     this.loadThreadMessages(channelId, messageId);
   }
 
