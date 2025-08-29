@@ -12,6 +12,14 @@ import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { ChannelsDirectMessageService } from './channels-direct-message.service'; 
 import { appUser } from '../../interfaces/user.interface';
+import { SessionService } from './currentUserSession.service';
+interface ChatMessage {
+  id: string;
+  text: string;
+  senderID: string;
+  timestamp: any;
+  pending?: boolean;  // 👈 marks optimistic
+}
 
 @Injectable({
   providedIn: 'root',
@@ -44,7 +52,7 @@ export class ChatService {
   isThread: boolean = false;
   activeThreadMessageId: string = '';
 
-  constructor() {}
+  constructor(    private userSession: SessionService,) {}
 
   /**
    * Initializes the chat based on the provided ID (channel or conversation).
@@ -145,14 +153,20 @@ export class ChatService {
   /**
    * Loads enriched messages for a channel.
    */
-  private loadMessagesForChannel(channel: any): void {
-    if (channel?.channelId) {
-      this.channelService.getEnrichedMessages(channel.channelId).subscribe({
-        next: (messages) => this._messages.next(messages),
-        error: (error) => console.error('Error loading messages:', error),
-      });
-    }
-  }
+private loadMessagesForChannel(channel: any): void {
+  if (!channel?.channelId) return;
+
+  this.channelService.getEnrichedMessages(channel.channelId).subscribe({
+    next: (messages) => {
+      const current = this._messages.getValue();
+      // Filter out optimistic ones whose real version has arrived
+      const filtered = current.filter(m => m.pending);
+      this._messages.next([...filtered, ...messages]);
+    },
+    error: (err) => console.error('Error loading channel messages:', err),
+  });
+}
+
 
   /**
    * Fetches and stores profile info for the conversation partner.
@@ -315,33 +329,57 @@ export class ChatService {
 
   /** Creates a new message in the appropriate Firestore collection */
   private async createNewMessage(
-    channelId: string,
-    messageText: string,
-    userId: string,
-    isConversation: boolean
-  ): Promise<void> {
-    let messageCollectionRef;
-    if (isConversation) {
-      messageCollectionRef = collection(
-        this.firestore,
-        `conversations/${channelId}/directMessages`
-      );
-    } else {
-      messageCollectionRef = collection(
-        this.firestore,
-        `channels/${channelId}/messages`
-      );
-    }
+  channelId: string,
+  messageText: string,
+  userId: string,
+  isConversation: boolean
+): Promise<void> {
+  const tempId = `temp-${Date.now()}`;
 
-    const newMessage = {
-      text: messageText,
-      timestamp: serverTimestamp(),
-      senderID: userId,
-      channelId: channelId,
-    };
-    await addDoc(messageCollectionRef, newMessage);
-    console.log('Message sent successfully:', newMessage);
+const currentUser = this.userSession.getCurrentUser();
+
+const optimisticMessage: any = {
+  id: tempId,
+  text: messageText,
+  senderID: currentUser?.id || userId,
+  timestamp: new Date(),
+  pending: true,
+  userName: currentUser?.userName,
+  profilePic: currentUser?.profilePic,
+  email: currentUser?.email,
+  status: true, // assume online
+};
+
+  // Push to BehaviorSubject immediately
+  this._messages.next([...this._messages.getValue(), optimisticMessage]);
+
+  // Firestore write
+  let messageCollectionRef;
+  if (isConversation) {
+    messageCollectionRef = collection(
+      this.firestore,
+      `conversations/${channelId}/directMessages`
+    );
+  } else {
+    messageCollectionRef = collection(
+      this.firestore,
+      `channels/${channelId}/messages`
+    );
   }
+
+  const newMessage = {
+    text: messageText,
+    timestamp: serverTimestamp(),
+    senderID: userId,
+    channelId,
+  };
+
+  const docRef = await addDoc(messageCollectionRef, newMessage);
+
+  // Once Firestore assigns a real ID, optimistic will be overwritten
+  console.log('Message sent, awaiting enrichment:', docRef.id);
+}
+
 
   /** Opens a thread view for a specific message */
 /** Opens a thread view for a specific message */
