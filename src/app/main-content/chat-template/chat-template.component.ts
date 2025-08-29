@@ -253,6 +253,11 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
   private subscribeToThreadStatus(): void {
     this.chatService.isThread$.subscribe((isThread) => {
       this.chatIsThread = isThread;
+
+      if (isThread) {
+        this.chatIsChannel = false;
+        this.chatIsConversation = false;
+      }
       setTimeout(() => this.scrollToBottom(), 100);
       this.focusChatInput();
     });
