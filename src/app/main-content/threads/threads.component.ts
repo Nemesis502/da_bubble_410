@@ -35,7 +35,10 @@ import { appUser } from '../../interfaces/user.interface';
     EmojiPickerComponent,
   ],
   templateUrl: './threads.component.html',
-  styleUrls: ['./threads.component.scss'],
+  styleUrls: [
+    './threads.component.scss',
+    './threads.media-querry.component.scss',
+  ],
 })
 export class ThreadsComponent implements OnInit, OnChanges {
   @Input() threadId!: string | null;

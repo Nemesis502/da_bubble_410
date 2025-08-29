@@ -17,7 +17,6 @@ import { Channel } from '../../interfaces/channel.interface';
 import { ChannelsDirectMessageService } from '../../shared/services/channels-direct-message.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ProfilDialogComponent } from '../../shared/dialogs/profil-dialog/profil-dialog.component';
-import { appUser } from '../../interfaces/user.interface';
 import { FirestoreService } from '../../shared/services/firestore.service';
 import { take } from 'rxjs';
 
@@ -26,7 +25,11 @@ import { take } from 'rxjs';
   standalone: true,
   imports: [CommonModule, MatIconModule, ReactionPickerComponent],
   templateUrl: './message-template.component.html',
-  styleUrls: ['./message-template.component.scss'],
+  styleUrls: [
+    './message-template.component.scss',
+    './message-template.media-query.component.scss',
+    './message-template.own.component.scss',
+  ],
 })
 export class MessageTemplateComponent implements OnDestroy, OnChanges {
   @ViewChild('reactionPicker', { read: ElementRef })
@@ -367,23 +370,26 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
   }
 
   /** Open user profile dialog */
-openUserProfileDialog(message: any): void {
-  const loggedUserId = this.currentUser; 
-  const userId = message.senderID;
+  openUserProfileDialog(message: any): void {
+    const loggedUserId = this.currentUser;
+    const userId = message.senderID;
 
-  this.firestoreService.getUserById(userId).pipe(take(1)).subscribe((user: any) => {
-    if (!user) return;
+    this.firestoreService
+      .getUserById(userId)
+      .pipe(take(1))
+      .subscribe((user: any) => {
+        if (!user) return;
 
-    this.dialog.open(ProfilDialogComponent, {
-      data: {
-        user,                       
-        loggedUser: loggedUserId,   
-        isUser: user.id === loggedUserId
-      },
-      panelClass: 'bottom-dialog-panel',
-    });
-  });
-}
+        this.dialog.open(ProfilDialogComponent, {
+          data: {
+            user,
+            loggedUser: loggedUserId,
+            isUser: user.id === loggedUserId,
+          },
+          panelClass: 'bottom-dialog-panel',
+        });
+      });
+  }
   /**Reactor Names Tooltip */
 
   showReactorNames(reactors: string[], event: MouseEvent): void {

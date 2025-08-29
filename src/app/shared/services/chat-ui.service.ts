@@ -56,19 +56,29 @@ export class ChatUIService {
   private _activeChatFieldRef: ElementRef<HTMLTextAreaElement> | null = null;
   private _activeMessageGetter: (() => string) | null = null;
   private _activeMessageSetter: ((msg: string) => void) | null = null;
-  constructor() { }
+  private chatBodyRef!: ElementRef<HTMLElement>;
+
+
+  constructor() {}
 
   /**
    * Initializes the service with references to the component's DOM and state.
    * This is crucial for the service to interact with the component's input field.
    */
-  init(chatField: ElementRef<HTMLTextAreaElement>, componentElement: ElementRef, getChatMessage: () => string, setChatMessage: (msg: string) => void): void {
+  init(
+    chatField: ElementRef<HTMLTextAreaElement>,
+    componentElement: ElementRef,
+    getChatMessage: () => string,
+    setChatMessage: (msg: string) => void
+  ): void {
     this.chatFieldRef = chatField;
     this.componentElementRef = componentElement;
     this.getChatMessage = getChatMessage;
     this.setChatMessage = setChatMessage;
   }
-
+  setChatBodyRef(ref: ElementRef<HTMLElement>) {
+    this.chatBodyRef = ref;
+  }
   // --- Dialog Functions ---
   openMenuDialog(): void {
     if (window.innerWidth < 800) {
@@ -94,20 +104,17 @@ export class ChatUIService {
     }
   }
 
-openMemberDialog(channelId: string): void {
-  const isMobile = window.innerWidth < 1000;
+  openMemberDialog(channelId: string): void {
+    const isMobile = window.innerWidth < 1000;
 
-  this.dialog.open(MemberDialogComponent, {
-    width: '415px',
-    maxHeight: '75vh',
-    panelClass: 'member-dialog',
-    data: { source: 'channel-chat', channelId: channelId },
-    position: isMobile
-      ? undefined 
-      : { top: '190px', right: '100px' },
-  });
-}
-
+    this.dialog.open(MemberDialogComponent, {
+      width: '415px',
+      maxHeight: '75vh',
+      panelClass: 'member-dialog',
+      data: { source: 'channel-chat', channelId: channelId },
+      position: isMobile ? undefined : { top: '190px', right: '100px' },
+    });
+  }
 
   openProfileDialog(
     user: appUser | null,
@@ -120,22 +127,20 @@ openMemberDialog(channelId: string): void {
     });
   }
 
-openAddPeopleDialog(channelId: string): void {
-  const isMobile = window.innerWidth < 1000;
+  openAddPeopleDialog(channelId: string): void {
+    const isMobile = window.innerWidth < 1000;
 
-  this.dialog.open(MemberDialogComponent, {
-    width: '415px',
-    maxHeight: '75vh',
-    panelClass: 'member-dialog',
-    data: {
-      source: 'add-members',
-      channelId: channelId
-    },
-    position: isMobile
-      ? undefined   
-      : { top: '190px', right: '45px' }
-  });
-}
+    this.dialog.open(MemberDialogComponent, {
+      width: '415px',
+      maxHeight: '75vh',
+      panelClass: 'member-dialog',
+      data: {
+        source: 'add-members',
+        channelId: channelId,
+      },
+      position: isMobile ? undefined : { top: '190px', right: '45px' },
+    });
+  }
 
   // --- Mention & Hashtag Functions ---
 
@@ -357,7 +362,11 @@ openAddPeopleDialog(channelId: string): void {
   }
 
   addEmoji(emoji: string): void {
-    if (this._activeChatFieldRef && this._activeMessageGetter && this._activeMessageSetter) {
+    if (
+      this._activeChatFieldRef &&
+      this._activeMessageGetter &&
+      this._activeMessageSetter
+    ) {
       const textarea = this._activeChatFieldRef.nativeElement;
       const cursorPos = textarea.selectionStart;
       const textBefore = this._activeMessageGetter().slice(0, cursorPos);
@@ -404,5 +413,22 @@ openAddPeopleDialog(channelId: string): void {
     this._activeChatFieldRef = chatFieldRef;
     this._activeMessageGetter = getMessage;
     this._activeMessageSetter = setMessage;
+  }
+
+scrollToBottom(): void {
+  if (!this.chatBodyRef) return;
+
+  setTimeout(() => {
+    const container = this.chatBodyRef.nativeElement;
+    container.scrollTop = container.scrollHeight;
+  }, 0);
+
+  this.focusChatInput();
+}
+
+  focusChatInput(): void {
+    if (this.chatFieldRef) {
+      this.chatFieldRef.nativeElement.focus();
+    }
   }
 }

@@ -10,7 +10,7 @@ import {
 } from '@angular/fire/firestore';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
-import { ChannelsDirectMessageService } from './channels-direct-message.service'; 
+import { ChannelsDirectMessageService } from './channels-direct-message.service';
 import { appUser } from '../../interfaces/user.interface';
 import { SessionService } from './currentUserSession.service';
 interface ChatMessage {
@@ -18,7 +18,7 @@ interface ChatMessage {
   text: string;
   senderID: string;
   timestamp: any;
-  pending?: boolean;  // 👈 marks optimistic
+  pending?: boolean; // 👈 marks optimistic
 }
 
 @Injectable({
@@ -50,9 +50,10 @@ export class ChatService {
   // Chat context flags
   isConversation: boolean = false;
   isThread: boolean = false;
+  isChannel: boolean = false;
   activeThreadMessageId: string = '';
 
-  constructor(    private userSession: SessionService,) {}
+  constructor(private userSession: SessionService) {}
 
   /**
    * Initializes the chat based on the provided ID (channel or conversation).
@@ -71,7 +72,7 @@ export class ChatService {
         const channel = await this.resolveChannelById(id);
         if (channel) {
           this.isConversation = false;
-          this.isThread = false; 
+          this.isThread = false;
           this._selectedChannel.next(channel);
           this.loadMessagesForChannel(channel);
         }
@@ -83,8 +84,8 @@ export class ChatService {
 
       if (convSnap.exists()) {
         this.isConversation = true;
-        this.isThread = false; 
-        this._selectedChannel.next({ channelId: id }); 
+        this.isThread = false;
+        this._selectedChannel.next({ channelId: id });
         await this.handleConversationSetup(id, currentUserId);
         return;
       }
@@ -153,20 +154,19 @@ export class ChatService {
   /**
    * Loads enriched messages for a channel.
    */
-private loadMessagesForChannel(channel: any): void {
-  if (!channel?.channelId) return;
+  private loadMessagesForChannel(channel: any): void {
+    if (!channel?.channelId) return;
 
-  this.channelService.getEnrichedMessages(channel.channelId).subscribe({
-    next: (messages) => {
-      const current = this._messages.getValue();
-      // Filter out optimistic ones whose real version has arrived
-      const filtered = current.filter(m => m.pending);
-      this._messages.next([...filtered, ...messages]);
-    },
-    error: (err) => console.error('Error loading channel messages:', err),
-  });
-}
-
+    this.channelService.getEnrichedMessages(channel.channelId).subscribe({
+      next: (messages) => {
+        const current = this._messages.getValue();
+        // Filter out optimistic ones whose real version has arrived
+        const filtered = current.filter((m) => m.pending);
+        this._messages.next([...filtered, ...messages]);
+      },
+      error: (err) => console.error('Error loading channel messages:', err),
+    });
+  }
 
   /**
    * Fetches and stores profile info for the conversation partner.
@@ -300,7 +300,7 @@ private loadMessagesForChannel(channel: any): void {
         userId
       );
     }
-    this.loadThreadMessages(channelId, activeThreadMessageId); 
+    this.loadThreadMessages(channelId, activeThreadMessageId);
   }
 
   /** Updates an existing message (non-thread) */
@@ -329,81 +329,82 @@ private loadMessagesForChannel(channel: any): void {
 
   /** Creates a new message in the appropriate Firestore collection */
   private async createNewMessage(
-  channelId: string,
-  messageText: string,
-  userId: string,
-  isConversation: boolean
-): Promise<void> {
-  const tempId = `temp-${Date.now()}`;
+    channelId: string,
+    messageText: string,
+    userId: string,
+    isConversation: boolean
+  ): Promise<void> {
+    const tempId = `temp-${Date.now()}`;
 
-const currentUser = this.userSession.getCurrentUser();
+    const currentUser = this.userSession.getCurrentUser();
 
-const optimisticMessage: any = {
-  id: tempId,
-  text: messageText,
-  senderID: currentUser?.id || userId,
-  timestamp: new Date(),
-  pending: true,
-  userName: currentUser?.userName,
-  profilePic: currentUser?.profilePic,
-  email: currentUser?.email,
-  status: true, // assume online
-};
+    const optimisticMessage: any = {
+      id: tempId,
+      text: messageText,
+      senderID: currentUser?.id || userId,
+      timestamp: new Date(),
+      pending: true,
+      userName: currentUser?.userName,
+      profilePic: currentUser?.profilePic,
+      email: currentUser?.email,
+      status: true, // assume online
+    };
 
-  // Push to BehaviorSubject immediately
-  this._messages.next([...this._messages.getValue(), optimisticMessage]);
+    // Push to BehaviorSubject immediately
+    this._messages.next([...this._messages.getValue(), optimisticMessage]);
 
-  // Firestore write
-  let messageCollectionRef;
-  if (isConversation) {
-    messageCollectionRef = collection(
-      this.firestore,
-      `conversations/${channelId}/directMessages`
-    );
-  } else {
-    messageCollectionRef = collection(
-      this.firestore,
-      `channels/${channelId}/messages`
-    );
+    // Firestore write
+    let messageCollectionRef;
+    if (isConversation) {
+      messageCollectionRef = collection(
+        this.firestore,
+        `conversations/${channelId}/directMessages`
+      );
+    } else {
+      messageCollectionRef = collection(
+        this.firestore,
+        `channels/${channelId}/messages`
+      );
+    }
+
+    const newMessage = {
+      text: messageText,
+      timestamp: serverTimestamp(),
+      senderID: userId,
+      channelId,
+    };
+
+    const docRef = await addDoc(messageCollectionRef, newMessage);
+
+    // Once Firestore assigns a real ID, optimistic will be overwritten
+    console.log('Message sent, awaiting enrichment:', docRef.id);
   }
-
-  const newMessage = {
-    text: messageText,
-    timestamp: serverTimestamp(),
-    senderID: userId,
-    channelId,
-  };
-
-  const docRef = await addDoc(messageCollectionRef, newMessage);
-
-  // Once Firestore assigns a real ID, optimistic will be overwritten
-  console.log('Message sent, awaiting enrichment:', docRef.id);
-}
-
 
   /** Opens a thread view for a specific message */
-/** Opens a thread view for a specific message */
-async openThread(messageId: string, forceThreadToggle: boolean = true): Promise<void> {
-  if (forceThreadToggle) {
-    this._isThread.next(true);
+  /** Opens a thread view for a specific message */
+  async openThread(
+    messageId: string,
+    forceThreadToggle: boolean = true
+  ): Promise<void> {
+    if (forceThreadToggle) {
+      this._isThread.next(true);
+    }
+
+    this.activeThreadMessageId = messageId;
+    const channelId = this._selectedChannel.getValue()?.channelId;
+    if (!channelId) return;
+
+    // Ensure parent message is loaded first
+    await this.setActiveThreadMessage(channelId, messageId);
+
+    // Load thread messages (replies)
+    this.loadThreadMessages(channelId, messageId);
   }
 
-  this.activeThreadMessageId = messageId;
-  const channelId = this._selectedChannel.getValue()?.channelId;
-  if (!channelId) return;
-
-  // Ensure parent message is loaded first
-  await this.setActiveThreadMessage(channelId, messageId);
-
-  // Load thread messages (replies)
-  this.loadThreadMessages(channelId, messageId);
-}
-
-
- /** Loads messages in the currently active thread */
- loadThreadMessages(channelId: string, messageId: string): void {
+  /** Loads messages in the currently active thread */
+  loadThreadMessages(channelId: string, messageId: string): void {
     if (!messageId) return;
-  console.log('loading messages')
+    console.log('loading messages');
     if (this.isConversation) {
       this.channelService
         .getEnrichedConversationThreadMessages(channelId, messageId)
@@ -415,14 +416,14 @@ async openThread(messageId: string, forceThreadToggle: boolean = true): Promise<
         .getEnrichedThreadMessages(channelId, messageId)
         .subscribe((messages) => {
           this._threadMessages.next(messages);
-          console.log(messages)
+          console.log(messages);
         });
     }
-    console.log(this._threadMessages)
+    console.log(this._threadMessages);
   }
 
   /** Sets the active thread message and fetches its data */
-   async setActiveThreadMessage(channelId: string, messageId: string) {
+  async setActiveThreadMessage(channelId: string, messageId: string) {
     let docRef;
     if (this.isConversation) {
       docRef = doc(
@@ -450,12 +451,11 @@ async openThread(messageId: string, forceThreadToggle: boolean = true): Promise<
   }
 
   /** Closes thread view and returns to channel view */
-closeThread(): void {
-       this._isThread.next(false);
-       this.activeThreadMessageId = '';
-       this._threadMessages.next(null);
-       this._activeThreadMessage.next(null);
-       console.log(this.isThread)
-   }
-
+  closeThread(): void {
+    this._isThread.next(false);
+    this.activeThreadMessageId = '';
+    this._threadMessages.next(null);
+    this._activeThreadMessage.next(null);
+    console.log(this.isThread);
+  }
 }
