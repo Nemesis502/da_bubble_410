@@ -17,20 +17,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 import { MessageTemplateComponent } from '../message-template/message-template.component';
 import { EmojiPickerComponent } from '../emoji-picker/emoji-picker.component';
 import { ChannelInfoComponent } from '../channel-info/channel-info.component';
 import { ChatService } from '../../shared/services/chat.service';
 import { ChatUIService } from '../../shared/services/chat-ui.service';
 import { SessionService } from '../../shared/services/currentUserSession.service';
-import { appUser } from '../../interfaces/user.interface';
-import { map, startWith } from 'rxjs/operators';
 import { FirestoreService } from '../../shared/services/firestore.service';
-import {
-  ChannelsDirectMessageService,
-  DirectMessage,
-} from '../../shared/services/channels-direct-message.service';
+import { ChannelsDirectMessageService, DirectMessage } from '../../shared/services/channels-direct-message.service';
+import { appUser } from '../../interfaces/user.interface';
 import { Channel } from '../../interfaces/channel.interface';
+import { ChatActionsService } from '../../shared/services/chat-action.service';
 
 interface PickerPosition {
   top: number;
@@ -58,54 +56,51 @@ interface PickerPosition {
 })
 export class ChatTemplateComponent implements AfterViewInit, OnInit {
   // ----------------------- Inputs & Outputs -----------------------
-  @Input() isThreadView: boolean = false; // Whether the chat is showing a thread view
-  @Input() chatId!: string | null; // ID of the current chat (channel or conversation)
-  @Input() threadId!: string | null; // ID of the current thread
-  @Input() chatType: 'channel' | 'conversation' | null = null; // Type of chat
-  @Output() threadOpened = new EventEmitter<string>(); // Emits when a thread is opened
-  @Output() threadClosed = new EventEmitter<void>(); // Emits when a thread is closed
+  @Input() isThreadView: boolean = false;
+  @Input() chatId!: string | null;
+  @Input() threadId!: string | null;
+  @Input() chatType: 'channel' | 'conversation' | null = null;
+  @Output() threadOpened = new EventEmitter<string>();
+  @Output() threadClosed = new EventEmitter<void>();
 
   // ----------------------- Injected Services -----------------------
-  private userSession = inject(SessionService); // Service for current user session
-  private chatService = inject(ChatService); // Service handling chat operations
-  private chatUIService = inject(ChatUIService); // Service handling UI interactions
-  private router = inject(Router); // Angular Router
-  private route = inject(ActivatedRoute); // Activated route for reading params
-  private elementRef = inject(ElementRef); // Reference to host element
+  private userSession = inject(SessionService);
+  private chatService = inject(ChatService);
+  private chatUIService = inject(ChatUIService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private elementRef = inject(ElementRef);
+  private chatActions = inject(ChatActionsService);
 
   // ----------------------- ViewChild Elements -----------------------
-  @ViewChild('chatField') chatFieldRef!: ElementRef<HTMLTextAreaElement>; // Chat input field
-  @ViewChild('chatBody') private chatBodyRef!: ElementRef; // Chat message container
+  @ViewChild('chatField') chatFieldRef!: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('chatBody') private chatBodyRef!: ElementRef;
 
   // ----------------------- Component State -----------------------
-  currentUser: appUser | null = null; // The current logged-in user
-  otherUser: appUser | null = null; // The other user in a conversation
-  selectedChannel: any = null; // The selected channel object
-  chatMessage: string = ''; // Current typed chat message
-  editedMessage: any = null; // Message currently being edited
-  threadMessages: any[] = []; // Messages in the active thread
-  members: any[] = []; // Members of the current channel
-
-  // ----------------------- Observables -----------------------
-  messages$: Observable<any[]> = of([]); // Observable for main chat messages
-  threadMessages$: Observable<any[] | null> = of(null); // Observable for thread messages
-  activeThreadMessage: any | null = null; // Currently active thread message
-
-  // ----------------------- UI State -----------------------
-  mentionPopupVisible: boolean = false; // Whether the mention popup is visible
-  hashtagPopupVisible: boolean = false; // Whether the hashtag popup is visible
-  filteredMentionableUsers: any[] = []; // Filtered list of mentionable users
-  filteredChannels: any[] = []; // Filtered list of channels for hashtag
-  emojiPickerVisible: boolean = false; // Whether emoji picker is visible
-  pickerPosition: PickerPosition = { top: 0, left: 0 }; // Position of the emoji picker
-  isChannelInfoOpen: boolean = false; // Whether channel info panel is open
-  isMobile: boolean = false; // Whether the device is mobile
-  chatIsThread: boolean = false; // Whether current chat is a thread
-  chatIsChannel: boolean = false; // Whether current chat is a channel
-  chatIsConversation: boolean = false; // Whether current chat is a conversation
-  messages: any[] = []; // Array of main chat messages
-  width: number = window.innerWidth; // Current window width
-  isGuestChat: boolean = false; // Whether current chat is with a guest user
+  currentUser: appUser | null = null;
+  otherUser: appUser | null = null;
+  selectedChannel: any = null;
+  chatMessage: string = '';
+  editedMessage: any = null;
+  threadMessages: any[] = [];
+  members: any[] = [];
+  messages$: Observable<any[]> = of([]);
+  threadMessages$: Observable<any[] | null> = of(null);
+  activeThreadMessage: any | null = null;
+  mentionPopupVisible: boolean = false;
+  hashtagPopupVisible: boolean = false;
+  filteredMentionableUsers: any[] = [];
+  filteredChannels: any[] = [];
+  emojiPickerVisible: boolean = false;
+  pickerPosition: PickerPosition = { top: 0, left: 0 };
+  isChannelInfoOpen: boolean = false;
+  isMobile: boolean = false;
+  chatIsThread: boolean = false;
+  chatIsChannel: boolean = false;
+  chatIsConversation: boolean = false;
+  messages: any[] = [];
+  width: number = window.innerWidth;
+  isGuestChat: boolean = false;
 
   constructor(
     private firestoreService: FirestoreService,
@@ -150,7 +145,6 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
       this.messages$ = this.chatService.messages$;
       await this.fetchChannelMembers();
     }
-    await this.ngOnInit();
     if (changes['chatType'] && this.chatType) {
       await this.ngOnInit();
       await this.initializeChatType();
@@ -295,50 +289,30 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
 
   /** Sends a chat message with context (thread, conversation, edited) */
   async sendMessage(): Promise<void> {
-    const messageText = this.chatMessage.trim();
-    const channelId = this.selectedChannel?.channelId;
-    const userId = this.currentUser?.id;
-    if (!messageText || !channelId || !userId) return;
-    await this.chatService.sendMessage(
-      channelId,
-      messageText,
-      userId,
-      this.buildChatContext()
+    await this.chatActions.sendMessage(
+      this.chatMessage,
+      this.selectedChannel,
+      this.currentUser!,
+      this.editedMessage,
+      this.isThreadView
     );
-    this.resetChatInput();
-  }
-
-  /** Builds chat context object for sending messages */
-  private buildChatContext() {
-    return {
-      isConversation: this.chatService.isConversation,
-      isThread: this.isThreadView || this.chatService.isThread,
-      activeThreadMessageId: this.chatService.activeThreadMessageId,
-      editedMessage: this.editedMessage,
-    };
-  }
-
-  /** Resets chat input field and clears edited message */
-  private resetChatInput(): void {
-    this.chatMessage = '';
-    this.editedMessage = null;
-    this.chatUIService.scrollToBottom();
+    const reset = this.chatActions.resetChatInput(this.chatMessage, this.editedMessage);
+    this.chatMessage = reset.chatMessage;
+    this.editedMessage = reset.editedMessage;
   }
 
   /** Begins editing a message */
   startEditingMessage(message: any): void {
+    this.editedMessage = this.chatActions.startEditingMessage(this.chatMessage, message);
     this.chatMessage = message.text;
-    this.editedMessage = message;
-    this.chatUIService.focusChatInput();
   }
 
   /** Stops editing a message */
   stopEditing(): void {
-    this.editedMessage = null;
+    this.editedMessage = this.chatActions.stopEditing();
     this.chatMessage = '';
-    this.chatUIService.focusChatInput();
   }
-
+  
   // ----------------------- Thread Handling -----------------------
 
   /** Handles reply to a message, opens thread if mobile or emits event */
@@ -531,7 +505,7 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
   /** Sets the active chat field context for ChatUIService */
   setActiveChatField() {
     this.chatUIService.setChatContext(
-      this.chatFieldRef,
+      this.chatFieldRef,  
       () => this.chatMessage,
       (msg) => (this.chatMessage = msg)
     );
