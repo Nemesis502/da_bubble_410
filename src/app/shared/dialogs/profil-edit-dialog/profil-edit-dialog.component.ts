@@ -1,15 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, NgModule } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { SessionService } from '../../services/currentUserSession.service';
-import { appUser } from '../../../interfaces/user.interface';
 import { FormsModule } from '@angular/forms';
+import { SessionService } from '../../services/currentUserSession.service';
 import { UserService } from '../../services/user.services';
+import { appUser } from '../../../interfaces/user.interface';
+
 @Component({
   selector: 'app-profil-edit-dialog',
   standalone: true,
@@ -23,41 +24,49 @@ import { UserService } from '../../services/user.services';
     FormsModule
   ],
   templateUrl: './profil-edit-dialog.component.html',
-  styleUrls: ['./profil-edit-dialog.component.scss', 'profil-edit-dialog.media-query.component.scss']
+  styleUrls: [
+    './profil-edit-dialog.component.scss',
+    './profil-edit-dialog.media-query.component.scss'
+  ]
 })
 export class ProfilEditDialogComponent {
   newName = '';
-  currentUser: appUser | null = null;
+  currentUser: appUser | null;
 
-  constructor(private dialogRef: MatDialogRef<ProfilEditDialogComponent>, private userSession: SessionService, private userService: UserService) {
+  constructor(
+    private dialogRef: MatDialogRef<ProfilEditDialogComponent>,
+    private userSession: SessionService,
+    private userService: UserService
+  ) {
     this.currentUser = this.userSession.getCurrentUser();
   }
 
-  onClose() {
+  closeDialog(): void {
     this.dialogRef.close();
   }
 
-  // saveNewUserName() {
-  //   if (this.currentUser?.id == 'Guest') {
-  //     this.currentUser.userName = this.newName;
-  //     this.dialogRef.close();
-  //   } else {
-  //     this.userService.updateUserName(this.currentUser?.id!, this.newName).then(() =>
-  //       this.dialogRef.close()
-  //     )
-  //   }
-  // }
-
-  async saveNewUserName() {
+  async saveUserName(): Promise<void> {
     if (!this.currentUser) return;
-    const updated: appUser = { ...this.currentUser, userName: this.newName };
 
-    if (this.currentUser.id !== 'Guest') {
-      await this.userService.updateUserName(this.currentUser.id!, this.newName);
+    const updatedUser = this.buildUpdatedUser();
+
+    if (!this.isGuestUser()) {
+      await this.updateUserNameInService();
     }
 
-    this.userSession.setCurrentUser(updated);
+    this.userSession.setCurrentUser(updatedUser);
+    this.dialogRef.close(updatedUser);
+  }
 
-    this.dialogRef.close(updated);
+  private buildUpdatedUser(): appUser {
+    return { ...this.currentUser!, userName: this.newName };
+  }
+
+  private isGuestUser(): boolean {
+    return this.currentUser?.id === 'Guest';
+  }
+
+  private async updateUserNameInService(): Promise<void> {
+    await this.userService.updateUserName(this.currentUser!.id!, this.newName);
   }
 }
