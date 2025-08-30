@@ -1,94 +1,104 @@
 <form class="search-form" role="search">
-    <mat-form-field appearance="fill" class="search-full-width">
-        <input matInput placeholder="Devspace durchsuchen" [(ngModel)]="searchTerm" name="searchTerm"
-            aria-label="Suchfeld Gehe zu" (ngModelChange)="updateFilteredResults()" />
-        <mat-icon matSuffix aria-hidden="true" fontIcon="search"></mat-icon>
-    </mat-form-field>
+  <mat-form-field appearance="fill" class="search-full-width">
+    <input
+      matInput
+      placeholder="Devspace durchsuchen"
+      [(ngModel)]="searchTerm"
+      name="searchTerm"
+      aria-label="Suchfeld Gehe zu"
+      (ngModelChange)="updateFilteredResults()"
+    />
+    <mat-icon matSuffix aria-hidden="true" fontIcon="search"></mat-icon>
+  </mat-form-field>
 </form>
-<section class="search-results">
-    @if (isSearchActive) {
-    @if (filteredChannels.length > 0) {
+<section class="search-results" *ngIf="isSearchActive">
+  <!-- Channels -->
+  @if (filteredChannels.length > 0) {
     <section class="channels">
-        <div class="list search" id="channel-list">
-            @for (channel of filteredChannels; track channel.channelId) {
-            <div class="item" (click)="selectChannel(channel)">
-                <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
-                <p class="nuito17px400">{{ channel.name }}</p>
-            </div>
-            }
-        </div>
+      <div class="list search" id="channel-list">
+        @for (channel of filteredChannels; track channel.channelId) {
+          <div class="item" (click)="selectChannel(channel)">
+            <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
+            <p class="nuito17px400">{{ channel.name }}</p>
+          </div>
+        }
+      </div>
     </section>
-    }
-    @if (filteredMessagesFromChannels.length > 0) {
+  }
+  <!-- Channel Content Results -->
+  @if (filteredMessagesFromChannels.length > 0) {
     <section class="content-results">
-        <div class="list search" id="content-results">
-            @for (result of filteredMessagesFromChannels; track result.channel.channelId) {
-            <div class="item column" (click)="selectChannel(result.channel)">
-                <div class="from-chat">
-                    <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
-                    <p class="nuito17px400">
-                        {{ result.channel.name }}
-                    </p>
-                </div>
-                <div class="content">
-                    <mat-icon fontIcon="chat_outlined" aria-hidden="true"></mat-icon>
-                    <div>
-                        @for (hit of result.hits; track hit.id) {
-                        <p class="snippet">„{{ hit.text }}, {{ hit.timestamp.toDate() | date:'dd-MM-yyyy HH:mm' }}“</p>
-                        }
-                    </div>
-                </div>
+      <div class="list search" id="content-results">
+        @for (result of filteredMessagesFromChannels; track result.channel.channelId) {
+          <div class="item column" (click)="selectChannel(result.channel)">
+            <div class="from-chat">
+              <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
+              <p class="nuito17px400">{{ result.channel.name }}</p>
             </div>
-            }
-        </div>
+            <div class="content">
+              <mat-icon fontIcon="chat_outlined" aria-hidden="true"></mat-icon>
+              <div>
+                @for (hit of result.hits; track hit.id) {
+                  <p class="snippet">
+                    „{{ hit.text }}, {{ hit.timestamp.toDate() | date:'dd-MM-yyyy HH:mm' }}“
+                  </p>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
     </section>
-    }
-    @if (filteredDirectMessages.length > 0) {
+  }
+  <!-- Direct Messages -->
+  @if (filteredDirectMessagesUsers.length > 0 || filteredDirectMessagesGuests.length > 0) {
     <section class="direct-message">
-        <div class="list search" id="direct-messages">
-            @if (gastLogin) {
-            @for (user of filteredDirectMessages; track user.name) {
+      <div class="list search" id="direct-messages">
+        <!-- Gast Login -->
+        @if (gastLogin) {
+          @for (user of filteredDirectMessagesGuests; track user.name) {
             <div class="item" (click)="selectDirectMessageGast(user)">
-                <img src="./assets/img/avatar/{{ user.img }}" alt="Avatar von {{ user.name }}" />
-                <div class="status {{ user.status }}"></div>
-                <p class="nuito17px400">{{ user.name }}</p>
+              <img src="./assets/img/avatar/{{ user.img }}" alt="Avatar von {{ user.name }}" />
+              <div class="status {{ user.status }}"></div>
+              <p class="nuito17px400">{{ user.name }}</p>
             </div>
-            }
-            } @else {
-            @for (user of filteredDirectMessages; track user.id) {
+          }
+        } @else {
+          @for (user of filteredDirectMessagesUsers; track user.id) {
             <div class="item" (click)="selectDirectMessage(user)">
-                <img src="./assets/img/avatar/{{ user.profilePic }}.png" alt="Avatar von {{ user.userName }}" />
-                <div class="status {{ user.status ? 'online' : 'offline' }}"></div>
-                <p class="nuito17px400">
-                    {{ user.userName }}
-                    @if (currentUser?.id === user.id) {(Du)}
-                </p>
+              <img src="./assets/img/avatar/{{ user.profilePic }}.png" alt="Avatar von {{ user.userName }}" />
+              <div class="status {{ user.status ? 'online' : 'offline' }}"></div>
+              <p class="nuito17px400">
+                {{ user.userName }} @if (currentUser?.id === user.id) {(Du)}
+              </p>
             </div>
-            }
-            }
-        </div>
+          }
+        }
+      </div>
     </section>
-    }
-    @if (filteredMessagesFromDirectMessages.length > 0) {
+  }
+  <!-- Direct Message Content Results -->
+  @if (filteredMessagesFromDirectMessages.length > 0) {
     <section class="content-results">
-        <div class="list search" id="content-results">
-            @for (result of filteredMessagesFromDirectMessages; track result.conversationId) {
-            <div class="item column" (click)="selectDirectMessage(result.user)">
-                <div class="from-chat">
-                    <p>DM: {{ result.user.userName }}</p>
-                </div>
-                <div class="content">
-                    <mat-icon fontIcon="chat_outlined" aria-hidden="true"></mat-icon>
-                    <div>
-                        @for (hit of result.hits; track hit.id) {
-                        <p class="snippet">„{{ hit.text }}, {{ hit.timestamp.toDate() | date:'dd-MM-yyyy HH:mm' }}“</p>
-                        }
-                    </div>
-                </div>
+      <div class="list search" id="content-results">
+        @for (result of filteredMessagesFromDirectMessages; track result.conversationId) {
+          <div class="item column" (click)="selectDirectMessage(result.user)">
+            <div class="from-chat">
+              <p>DM: {{ result.user.userName }}</p>
             </div>
-            }
-        </div>
+            <div class="content">
+              <mat-icon fontIcon="chat_outlined" aria-hidden="true"></mat-icon>
+              <div>
+                @for (hit of result.hits; track hit.id) {
+                  <p class="snippet">
+                    „{{ hit.text }}, {{ hit.timestamp.toDate() | date:'dd-MM-yyyy HH:mm' }}“
+                  </p>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
     </section>
-    }
-    }
+  }
 </section>
