@@ -51,7 +51,7 @@ export class SearchComponent {
   filteredChannels: any[] = [];
   filteredDirectMessages: any[] = [];
   filteredMessagesFromChannels: Array<{ channel: Channel; hits: Array<{ id: string; text: string; timestamp: Timestamp }> }> = [];
-  filteredMessagesFromDirectMessages: Array<{ id: string; text: string; timestamp: Date }> = [];
+  filteredMessagesFromDirectMessages: Array<{ conversationId: string; user: appUser; hits: Array<{ id: string; text: string; timestamp: any }>; }> = [];
   channels: any[] = [];
   userChannels: any[] = [];
   users: any[] = [];
@@ -100,7 +100,6 @@ export class SearchComponent {
 
       if (!this.gastLogin && this.currentLoginId) {
         await this.getCurrentUserLogIn();
-        console.log('current User', this.currentUser);
         this.searchService.setCurrentUserId(this.currentLoginId);
       }
 
@@ -117,7 +116,7 @@ export class SearchComponent {
 
         this.firestoreService
           .getConversationsByUserId(this.currentLoginId)
-          .subscribe((conv) => {
+          .subscribe(async (conv) => {
             this.directMessages = conv;
             this.filterDirectMessageUsers();
             this.searchService.setDirectMessagePartnerIds(
@@ -125,7 +124,7 @@ export class SearchComponent {
               this.currentLoginId
             );
 
-            this.updateFilteredResults();
+            await this.updateFilteredResults();
           });
       }
     }
@@ -233,20 +232,25 @@ export class SearchComponent {
     // Desktop + Parent hört zu
     this.chatSelected.emit(channel.channelId);
     this.chatTypeSelected.emit('channel');
+
+    this.searchTerm = '';
   }
 
 
   async updateFilteredResults(): Promise<void> {
-    const { channels, directMessages, contentResults } = await this.searchService.updateFilteredResults(
-      this.searchTerm,
-      this.gastLogin,
-      this.directMessages,
-      this.currentLoginId
-    );
+    const { channels, directMessages, contentResults, directMessageResults } =
+      await this.searchService.updateFilteredResults(
+        this.searchTerm,
+        this.gastLogin,
+        this.directMessages, // <-- DMs hier übergeben
+        this.currentLoginId
+      );
+
 
     this.filteredChannels = channels;
     this.filteredDirectMessages = directMessages;
     this.filteredMessagesFromChannels = contentResults;
+    this.filteredMessagesFromDirectMessages = directMessageResults;
   }
 
   loadGuestChannel(query: string) {
@@ -292,15 +296,27 @@ export class SearchComponent {
       return;
     }
 
-    const conversation = this.findConversationBetweenUsers(user.id, currentUserId);
-
+    const conversation = this.findConversationBetweenUsers(
+      user.id,
+      currentUserId
+    );
     if (!conversation || !conversation.id) {
       console.error('Keine passende Konversation gefunden für:', user);
       return;
     }
 
     this.channelDirectMessageData.setSelectedDirectMessage(user);
-    this.router.navigate(['/chat-container', conversation.id]);
+    this.closeNewMessage.emit();
+    if (window.innerWidth < 800) {
+      this.router.navigate([
+        '/chat-container', 'conversation', conversation.id,
+      ]);
+    } else {
+      this.chatTypeSelected.emit('conversation');
+      this.chatSelected.emit(conversation.id);
+    }
+
+    this.searchTerm = '';
   }
 
   private findConversationBetweenUsers(userId1: string, userId2: string): any | null {

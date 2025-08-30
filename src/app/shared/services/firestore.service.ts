@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { collection, collectionData, docData, Firestore } from '@angular/fire/firestore';
 import { addDoc, deleteDoc, doc, getDoc, getDocs, limit, onSnapshot, orderBy, query, updateDoc, where } from 'firebase/firestore';
-import { map, Observable } from 'rxjs';
+import { from, map, Observable, switchMap } from 'rxjs';
 import { Channel } from '../../interfaces/channel.interface';
 
 @Injectable({ providedIn: 'root' })
@@ -44,7 +44,22 @@ export class FirestoreService {
   getConversationsByUserId(userId: string): Observable<any[]> {
     const ref = collection(this.firestore, 'conversations');
     const q = query(ref, where('participants', 'array-contains', userId));
-    return collectionData(q, { idField: 'id' });
+
+    return collectionData(q, { idField: 'id' }).pipe(
+      switchMap(convs =>
+        from(
+          Promise.all(
+            convs.map(async conv => {
+              const dmRef = collection(this.firestore, `conversations/${conv.id}/directMessages`);
+              const dmSnap = await getDocs(dmRef);
+              const directMessages: any = {};
+              dmSnap.forEach(d => (directMessages[d.id] = d.data()));
+              return { ...conv, directMessages };
+            })
+          )
+        )
+      )
+    );
   }
 
   async getConversationBetweenUsers(userAId: string, userBId: string): Promise<any | null> {

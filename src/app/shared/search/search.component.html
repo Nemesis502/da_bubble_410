@@ -19,6 +19,30 @@
         </div>
     </section>
     }
+    @if (filteredMessagesFromChannels.length > 0) {
+    <section class="content-results">
+        <div class="list search" id="content-results">
+            @for (result of filteredMessagesFromChannels; track result.channel.channelId) {
+            <div class="item column" (click)="selectChannel(result.channel)">
+                <div class="from-chat">
+                    <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
+                    <p class="nuito17px400">
+                        {{ result.channel.name }}
+                    </p>
+                </div>
+                <div class="content">
+                    <mat-icon fontIcon="chat_outlined" aria-hidden="true"></mat-icon>
+                    <div>
+                        @for (hit of result.hits; track hit.id) {
+                        <p class="snippet">„{{ hit.text }}, {{ hit.timestamp.toDate() | date:'dd-MM-yyyy HH:mm' }}“</p>
+                        }
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+    </section>
+    }
     @if (filteredDirectMessages.length > 0) {
     <section class="direct-message">
         <div class="list search" id="direct-messages">
@@ -45,22 +69,19 @@
         </div>
     </section>
     }
-    @if (filteredMessagesFromChannels.length > 0) {
+    @if (filteredMessagesFromDirectMessages.length > 0) {
     <section class="content-results">
         <div class="list search" id="content-results">
-            @for (result of filteredMessagesFromChannels; track result.channel.channelId) {
-            <div class="item column" (click)="selectChannel(result.channel)">
+            @for (result of filteredMessagesFromDirectMessages; track result.conversationId) {
+            <div class="item column" (click)="selectDirectMessage(result.user)">
                 <div class="from-chat">
-                    <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
-                    <p class="nuito17px400">
-                        {{ result.channel.name }}
-                    </p>
+                    <p>DM: {{ result.user.userName }}</p>
                 </div>
                 <div class="content">
                     <mat-icon fontIcon="chat_outlined" aria-hidden="true"></mat-icon>
                     <div>
                         @for (hit of result.hits; track hit.id) {
-                            <p class="snippet">„{{ hit.text }}, {{ hit.timestamp.toDate() | date:'dd-MM-yyyy HH:mm' }}“</p>
+                        <p class="snippet">„{{ hit.text }}, {{ hit.timestamp.toDate() | date:'dd-MM-yyyy HH:mm' }}“</p>
                         }
                     </div>
                 </div>
