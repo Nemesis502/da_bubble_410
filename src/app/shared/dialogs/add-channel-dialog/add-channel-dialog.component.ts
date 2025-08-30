@@ -22,76 +22,92 @@ import { MatDialog } from '@angular/material/dialog';
     CdkTextareaAutosize
   ],
   templateUrl: './add-channel-dialog.component.html',
-  styleUrls: ['./add-channel-dialog.component.scss', 'add-channel-dialog.media-query.component.scss']
+  styleUrls: [
+    './add-channel-dialog.component.scss',
+    './add-channel-dialog.media-query.component.scss'
+  ]
 })
 export class AddChannelDialogComponent {
   readonly dialog = inject(MatDialog);
   readonly document = inject(DOCUMENT);
+  readonly router = inject(Router);
 
   channelName = '';
   channelFocused = false;
   channelDescription = '';
   screenWidth = window.innerWidth;
-  screeenSmall = false;
-  constructor(private router: Router) { }
+  isSmallScreen = this.screenWidth < 800;
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event): void {
-    this.screenWidth = (event.target as Window).innerWidth;
-    if (this.screenWidth < 800 && this.screeenSmall === false) {
-      this.screeenSmall = true;
-      this.dialog.closeAll();
-      this.router.navigate(['/addChannelDialog']);
-      this.document.body.classList.remove('no-scroll');
-    } else if (this.screenWidth >= 800 && this.screeenSmall === true) {
-      this.screeenSmall = false;
-      this.router.navigate(['/main']);
-      this.dialog.open(AddChannelDialogComponent, {
-        panelClass: 'middle-dialog-panel'
-      });
-    }
+    this.updateScreenWidth((event.target as Window).innerWidth);
   }
 
   goToMain(): void {
-    if (this.screenWidth < 800) {
-      this.router.navigate(['/main-menu']);
-    } else {
-      this.router.navigate(['/main']);
-    }
+    this.router.navigate([this.isSmallScreen ? '/main-menu' : '/main']);
     this.dialog.closeAll();
   }
 
   openAddPeopleMenu(): void {
-    if (this.screenWidth < 800) {
-      this.dialog.open(MenuDialogComponent, {
-        position: { bottom: '0' },
-        maxWidth: '100vw',
-        width: '100vw',
-        panelClass: 'bottom-dialog-panel',
-        data: {
-          source: 'add-channel',
-          channelName: this.channelName,
-          channelDescription: this.channelDescription
-        }
-      });
-    } else if (this.screenWidth >= 800) {
-      this.dialog.closeAll();
-      this.dialog.open(MenuDialogComponent, {
-        panelClass: 'middle-dialog-panel',
-        data: {
-          source: 'add-channel',
-          channelName: this.channelName,
-          channelDescription: this.channelDescription
-        }
-      });
+    this.isSmallScreen
+      ? this.openBottomDialog()
+      : this.openMiddleDialog();
+  }
+
+  onChannelFocus(): void {
+    this.channelFocused = true;
+    if (!this.channelName) this.channelName = 'Office-Team';
+  }
+
+  updateScreenWidth(width: number): void {
+    const wasSmall = this.isSmallScreen;
+    this.screenWidth = width;
+    this.isSmallScreen = width < 800;
+
+    if (wasSmall !== this.isSmallScreen) {
+      this.handleScreenChange();
     }
   }
 
-  onChannelFocus() {
-    this.channelFocused = true;
+  handleScreenChange(): void {
+    this.dialog.closeAll();
+    this.isSmallScreen ? this.switchToMobile() : this.switchToDesktop();
+  }
 
-    if (!this.channelName) {
-      this.channelName = 'Office-Team';
-    }
+  switchToMobile(): void {
+    this.router.navigate(['/addChannelDialog']);
+    this.document.body.classList.remove('no-scroll');
+  }
+
+  switchToDesktop(): void {
+    this.router.navigate(['/main']);
+    this.dialog.open(AddChannelDialogComponent, {
+      panelClass: 'middle-dialog-panel'
+    });
+  }
+
+  openBottomDialog(): void {
+    this.dialog.open(MenuDialogComponent, {
+      position: { bottom: '0' },
+      maxWidth: '100vw',
+      width: '100vw',
+      panelClass: 'bottom-dialog-panel',
+      data: this.getDialogData()
+    });
+  }
+
+  openMiddleDialog(): void {
+    this.dialog.open(MenuDialogComponent, {
+      panelClass: 'middle-dialog-panel',
+      data: this.getDialogData()
+    });
+  }
+
+  getDialogData() {
+    return {
+      source: 'add-channel',
+      channelName: this.channelName,
+      channelDescription: this.channelDescription
+    };
   }
 }
