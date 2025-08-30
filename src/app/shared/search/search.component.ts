@@ -242,7 +242,7 @@ export class SearchComponent {
       await this.searchService.updateFilteredResults(
         this.searchTerm,
         this.gastLogin,
-        this.directMessages, // <-- DMs hier übergeben
+        this.directMessages,
         this.currentLoginId
       );
 
