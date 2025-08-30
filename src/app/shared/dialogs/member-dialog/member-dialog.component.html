@@ -1,12 +1,11 @@
 <mat-card class="member-dialog" [ngClass]="{
-    'from-channel-chat': data.source === 'channel-chat',
-    'from-members-list': data.source === 'members-list'
+  'from-channel-chat': data.source === 'channel-chat',
+  'from-members-list': data.source === 'members-list'
 }">
     @if (data.source === 'channel-chat') {
+    <!-- Mitglieder-Liste -->
     <mat-card-header class="member-dialog-header">
-        <mat-card-title class="nuito24px700">
-            Mitglieder
-        </mat-card-title>
+        <mat-card-title class="nuito24px700">Mitglieder</mat-card-title>
         <button mat-icon-button (click)="closeDialog()" aria-label="Close Member Dialog">
             <mat-icon>close</mat-icon>
         </button>
@@ -30,12 +29,11 @@
             <div class="icon-bg">
                 <mat-icon fontSet="material-icons-outlined">person_add</mat-icon>
             </div>
-            <span class="nuito18px700">
-                Mitglieder hinzufügen
-            </span>
+            <span class="nuito18px700">Mitglieder hinzufügen</span>
         </button>
     </mat-card-content>
     } @else {
+    <!-- Mitglieder hinzufügen -->
     <mat-card-header class="member-dialog-header">
         <mat-card-title class="nuito24px700 title">
             Leute hinzufügen
@@ -45,29 +43,29 @@
         </mat-card-title>
         <mat-card-subtitle class="channnel-name">
             <mat-icon fontIcon="numbers"></mat-icon>
-            <p>{{ channel?.name}}</p>
+            <p>{{ channel?.name }}</p>
         </mat-card-subtitle>
     </mat-card-header>
     <mat-form-field class="add-people-input" appearance="fill">
         <mat-chip-grid #chipGrid aria-label="Leute hinzufügen">
-            @for (people of peoples(); track people) {
-            <mat-chip-row (removed)="remove(people)">
-                <img class="chip-avatar" [src]="'./assets/img/avatar/' + people.profilePic + '.png'" alt="Avatar" />
-                {{ people.userName }}
-                <button matChipRemove [attr.aria-label]="'remove ' + people.userName">
+            @for (user of selectedUsers(); track user.id) {
+            <mat-chip-row (removed)="remove(user)">
+                <img class="chip-avatar" [src]="'./assets/img/avatar/' + user.profilePic + '.png'" alt="Avatar" />
+                {{ user.userName }}
+                <button matChipRemove [attr.aria-label]="'remove ' + user.userName">
                     <mat-icon fontIcon="close"></mat-icon>
                 </button>
             </mat-chip-row>
             }
             <input #inputField placeholder="Name eingeben" [matChipInputFor]="chipGrid"
                 [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="false"
-                (matChipInputTokenEnd)="addFromText($event)" [(ngModel)]="searchTerm" (ngModelChange)="filterUsers()"
-                [matAutocomplete]="auto" matAutocompletePosition="below" />
+                (matChipInputTokenEnd)="handleChipInput($event.value)" [(ngModel)]="searchTerm"
+                (ngModelChange)="filterUsers()" [matAutocomplete]="auto" matAutocompletePosition="below" />
         </mat-chip-grid>
-        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectUser($event.option.value)"
-            (opened)="autocompleteOpened()" (closed)="autocompleteClosed()">
+        <mat-autocomplete #auto="matAutocomplete" (opened)="autocompleteIsOpen = true"
+            (closed)="autocompleteIsOpen = false" (optionSelected)="selectUser($event.option.value)">
             @if (searchTerm.length > 0) {
-            @for (user of filteredUsers(); track user.userName) {
+            @for (user of filteredUsers(); track user.id) {
             <mat-option [value]="user">
                 <div class="chip-avatar-wrapper">
                     <img [src]="'./assets/img/avatar/' + user.profilePic + '.png'"
@@ -83,7 +81,7 @@
     </mat-form-field>
     <mat-card-actions class="add-members">
         <button mat-button class="add-members-btn" aria-label="Mitglieder hinzufügen" (click)="addMembers()"
-            [disabled]="peoples().length === 0">
+            [disabled]="selectedUsers().length === 0">
             <span>Hinzufügen</span>
         </button>
     </mat-card-actions>

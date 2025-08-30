@@ -1,23 +1,12 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  ElementRef,
-  Inject,
-  inject,
-  signal,
-  ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, Inject, inject, signal, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { appUser } from '../../../interfaces/user.interface';
 import { Channel } from '../../../interfaces/channel.interface';
 import { SessionService } from '../../services/currentUserSession.service';
-import {
-  MAT_DIALOG_DATA,
-  MatDialog,
-  MatDialogRef,
-} from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FirestoreService } from '../../services/firestore.service';
 import { firstValueFrom } from 'rxjs';
 import { FormsModule } from '@angular/forms';
@@ -47,98 +36,85 @@ import { ChannelsDirectMessageService } from '../../services/channels-direct-mes
 export class MemberDialogComponent {
   @ViewChild('inputField') inputField!: ElementRef<HTMLInputElement>;
 
-  readonly firestoreService = inject(FirestoreService);
-  readonly userSession = inject(SessionService);
+  // Services
+  readonly firestore = inject(FirestoreService);
+  readonly session = inject(SessionService);
   readonly dialog = inject(MatDialog);
   readonly announcer = inject(LiveAnnouncer);
-  readonly channelsDirectMessageService = inject(ChannelsDirectMessageService);
-  readonly peoples = signal<appUser[]>([]);
-  readonly allUsers = signal<appUser[]>([]);
-  readonly separatorKeysCodes = [ENTER, COMMA] as const;
-  readonly filteredUsers = signal<appUser[]>([]);
-  channelMembers = signal<string[]>([]);
-  members = signal<appUser[]>([]);
+  readonly channelDmService = inject(ChannelsDirectMessageService);
 
+  // State
+  readonly allUsers = signal<appUser[]>([]);
+  readonly selectedUsers = signal<appUser[]>([]);
+  readonly filteredUsers = signal<appUser[]>([]);
+  readonly channelMembers = signal<string[]>([]);
+  readonly members = signal<appUser[]>([]);
+
+  separatorKeysCodes = [ENTER, COMMA] as const;
   searchTerm = '';
   channelId = '';
   channel: Channel | null = null;
   currentUser: appUser | null = null;
+  isGuestLogin = false;
   autocompleteIsOpen = false;
-  isGastLogin = false;
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: { channelId: any; source: string },
+    @Inject(MAT_DIALOG_DATA) public data: { channelId: string; source: string },
     private dialogRef: MatDialogRef<MemberDialogComponent>
-  ) {}
+  ) { }
 
   async ngOnInit(): Promise<void> {
-    this.currentUser = this.userSession.getCurrentUser();
-    if (this.currentUser?.id == 'Guest') {
-      this.isGastLogin = true;
-    }
-    this.channelId = this.data.channelId;
-    console.log(this.currentUser?.id);
-
+    this.initSession();
     await this.loadChannel();
     await this.loadMembers();
   }
 
+  // --- Session & Channel ---
+  initSession(): void {
+    this.currentUser = this.session.getCurrentUser();
+    this.isGuestLogin = this.currentUser?.id === 'Guest';
+    this.channelId = this.data.channelId;
+  }
+
   async loadChannel(): Promise<void> {
-    const channels = await this.whichChannels();
-    const found = channels.find((c) => c.channelId === this.channelId);
-    if (found) {
-      this.channel = found;
-    }
+    const channels = await this.getChannels();
+    this.channel = channels.find(c => c.channelId === this.channelId) ?? null;
   }
 
-  async whichChannels() {
-    if (this.isGastLogin) {
-      const guestChannels = this.channelsDirectMessageService.getChannels();
-      return guestChannels;
-    } else {
-      const liveChannels = await firstValueFrom(
-        this.firestoreService.getChannels()
-      );
-      return liveChannels;
-    }
+  async getChannels(): Promise<Channel[]> {
+    return this.isGuestLogin
+      ? this.channelDmService.getChannels()
+      : await firstValueFrom(this.firestore.getChannels());
   }
 
+  // --- User Handling ---
   async loadMembers(): Promise<void> {
-    const users = await this.whichUsers();
+    const users = await this.getUsers();
     this.allUsers.set(users);
-
-    const memberList = users.filter((user: appUser) =>
-      this.channel?.members.includes(user.id!)
-    );
-
-    const sortedMembers = [...memberList].sort((a, b) => {
-      if (a.id === this.currentUser?.id) return -1;
-      if (b.id === this.currentUser?.id) return 1;
-      return 0;
-    });
-
-    this.members.set(sortedMembers);
+    this.members.set(this.sortMembers(users));
     this.channelMembers.set(this.channel?.members ?? []);
   }
 
-  async whichUsers() {
-    if (this.isGastLogin) {
-      let guestUser = this.channelsDirectMessageService
-        .getDirectMessagesForGast()
-        .map((dm) => ({
-          id: dm.id,
-          userName: dm.name,
-          profilePic: parseInt(dm.img.replace('.png', ''), 10) || 0,
-          status: dm.status === 'online',
-          email: '',
-        }));
-      return guestUser;
-    } else {
-      let liveUsers = await firstValueFrom(this.firestoreService.getUsers());
-      return liveUsers;
+  async getUsers(): Promise<appUser[]> {
+    if (this.isGuestLogin) {
+      return this.channelDmService.getDirectMessagesForGast().map(dm => ({
+        id: dm.id,
+        userName: dm.name,
+        profilePic: parseInt(dm.img.replace('.png', ''), 10) || 0,
+        status: dm.status === 'online',
+        email: '',
+      }));
     }
+    return await firstValueFrom(this.firestore.getUsers());
   }
 
+  sortMembers(users: appUser[]): appUser[] {
+    return users
+      .filter(u => this.channel?.members.includes(u.id!))
+      .sort((a, b) => (a.id === this.currentUser?.id ? -1 : b.id === this.currentUser?.id ? 1 : 0));
+  }
+
+  // --- Dialog Actions ---
   closeDialog(): void {
     this.dialogRef.close();
   }
@@ -150,146 +126,96 @@ export class MemberDialogComponent {
       width: '415px',
       maxHeight: '75vh',
       panelClass: 'member-dialog',
-      data: {
-        source: 'add-members',
-        channelId: this.channel?.channelId,
-      },
+      data: { source: 'add-members', channelId: this.channelId },
     });
   }
 
-  // Add-Members
-  private tryAddFromSearchTerm(): void {
-    const val = this.searchTerm.trim();
-    if (!val) return;
-
-    const match = this.allUsers().find(
-      (u) => u.userName.toLowerCase() === val.toLowerCase()
-    );
-    if (match && !this.peoples().some((p) => p.userName === match.userName)) {
-      this.peoples.update((peoples) => [...peoples, match]);
+  // --- Member Selection ---
+  addUserToSelection(user: appUser): void {
+    if (
+      !this.selectedUsers().some(u => u.userName === user.userName) &&
+      !this.channelMembers().includes(user.id!)
+    ) {
+      this.selectedUsers.update(list => [...list, user]);
     }
+  }
 
+  remove(user: appUser): void {
+    this.selectedUsers.update(list => list.filter(u => u !== user));
+    this.announcer.announce(`Removed ${user.userName}`);
+  }
+
+  handleChipInput(value: string): void {
+    const match = this.findUserByName(value);
+    if (match) this.addUserToSelection(match);
+    this.resetSearch();
+  }
+
+  findUserByName(name: string): appUser | undefined {
+    return this.allUsers().find(u => u.userName.toLowerCase() === name.toLowerCase());
+  }
+
+  resetSearch(): void {
     this.searchTerm = '';
     this.filteredUsers.set(this.allUsers());
-
-    setTimeout(() => this.inputField?.nativeElement.focus(), 0);
+    this.inputField?.nativeElement.focus();
   }
 
-  remove(people: appUser): void {
-    this.peoples.update((peoples) => peoples.filter((p) => p !== people));
-    this.announcer.announce(`Removed ${people.userName}`);
-  }
-
-  addFromText(event: MatChipInputEvent): void {
-    const value = (event.value || '').trim();
-    if (!value) return;
-
-    const match = this.allUsers().find(
-      (u) => u.userName.toLowerCase() === value.toLowerCase()
-    );
-    if (match && !this.peoples().some((p) => p.userName === match.userName)) {
-      this.peoples.update((peoples) => [...peoples, match]);
-    }
-
-    this.searchTerm = '';
-    this.filteredUsers.set(this.allUsers());
-    event.chipInput?.clear();
-
-    setTimeout(() => this.inputField?.nativeElement.focus(), 0);
-  }
-
-  onInputBlur(): void {
-    setTimeout(() => this.tryAddFromSearchTerm(), 150);
-  }
-
-  autocompleteOpened(): void {
-    this.autocompleteIsOpen = true;
-  }
-
-  autocompleteClosed(): void {
-    this.autocompleteIsOpen = false;
-    this.tryAddFromSearchTerm();
+  // --- Autocomplete & Filtering ---
+  onInputChange(event: Event): void {
+    this.searchTerm = (event.target as HTMLInputElement).value;
+    this.filterUsers();
   }
 
   filterUsers(): void {
-    const query = (this.searchTerm || '').toString().toLowerCase();
-    const membersInChannel = this.channelMembers();
+    const q = this.searchTerm.toLowerCase();
     this.filteredUsers.set(
       this.allUsers().filter(
-        (user) =>
-          user.userName.toLowerCase().startsWith(query) &&
-          !this.peoples().some((p) => p.userName === user.userName) &&
-          !membersInChannel.includes(user.id!)
+        u =>
+          u.userName.toLowerCase().startsWith(q) &&
+          !this.selectedUsers().some(s => s.userName === u.userName) &&
+          !this.channelMembers().includes(u.id!)
       )
     );
   }
 
-  onInputChange(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    this.searchTerm = (target.value ?? '').toString();
-    this.filterUsers();
-  }
-
   selectUser(user: appUser): void {
-    if (
-      !this.peoples().some((p) => p.userName === user.userName) &&
-      !this.channelMembers().includes(user.id!)
-    ) {
-      this.peoples.update((peoples) => [...peoples, user]);
-    }
-
-    this.searchTerm = '';
-    this.filteredUsers.set(this.allUsers());
-
-    if (this.inputField) {
-      this.inputField.nativeElement.value = '';
-      this.inputField.nativeElement.focus();
-    }
+    this.addUserToSelection(user);
+    this.resetSearch();
+    this.inputField.nativeElement.value = '';
   }
 
+  // --- Save Members ---
   async addMembers(): Promise<void> {
-    if (this.isGastLogin) {
-      this.addGuestMembers();
-      return;
-    }
+    this.isGuestLogin ? this.addGuestMembers() : await this.addFirestoreMembers();
+  }
 
-    if (!this.currentUser) {
-      console.error('Kein eingeloggter User gefunden.');
-      return;
-    }
-
-    const membersToAdd = this.peoples().map((u) => u.id!);
+  async addFirestoreMembers(): Promise<void> {
+    if (!this.currentUser) return;
+    const ids = this.selectedUsers().map(u => u.id!);
     try {
-      await this.firestoreService.addMembersToChannel(
-        this.data.channelId,
-        membersToAdd
-      );
-      const updatedChannel: Channel = {
-        ...this.channel!,
-        members: Array.from(
-          new Set([...(this.channel?.members ?? []), ...membersToAdd])
-        ),
-      };
-      this.channelsDirectMessageService.setSelectedGuestChannel(updatedChannel);
+      await this.firestore.addMembersToChannel(this.channelId, ids);
+      this.updateChannel(ids);
       this.dialogRef.close({ membersAdded: true });
-    } catch (error) {
-      console.error('Fehler beim Hinzufügen der Mitglieder:', error);
+    } catch (e) {
+      console.error('Fehler beim Hinzufügen der Mitglieder:', e);
     }
   }
 
   addGuestMembers(): void {
-    const ids = this.peoples()
-      .map((u) => u.id!)
-      .filter(Boolean);
-    const list = this.channelsDirectMessageService.getChannels();
-    const i = list.findIndex((c) => c.channelId === this.channelId);
+    const ids = this.selectedUsers().map(u => u.id!).filter(Boolean);
+    const list = this.channelDmService.getChannels();
+    const i = list.findIndex(c => c.channelId === this.channelId);
     if (i === -1 || ids.length === 0) return;
-    const updated = {
-      ...list[i],
-      members: Array.from(new Set([...(list[i].members ?? []), ...ids])),
-    };
+    const updated = { ...list[i], members: [...new Set([...(list[i].members ?? []), ...ids])] };
     list[i] = updated;
-    this.channelsDirectMessageService.setSelectedGuestChannel(updated);
+    this.channelDmService.setSelectedGuestChannel(updated);
     this.dialogRef.close({ membersAdded: true });
+  }
+
+  updateChannel(ids: string[]): void {
+    if (!this.channel) return;
+    const updated: Channel = { ...this.channel, members: [...new Set([...this.channel.members, ...ids])] };
+    this.channelDmService.setSelectedGuestChannel(updated);
   }
 }
