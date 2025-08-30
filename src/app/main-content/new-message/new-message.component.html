@@ -13,6 +13,7 @@
       />
     </button>
   </section>
+
   <section class="chat-header">
     <p class="new-message nuito18px700">Neue Nachricht</p>
     <div class="search-field-wrapper">
@@ -25,49 +26,37 @@
           placeholder="An: #channel oder @jemand"
         ></textarea>
       </mat-card>
+
       <!-- Search @ mention popup -->
-      <div
-        class="mention-popup mention-popup-top"
-        *ngIf="searchFieldMentionVisible"
-        (click)="$event.stopPropagation()"
-      >
-        <div
-          class="mention-user"
-          *ngFor="let user of searchMentionUsers"
-          (click)="insertMentionInSearch(user.userName)"
-        >
-          <img
-            class="avatar"
-            [src]="'./../../../assets/img/avatar/' + user.profilePic + '.png'"
-            alt="avatar"
-          />
-          <div
-            class="status-dot"
-            [ngClass]="{ online: user.status, offline: !user.status }"
-          ></div>
-          <span class="mention-name nuito17px400"
-            >{{ user.userName
-            }}<span *ngIf="user.userName === currentUser?.userName"> (Du)</span>
-          </span>
+      @if (searchFieldMentionVisible) {
+        <div class="mention-popup mention-popup-top" (click)="$event.stopPropagation()">
+          @for (user of searchMentionUsers;track user) {
+            <div class="mention-user" (click)="insertMentionInSearch(user.userName)">
+              <img class="avatar" [src]="'./../../../assets/img/avatar/' + user.profilePic + '.png'" alt="avatar" />
+              <div class="status-dot" [ngClass]="{ online: user.status, offline: !user.status }"></div>
+              <span class="mention-name nuito17px400">
+                {{ user.userName }}
+                @if (user.userName === currentUser?.userName) {
+                  <span> (Du)</span>
+                }
+              </span>
+            </div>
+          }
         </div>
-      </div>
+      }
 
       <!-- Search # hashtag popup -->
-      <div
-        class="mention-popup mention-popup-top"
-        *ngIf="searchFieldHashtagVisible"
-        (click)="$event.stopPropagation()"
-      >
-        <div
-          class="hashtag-item"
-          *ngFor="let channel of searchHashtagChannels"
-          (click)="insertHashtagInSearch(channel.name)"
-        >
-          <span class="hashtag-name nuito17px400">
-            <span class="hashtag">#</span>{{ channel.name }}
-          </span>
+      @if (searchFieldHashtagVisible) {
+        <div class="mention-popup mention-popup-top" (click)="$event.stopPropagation()">
+          @for (channel of searchHashtagChannels; track channel) {
+            <div class="hashtag-item" (click)="insertHashtagInSearch(channel.name)">
+              <span class="hashtag-name nuito17px400">
+                <span class="hashtag">#</span>{{ channel.name }}
+              </span>
+            </div>
+          }
         </div>
-      </div>
+      }
     </div>
   </section>
 
@@ -86,40 +75,35 @@
       ></textarea>
 
       <!-- @ Popup -->
-      <div class="mention-popup" *ngIf="mentionPopupVisible">
-        <div
-          class="mention-user"
-          *ngFor="let user of searchMentionUsers"
-          (click)="selectMentionUser(user.userName)"
-        >
-          <img
-            class="avatar"
-            [src]="'./../../../assets/img/avatar/' + user.profilePic + '.png'"
-            alt="avatar"
-          />
-          <div
-            class="status-dot"
-            [ngClass]="{ online: user.status, offline: !user.status }"
-          ></div>
-          <span class="mention-name nuito17px400"
-            >{{ user.userName
-            }}<span *ngIf="user.userName === currentUser?.userName"> (Du)</span>
-          </span>
+      @if (mentionPopupVisible) {
+        <div class="mention-popup">
+          @for (user of searchMentionUsers; track user) {
+            <div class="mention-user" (click)="selectMentionUser(user.userName)">
+              <img class="avatar" [src]="'./../../../assets/img/avatar/' + user.profilePic + '.png'" alt="avatar" />
+              <div class="status-dot" [ngClass]="{ online: user.status, offline: !user.status }"></div>
+              <span class="mention-name nuito17px400">
+                {{ user.userName }}
+                @if (user.userName === currentUser?.userName) {
+                  <span> (Du)</span>
+                }
+              </span>
+            </div>
+          }
         </div>
-      </div>
+      }
 
       <!-- # Popup -->
-      <div class="mention-popup" *ngIf="hashtagPopupVisible">
-        <div
-          class="hashtag-item"
-          *ngFor="let channel of searchHashtagChannels"
-          (click)="selectHashtagChannel(channel.name)"
-        >
-          <span class="hashtag-name nuito17px400">
-            <span class="hashtag">#</span>{{ channel.name }}
-          </span>
+      @if (hashtagPopupVisible) {
+        <div class="mention-popup">
+          @for (channel of searchHashtagChannels; track channel) {
+            <div class="hashtag-item" (click)="selectHashtagChannel(channel.name)">
+              <span class="hashtag-name nuito17px400">
+                <span class="hashtag">#</span>{{ channel.name }}
+              </span>
+            </div>
+          }
         </div>
-      </div>
+      }
 
       <mat-card-actions class="chat-buttons">
         <div class="buttons-left">
@@ -137,12 +121,14 @@
         </div>
       </mat-card-actions>
     </mat-card>
+
     <!-- Emoji Picker -->
-    <app-emoji-picker
-      *ngIf="emojiPickerVisible"
-      [pickerPosition]="pickerPosition"
-      (emojiSelected)="addEmoji($event)"
-      (pickerClosed)="onPickerClosed()"
-    ></app-emoji-picker>
+    @if (emojiPickerVisible) {
+      <app-emoji-picker
+        [pickerPosition]="pickerPosition"
+        (emojiSelected)="addEmoji($event)"
+        (pickerClosed)="onPickerClosed()"
+      ></app-emoji-picker>
+    }
   </section>
 </div>
