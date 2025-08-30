@@ -23,24 +23,19 @@ export interface MentionChannel {
 export class MentionService {
   constructor(private firestore: Firestore) {}
 
-  /**
-   * Fetches mentionable users for a given channel.
-   * - If channel is null or missing, fetches all users.
-   */
+  /** Fetch users for a channel, fallback to all users */
   async fetchMentionableUsers(channelId: string | null): Promise<MentionUser[]> {
     if (!channelId) return this.fetchAllUsers();
 
     const channelSnap = await getDoc(doc(this.firestore, `channels/${channelId}`));
     if (!channelSnap.exists()) return this.fetchAllUsers();
 
-    const memberIds: string[] = channelSnap.data()['members'] || [];
+    const memberIds: string[] = channelSnap.data()?.['members'] || [];
     const users = await Promise.all(memberIds.map((id) => this.fetchUserById(id)));
     return users.filter(Boolean) as MentionUser[];
   }
 
-  /**
-   * Fetches a single user document by ID.
-   */
+  /** Fetch single user by ID */
   private async fetchUserById(userId: string): Promise<MentionUser | null> {
     const snap = await getDoc(doc(this.firestore, `users/${userId}`));
     if (!snap.exists()) return null;
@@ -48,16 +43,13 @@ export class MentionService {
     const data = snap.data();
     return {
       id: userId,
-      userName: data['userName'],
-      profilePic: data['profilePic'] || 'default',
-      status: data['status'] ?? false,
+      userName: data?.['userName'] ?? 'Unknown',
+      profilePic: data?.['profilePic'] || 'default',
+      status: data?.['status'] ?? false,
     };
   }
 
-
-  /**
-   * Helper method to fetch all users from the Firestore "users" collection.
-   */
+  /** Fetch all users */
   private async fetchAllUsers(): Promise<MentionUser[]> {
     const usersCollectionRef = collection(this.firestore, 'users');
     const querySnapshot = await getDocs(usersCollectionRef);
@@ -66,17 +58,14 @@ export class MentionService {
       const data = docSnap.data();
       return {
         id: docSnap.id,
-        userName: data['userName'],
+        userName: data['userName'] ?? 'Unknown',
         profilePic: data['profilePic'] || 'default',
         status: data['status'] ?? false,
       };
     });
   }
 
-  /**
-   * Fetches all channels from the Firestore "channels" collection.
-   * Used for hashtag mentions (#channel).
-   */
+  /** Fetch all channels */
   async fetchAllChannels(): Promise<MentionChannel[]> {
     const channelsCol = collection(this.firestore, 'channels');
     const snapshot = await getDocs(channelsCol);
@@ -87,29 +76,47 @@ export class MentionService {
     }));
   }
 
-  /**
-   * Filters a list of users based on a search term for @mentions.
-   */
+  /** Filter users by term */
   filterUsers(users: MentionUser[], term: string): MentionUser[] {
+    if (!term) return users;
     return users.filter((user) =>
       user.userName.toLowerCase().includes(term.toLowerCase())
     );
   }
 
-  /**
-   * Filters a list of channels based on a search term for #hashtags.
-   */
+  /** Filter channels by term */
   filterChannels(channels: MentionChannel[], term: string): MentionChannel[] {
+    if (!term) return channels;
     return channels.filter((channel) =>
       channel.name.toLowerCase().includes(term.toLowerCase())
     );
   }
 
-  /**
-   * Extracts the currently typed mention (`@`) or hashtag (`#`) term
-   * from the message at the given cursor position.
-   * Returns `null` if no valid trigger is found.
-   */
+  /** Extract first @mention in text */
+  extractMention(input: string): string | null {
+    const match = input.match(/@([\wÀ-ÿ .'-]+)/);
+    return match ? match[1].trim() : null;
+  }
+
+  /** Extract first #channel in text */
+  extractChannel(input: string): string | null {
+    const match = input.match(/#([^\s#@]+)/);
+    return match ? match[1].trim() : null;
+  }
+
+  /** Extract last typed @mention keyword for autocomplete */
+  extractLastMentionKeyword(text: string): string {
+    const match = text.match(/@([\wÀ-ÿ .'-]*)$/);
+    return match ? match[1] : '';
+  }
+
+  /** Extract last typed #hashtag keyword for autocomplete */
+  extractLastHashtagKeyword(text: string): string {
+    const match = text.match(/#([\wÀ-ÿ .'-]*)$/);
+    return match ? match[1] : '';
+  }
+
+  /** Get currently typed mention or hashtag at cursor */
   getCurrentTriggerTerm(
     message: string,
     cursorPos: number,
@@ -125,41 +132,5 @@ export class MentionService {
     }
 
     return term.toLowerCase();
-  }
-
-  /**
-   * Extracts the last typed @mention keyword from a text.
-   * Example: "Hello @john" → returns "john".
-   */
-  extractLastMentionKeyword(text: string): string {
-    const match = text.match(/@([\wÀ-ÿ .'-]*)$/);
-    return match ? match[1] : '';
-  }
-
-  /**
-   * Extracts the last typed #hashtag keyword from a text.
-   * Example: "Join #general" → returns "general".
-   */
-  extractLastHashtagKeyword(text: string): string {
-    const match = text.match(/#([\wÀ-ÿ .'-]*)$/);
-    return match ? match[1] : '';
-  }
-
-  /**
-   * Extracts the first @mention found in a string.
-   * Example: "Hey @alice" → returns "alice".
-   */
-  extractMention(input: string): string | null {
-    const match = input.match(/@([\wÀ-ÿ .'-]+)/);
-    return match ? match[1].trim() : null;
-  }
-
-  /**
-   * Extracts the first #channel found in a string.
-   * Example: "Check out #news" → returns "news".
-   */
-  extractChannel(input: string): string | null {
-    const match = input.match(/#([^\s#@]+)/);
-    return match ? match[1].trim() : null;
   }
 }

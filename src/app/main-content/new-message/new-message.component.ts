@@ -6,24 +6,21 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { ChannelsDirectMessageService } from '../../shared/services/channels-direct-message.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { EmojiPickerComponent } from '../emoji-picker/emoji-picker.component';
 import { FormsModule } from '@angular/forms';
-import {
-  Firestore,
-  collection,
-  getDocs,
-  addDoc,
-  query,
-  where,
-} from '@angular/fire/firestore';
+import { EmojiPickerComponent } from '../emoji-picker/emoji-picker.component';
+import { Router } from '@angular/router';
 import { appUser } from '../../interfaces/user.interface';
 import { SessionService } from '../../shared/services/currentUserSession.service';
-import { MentionService } from '../../shared/services/mentions.service';
+import {
+  MentionService,
+  MentionUser,
+  MentionChannel,
+} from '../../shared/services/mentions.service';
+import { NewMessageSendingService } from '../../shared/services/new-message-sending.service';
+import { AutocompleteService } from '../../shared/services/autocomplete.service';
 
 interface PickerPosition {
   top: number;
@@ -49,61 +46,54 @@ export class NewMessageComponent implements OnInit {
   @ViewChild('chatField') chatField!: ElementRef<HTMLTextAreaElement>;
   @ViewChild('chatBody') private chatBodyRef!: ElementRef;
   @ViewChild('searchField') searchField!: ElementRef<HTMLTextAreaElement>;
+
   searchInput: string = '';
+  chatMessage: string = '';
+  currentUser: appUser | null = null;
+
+  mentionPopupVisible = false;
+  hashtagPopupVisible = false;
+  emojiPickerVisible = false;
+  pickerPosition: PickerPosition = { top: 0, left: 0 };
 
   searchFieldMentionVisible = false;
   searchFieldHashtagVisible = false;
 
-  searchMentionUsers: {
-    id: string;
-    userName: string;
-    profilePic: string;
-    status: boolean;
-  }[] = [];
-
-  searchHashtagChannels: { id: string; name: string }[] = [];
-
-  searchPopupTop: number = 0;
-  searchPopupLeft: number = 0;
-
-  mentionableUsers: {
-    id: string;
-    userName: string;
-    profilePic: string;
-    status: boolean;
-  }[] = [];
-
-  allChannels: { id: string; name: string }[] = [];
-
-  mentionPopupVisible = false;
-  hashtagPopupVisible: boolean = false;
-
-  selectedChannel: any = null;
-  chatMessage: string = '';
-  currentUser: appUser | null = null;
-
-  emojiPickerVisible: boolean = false;
-  pickerPosition: PickerPosition = { top: 0, left: 0 };
+  searchMentionUsers: MentionUser[] = [];
+  searchHashtagChannels: MentionChannel[] = [];
+  mentionableUsers: MentionUser[] = [];
+  allChannels: MentionChannel[] = [];
+  selectedChannel: MentionChannel | null = null;
 
   constructor(
-    private mentionService: MentionService ,
+    private messageService: NewMessageSendingService,
+    private mentionService: MentionService,
+    private autocompleteService: AutocompleteService,
     private router: Router,
-    private route: ActivatedRoute,
-    private elementRef: ElementRef,
-    private channelService: ChannelsDirectMessageService,
-    private firestore: Firestore
+    private elementRef: ElementRef
   ) {}
 
+  // Component initialization
   async ngOnInit(): Promise<void> {
     this.currentUser = this.userSession.getCurrentUser();
-    await this.fetchAllChannels();
-    await this.fetchMentionableUsers();
+    await this.loadInitialData();
   }
 
+  // Load initial users and channels for mentions and hashtags
+  private async loadInitialData(): Promise<void> {
+    this.allChannels = await this.mentionService.fetchAllChannels();
+    this.mentionableUsers = await this.mentionService.fetchMentionableUsers(
+      this.selectedChannel?.id || null
+    );
+  }
+
+  // Navigate back to main menu
   navigateToMain(): void {
     this.router.navigate(['/main-menu']);
   }
 
+  /** EMOJI HANDLING */
+  // Toggle emoji picker visibility and set position
   toggleEmojiPicker(event: MouseEvent): void {
     event.stopPropagation();
     this.emojiPickerVisible = !this.emojiPickerVisible;
@@ -117,121 +107,114 @@ export class NewMessageComponent implements OnInit {
     }
   }
 
+  // Insert selected emoji at cursor position
   addEmoji(emoji: string): void {
-    if (this.chatField) {
-      const textarea = this.chatField.nativeElement;
-      const cursorPos = textarea.selectionStart;
-      const textBefore = this.chatMessage.slice(0, cursorPos);
-      const textAfter = this.chatMessage.slice(cursorPos);
-      this.chatMessage = `${textBefore}${emoji}${textAfter}`;
+    const textarea = this.chatField?.nativeElement;
+    if (!textarea) return;
+
+    const cursorPos = textarea.selectionStart;
+    this.chatMessage =
+      this.chatMessage.slice(0, cursorPos) +
+      emoji +
+      this.chatMessage.slice(cursorPos);
+
+    setTimeout(() => {
       textarea.focus();
-      setTimeout(() => {
-        textarea.setSelectionRange(
-          cursorPos + emoji.length,
-          cursorPos + emoji.length
-        );
-      }, 0);
-    }
+      textarea.setSelectionRange(
+        cursorPos + emoji.length,
+        cursorPos + emoji.length
+      );
+    }, 0);
   }
 
+  // Close emoji picker
   onPickerClosed() {
     this.emojiPickerVisible = false;
   }
 
+  /** MESSAGE SENDING */
   async sendMessage(): Promise<void> {
-    if (!this.chatMessage.trim() || !this.searchInput.trim()) return;
+    if (!this.canSendMessage()) return;
 
-    const mentionName = this.extractMention(this.searchInput);
-    const channelName = this.extractChannel(this.searchInput);
+    const { user, channel } = this.getMessageTarget();
+    const senderId = this.currentUser!.id; // safe now because canSendMessage guarantees it's defined
 
-    if (mentionName) {
-      await this.sendMessageToConversation(mentionName);
-      return;
-    }
+    await this.sendToTarget(senderId, user, channel);
+    this.resetMessage();
+  }
 
-    if (channelName) {
-      await this.sendMessageToChannel(channelName);
-      return;
+  // Validate if the message can be sent
+  private canSendMessage(): this is {
+    currentUser: { id: string };
+  } & NewMessageComponent {
+    // Narrowing so TypeScript knows currentUser and its id are defined
+    return (
+      !!this.chatMessage.trim() &&
+      !!this.searchInput.trim() &&
+      !!this.currentUser?.id
+    );
+  }
+
+  // Send message to user or channel
+  private async sendToTarget(
+    senderId: string,
+    user?: MentionUser,
+    channel?: MentionChannel
+  ): Promise<void> {
+    if (user) {
+      await this.messageService.sendDirectMessage(
+        senderId,
+        user.id,
+        this.chatMessage
+      );
+    } else if (channel) {
+      await this.messageService.sendChannelMessage(
+        senderId,
+        channel.id,
+        this.chatMessage
+      );
     }
   }
 
-  private async sendMessageToConversation(userName: string): Promise<void> {
-    const mentionedUser = this.mentionableUsers.find(
-      (user) => user.userName.toLowerCase() === userName.toLowerCase()
-    );
+// Determine the target user or channel for the message
+private getMessageTarget(): { user?: MentionUser; channel?: MentionChannel } {
+  const user = this.getTargetUser();
+  if (user) return { user };
 
-    if (!mentionedUser || !this.currentUser?.id) {
-      return;
-    }
+  const channel = this.getTargetChannel();
+  if (channel) return { channel };
 
-    const conversationId = await this.getOrCreateConversation(
-      this.currentUser.id,
-      mentionedUser.id
-    );
+  return {};
+}
 
-    const message = {
-      senderID: this.currentUser.id,
-      text: this.chatMessage,
-      timestamp: new Date(),
-    };
+// Find the mentioned user in the search input
+private getTargetUser(): MentionUser | undefined {
+  const mentionName = this.mentionService.extractMention(this.searchInput);
+  if (!mentionName) return undefined;
 
-    const msgCol = collection(
-      this.firestore,
-      `conversations/${conversationId}/directMessages`
-    );
-    await addDoc(msgCol, message);
+  return this.mentionableUsers.find(
+    (u) => u.userName.toLowerCase() === mentionName.toLowerCase()
+  );
+}
 
+// Find the mentioned channel in the search input
+private getTargetChannel(): MentionChannel | undefined {
+  const channelName = this.mentionService.extractChannel(this.searchInput);
+  if (!channelName) return undefined;
+
+  return this.allChannels.find(
+    (c) => c.name.toLowerCase() === channelName.toLowerCase()
+  );
+}
+
+  // Reset chat input and search field
+  private resetMessage(): void {
     this.chatMessage = '';
     this.searchInput = '';
-    this.router.navigate([`/chat-container/conversation/${conversationId}`]);
-  }
-  private async getOrCreateConversation(
-    userA: string,
-    userB: string
-  ): Promise<string> {
-    const convRef = collection(this.firestore, 'conversations');
-    const q = query(convRef, where('participants', 'array-contains', userA));
-    const snapshot = await getDocs(q);
-
-    const existing = snapshot.docs.find((doc) => {
-      const participants = doc.data()['participants'] as string[];
-      return participants.includes(userB);
-    });
-
-    if (existing) return existing.id;
-
-    const newConv = await addDoc(convRef, {
-      participants: [userA, userB],
-    });
-    return newConv.id;
-  }
-  private async sendMessageToChannel(channelName: string): Promise<void> {
-    const matchedChannel = this.allChannels.find(
-      (ch) => ch.name.toLowerCase() === channelName.toLowerCase()
-    );
-
-    if (!matchedChannel || !this.currentUser?.id) {
-      return;
-    }
-
-    const message = {
-      channelId: matchedChannel.id,
-      senderID: this.currentUser.id,
-      text: this.chatMessage,
-      timestamp: new Date(),
-    };
-
-    const msgCol = collection(
-      this.firestore,
-      `channels/${matchedChannel.id}/messages`
-    );
-    await addDoc(msgCol, message);
-
-    this.chatMessage = '';
-    this.searchInput = '';
-    this.router.navigate([`/chat-container/chat/${matchedChannel.id}`]);
   }
 
+  /** POPUP HANDLING */
+  // Close emoji picker when clicking outside
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const pickerElement = this.elementRef.nativeElement.querySelector(
@@ -250,266 +233,182 @@ export class NewMessageComponent implements OnInit {
     }
   }
 
+  // Focus the chat input textarea
   focusChatInput(): void {
-    if (this.chatField) {
-      this.chatField.nativeElement.focus();
-    }
+    this.chatField?.nativeElement.focus();
   }
 
-
-private extractMention(input: string): string | null {
-  return this.mentionService.extractMention(input);
-}
-
-private extractChannel(input: string): string | null {
-  return this.mentionService.extractChannel(input);
-}
-
-  triggerMention(): void {
-    const textarea = this.chatField?.nativeElement;
-    if (!textarea) return;
-
-    const cursorPos = textarea.selectionStart;
-    const textBefore = this.chatMessage.slice(0, cursorPos);
-    const charBefore = textBefore.charAt(textBefore.length - 1);
-
-    if (charBefore === '@') {
-      this.removeMentionSymbol(cursorPos);
-    } else {
-      this.insertMentionSymbol(cursorPos);
-    }
-  }
-
-  private insertMentionSymbol(cursorPos: number): void {
-    const textarea = this.chatField?.nativeElement;
-    if (!textarea) return;
-
-    const textBefore = this.chatMessage.slice(0, cursorPos);
-    const textAfter = this.chatMessage.slice(cursorPos);
-
-    this.chatMessage = `${textBefore}@${textAfter}`;
-
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(cursorPos + 1, cursorPos + 1);
-    }, 0);
-
-    this.mentionPopupVisible = true;
-    this.fetchMentionableUsers();
-  }
-
-  private removeMentionSymbol(cursorPos: number): void {
-    const textarea = this.chatField?.nativeElement;
-    if (!textarea) return;
-
-    const textBefore = this.chatMessage.slice(0, cursorPos - 1);
-    const textAfter = this.chatMessage.slice(cursorPos);
-
-    this.chatMessage = `${textBefore}${textAfter}`;
-
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(cursorPos - 1, cursorPos - 1);
-    }, 0);
-
-    this.mentionPopupVisible = false;
-  }
-
-async checkMentionTrigger(event: KeyboardEvent): Promise<void> {
-  const char = event.key;
-
-  if (char === '@') {
-    await this.handleMentionTrigger();
-  } else if (char === '#') {
-    this.handleHashtagTrigger();
-  } else if ([' ', 'Enter', 'Escape'].includes(char)) {
-    this.closeAllPopups();
-  }
-
-  setTimeout(() => {
-    this.cleanupMentionAndHashtag();
-
-    const mentionKeyword = this.extractLastMentionKeyword(this.chatMessage);
-    this.mentionPopupVisible = this.chatMessage.includes('@');
-    this.searchMentionUsers = this.mentionService.filterUsers(this.mentionableUsers, mentionKeyword);
-
-    const hashtagKeyword = this.extractLastHashtagKeyword(this.chatMessage);
-    this.hashtagPopupVisible = this.chatMessage.includes('#');
-    this.searchHashtagChannels = this.mentionService.filterChannels(this.allChannels, hashtagKeyword);
-  }, 0);
-}
-
-  async checkSearchFieldTrigger(event: KeyboardEvent): Promise<void> {
+  /** CHAT AUTOCOMPLETE HANDLING */
+  // Handle key presses in chat for @mentions and #hashtags
+  async handleChatKey(event: KeyboardEvent): Promise<void> {
     const char = event.key;
 
-    if (char === '@') {
-      this.mentionPopupVisible = true;
-      await this.fetchMentionableUsers();
-    } else if (char === '#') {
-      this.hashtagPopupVisible = true;
-      await this.fetchAllChannels();
-    } else if ([' ', 'Enter', 'Escape'].includes(char)) {
-      this.closeAllPopups();
-    }
+    if (char === '@') this.mentionPopupVisible = true;
+    if (char === '#') this.hashtagPopupVisible = true;
+    if ([' ', 'Enter', 'Escape'].includes(char)) this.closeAllPopups();
 
-    setTimeout(() => this.cleanupSearchTriggers(), 0);
+    setTimeout(() => this.updateAutocompleteLists(), 0);
   }
 
-  private cleanupSearchTriggers(): void {
-    if (!this.searchInput.includes('@')) {
-      this.mentionPopupVisible = false;
-    }
-    if (!this.searchInput.includes('#')) {
-      this.hashtagPopupVisible = false;
-    }
-  }
-
-  private async handleMentionTrigger(): Promise<void> {
-    this.mentionPopupVisible = true;
-    await this.fetchMentionableUsers();
-  }
-
-  private handleHashtagTrigger(): void {
-    this.hashtagPopupVisible = true;
-  }
-
+  // Close all autocomplete popups
   private closeAllPopups(): void {
     this.mentionPopupVisible = false;
     this.hashtagPopupVisible = false;
   }
 
-  private cleanupMentionAndHashtag(): void {
-    if (!this.chatMessage.includes('@')) {
-      this.mentionPopupVisible = false;
-    }
-    if (!this.chatMessage.includes('#')) {
-      this.hashtagPopupVisible = false;
-    }
+  // Update mention and hashtag lists based on current text
+  private updateAutocompleteLists(): void {
+    this.searchMentionUsers = this.autocompleteService.filterMentions(
+      this.chatMessage,
+      this.mentionableUsers
+    );
+    this.mentionPopupVisible = this.chatMessage.includes('@');
+
+    this.searchHashtagChannels = this.autocompleteService.filterHashtags(
+      this.chatMessage,
+      this.allChannels
+    );
+    this.hashtagPopupVisible = this.chatMessage.includes('#');
   }
 
-async fetchMentionableUsers(): Promise<void> {
-  try {
-    const channelId = this.selectedChannel?.id || 'defaultChannelId';
-
-    this.mentionableUsers = await this.mentionService.fetchMentionableUsers(channelId);
-  } catch (error) {
-  }
-}
-
-private async fetchAllChannels(): Promise<void> {
-  try {
-    this.allChannels = await this.mentionService.fetchAllChannels();
-  } catch (error) {
-  }
-}
-
-  selectHashtagChannel(channelName: string): void {
-    const textarea = this.chatField?.nativeElement;
-    if (!textarea) return;
-
-    const cursorPos = textarea.selectionStart;
-    const textBefore = this.chatMessage.slice(0, cursorPos);
-    const textAfter = this.chatMessage.slice(cursorPos);
-
-    const hashIndex = textBefore.lastIndexOf('#');
-    if (hashIndex === -1) return;
-
-    const newText =
-      textBefore.slice(0, hashIndex) + `#${channelName} ` + textAfter;
-
-    this.chatMessage = newText;
-
-    const newCursorPos = hashIndex + channelName.length + 2;
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(newCursorPos, newCursorPos);
-    });
-
-    this.hashtagPopupVisible = false;
-  }
-
+  /** INSERTING MENTION OR HASHTAG */
+  // Insert selected user mention into chat
   selectMentionUser(userName: string): void {
-    const textarea = this.chatField?.nativeElement;
-    if (!textarea) return;
-
-    const cursorPos = textarea.selectionStart;
-    const textBefore = this.chatMessage.slice(0, cursorPos);
-    const textAfter = this.chatMessage.slice(cursorPos);
-
-    const atIndex = textBefore.lastIndexOf('@');
-    if (atIndex === -1) return;
-
-    const newText = textBefore.slice(0, atIndex) + `@${userName} ` + textAfter;
-
-    this.chatMessage = newText;
-
-    const newCursorPos = atIndex + userName.length + 2;
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(newCursorPos, newCursorPos);
-    });
+    this.insertAtCursor(
+      '@',
+      userName,
+      'chatMessage',
+      this.chatField.nativeElement
+    );
     this.mentionPopupVisible = false;
   }
 
-async handleSearchFieldKey(event: KeyboardEvent): Promise<void> {
-  setTimeout(() => {
-    const mentionKeyword = this.extractLastMentionKeyword(this.searchInput);
-    this.searchFieldMentionVisible = this.searchInput.includes('@');
-    this.searchMentionUsers = this.mentionService.filterUsers(this.mentionableUsers, mentionKeyword);
+  // Insert selected hashtag into chat
+  selectHashtagChannel(channelName: string): void {
+    this.insertAtCursor(
+      '#',
+      channelName,
+      'chatMessage',
+      this.chatField.nativeElement
+    );
+    this.hashtagPopupVisible = false;
+  }
 
-    const hashtagKeyword = this.extractLastHashtagKeyword(this.searchInput);
-    this.searchFieldHashtagVisible = this.searchInput.includes('#');
-    this.searchHashtagChannels = this.mentionService.filterChannels(this.allChannels, hashtagKeyword);
-  }, 0);
-}
-
+  // Insert mention into search field
   insertMentionInSearch(userName: string): void {
-    const textarea = this.searchField.nativeElement;
-    const cursorPos = textarea.selectionStart;
-    const textBefore = this.searchInput.slice(0, cursorPos);
-    const textAfter = this.searchInput.slice(cursorPos);
-
-    const atIndex = textBefore.lastIndexOf('@');
-    if (atIndex === -1) return;
-
-    this.searchInput =
-      textBefore.slice(0, atIndex) + `@${userName} ` + textAfter;
-
-    const newCursorPos = atIndex + userName.length + 2;
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(newCursorPos, newCursorPos);
-    });
-
+    this.insertAtCursor(
+      '@',
+      userName,
+      'searchInput',
+      this.searchField.nativeElement
+    );
     this.searchFieldMentionVisible = false;
   }
 
+  // Insert hashtag into search field
   insertHashtagInSearch(channelName: string): void {
-    const textarea = this.searchField.nativeElement;
-    const cursorPos = textarea.selectionStart;
-    const textBefore = this.searchInput.slice(0, cursorPos);
-    const textAfter = this.searchInput.slice(cursorPos);
-
-    const hashIndex = textBefore.lastIndexOf('#');
-    if (hashIndex === -1) return;
-
-    this.searchInput =
-      textBefore.slice(0, hashIndex) + `#${channelName} ` + textAfter;
-
-    const newCursorPos = hashIndex + channelName.length + 2;
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(newCursorPos, newCursorPos);
-    });
-
+    this.insertAtCursor(
+      '#',
+      channelName,
+      'searchInput',
+      this.searchField.nativeElement
+    );
     this.searchFieldHashtagVisible = false;
   }
 
-private extractLastMentionKeyword(text: string): string {
-  return this.mentionService.extractLastMentionKeyword(text);
+  // Generic method to insert mention or hashtag at cursor position
+  private insertAtCursor(
+    triggerChar: '@' | '#',
+    value: string,
+    targetField: 'chatMessage' | 'searchInput',
+    textarea: HTMLTextAreaElement
+  ): void {
+    const cursorPos = textarea.selectionStart;
+    const { newText, newCursorPos } = this.autocompleteService.insertAtCursor(
+      triggerChar,
+      value,
+      this[targetField],
+      cursorPos
+    );
+
+    this[targetField] = newText;
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+    }, 0);
+  }
+
+  /** HANDLE CHAT MENTION TRIGGER */
+  // Handles @ or # triggers in chat input
+  async checkMentionTrigger(event: KeyboardEvent): Promise<void> {
+    const char = event.key;
+
+    if (char === '@') {
+      this.mentionPopupVisible = true;
+    } else if (char === '#') {
+      this.hashtagPopupVisible = true;
+    } else if ([' ', 'Enter', 'Escape'].includes(char)) {
+      this.closeAllPopups();
+    }
+
+    setTimeout(() => this.updateAutocompleteLists(), 0);
+  }
+
+  /** SEARCH FIELD AUTOCOMPLETE */
+  // Handle key presses in search input
+  async handleSearchFieldKey(event: KeyboardEvent): Promise<void> {
+    setTimeout(() => {
+      this.searchMentionUsers = this.autocompleteService.filterMentions(
+        this.searchInput,
+        this.mentionableUsers
+      );
+      this.searchHashtagChannels = this.autocompleteService.filterHashtags(
+        this.searchInput,
+        this.allChannels
+      );
+      this.searchFieldMentionVisible = this.searchInput.includes('@');
+      this.searchFieldHashtagVisible = this.searchInput.includes('#');
+    }, 0);
+  }
+
+/** MANUAL @ TRIGGER INSERTION */
+// Inserts or removes a manual @ in chat input
+triggerMention(): void {
+  const textarea = this.chatField?.nativeElement;
+  if (!textarea) return;
+
+  const cursorPos = textarea.selectionStart;
+  const charBefore = this.chatMessage[cursorPos - 1];
+
+  if (charBefore === '@') {
+    this.removeAtSymbol(cursorPos, textarea);
+  } else {
+    this.insertAtSymbol(cursorPos, textarea);
+  }
+
+  textarea.focus();
 }
 
-private extractLastHashtagKeyword(text: string): string {
-  return this.mentionService.extractLastHashtagKeyword(text);
+// Remove '@' at the current cursor position
+private removeAtSymbol(cursorPos: number, textarea: HTMLTextAreaElement): void {
+  this.chatMessage =
+    this.chatMessage.slice(0, cursorPos - 1) +
+    this.chatMessage.slice(cursorPos);
+  textarea.setSelectionRange(cursorPos - 1, cursorPos - 1);
+  this.mentionPopupVisible = false;
+}
+
+// Insert '@' at the current cursor position
+private insertAtSymbol(cursorPos: number, textarea: HTMLTextAreaElement): void {
+  const { newText, newCursorPos } = this.autocompleteService.insertAtCursor(
+    '@',
+    '',
+    this.chatMessage,
+    cursorPos
+  );
+  this.chatMessage = newText;
+  textarea.setSelectionRange(newCursorPos, newCursorPos);
+  this.mentionPopupVisible = true;
 }
 }
