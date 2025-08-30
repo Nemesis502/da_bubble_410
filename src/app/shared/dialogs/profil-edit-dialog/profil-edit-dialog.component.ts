@@ -58,15 +58,15 @@ export class ProfilEditDialogComponent {
     this.dialogRef.close(updatedUser);
   }
 
-  private buildUpdatedUser(): appUser {
+  buildUpdatedUser(): appUser {
     return { ...this.currentUser!, userName: this.newName };
   }
 
-  private isGuestUser(): boolean {
+  isGuestUser(): boolean {
     return this.currentUser?.id === 'Guest';
   }
 
-  private async updateUserNameInService(): Promise<void> {
+  async updateUserNameInService(): Promise<void> {
     await this.userService.updateUserName(this.currentUser!.id!, this.newName);
   }
 }
