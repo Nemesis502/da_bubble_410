@@ -1,257 +1,257 @@
-<div *ngFor="let message of messages" (click)="onMessageClick(message, $event)">
-  <!-- Message Header -->
-  <div class="msg-header" *ngIf="message?.showDateHeader && !chatIsThread">
+@for (message of messages; track message) {
+<div (click)="onMessageClick(message, $event)">
+  <!-- Date Header -->
+  @if (message?.showDateHeader && !chatIsThread) {
+  <div class="msg-header">
     <span></span>
     <p>{{ message.date }}</p>
   </div>
-  <!-- Own Message -->
-  <ng-container *ngIf="message.senderID === currentUser; else otherMessage">
-    <div class="msg-own">
-      <div
-        [ngClass]="{ 'msg-own-active': selectedMessage === message }"
-        class="msg-own-body"
-      >
-        <div class="msg-avatar">
-          <img
-            src="./../../../assets/img/avatar/{{ message.avatar }}.png"
-            alt=""
-          />
-        </div>
-        <div class="msg-own-main">
-          <div class="msg-own-info">
-            <button  (click)="openUserProfileDialog(message)" class="chatter-name nuito18px700">
-              {{ message.username }}
-            </button>
-            <p class="msg-time">{{ message.formattedTime }}</p>
-          </div>
-          <div class="msg-own-content">
-            <p class="msg-text">
-              <ng-container
-                *ngFor="
-                  let part of  getParsedMessage(message.text)
-                "
-              >
-                <span *ngIf="part.isMention" class="mention">{{
-                  part.text
-                }}</span>
-                <span *ngIf="part.isHashtag" class="hashtag">{{
-                  part.text
-                }}</span>
-                <span *ngIf="!part.isMention && !part.isHashtag">{{
-                  part.text
-                }}</span>
-              </ng-container>
-            </p>
-          </div>
-          <div *ngIf="!chatIsThread" class="msg-own-answers">
-            <button (click)="onReplyClick(message)">
-              <ng-container *ngIf="message.answersCount > 0">
-                {{ message.answersCount }}
-              </ng-container>
-              Antworten
-            </button>
+  }
 
-            <p class="answer-time" *ngIf="message.answersCount > 0" >
-              Letzte Antwort {{ message.lastAnswerTime }}
-            </p>
-          </div>
-          <div class="msg-reactions-own">
-            <ng-container
-              *ngIf="message.reactions && message.reactions.length > 0"
-            >
-              <button
-                *ngFor="
-                  let reaction of reactionsExpanded[message.id]
-                    ? message.reactions
-                    : (message.reactions | slice : 0 : 7)
-                "
-                (click)="selectReaction(reaction.reaction, message)"
-                class="reaction"
-                (mouseover)="showReactorNames(reaction.reactors, $event)"
-                (mouseout)="hideReactorNames()"
-              >
-                {{ reaction.reaction }} {{ reaction.count }}
-                <div class="reaction-popup" *ngIf="hoveredReactorNames?.length">
-                  <p>{{ reaction.reaction }}</p>
-                  <p
-                    class="reaction-hover-names"
-                    [innerHTML]="formatReactorNames(hoveredReactorNames)"
-                  ></p>
-                </div>
-              </button>
-              <button
-                *ngIf="message.reactions.length > 7"
-                (click)="toggleReactions(message)"
-                class="reaction"
-              >
-                {{
-                  reactionsExpanded[message.id]
-                    ? "Weniger anzeigen"
-                    : "+" + (message.reactions.length - 7) + " weitere"
-                }}
-              </button>
-              <button class="icon-button">
-                <mat-icon
-                  (click)="toggleReactionPicker(message, $event)"
-                  fontSet="material-icons-outlined"
-                  >add_reaction</mat-icon
-                >
-              </button>
-            </ng-container>
-          </div>
-        </div>
+  <!-- Own Message -->
+  @if (message.senderID === currentUser) {
+  <div class="msg-own">
+    <div
+      [ngClass]="{ 'msg-own-active': selectedMessage === message }"
+      class="msg-own-body"
+    >
+      <div class="msg-avatar">
+        <img
+          src="./../../../assets/img/avatar/{{ message.avatar }}.png"
+          alt=""
+        />
       </div>
+
+      <div class="msg-own-main">
+        <div class="msg-own-info">
+          <button
+            (click)="openUserProfileDialog(message)"
+            class="chatter-name nuito18px700"
+          >
+            {{ message.username }}
+          </button>
+          <p class="msg-time">{{ message.formattedTime }}</p>
+        </div>
+
+        <!-- Parsed Message -->
+        <div class="msg-own-content">
+          <p class="msg-text">
+            @for (part of parsedMessages[message.id]; track part) { @if
+            (part.isMention) {
+            <span class="mention">{{ part.text }}</span>
+            } @else if (part.isHashtag) {
+            <span class="hashtag">{{ part.text }}</span>
+            } @else {
+            <span>{{ part.text }}</span>
+            } }
+          </p>
+        </div>
+
+        <!-- Replies -->
+        @if (!chatIsThread) {
+        <div class="msg-own-answers">
+          <button (click)="onReplyClick(message)">
+            @if (message.answersCount > 0) {
+            {{ message.answersCount }}
+            } Antworten
+          </button>
+          @if (message.answersCount > 0) {
+          <p class="answer-time">Letzte Antwort {{ message.lastAnswerTime }}</p>
+          }
+        </div>
+        }
+
+        <!-- Reactions -->
+        @if (message.reactions?.length > 0) {
+        <div class="msg-reactions-own">
+          @for (reaction of (reactionsExpanded[message.id] ? message.reactions :
+          message.reactions.slice(0, 7)); track reaction) {
+          <button
+            (click)="selectReaction(reaction.reaction, message)"
+            class="reaction"
+            (mouseover)="showReactorNames(reaction.reactors, $event)"
+            (mouseout)="hideReactorNames()"
+          >
+            {{ reaction.reaction }} {{ reaction.count }}
+            @if (hoveredReactorNames?.length) {
+            <div class="reaction-popup">
+              <p>{{ reaction.reaction }}</p>
+              <p [innerHTML]="formatReactorNames(hoveredReactorNames)"></p>
+            </div>
+            }
+          </button>
+          } @if (message.reactions.length > 7) {
+          <button (click)="toggleReactions(message)" class="reaction">
+            {{
+              reactionsExpanded[message.id]
+                ? "Weniger anzeigen"
+                : "+" + (message.reactions.length - 7) + " weitere"
+            }}
+          </button>
+          }
+          <button class="icon-button">
+            <mat-icon
+              (click)="toggleReactionPicker(message, $event)"
+              fontSet="material-icons-outlined"
+              >add_reaction</mat-icon
+            >
+          </button>
+        </div>
+        }
+      </div>
+
+      <!-- Popup Menus -->
       <div class="popup-menu-own" [class.active]="selectedMessage === message">
-        <button
-          *ngFor="let reaction of getLastTwoReactions(message)"
-          (click)="selectReaction(reaction, message)"
-        >
+        @for (reaction of getLastTwoReactions(message); track reaction) {
+        <button (click)="selectReaction(reaction, message)">
           {{ reaction }}
         </button>
-        <button>
-          <mat-icon
-            (click)="toggleReactionPicker(message, $event)"
-            fontSet="material-icons-outlined"
-            >add_reaction</mat-icon
-          >
+        }
+        <button (click)="toggleReactionPicker(message, $event)">
+          <mat-icon fontSet="material-icons-outlined">add_reaction</mat-icon>
         </button>
-        <button *ngIf="!chatIsThread" (click)="onReplyClick(message)">
+        @if (!chatIsThread) {
+        <button (click)="onReplyClick(message)">
           <mat-icon fontSet="material-icons-outlined">message</mat-icon>
         </button>
+        }
         <button (click)="toggleMoreMenu(message, $event)">
           <mat-icon fontSet="material-icons-outlined">more_vert</mat-icon>
         </button>
+        @if (message.showMoreMenu) {
         <div
           class="more-vert-popup"
-          *ngIf="message.showMoreMenu"
           (clickOutside)="message.showMoreMenu = false"
         >
           <button (click)="onEditClick(message)">Nachricht bearbeiten</button>
         </div>
+        }
       </div>
+
+      @if (activeReactionPickerId === message.id) {
       <app-reaction-picker
-        *ngIf="activeReactionPickerId === message.id"
         (reactionSelected)="selectReaction($event, message)"
       ></app-reaction-picker>
+      }
     </div>
-  </ng-container>
+  </div>
 
+  } @else {
   <!-- Other Message -->
-  <ng-template #otherMessage>
-    <div class="msg">
-      <div
-        [ngClass]="{ 'msg-active': selectedMessage === message }"
-        class="msg-body"
-      >
-        <div class="msg-avatar">
-          <img
-            src="./../../../assets/img/avatar/{{ message.avatar }}.png"
-            alt=""
-          />
-        </div>
-        <div class="msg-main">
-          <div class="msg-info">
-            <button  (click)="openUserProfileDialog(message)" class="chatter-name nuito18px700">
-              {{ message.username }}
-            </button>
-            <p class="msg-time">{{ message.formattedTime }}</p>
-          </div>
-          <div class="msg-content">
-            <p class="msg-text">
-              <ng-container
-                *ngFor="
-                  let part of  getParsedMessage(message.text)
-                "
-              >
-                <span *ngIf="part.isMention" class="mention">{{
-                  part.text
-                }}</span>
-                <span *ngIf="part.isHashtag" class="hashtag">{{
-                  part.text
-                }}</span>
-                <span *ngIf="!part.isMention && !part.isHashtag">{{
-                  part.text
-                }}</span>
-              </ng-container>
-            </p>
-          </div>
-          <div *ngIf="!chatIsThread" class="msg-answers">
-            <button  (click)="onReplyClick(message)">
-              <ng-container *ngIf="message.answersCount > 0">
-                {{ message.answersCount }}
-              </ng-container>
-              Antworten
-            </button>
-
-            <p class="answer-time" *ngIf="message.answersCount > 0">
-              Letzte Antwort {{ message.lastAnswerTime }}
-            </p>
-          </div>
-          <div class="msg-reactions">
-            <ng-container
-              *ngIf="message.reactions && message.reactions.length > 0"
-            >
-              <button
-                *ngFor="
-                  let reaction of reactionsExpanded[message.id]
-                    ? message.reactions
-                    : (message.reactions | slice : 0 : 7)
-                "
-                (click)="selectReaction(reaction.reaction, message)"
-                class="reaction"
-                (mouseover)="showReactorNames(reaction.reactors, $event)"
-                (mouseout)="hideReactorNames()"
-              >
-                {{ reaction.reaction }} {{ reaction.count }}
-                <div class="reaction-popup" *ngIf="hoveredReactorNames">
-                  <p>{{ reaction.reaction }}</p>
-                  <p [innerHTML]="formatReactorNames(hoveredReactorNames)"></p>
-                </div>
-              </button>
-              <button
-                *ngIf="message.reactions.length > 7"
-                (click)="toggleReactions(message)"
-                class="reaction"
-              >
-                {{
-                  reactionsExpanded[message.id]
-                    ? "Weniger anzeigen"
-                    : "+" + (message.reactions.length - 7) + " weitere"
-                }}
-              </button>
-              <button class="icon-button">
-                <mat-icon
-                  (click)="toggleReactionPicker(message, $event)"
-                  fontSet="material-icons-outlined"
-                  >add_reaction</mat-icon
-                >
-              </button>
-            </ng-container>
-          </div>
-        </div>
+  <div class="msg">
+    <div
+      [ngClass]="{ 'msg-active': selectedMessage === message }"
+      class="msg-body"
+    >
+      <div class="msg-avatar">
+        <img
+          src="./../../../assets/img/avatar/{{ message.avatar }}.png"
+          alt=""
+        />
       </div>
+
+      <div class="msg-main">
+        <div class="msg-info">
+          <button
+            (click)="openUserProfileDialog(message)"
+            class="chatter-name nuito18px700"
+          >
+            {{ message.username }}
+          </button>
+          <p class="msg-time">{{ message.formattedTime }}</p>
+        </div>
+
+        <!-- Parsed Message -->
+        <div class="msg-content">
+          <p class="msg-text">
+            @for (part of parsedMessages[message.id]; track part) { @if
+            (part.isMention) {
+            <span class="mention">{{ part.text }}</span>
+            } @else if (part.isHashtag) {
+            <span class="hashtag">{{ part.text }}</span>
+            } @else {
+            <span>{{ part.text }}</span>
+            } }
+          </p>
+        </div>
+
+        <!-- Replies -->
+        @if (!chatIsThread) {
+        <div class="msg-answers">
+          <button (click)="onReplyClick(message)">
+            @if (message.answersCount > 0) {
+            {{ message.answersCount }}
+            } Antworten
+          </button>
+          @if (message.answersCount > 0) {
+          <p class="answer-time">Letzte Antwort {{ message.lastAnswerTime }}</p>
+          }
+        </div>
+        }
+
+        <!-- Reactions -->
+        @if (message.reactions?.length > 0) {
+        <div class="msg-reactions">
+          @for (reaction of (reactionsExpanded[message.id] ? message.reactions :
+          message.reactions.slice(0, 7)); track reaction) {
+          <button
+            (click)="selectReaction(reaction.reaction, message)"
+            class="reaction"
+            (mouseover)="showReactorNames(reaction.reactors, $event)"
+            (mouseout)="hideReactorNames()"
+          >
+            {{ reaction.reaction }} {{ reaction.count }}
+            @if (hoveredReactorNames?.length) {
+            <div class="reaction-popup">
+              <p>{{ reaction.reaction }}</p>
+              <p [innerHTML]="formatReactorNames(hoveredReactorNames)"></p>
+            </div>
+            }
+          </button>
+          } @if (message.reactions.length > 7) {
+          <button (click)="toggleReactions(message)" class="reaction">
+            {{
+              reactionsExpanded[message.id]
+                ? "Weniger anzeigen"
+                : "+" + (message.reactions.length - 7) + " weitere"
+            }}
+          </button>
+          }
+          <button class="icon-button">
+            <mat-icon
+              (click)="toggleReactionPicker(message, $event)"
+              fontSet="material-icons-outlined"
+              >add_reaction</mat-icon
+            >
+          </button>
+        </div>
+        }
+      </div>
+
+      <!-- Popup Menu -->
       <div class="popup-menu" [class.active]="selectedMessage === message">
-        <button
-          *ngFor="let reaction of getLastTwoReactions(message)"
-          (click)="selectReaction(reaction, message)"
-        >
+        @for (reaction of getLastTwoReactions(message); track reaction) {
+        <button (click)="selectReaction(reaction, message)">
           {{ reaction }}
         </button>
-        <button>
-          <mat-icon
-            (click)="toggleReactionPicker(message, $event)"
-            fontSet="material-icons-outlined"
-            >add_reaction</mat-icon
-          >
+        }
+        <button (click)="toggleReactionPicker(message, $event)">
+          <mat-icon fontSet="material-icons-outlined">add_reaction</mat-icon>
         </button>
-        <button *ngIf="!chatIsThread" (click)="onReplyClick(message)">
+        @if (!chatIsThread) {
+        <button (click)="onReplyClick(message)">
           <mat-icon fontSet="material-icons-outlined">message</mat-icon>
         </button>
+        }
       </div>
+
+      @if (activeReactionPickerId === message.id) {
       <app-reaction-picker
-        *ngIf="activeReactionPickerId === message.id"
         (reactionSelected)="selectReaction($event, message)"
       ></app-reaction-picker>
+      }
     </div>
-  </ng-template>
+  </div>
+  }
 </div>
+}

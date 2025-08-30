@@ -19,7 +19,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { ProfilDialogComponent } from '../../shared/dialogs/profil-dialog/profil-dialog.component';
 import { FirestoreService } from '../../shared/services/firestore.service';
 import { take } from 'rxjs';
-import { MessageParserService, TextPart } from '../../shared/services/message-parse.service'
+import {
+  MessageParserService,
+  TextPart,
+} from '../../shared/services/message-parse.service';
 
 @Component({
   selector: 'app-message-template',
@@ -43,7 +46,7 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
 
   @Output() editMessage = new EventEmitter<any>();
   @Output() replyToMessage = new EventEmitter<string>();
-
+  parsedMessages: { [id: string]: TextPart[] } = {};
   selectedMessage: any = null;
   activeReactionPickerId: string | null = null;
   private clickListener: (() => void) | null = null;
@@ -58,7 +61,7 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
     private directMessageService: ChannelsDirectMessageService,
     private firestoreService: FirestoreService,
     private dialog: MatDialog,
-      private parser: MessageParserService   
+    private parser: MessageParserService
   ) {
     // Global click listener → closes menus and reaction pickers when clicking outside
     this.clickListener = this.renderer.listen(
@@ -69,14 +72,17 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
   }
 
   /** Reacts to input changes, e.g. when new messages arrive */
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['messages']) {
-      this.sortMessagesByTimestamp();
-      this.transformReactionsToEmoji();
-      this.addDateHeaders();
-    }
+ngOnChanges(changes: SimpleChanges): void {
+  if (changes['messages']) {
+    this.sortMessagesByTimestamp();
+    this.transformReactionsToEmoji();
+    this.addDateHeaders();
+    
+    this.messages.forEach(msg => {
+      this.parsedMessages[msg.id || msg.messageID] = this.getParsedMessage(msg.text);
+    });
   }
-
+}
   /** Clean up listener when component is destroyed */
   ngOnDestroy(): void {
     if (this.clickListener) {
@@ -397,8 +403,8 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
   }
   /** ---------------- Mentions & Hashtags ---------------- */
 
-/** Use MessageParserService to parse message text */
-getParsedMessage(messageText: string): TextPart[] {
-  return this.parser.parseMessageWithMentionsAndHashtags(messageText);
-}
+  /** Use MessageParserService to parse message text */
+  getParsedMessage(messageText: string): TextPart[] {
+    return this.parser.parseMessageWithMentionsAndHashtags(messageText);
+  }
 }
