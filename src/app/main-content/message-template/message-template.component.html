@@ -28,7 +28,7 @@
             <p class="msg-text">
               <ng-container
                 *ngFor="
-                  let part of parseMessageWithMentionsAndHashtags(message.text)
+                  let part of  getParsedMessage(message.text)
                 "
               >
                 <span *ngIf="part.isMention" class="mention">{{
@@ -160,7 +160,7 @@
             <p class="msg-text">
               <ng-container
                 *ngFor="
-                  let part of parseMessageWithMentionsAndHashtags(message.text)
+                  let part of  getParsedMessage(message.text)
                 "
               >
                 <span *ngIf="part.isMention" class="mention">{{

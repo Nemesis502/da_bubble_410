@@ -183,7 +183,7 @@ export class NewMessageComponent implements OnInit {
 
     this.chatMessage = '';
     this.searchInput = '';
-    this.router.navigate([`/chat/${conversationId}`]);
+    this.router.navigate([`/chat-container/conversation/${conversationId}`]);
   }
   private async getOrCreateConversation(
     userA: string,
@@ -229,7 +229,7 @@ export class NewMessageComponent implements OnInit {
 
     this.chatMessage = '';
     this.searchInput = '';
-    this.router.navigate([`/chat/${matchedChannel.id}`]);
+    this.router.navigate([`/chat-container/chat/${matchedChannel.id}`]);
   }
 
   @HostListener('document:click', ['$event'])
@@ -338,7 +338,6 @@ async checkMentionTrigger(event: KeyboardEvent): Promise<void> {
     this.searchHashtagChannels = this.mentionService.filterChannels(this.allChannels, hashtagKeyword);
   }, 0);
 }
-
 
   async checkSearchFieldTrigger(event: KeyboardEvent): Promise<void> {
     const char = event.key;

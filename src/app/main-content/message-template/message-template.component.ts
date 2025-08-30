@@ -19,6 +19,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ProfilDialogComponent } from '../../shared/dialogs/profil-dialog/profil-dialog.component';
 import { FirestoreService } from '../../shared/services/firestore.service';
 import { take } from 'rxjs';
+import { MessageParserService, TextPart } from '../../shared/services/message-parse.service'
 
 @Component({
   selector: 'app-message-template',
@@ -49,14 +50,17 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
   reactionsExpanded: { [key: string]: boolean } = {};
   hoveredReactorNames: string[] | null = null;
 
-  /** Constructor and Lifecycle */
+  /** ---------------- Constructor & Lifecycle ---------------- */
+
   constructor(
     private elementRef: ElementRef,
     private renderer: Renderer2,
     private directMessageService: ChannelsDirectMessageService,
     private firestoreService: FirestoreService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+      private parser: MessageParserService   
   ) {
+    // Global click listener → closes menus and reaction pickers when clicking outside
     this.clickListener = this.renderer.listen(
       'document',
       'click',
@@ -64,6 +68,7 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
     );
   }
 
+  /** Reacts to input changes, e.g. when new messages arrive */
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['messages']) {
       this.sortMessagesByTimestamp();
@@ -72,15 +77,16 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
     }
   }
 
+  /** Clean up listener when component is destroyed */
   ngOnDestroy(): void {
     if (this.clickListener) {
       this.clickListener();
     }
   }
 
-  /** Message Display Helpers*/
+  /** ---------------- Message Display Helpers ---------------- */
 
-  /** Sort messages by their timestamp ascending */
+  /** Ensure messages are sorted chronologically (oldest first) */
   private sortMessagesByTimestamp(): void {
     this.messages.sort((a, b) => {
       const timestampA = new Date(a.timestamp).getTime();
@@ -89,7 +95,7 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
     });
   }
 
-  /** Add date headers to messages when date changes */
+  /** Insert "date header" markers when the day changes between messages */
   private addDateHeaders(): void {
     let lastMessageDate: string | null = null;
 
@@ -107,7 +113,7 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
     });
   }
 
-  /** Convert Firestore timestamp to Date object */
+  /** Convert Firestore timestamp object into a Date */
   private convertTimestampToDate(timestamp: any): Date {
     if (timestamp && typeof timestamp.seconds === 'number') {
       return new Date(timestamp.seconds * 1000);
@@ -115,7 +121,7 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
     return new Date(0);
   }
 
-  /** Get formatted date string for date headers */
+  /** Return "Heute", "Gestern", or a formatted weekday + date string */
   private getFormattedDate(date: Date): string {
     const today = new Date();
     const yesterday = new Date();
@@ -130,7 +136,7 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
     }
   }
 
-  /** Check if two dates fall on the same calendar day */
+  /** Helper: check if two Date objects are the same calendar day */
   private isSameDay(date1: Date, date2: Date): boolean {
     return (
       date1.getFullYear() === date2.getFullYear() &&
@@ -139,9 +145,9 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
     );
   }
 
-  /** Format dates older than yesterday in localized format */
+  /** Format dates older than yesterday with weekday + day + month */
   private formatOlderDate(date: Date): string {
-    const dayNames = [
+    const weekdays = [
       'Sonntag',
       'Montag',
       'Dienstag',
@@ -150,7 +156,7 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
       'Freitag',
       'Samstag',
     ];
-    const monthNames = [
+    const months = [
       'Januar',
       'Februar',
       'März',
@@ -164,111 +170,100 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
       'November',
       'Dezember',
     ];
-
-    const weekday = dayNames[date.getDay()];
-    const day = date.getDate();
-    const month = monthNames[date.getMonth()];
-
-    return `${weekday}, ${day}. ${month}`;
+    return `${weekdays[date.getDay()]}, ${date.getDate()}. ${
+      months[date.getMonth()]
+    }`;
   }
 
-  /** Reactions Handling*/
+  /** ---------------- Reactions Handling ---------------- */
 
-  /** Clean and prepare reactions for messages */
+  /** Normalize reactions: filter invalid ones, then group & count them */
+  /** Prepare and group reactions for all messages */
   private transformReactionsToEmoji(): void {
-    this.messages = this.messages.map((message) => ({
-      ...message,
-      reactions: Array.isArray(message.reactions)
-        ? message.reactions.filter((reaction: any) => reaction.reactorID)
-        : [],
-    }));
-    this.messages.forEach(async (message) => {
-      if (Array.isArray(message.reactions)) {
-        try {
-          const groupedReactions = await this.groupAndCountReactions(
-            message.reactions
-          );
-          message.reactions = groupedReactions;
-        } catch (error) {
-        }
-      }
+    // Filter out invalid reactions
+    this.messages.forEach((msg) => {
+      msg.reactions = Array.isArray(msg.reactions)
+        ? msg.reactions.filter((r: any) => r.reactorID)
+        : [];
+      this.groupMessageReactions(msg);
     });
+  }
+
+  /** Group reactions for a single message asynchronously */
+  private async groupMessageReactions(message: any): Promise<void> {
+    if (!Array.isArray(message.reactions) || message.reactions.length === 0)
+      return;
+    try {
+      message.reactions = await this.groupAndCountReactions(message.reactions);
+    } catch {}
   }
 
   /** Group reactions by emoji and count reactors */
   private async groupAndCountReactions(
     reactions: any[]
   ): Promise<{ reaction: string; count: number; reactors: string[] }[]> {
-    const groupedReactions: {
-      [key: string]: { reaction: string; count: number; reactors: string[] };
-    } = {};
+    const grouped: Record<
+      string,
+      { reaction: string; count: number; reactors: string[] }
+    > = {};
 
-    for (const reaction of reactions) {
-      const emoji = reaction.type;
-
-      if (!reaction.reactorID) {
-        continue;
-      }
-
-      let reactorName: string;
-      try {
-        reactorName = await this.fetchReactorName(reaction.reactorID);
-      } catch (error) {
-        reactorName = 'Unknown User';
-      }
-
-      if (groupedReactions[emoji]) {
-        groupedReactions[emoji].count += 1;
-        groupedReactions[emoji].reactors.push(reactorName);
+    for (const r of reactions) {
+      if (!r.reactorID) continue;
+      const name = await this.safeFetchReactorName(r.reactorID);
+      if (grouped[r.type]) {
+        grouped[r.type].count++;
+        grouped[r.type].reactors.push(name);
       } else {
-        groupedReactions[emoji] = {
-          reaction: emoji,
-          count: 1,
-          reactors: [reactorName],
-        };
+        grouped[r.type] = { reaction: r.type, count: 1, reactors: [name] };
       }
     }
 
-    return Object.values(groupedReactions);
+    return Object.values(grouped);
   }
 
-  /** Fetch the name of the user who reacted */
+  /** Safely fetch reactor name with fallback */
+  private async safeFetchReactorName(reactorID: string): Promise<string> {
+    try {
+      return await this.fetchReactorName(reactorID);
+    } catch {
+      return 'Unknown User';
+    }
+  }
+
+  /** Retrieve display name of user who reacted */
   private fetchReactorName(reactorID: string): Promise<string> {
     return this.directMessageService.fetchReactorName(reactorID);
   }
 
-  /** Toggle display of reactions for a message */
+  /** Expand/collapse reaction list for one message */
   toggleReactions(message: any): void {
     this.reactionsExpanded[message.id] = !this.reactionsExpanded[message.id];
   }
 
-  /** Select reaction emoji for a message */
+  /** Add or remove a reaction for the current user */
+  /** Select a reaction emoji for a message */
   async selectReaction(reaction: string, message: any): Promise<void> {
+    const channelId = this.resolveChannelId(this.currentChannelId);
     try {
-      let channelId: string;
-
-      if (typeof this.currentChannelId === 'string') {
-        channelId = this.currentChannelId;
-      } else if (
-        this.currentChannelId &&
-        'channelId' in this.currentChannelId
-      ) {
-        channelId = this.currentChannelId.channelId || '';
-      } else {
-        channelId = '';
-      }
-
       await this.directMessageService.toggleReaction(
         channelId,
         message.messageID || message.id,
         reaction,
         this.currentUser
       );
-    } catch (error) {
+    } catch {
+      // Optional error handling
     }
     this.closeAllReactionPickers();
   }
 
+  /** Resolve the channel ID from string or Channel object */
+  private resolveChannelId(channel: string | Channel | null): string {
+    if (!channel) return '';
+    return typeof channel === 'string' ? channel : channel.channelId || '';
+  }
+
+  /** Return fallback ✅👍 if no reactions, else last two used ones */
   getLastTwoReactions(message: any): string[] {
     if (!message?.reactions || message.reactions.length === 0) {
       return ['✅', '👍'];
@@ -280,16 +275,12 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
       return bTime - aTime;
     });
 
-    const lastTwo = sortedReactions
-      .slice(0, 2)
-      .map((r) => r.reaction || r.type || '');
-
-    return lastTwo;
+    return sortedReactions.slice(0, 2).map((r) => r.reaction || r.type || '');
   }
 
-  /** UI Interaction Handlers  */
+  /** ---------------- UI Interaction ---------------- */
 
-  /** Handle document click to close menus and reaction pickers */
+  /** Detect clicks outside → close menus & pickers */
   handleDocumentClick(event: MouseEvent): void {
     const clickedElement = event.target as Node;
     const isClickInsideComponent =
@@ -304,7 +295,7 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
     }
   }
 
-  /** Toggle reaction picker visibility for a message */
+  /** Toggle reaction picker open/close for a message */
   toggleReactionPicker(message: any, event: MouseEvent): void {
     event.stopPropagation();
     if (this.activeReactionPickerId === message.id) {
@@ -315,12 +306,12 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
     }
   }
 
-  /** Close all reaction pickers */
+  /** Close all open reaction pickers */
   closeAllReactionPickers(): void {
     this.activeReactionPickerId = null;
   }
 
-  /** Close any active menus and deselect messages */
+  /** Reset active menus & deselect any selected message */
   closeActiveElements(): void {
     this.selectedMessage = null;
     this.messages.forEach((msg) => {
@@ -328,7 +319,7 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
     });
   }
 
-  /** Toggle more menu for a specific message */
+  /** Toggle "more" menu for a single message */
   toggleMoreMenu(message: any, event: Event) {
     event.stopPropagation();
     this.messages.forEach((m) => {
@@ -337,7 +328,7 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
     message.showMoreMenu = !message.showMoreMenu;
   }
 
-  /** Handle clicking on a message */
+  /** Select/deselect message when clicked */
   onMessageClick(message: any, event: MouseEvent): void {
     this.closeAllReactionPickers();
     this.closeActiveElements();
@@ -345,19 +336,19 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
     this.selectedMessage = this.selectedMessage === message ? null : message;
   }
 
-  /** Message Actions  */
+  /** ---------------- Message Actions ---------------- */
 
-  /** Emit edit message event */
+  /** Emit event to parent to start editing this message */
   onEditClick(message: any): void {
     this.editMessage.emit(message);
   }
 
-  /** Emit reply to message event */
+  /** Emit event to parent to reply in thread */
   onReplyClick(message: any): void {
     this.replyToMessage.emit(message.id || message.messageID);
   }
 
-  /** Open user profile dialog */
+  /** Opens the profile dialog for a message sender */
   openUserProfileDialog(message: any): void {
     const loggedUserId = this.currentUser;
     const userId = message.senderID;
@@ -367,7 +358,6 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
       .pipe(take(1))
       .subscribe((user: any) => {
         if (!user) return;
-
         this.dialog.open(ProfilDialogComponent, {
           data: {
             user,
@@ -378,17 +368,21 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
         });
       });
   }
-  /**Reactor Names Tooltip */
 
+  /** ---------------- Reactor Tooltip ---------------- */
+
+  /** Show list of reactor names on hover */
   showReactorNames(reactors: string[], event: MouseEvent): void {
     this.hoveredReactorNames = reactors;
     event.stopPropagation();
   }
 
+  /** Hide reactor names tooltip */
   hideReactorNames(): void {
     this.hoveredReactorNames = null;
   }
 
+  /** Format tooltip string depending on number of reactors */
   formatReactorNames(reactors: string[] | null): string {
     if (!reactors || reactors.length === 0) return '';
 
@@ -401,91 +395,10 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
       return `${reactors[0]} und ${othersCount} weitere<br>haben reagiert`;
     }
   }
+  /** ---------------- Mentions & Hashtags ---------------- */
 
-  /**Mentions and Hashtags Parsing */
-
-  /**
-   * Parses message text to split out mentions and hashtags
-   * Returns array with text segments flagged as mentions or hashtags
-   */
-  parseMessageWithMentionsAndHashtags(
-    messageText: string
-  ): { text: string; isMention: boolean; isHashtag: boolean }[] {
-    const mentionParts = this.parseMentions(messageText);
-    return this.parseHashtags(mentionParts);
-  }
-
-  /** Parses mentions (e.g. @username) */
-  parseMentions(
-    messageText: string
-  ): { text: string; isMention: boolean; isHashtag: boolean }[] {
-    const mentionRegex = /@[\wäöüÄÖÜß]+(?: [\wäöüÄÖÜß]+)*(?=\s|$|[.,!?:])/g;
-    const parts: { text: string; isMention: boolean; isHashtag: boolean }[] =
-      [];
-    let lastIndex = 0;
-
-    let match: RegExpExecArray | null;
-    while ((match = mentionRegex.exec(messageText)) !== null) {
-      if (match.index > lastIndex) {
-        parts.push({
-          text: messageText.slice(lastIndex, match.index),
-          isMention: false,
-          isHashtag: false,
-        });
-      }
-      parts.push({ text: match[0], isMention: true, isHashtag: false });
-      lastIndex = match.index + match[0].length;
-    }
-    if (lastIndex < messageText.length) {
-      parts.push({
-        text: messageText.slice(lastIndex),
-        isMention: false,
-        isHashtag: false,
-      });
-    }
-
-    return parts;
-  }
-
-  /** Parses hashtags (e.g. #topic) */
-  parseHashtags(
-    parts: { text: string; isMention: boolean; isHashtag: boolean }[]
-  ): { text: string; isMention: boolean; isHashtag: boolean }[] {
-    const hashtagRegex = /#[\wäöüÄÖÜß]+/g;
-    const newParts: { text: string; isMention: boolean; isHashtag: boolean }[] =
-      [];
-
-    parts.forEach((part) => {
-      if (part.isMention) {
-        newParts.push(part);
-      } else {
-        let lastIndex = 0;
-        let match: RegExpExecArray | null;
-        while ((match = hashtagRegex.exec(part.text)) !== null) {
-          if (match.index > lastIndex) {
-            newParts.push({
-              text: part.text.slice(lastIndex, match.index),
-              isMention: false,
-              isHashtag: false,
-            });
-          }
-          newParts.push({
-            text: match[0],
-            isMention: false,
-            isHashtag: true,
-          });
-          lastIndex = match.index + match[0].length;
-        }
-        if (lastIndex < part.text.length) {
-          newParts.push({
-            text: part.text.slice(lastIndex),
-            isMention: false,
-            isHashtag: false,
-          });
-        }
-      }
-    });
-
-    return newParts;
-  }
+/** Use MessageParserService to parse message text */
+getParsedMessage(messageText: string): TextPart[] {
+  return this.parser.parseMessageWithMentionsAndHashtags(messageText);
+}
 }

@@ -68,20 +68,33 @@ export class ThreadsComponent implements OnInit, OnChanges {
 
   async ngOnInit(): Promise<void> {
     this.currentUser = this.userSession.getCurrentUser();
+    this.initChannelSubscription();
+    this.initMessageSubscriptions();
+    this.initUIPopupSubscriptions();
+  }
+
+  /** Handles channel selection changes */
+  private initChannelSubscription(): void {
     this.chatService.selectedChannel$.subscribe((channel) => {
       this.selectedChannel = channel;
       this.threadUIService.fetchMentionableUsers(channel?.channelId);
       this.threadUIService.fetchAllChannels();
-      if (channel && this.threadId) {
-        this.loadThreadData();
-      }
+      if (channel && this.threadId) this.loadThreadData();
     });
-    this.chatService.activeThreadMessage$.subscribe((msg) => {
-      this.activeThreadMessage = msg;
-    });
-    this.chatService.threadMessages$.subscribe((msgs) => {
-      this.threadMessages = msgs ?? [];
-    });
+  }
+
+  /** Handles message + thread updates */
+  private initMessageSubscriptions(): void {
+    this.chatService.activeThreadMessage$.subscribe(
+      (msg) => (this.activeThreadMessage = msg)
+    );
+    this.chatService.threadMessages$.subscribe(
+      (msgs) => (this.threadMessages = msgs ?? [])
+    );
+  }
+
+  /** Handles UI popup/mention/filter updates */
+  private initUIPopupSubscriptions(): void {
     this.threadUIService.mentionPopupVisible$.subscribe(
       (v) => (this.mentionPopupVisible = v)
     );
@@ -96,6 +109,10 @@ export class ThreadsComponent implements OnInit, OnChanges {
     );
   }
 
+
+  /**
+   * Reacts to @Input changes (e.g., when a new threadId is passed in).
+   */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes['threadId'] && this.threadId) {
       if (this.selectedChannel?.channelId) {
@@ -104,6 +121,9 @@ export class ThreadsComponent implements OnInit, OnChanges {
     }
   }
 
+  /**
+   * Runs after view is initialized; sets up chat context in UI service.
+   */
   ngAfterViewInit() {
     this.threadUIService.init(
       this.chatFieldRef,
@@ -119,18 +139,17 @@ export class ThreadsComponent implements OnInit, OnChanges {
     );
   }
 
+  /**
+   * Loads thread messages and sets active thread message in service.
+   */
   private async loadThreadData(): Promise<void> {
-    if (!this.threadId || !this.selectedChannel?.channelId) {
-      return;
-    }
+    if (!this.threadId || !this.selectedChannel?.channelId) return;
     try {
       this.chatService.activeThreadMessageId = this.threadId;
-
       await this.chatService.setActiveThreadMessage(
         this.selectedChannel.channelId,
         this.threadId
       );
-
       this.chatService.loadThreadMessages(
         this.selectedChannel.channelId,
         this.threadId
@@ -139,51 +158,68 @@ export class ThreadsComponent implements OnInit, OnChanges {
     }
   }
 
-  async sendMessage(): Promise<void> {
-    const messageText = this.chatMessage.trim();
-    if (
-      !messageText ||
-      !this.selectedChannel?.channelId ||
-      !this.currentUser?.id
-    ) {
-      return;
-    }
+  /**
+   * Sends a new message in the thread (or edits an existing one).
+   */
+    async sendMessage(): Promise<void> {
+    const text = this.chatMessage.trim();
+    if (!text || !this.selectedChannel?.channelId || !this.currentUser?.id) return;
 
-    const chatContext = {
+    await this.chatService.sendMessage(
+      this.selectedChannel.channelId,
+      text,
+      this.currentUser.id,
+      this.buildChatContext()
+    );
+
+    this.resetMessageInput();
+  }
+
+  /** Builds context object for sending a message */
+  private buildChatContext() {
+    return {
       isConversation: this.chatService.isConversation,
       isThread: true,
       activeThreadMessageId: this.threadId || '',
       editedMessage: this.editedMessage,
     };
+  }
 
-    await this.chatService.sendMessage(
-      this.selectedChannel.channelId,
-      messageText,
-      this.currentUser.id,
-      chatContext
-    );
-
+  /** Resets message input after sending */
+  private resetMessageInput(): void {
     this.chatMessage = '';
     this.editedMessage = null;
     this.scrollToBottom();
   }
 
+  /**
+   * Prepares an existing message for editing.
+   */
   startEditingMessage(message: any): void {
     this.chatMessage = message.text;
     this.editedMessage = message;
     this.focusChatInput();
   }
 
+  /**
+   * Cancels editing mode and resets the input field.
+   */
   stopEditing(): void {
     this.editedMessage = null;
     this.chatMessage = '';
     this.focusChatInput();
   }
 
+  /**
+   * Emits event to close the thread view.
+   */
   closeThreadView(): void {
     this.threadClosed.emit();
   }
 
+  /**
+   * Checks if user input triggers mention/hashtag popup.
+   */
   async checkMentionTriggerThread(event: KeyboardEvent): Promise<void> {
     this.threadUIService.handleChatInput(
       event,
@@ -192,34 +228,55 @@ export class ThreadsComponent implements OnInit, OnChanges {
     );
   }
 
+  /**
+   * Inserts selected @mention user into the message.
+   */
   selectMentionUser(userName: string): void {
     this.threadUIService.selectMentionUser(userName);
     this.focusChatInput();
   }
 
+  /**
+   * Inserts selected #channel into the message.
+   */
   selectHashtagChannel(channelName: string): void {
     this.threadUIService.selectHashtagChannel(channelName);
     this.focusChatInput();
   }
 
+  /**
+   * Toggles emoji picker popup.
+   */
   toggleEmojiPicker(event: MouseEvent): void {
     this.threadUIService.toggleEmojiPicker(event);
   }
 
+  /**
+   * Adds selected emoji into the message.
+   */
   addEmoji(emoji: string): void {
     this.threadUIService.addEmoji(emoji);
     this.focusChatInput();
   }
 
+  /**
+   * Handles emoji picker closed event.
+   */
   onPickerClosed(): void {
     this.threadUIService.onPickerClosed();
   }
 
+  /**
+   * Closes popups when user clicks outside.
+   */
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     this.threadUIService.onDocumentClick(event);
   }
 
+  /**
+   * Scrolls chat body to the bottom (after sending message).
+   */
   private scrollToBottom(): void {
     setTimeout(() => {
       if (this.chatBodyRef) {
@@ -229,16 +286,25 @@ export class ThreadsComponent implements OnInit, OnChanges {
     }, 0);
   }
 
+  /**
+   * Focuses the chat input field.
+   */
   private focusChatInput(): void {
     if (this.chatFieldRef) {
       this.chatFieldRef.nativeElement.focus();
     }
   }
 
+  /**
+   * Triggers mention popup programmatically.
+   */
   triggerMention(): void {
     this.threadUIService.triggerMention(this.selectedChannel?.channelId);
   }
 
+  /**
+   * Updates chat field context in UI service.
+   */
   setActiveChatField() {
     this.threadUIService.setChatContext(
       this.chatFieldRef,

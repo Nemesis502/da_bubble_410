@@ -297,49 +297,60 @@ export class ChatService {
     await updateDoc(messageRef, { text: messageText });
   }
 
-  /** Adds a message locally with optimistic UI update */
-  private addOptimisticMessage(messageText: string, userId: string) {
-    const currentUser = this.userSession.getCurrentUser();
-    const tempId = `temp-${Date.now()}`;
+private replaceOptimisticMessage(tempId: string, realMessage: any) {
+  const msgs = this._messages.getValue().map((msg) =>
+    msg.id === tempId ? realMessage : msg
+  );
+  this._messages.next(msgs);
+}
 
-    const optimisticMessage = {
-      id: tempId,
-      text: messageText,
-      senderID: currentUser?.id || userId,
-      pending: true,
-    };
-    this._messages.next([...this._messages.getValue(), optimisticMessage]);
-  }
+/** Adds a temporary optimistic message to the local state */
+private addTempMessage(channelId: string, messageText: string, userId: string) {
+  const tempId = `temp-${Date.now()}`;
+  const optimisticMessage = {
+    id: tempId,
+    text: messageText,
+    senderID: userId,
+    timestamp: new Date().toISOString(),
+    pending: true,
+  };
+  this._messages.next([...this._messages.getValue(), optimisticMessage]);
+  return tempId;
+}
 
-  /** Persists a message to Firestore */
-  private async persistMessage(
-    channelId: string,
-    messageText: string,
-    userId: string,
-    isConversation: boolean
-  ) {
-    const path = isConversation
-      ? `conversations/${channelId}/directMessages`
-      : `channels/${channelId}/messages`;
+/** Creates a new message in Firestore and replaces the temp message */
+private async persistNewMessage(
+  channelId: string,
+  messageText: string,
+  userId: string,
+  isConversation: boolean,
+  tempId: string
+) {
+  const path = isConversation
+    ? `conversations/${channelId}/directMessages`
+    : `channels/${channelId}/messages`;
 
-    await addDoc(collection(this.firestore, path), {
-      text: messageText,
-      timestamp: serverTimestamp(),
-      senderID: userId,
-      channelId,
-    });
-  }
+  const docRef = await addDoc(collection(this.firestore, path), {
+    text: messageText,
+    senderID: userId,
+    timestamp: serverTimestamp(),
+    channelId,
+  });
 
-  /** Public function that calls both */
-  private async createNewMessage(
-    channelId: string,
-    messageText: string,
-    userId: string,
-    isConversation: boolean
-  ) {
-    this.addOptimisticMessage(messageText, userId);
-    await this.persistMessage(channelId, messageText, userId, isConversation);
-  }
+  const updatedMessage = { id: docRef.id, text: messageText, senderID: userId, pending: false };
+  this.replaceOptimisticMessage(tempId, updatedMessage);
+}
+
+/** Public function that calls both smaller functions */
+private async createNewMessage(
+  channelId: string,
+  messageText: string,
+  userId: string,
+  isConversation: boolean
+) {
+  const tempId = this.addTempMessage(channelId, messageText, userId);
+  await this.persistNewMessage(channelId, messageText, userId, isConversation, tempId);
+}
 
   // ------------------- Threads -------------------
   /** Opens a thread for a specific message */
