@@ -1,10 +1,11 @@
 <mat-card class="menu-dialog" [ngClass]="{
   'from-main-menu': data.source === 'main-menu',
   'from-add-channel': data.source === 'add-channel',
-    'from-info-channel': data.source === 'channel-info'
+  'from-info-channel': data.source === 'channel-info'
 }">
     <div class="handle" aria-hidden="true"></div>
-    @if (data.source === 'main-menu') {
+    @switch (data.source) {
+    @case ('main-menu') {
     <button class="btn" aria-label="Profil öffnen" (click)="openProfileDialog()">
         <mat-icon fontSet="material-icons-outlined">account_circle</mat-icon>
         <span>Profil</span>
@@ -13,7 +14,8 @@
         <mat-icon fontIcon="logout" aria-hidden="true"></mat-icon>
         <span>Ausloggen</span>
     </button>
-    } @else if (data.source === 'add-channel') {
+    }
+    @case ('add-channel') {
     <mat-card-title class="title">
         <span class="nuito24px700">Leute hinzufügen</span>
         <button mat-icon-button class="close-button" aria-label="Menü zum Leute hinzufügen schließen"
@@ -43,39 +45,7 @@
         </div>
     </mat-card-content>
     @if (!isActive) {
-    <mat-form-field class="add-people-input" appearance="fill">
-        <mat-chip-grid #chipGrid aria-label="Leute hinzufügen">
-            @for (people of peoples(); track people) {
-            <mat-chip-row (removed)="remove(people)">
-                <img class="chip-avatar" [src]="'./assets/img/avatar/' + people.profilePic + '.png'" alt="Avatar" />
-                {{ people.userName }}
-                <button matChipRemove [attr.aria-label]="'remove ' + people.userName">
-                    <mat-icon fontIcon="close"></mat-icon>
-                </button>
-            </mat-chip-row>
-            }
-            <input #inputField placeholder="Name eingeben" [matChipInputFor]="chipGrid"
-                [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="false"
-                (matChipInputTokenEnd)="addFromText($event)" [(ngModel)]="searchTerm" (ngModelChange)="filterUsers()"
-                [matAutocomplete]="auto" matAutocompletePosition="below" />
-        </mat-chip-grid>
-        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectUser($event.option.value)"
-            (opened)="autocompleteOpened()" (closed)="autocompleteClosed()">
-            @if (searchTerm.length > 0) {
-            @for (user of filteredUsers(); track user.userName) {
-            <mat-option [value]="user">
-                <div class="chip-avatar-wrapper">
-                    <img [src]="'./assets/img/avatar/' + user.profilePic + '.png'"
-                        alt="Avatar von {{ user.userName }}" />
-                    <mat-icon fontIcon="lens" [ngClass]="user.status ? 'online' : 'offline'"
-                        class="status-icon"></mat-icon>
-                </div>
-                {{ user.userName }}
-            </mat-option>
-            }
-            }
-        </mat-autocomplete>
-    </mat-form-field>
+    <ng-container *ngTemplateOutlet="chipGridTemplate"></ng-container>
     }
     <mat-card-actions class="create-new-channel">
         <button mat-button class="create-channel-btn" aria-label="Channel erstellen"
@@ -83,40 +53,10 @@
             <span>Erstellen</span>
         </button>
     </mat-card-actions>
-    } @else if (data.source === 'channel-info') {
-    <mat-form-field class="add-people-input" appearance="fill">
-        <mat-chip-grid #chipGrid aria-label="Leute hinzufügen">
-            @for (people of peoples(); track people) {
-            <mat-chip-row (removed)="remove(people)">
-                <img class="chip-avatar" [src]="'./assets/img/avatar/' + people.profilePic + '.png'" alt="Avatar" />
-                {{ people.userName }}
-                <button matChipRemove [attr.aria-label]="'remove ' + people.userName">
-                    <mat-icon fontIcon="close"></mat-icon>
-                </button>
-            </mat-chip-row>
-            }
-            <input #inputField placeholder="Name eingeben" [matChipInputFor]="chipGrid"
-                [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="false"
-                (matChipInputTokenEnd)="addFromText($event)" (blur)="onInputBlur()" [(ngModel)]="searchTerm"
-                (ngModelChange)="filterUsers()" [matAutocomplete]="auto" matAutocompletePosition="below" />
-        </mat-chip-grid>
-        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectUser($event.option.value)"
-            (opened)="autocompleteOpened()" (closed)="autocompleteClosed()">
-            @if (searchTerm.length > 0) {
-            @for (user of filteredUsers(); track user.userName) {
-            <mat-option [value]="user">
-                <div class="chip-avatar-wrapper">
-                    <img [src]="'./assets/img/avatar/' + user.profilePic + '.png'"
-                        alt="Avatar von {{ user.userName }}" />
-                    <mat-icon fontIcon="lens" [ngClass]="user.status ? 'online' : 'offline'"
-                        class="status-icon"></mat-icon>
-                </div>
-                {{ user.userName }}
-            </mat-option>
-            }
-            }
-        </mat-autocomplete>
-    </mat-form-field>
+    }
+    @case ('channel-info') {
+    <ng-container *ngTemplateOutlet="chipGridTemplate"></ng-container>
+
     <mat-card-actions class="add-members">
         <button mat-button class="add-members-btn" aria-label="Mitglieder hinzufügen" (click)="addMembers()"
             [disabled]="peoples().length === 0">
@@ -124,4 +64,42 @@
         </button>
     </mat-card-actions>
     }
+    }
+    <!-- Chip Grid Template -->
+    <ng-template #chipGridTemplate>
+        <mat-form-field class="add-people-input" appearance="fill">
+            <mat-chip-grid #chipGrid aria-label="Leute hinzufügen">
+                @for (people of peoples(); track people) {
+                <mat-chip-row (removed)="remove(people)">
+                    <img class="chip-avatar" [src]="'./assets/img/avatar/' + people.profilePic + '.png'" alt="Avatar" />
+                    {{ people.userName }}
+                    <button matChipRemove [attr.aria-label]="'remove ' + people.userName">
+                        <mat-icon fontIcon="close"></mat-icon>
+                    </button>
+                </mat-chip-row>
+                }
+                <input #inputField placeholder="Name eingeben" [matChipInputFor]="chipGrid"
+                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="false"
+                    (matChipInputTokenEnd)="addFromText($event)" [(ngModel)]="searchTerm"
+                    (ngModelChange)="filterUsers()" [matAutocomplete]="auto" matAutocompletePosition="below"
+                    (blur)="onInputBlur()" />
+            </mat-chip-grid>
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectUser($event.option.value)"
+                (opened)="autocompleteOpened()" (closed)="autocompleteClosed()">
+                @if (searchTerm.length > 0) {
+                @for (user of filteredUsers(); track user.userName) {
+                <mat-option [value]="user">
+                    <div class="chip-avatar-wrapper">
+                        <img [src]="'./assets/img/avatar/' + user.profilePic + '.png'"
+                            alt="Avatar von {{ user.userName }}" />
+                        <mat-icon fontIcon="lens" [ngClass]="user.status ? 'online' : 'offline'"
+                            class="status-icon"></mat-icon>
+                    </div>
+                    {{ user.userName }}
+                </mat-option>
+                }
+                }
+            </mat-autocomplete>
+        </mat-form-field>
+    </ng-template>
 </mat-card>
