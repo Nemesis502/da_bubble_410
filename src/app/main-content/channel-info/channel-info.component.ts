@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, Renderer2, signal, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnChanges, Output, signal, SimpleChanges } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,7 +28,7 @@ import { ChannelsDirectMessageService, DirectMessage } from '../../shared/servic
     TextFieldModule
   ],
   templateUrl: './channel-info.component.html',
-  styleUrl: './channel-info.component.scss',
+  styleUrls: ['./channel-info.component.scss'],
 })
 export class ChannelInfoComponent implements OnChanges {
   readonly firestoreService = inject(FirestoreService);
@@ -38,28 +38,27 @@ export class ChannelInfoComponent implements OnChanges {
   readonly dialog = inject(MatDialog);
   readonly userSession = inject(SessionService);
   readonly channelsDirectMessageService = inject(ChannelsDirectMessageService);
-  @Input() channelId: string = '';
+
+  @Input() channelId = '';
+  @Output() closeChannelInfo = new EventEmitter<void>();
+
   channel: Channel | null = null;
   members = signal<appUser[]>([]);
   currentUser: appUser | null = null;
+  isGastLogin = false;
+  isMobile = window.innerWidth < 999;
 
-  creatorName = '';
   channelNameInput = '';
   newChannelName = '';
   channelDescriptionInput = '';
   newChannelDescription = '';
-  isMobile: boolean = false;
+  creatorName = '';
   editName = false;
   editDescription = false;
-  width: number = window.innerWidth;
-  isGastLogin: boolean = false;
 
-  constructor(private renderer: Renderer2) {
+  constructor() {
     this.currentUser = this.userSession.getCurrentUser();
-    if (this.currentUser?.id == "Guest") {
-      this.isGastLogin = true;
-    }
-    this.isMobile = this.width < 999;
+    this.isGastLogin = this.currentUser?.id === 'Guest';
   }
 
   async ngOnChanges(changes: SimpleChanges) {
@@ -69,54 +68,40 @@ export class ChannelInfoComponent implements OnChanges {
     }
   }
 
-  @Output() closeChannelInfo = new EventEmitter<string>();
-
   async loadChannel(): Promise<void> {
-    const channels = await this.whichChannels();
+    const channels = await this.getChannels();
     const found = channels.find(c => c.channelId === this.channelId);
+    if (!found) return;
 
-    if (found) {
-      this.channel = found;
-      this.channelNameInput = found.name;
-      this.channelDescriptionInput = found.description || '';
-      await this.loadCreator(found.createdBy);
-    }
+    this.channel = found;
+    this.channelNameInput = found.name;
+    this.channelDescriptionInput = found.description || '';
+    await this.loadCreator(found.createdBy);
   }
 
-  async whichChannels() {
-    if (this.isGastLogin) {
-      const guestChannels = this.channelsDirectMessageService.getChannels();
-      return guestChannels;
-    } else {
-      const liveChannels = await firstValueFrom(this.firestoreService.getChannels());
-      return liveChannels;
-    }
+  async getChannels(): Promise<Channel[]> {
+    if (this.isGastLogin) return this.channelsDirectMessageService.getChannels();
+    return await firstValueFrom(this.firestoreService.getChannels());
   }
 
-  async loadCreator(userId: string): Promise<void> {
+  async loadCreator(userId: string) {
     if (!userId) return;
-    const user = await this.foundWhichCreator(userId);
+    const user = await this.getCreator(userId);
     this.creatorName = user?.userName ?? '';
   }
 
-  async foundWhichCreator(createdBy: string): Promise<appUser | null> {
-    if (!createdBy) return null;
+  async getCreator(userId: string): Promise<appUser | null> {
+    if (!userId) return null;
     if (this.isGastLogin) {
-      const dm = this.findGuest(createdBy);
+      const dm = this.channelsDirectMessageService.getDirectMessagesForGast().find(u => u.id === userId || u.name === userId);
       return dm ? this.convertDmToAppUser(dm) : null;
     }
-    const live = await firstValueFrom(this.firestoreService.getUserById(createdBy));
-    return (live as appUser) ?? null;
-  }
-
-  findGuest(createdBy: string): DirectMessage | null {
-    return this.channelsDirectMessageService.getDirectMessagesForGast()
-      .find(u => u.id === createdBy || u.name === createdBy) ?? null;
+    return (await firstValueFrom(this.firestoreService.getUserById(userId))) as appUser;
   }
 
   convertDmToAppUser(dm: DirectMessage): appUser {
     return {
-      id: dm.id,  
+      id: dm.id,
       userName: dm.name,
       profilePic: parseInt(dm.img.replace('.png', ''), 10) || 0,
       status: dm.status === 'online',
@@ -125,56 +110,30 @@ export class ChannelInfoComponent implements OnChanges {
   }
 
   async loadMembers(): Promise<void> {
-    const users = await this.whichUsers();
-
-    const memberList = users.filter((user: appUser) =>
-      this.channel?.members.includes(user.id!)
-    );
-
-    const sortedMembers = [...memberList].sort((a, b) => {
-      if (a.id === this.currentUser?.id) return -1;
-      if (b.id === this.currentUser?.id) return 1;
-      return 0;
-    });
-
-    this.members.set(sortedMembers);
+    const users = await this.getUsers();
+    const memberList = users.filter(u => this.channel?.members.includes(u.id!));
+    const sorted = memberList.sort((a, b) => (a.id === this.currentUser?.id ? -1 : b.id === this.currentUser?.id ? 1 : 0));
+    this.members.set(sorted);
   }
 
-  async whichUsers() {
-    if (this.isGastLogin) {
-      let guestUser = this.channelsDirectMessageService
-        .getDirectMessagesForGast()
-        .map((dm) => ({
-          id: dm.id,
-          userName: dm.name,
-          profilePic: parseInt(dm.img.replace('.png', ''), 10) || 0,
-          status: dm.status === 'online',
-          email: '',
-        }));
-      return guestUser;
-    } else {
-      let liveUsers = await firstValueFrom(this.firestoreService.getUsers());
-      return liveUsers;
-    }
+  async getUsers(): Promise<appUser[]> {
+    if (this.isGastLogin) return this.channelsDirectMessageService.getDirectMessagesForGast().map(this.convertDmToAppUser.bind(this));
+    return await firstValueFrom(this.firestoreService.getUsers());
   }
 
   async saveName(): Promise<void> {
-    if (!this.channelId || !this.newChannelName?.trim()) return;
-
-    const ref = this.firestoreService.getChannelDocRef(this.channelId);
+    if (!this.channelId || !this.newChannelName.trim()) return;
     this.channelNameInput = this.newChannelName.trim();
-    await updateDoc(ref, { name: this.channelNameInput });
+    await updateDoc(this.firestoreService.getChannelDocRef(this.channelId), { name: this.channelNameInput });
     this.editName = false;
     this.newChannelName = '';
     await this.loadChannel();
   }
 
   async saveDescription(): Promise<void> {
-    if (!this.channelId || !this.newChannelDescription?.trim()) return;
-
-    const ref = this.firestoreService.getChannelDocRef(this.channelId);
+    if (!this.channelId || !this.newChannelDescription.trim()) return;
     this.channelDescriptionInput = this.newChannelDescription.trim();
-    await updateDoc(ref, { description: this.channelDescriptionInput });
+    await updateDoc(this.firestoreService.getChannelDocRef(this.channelId), { description: this.channelDescriptionInput });
     this.editDescription = false;
     this.newChannelDescription = '';
     await this.loadChannel();
@@ -187,29 +146,24 @@ export class ChannelInfoComponent implements OnChanges {
       width: '100vw',
       height: '50vh',
       panelClass: 'bottom-dialog-panel',
-      data: {
-        source: 'channel-info',
-        channelId: this.channelId,
-        currentUser: this.currentUser
-      }
+      data: { source: 'channel-info', channelId: this.channelId, currentUser: this.currentUser },
     });
 
-    dialogRef.afterClosed().subscribe(async (result) => {
+    dialogRef.afterClosed().subscribe(async () => {
       await this.loadChannel();
       await this.loadMembers();
     });
   }
 
-
   async leaveChannel(): Promise<void> {
     if (!this.channel || !this.currentUser?.id) return;
     const updatedMembers = this.channel.members.filter(id => id !== this.currentUser!.id);
-    const ref = this.firestoreService.getChannelDocRef(this.channelId);
-    await updateDoc(ref, { members: updatedMembers });
+    await updateDoc(this.firestoreService.getChannelDocRef(this.channelId), { members: updatedMembers });
     this.router.navigate(['/main']);
+    this.close();
   }
 
   close(): void {
-    this.closeChannelInfo.emit()
+    this.closeChannelInfo.emit();
   }
 }
