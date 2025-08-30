@@ -1,28 +1,20 @@
-<mat-card class="profil-dialog">
+<!-- <mat-card class="profil-dialog">
   <mat-card-header>
     <mat-card-title class="title">
       <span class="nuito24px700">Profil</span>
-      <button mat-icon-button aria-label="Profil schließen" (click)="onClose()">
+      <button mat-icon-button aria-label="Profil schließen" (click)="closeDialog()">
         <mat-icon fontIcon="close"></mat-icon>
       </button>
     </mat-card-title>
   </mat-card-header>
   <mat-card-content class="profil-image">
-    <img
-      src="./assets/img/profil/{{ currentUser?.profilePic }}.png"
-      alt="Avatar von Frederik Beck (Du)"
-    />
+    <img src="./assets/img/profil/{{ currentUser?.profilePic }}.png" alt="Avatar von Frederik Beck (Du)" />
   </mat-card-content>
   <mat-card-content class="profil-info">
     <div class="title profil-name">
       <span class="nuito32px700">{{ currentUser?.userName }}</span>
       @if (isUser) {
-      <button
-        mat-button
-        class="edit-button"
-        aria-label="Profil bearbeiten"
-        (click)="openProfilEditDialog()"
-      >
+      <button mat-button class="edit-button" aria-label="Profil bearbeiten" (click)="openEditProfilDialog()">
         <mat-icon fontSet="material-icons-outlined">edit</mat-icon>
       </button>
       }
@@ -43,12 +35,58 @@
   </mat-card-content>
   @if (!isUser) {
   <mat-card-content class="profil-message">
-    <button
- (click)=" openConversation()"
-      mat-button
-      class="profil-message-button"
-      aria-label="Nachricht senden"
-    >
+    <button (click)=" openDirectMessage()" mat-button class="profil-message-button" aria-label="Nachricht senden">
+      <mat-icon fontSet="material-icons-outlined">mode_comment</mat-icon>
+      <span>Nachricht</span>
+    </button>
+  </mat-card-content>
+  }
+</mat-card> -->
+
+<mat-card class="profil-dialog">
+  <!-- Header -->
+  <mat-card-header>
+    <mat-card-title class="profil-title">
+      <span class="nuito24px700">Profil</span>
+      <button mat-icon-button aria-label="Profil schließen" (click)="closeDialog()">
+        <mat-icon fontIcon="close"></mat-icon>
+      </button>
+    </mat-card-title>
+  </mat-card-header>
+  <!-- Profilbild -->
+  <mat-card-content class="profil-image">
+    <img [src]="'./assets/img/profil/' + currentUser?.profilePic + '.png'"
+      [alt]="'Avatar von ' + currentUser?.userName" />
+  </mat-card-content>
+  <!-- Profilinformationen -->
+  <mat-card-content class="profil-info">
+    <div class="profil-title profil-name">
+      <span class="nuito32px700">{{ currentUser?.userName }}</span>
+      @if (isUser) {
+      <button mat-button class="edit-button" aria-label="Profil bearbeiten" (click)="openEditProfilDialog()">
+        <mat-icon fontSet="material-icons-outlined">edit</mat-icon>
+      </button>
+      }
+    </div>
+    <div class="profil-status">
+      <mat-icon fontIcon="radio_button_unchecked"></mat-icon>
+      <span>Aktiv</span>
+    </div>
+  </mat-card-content>
+  <!-- E-Mail -->
+  <mat-card-content class="profil-email">
+    <span class="profil-email-title">
+      <mat-icon fontSet="material-icons-outlined">email</mat-icon>
+      E-Mail-Adresse
+    </span>
+    <span class="profil-email-address">
+      {{ currentUser?.email }}
+    </span>
+  </mat-card-content>
+  <!-- Direktnachricht -->
+  @if (!isUser) {
+  <mat-card-content class="profil-message">
+    <button mat-button class="profil-message-button" aria-label="Nachricht senden" (click)="openDirectMessage()">
       <mat-icon fontSet="material-icons-outlined">mode_comment</mat-icon>
       <span>Nachricht</span>
     </button>
