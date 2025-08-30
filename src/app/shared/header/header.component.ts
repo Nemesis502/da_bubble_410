@@ -9,13 +9,9 @@ import { SearchComponent } from '../search/search.component';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatIconModule,
-    SearchComponent
-  ],
+  imports: [CommonModule, MatIconModule, SearchComponent],
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss', './header.media-query.component.scss']
+  styleUrls: ['./header.component.scss', './header.media-query.component.scss'],
 })
 export class HeaderComponent {
   @Output() chatSelected = new EventEmitter<string>();
@@ -23,30 +19,35 @@ export class HeaderComponent {
   @Output() closeNewMessage = new EventEmitter<void>();
 
   @Input() currentUser!: appUser | null;
-  readonly dialog = inject(MatDialog);
 
+  readonly dialog = inject(MatDialog);
   screenSmall = window.innerWidth < 800;
+
   openMenuDialog(): void {
     if (this.screenSmall) {
-      this.dialog.open(MenuDialogComponent, {
-        position: { bottom: '0' },
-        maxWidth: '100vw',
-        width: '100vw',
-        panelClass: 'bottom-dialog-panel',
-        data: {
-          source: 'main-menu',
-        },
-      });
+      this.openBottomMenuDialog();
     } else {
-      this.dialog.open(MenuDialogComponent, {
-        position: { top: '80px', right: '16px' },
-        maxWidth: '282px',
-        maxHeight: '181px',
-        panelClass: 'top-right-dialog-panel',
-        data: {
-          source: 'main-menu',
-        }
-      });
+      this.openTopRightMenuDialog();
     }
+  }
+
+  private openBottomMenuDialog(): void {
+    this.dialog.open(MenuDialogComponent, {
+      position: { bottom: '0' },
+      width: '100vw',
+      maxWidth: '100vw',
+      panelClass: 'bottom-dialog-panel',
+      data: { source: 'main-menu' },
+    });
+  }
+
+  private openTopRightMenuDialog(): void {
+    this.dialog.open(MenuDialogComponent, {
+      position: { top: '80px', right: '16px' },
+      maxWidth: '282px',
+      maxHeight: '181px',
+      panelClass: 'top-right-dialog-panel',
+      data: { source: 'main-menu' },
+    });
   }
 }
