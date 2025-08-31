@@ -1,5 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, EventEmitter, inject, OnInit, OnDestroy, Output } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  inject,
+  OnInit,
+  OnDestroy,
+  Output,
+  HostListener,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,7 +21,10 @@ import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { onSnapshot } from 'firebase/firestore';
 import { SearchService } from '../../shared/services/search.service';
-import { ChannelsDirectMessageService, DirectMessage } from '../../shared/services/channels-direct-message.service';
+import {
+  ChannelsDirectMessageService,
+  DirectMessage,
+} from '../../shared/services/channels-direct-message.service';
 import { FirestoreService } from '../../shared/services/firestore.service';
 import { UserService } from '../../shared/services/user.services';
 import { SessionService } from '../../shared/services/currentUserSession.service';
@@ -97,6 +109,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initCurrentUserSession();
     this.loadChannelsAndUsers();
+    this.handleResize();
   }
 
   // Angular OnDestroy lifecycle: unsubscribe from snapshot listeners
@@ -107,7 +120,10 @@ export class MainMenuComponent implements OnInit, OnDestroy {
   // Initializes the user based on router navigation state
   initializeUserFromNavigation(): void {
     const navigation = this.router.getCurrentNavigation();
-    const state = navigation?.extras.state as { loginEmail: string; loginId: string };
+    const state = navigation?.extras.state as {
+      loginEmail: string;
+      loginId: string;
+    };
     if (!state) return;
     if (state.loginId === 'Guest') {
       this.gastLogin = true;
@@ -118,7 +134,25 @@ export class MainMenuComponent implements OnInit, OnDestroy {
       this.unsubCurrentUser = this.subscribeToCurrentUser();
     }
   }
+  // Listen to window resize events
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    this.handleResize();
+  }
 
+  // Switch routes based on screen width
+  private handleResize(): void {
+    const wasSmallScreen = this.isSmallScreen;
+    this.isSmallScreen = window.innerWidth < 800;
+
+    if (this.isSmallScreen && !wasSmallScreen) {
+      // Switch to mobile route
+      this.router.navigate(['/main-menu']);
+    } else if (!this.isSmallScreen && wasSmallScreen) {
+      // Switch to desktop route
+      this.router.navigate(['/main']);
+    }
+  }
   // Initializes the current user session and ensures self-conversation exists
   async initCurrentUserSession(): Promise<void> {
     const sessionUser = this.userSession.getCurrentUser();
@@ -165,11 +199,16 @@ export class MainMenuComponent implements OnInit, OnDestroy {
 
   // Subscribes to changes in the current user's Firestore document
   subscribeToCurrentUser() {
-    const currentUserDocRef = this.firestoreService.getUserDocRef(this.currentLoginId);
+    const currentUserDocRef = this.firestoreService.getUserDocRef(
+      this.currentLoginId
+    );
     return onSnapshot(currentUserDocRef, (snapshot) => {
       const data = snapshot.data();
       if (!data) return;
-      this.currentUser = this.userService.setUserObject(data, this.currentLoginId);
+      this.currentUser = this.userService.setUserObject(
+        data,
+        this.currentLoginId
+      );
       this.loadAllUsers();
       this.cdr.detectChanges();
     });
@@ -180,7 +219,9 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     if (this.gastLogin) return;
     this.firestoreService.getChannels().subscribe((channels) => {
       this.channels = channels;
-      this.userChannels = channels.filter((ch) => ch.members.includes(this.currentLoginId));
+      this.userChannels = channels.filter((ch) =>
+        ch.members.includes(this.currentLoginId)
+      );
       this.searchService.setFirestoreChannels(channels);
     });
     this.loadAllUsers();
@@ -189,7 +230,10 @@ export class MainMenuComponent implements OnInit, OnDestroy {
       .subscribe((conv) => {
         this.directMessages = conv;
         this.filterDirectMessageUsers();
-        this.searchService.setDirectMessagePartnerIds(this.directMessages, this.currentLoginId);
+        this.searchService.setDirectMessagePartnerIds(
+          this.directMessages,
+          this.currentLoginId
+        );
         this.updateFilteredResults();
       });
     this.updateFilteredResults();
@@ -203,7 +247,10 @@ export class MainMenuComponent implements OnInit, OnDestroy {
       if (!this.gastLogin) {
         this.filterDirectMessageUsers();
         this.searchService.setCurrentUserId(this.currentLoginId);
-        this.searchService.setDirectMessagePartnerIds(this.directMessages, this.currentLoginId);
+        this.searchService.setDirectMessagePartnerIds(
+          this.directMessages,
+          this.currentLoginId
+        );
       }
     });
   }
@@ -211,10 +258,17 @@ export class MainMenuComponent implements OnInit, OnDestroy {
   // Filters direct messages to exclude current user and set other participants
   filterDirectMessageUsers(): void {
     const otherUserIds = this.directMessages
-      .map((conv) => conv.participants.find((id: string) => id !== this.currentLoginId))
+      .map((conv) =>
+        conv.participants.find((id: string) => id !== this.currentLoginId)
+      )
       .filter(Boolean);
-    this.allDirectMessages = this.users.filter((user) => otherUserIds.includes(user.id));
-    if (this.currentUser && !this.allDirectMessages.some((u) => u.id === this.currentUser?.id)) {
+    this.allDirectMessages = this.users.filter((user) =>
+      otherUserIds.includes(user.id)
+    );
+    if (
+      this.currentUser &&
+      !this.allDirectMessages.some((u) => u.id === this.currentUser?.id)
+    ) {
       this.allDirectMessages.unshift(this.currentUser);
     }
   }
@@ -226,12 +280,13 @@ export class MainMenuComponent implements OnInit, OnDestroy {
 
   // Updates filtered search results for channels, direct messages, and content
   async updateFilteredResults(): Promise<void> {
-    const { channels, directMessages, contentResults } = await this.searchService.updateFilteredResults(
-      this.searchTerm,
-      this.gastLogin,
-      this.directMessages,
-      this.currentLoginId
-    );
+    const { channels, directMessages, contentResults } =
+      await this.searchService.updateFilteredResults(
+        this.searchTerm,
+        this.gastLogin,
+        this.directMessages,
+        this.currentLoginId
+      );
     this.filteredChannels = channels;
     this.filteredDirectMessages = directMessages;
     this.filteredContentResults = contentResults;
@@ -262,10 +317,17 @@ export class MainMenuComponent implements OnInit, OnDestroy {
   // Selects a direct message with a user
   selectDirectMessage(user: appUser): void {
     if (!user?.id || !this.currentUser?.id) {
-      console.error('User oder currentUser is undefined', user, this.currentUser);
+      console.error(
+        'User oder currentUser is undefined',
+        user,
+        this.currentUser
+      );
       return;
     }
-    const conversation = this.findConversationBetweenUsers(user.id, this.currentUser.id);
+    const conversation = this.findConversationBetweenUsers(
+      user.id,
+      this.currentUser.id
+    );
     if (!conversation?.id) {
       console.error('Keine passende Konversation gefunden für:', user);
       return;
@@ -273,7 +335,11 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     this.channelDirectMessageData.setSelectedDirectMessage(user);
     this.closeNewMessage.emit();
     if (window.innerWidth < 800) {
-      this.router.navigate(['/chat-container', 'conversation', conversation.id]);
+      this.router.navigate([
+        '/chat-container',
+        'conversation',
+        conversation.id,
+      ]);
     } else {
       this.chatTypeSelected.emit('conversation');
       this.chatSelected.emit(conversation.id);
@@ -282,12 +348,17 @@ export class MainMenuComponent implements OnInit, OnDestroy {
 
   // Finds a conversation between two users
   findConversationBetweenUsers(userId1: string, userId2: string): any | null {
-    return this.directMessages.find((conv) => {
-      const participants: string[] = conv.members || conv.participants;
-      const sortedParticipants = [...participants].sort();
-      const sortedIds = [userId1, userId2].sort();
-      return sortedParticipants[0] === sortedIds[0] && sortedParticipants[1] === sortedIds[1];
-    }) || null;
+    return (
+      this.directMessages.find((conv) => {
+        const participants: string[] = conv.members || conv.participants;
+        const sortedParticipants = [...participants].sort();
+        const sortedIds = [userId1, userId2].sort();
+        return (
+          sortedParticipants[0] === sortedIds[0] &&
+          sortedParticipants[1] === sortedIds[1]
+        );
+      }) || null
+    );
   }
 
   // Selects a direct message for guest users
@@ -296,7 +367,12 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     this.channelDirectMessageData.setSelectedDirectMessageGast(user);
     this.closeNewMessage.emit();
     if (window.innerWidth < 800) {
-      this.router.navigate(['/chat-container', 'conversation', 'guest', user.id]);
+      this.router.navigate([
+        '/chat-container',
+        'conversation',
+        'guest',
+        user.id,
+      ]);
       this.chatTypeSelected.emit('conversation');
     }
   }
@@ -325,7 +401,9 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     if (window.innerWidth < 800) {
       this.router.navigate(['/addChannelDialog']);
     } else {
-      this.dialog.open(AddChannelDialogComponent, { panelClass: 'middle-dialog-panel' });
+      this.dialog.open(AddChannelDialogComponent, {
+        panelClass: 'middle-dialog-panel',
+      });
     }
   }
 
@@ -339,8 +417,8 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     const currentUserId = this.currentUser?.id;
     if (!currentUserId) return this.users;
     return [
-      ...this.users.filter(u => u.id === currentUserId),
-      ...this.users.filter(u => u.id !== currentUserId),
+      ...this.users.filter((u) => u.id === currentUserId),
+      ...this.users.filter((u) => u.id !== currentUserId),
     ];
   }
 }

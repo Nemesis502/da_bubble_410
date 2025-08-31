@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, HostListener, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
@@ -48,6 +48,7 @@ export class MainContentComponent {
   showThread = false;
   currentUser$ = this.userSession.currentLogingUser$;
   currentChatType: 'channel' | 'conversation' | null = null;
+  isSmallScreen = window.innerWidth < 800;
 
   constructor(
     private userSession: SessionService,
@@ -57,6 +58,7 @@ export class MainContentComponent {
   ) {
     // Initializes login data from router state
     this.initializeLogin();
+    this.handleResize();
   }
 
   // Sets up current user login info from router navigation state
@@ -83,6 +85,27 @@ export class MainContentComponent {
     await this.cleanupGuestData();
     await this.loadCurrentUser();
     this.loadAllChannels();
+    this.handleResize();
+  }
+
+ // Listen for window resize events
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    this.handleResize();
+  }
+
+  // Switch route based on screen size
+  private handleResize(): void {
+    const wasSmallScreen = this.isSmallScreen;
+    this.isSmallScreen = window.innerWidth < 800;
+
+    if (this.isSmallScreen && !wasSmallScreen) {
+      // Switch to mobile route
+      this.router.navigate(['/main-menu']);
+    } else if (!this.isSmallScreen && wasSmallScreen) {
+      // Switch to desktop route
+      this.router.navigate(['/main']);
+    }
   }
 
   // Removes all guest channels, conversations, and messages from Firestore
@@ -127,12 +150,11 @@ export class MainContentComponent {
     this.showNewMessageOnLoad();
   }
 
-  // Automatically shows New Message on load 
+  // Automatically shows New Message on load
   showNewMessageOnLoad(): void {
-      this.showNewMessage = true;
-      return;
-    }
-
+    this.showNewMessage = true;
+    return;
+  }
 
   // Sets up guest user object
   loadGuestData(): void {
