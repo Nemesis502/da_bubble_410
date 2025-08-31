@@ -14,15 +14,25 @@ import { SearchComponent } from '../search/search.component';
   styleUrls: ['./header.component.scss', './header.media-query.component.scss'],
 })
 export class HeaderComponent {
+  // Emits the selected chat's ID to parent components
   @Output() chatSelected = new EventEmitter<string>();
+
+  // Emits the type of chat selected ('channel' or 'conversation')
   @Output() chatTypeSelected = new EventEmitter<'channel' | 'conversation'>();
+
+  // Emits when the "new message" UI should be closed
   @Output() closeNewMessage = new EventEmitter<void>();
 
+  // Input for the currently logged-in user
   @Input() currentUser!: appUser | null;
 
+  // Injects Angular Material Dialog service for opening dialogs
   readonly dialog = inject(MatDialog);
+
+  // Tracks whether the screen width is small (for responsive behavior)
   screenSmall = window.innerWidth < 800;
 
+  // Determines which menu dialog to open based on screen size
   openMenuDialog(): void {
     if (this.screenSmall) {
       this.openBottomMenuDialog();
@@ -31,6 +41,7 @@ export class HeaderComponent {
     }
   }
 
+  // Opens a bottom-positioned full-width dialog for small screens
   private openBottomMenuDialog(): void {
     this.dialog.open(MenuDialogComponent, {
       position: { bottom: '0' },
@@ -41,6 +52,7 @@ export class HeaderComponent {
     });
   }
 
+  // Opens a small top-right positioned dialog for larger screens
   private openTopRightMenuDialog(): void {
     this.dialog.open(MenuDialogComponent, {
       position: { top: '80px', right: '16px' },

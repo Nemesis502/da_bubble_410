@@ -34,7 +34,8 @@ import { UserService } from '../shared/services/user.services';
 export class MainContentComponent {
   readonly searchService = inject(SearchService);
 
-  currentUser = signal<appUser | null>(null); // statt Property
+  // Holds the current logged-in user
+  currentUser = signal<appUser | null>(null); 
   channels: any[] = [];
   userChannels: any[] = [];
   currentChatId: string | null = null;
@@ -54,9 +55,11 @@ export class MainContentComponent {
     private userService: UserService,
     private firestoreService: FirestoreService
   ) {
+    // Initializes login data from router state
     this.initializeLogin();
   }
 
+  // Sets up current user login info from router navigation state
   initializeLogin(): void {
     const state = this.router.getCurrentNavigation()?.extras.state as {
       loginEmail: string;
@@ -75,18 +78,21 @@ export class MainContentComponent {
     }
   }
 
+  // Angular OnInit lifecycle: cleans up guest data, loads current user, and fetches channels
   async ngOnInit(): Promise<void> {
     await this.cleanupGuestData();
     await this.loadCurrentUser();
     this.loadAllChannels();
   }
 
+  // Removes all guest channels, conversations, and messages from Firestore
   async cleanupGuestData(): Promise<void> {
     await this.firestoreService.deleteGuestChannels();
     await this.firestoreService.deleteGuestConversations();
     await this.firestoreService.deleteGuestMessages();
   }
 
+  // Loads the current user's data from Firestore
   async loadCurrentUser(): Promise<void> {
     if (!this.currentLoginId) return;
     const userData = await firstValueFrom(
@@ -97,10 +103,12 @@ export class MainContentComponent {
     this.userSession.setCurrentUser(user);
   }
 
+  // Sets the currently selected chat type (channel or conversation)
   onChatTypeSelected(type: 'channel' | 'conversation'): void {
     this.currentChatType = type;
   }
 
+  // Loads all channels from Firestore and handles subscription
   loadAllChannels(): void {
     this.firestoreService.getChannels().subscribe({
       next: (channels) => this.handleLoadedChannels(channels),
@@ -108,6 +116,7 @@ export class MainContentComponent {
     });
   }
 
+  // Processes loaded channels and filters user-specific channels
   handleLoadedChannels(channels: any[]): void {
     this.channels = channels;
     this.userChannels = this.currentLoginId
@@ -118,6 +127,7 @@ export class MainContentComponent {
     this.autoSelectFirstChannel();
   }
 
+  // Automatically selects the first channel for desktop view or navigates for mobile
   autoSelectFirstChannel(): void {
     if (!this.userChannels.length) {
       console.warn('Keine userChannels gefunden.');
@@ -136,6 +146,7 @@ export class MainContentComponent {
     }
   }
 
+  // Sets up guest user object
   loadGuestData(): void {
     const guestUser: appUser = {
       id: 'Guest',
@@ -147,27 +158,32 @@ export class MainContentComponent {
     this.currentUser.set(guestUser);
   }
 
+  // Loads user data from router state
   loadUserData(state: { loginEmail: string; loginId: string }): void {
     this.currentLoginEmail = state.loginEmail ?? '';
     this.currentLoginId = state.loginId ?? '';
   }
 
+  // Sets the currently selected chat and resets thread view
   onChatSelected(chatId: string): void {
     this.currentChatId = chatId;
     this.showThread = false;
     this.currentThreadId = null;
   }
 
+  // Opens a thread for the given thread ID
   openThread(threadId: string): void {
     this.currentThreadId = threadId;
     this.showThread = true;
   }
 
+  // Closes the currently open thread
   closeThread(): void {
     this.showThread = false;
     this.currentThreadId = null;
   }
 
+  // Opens the "new message" UI, navigates for mobile
   openNewMessage(): void {
     if (window.innerWidth < 800) {
       this.router.navigate(['/new-message', this.currentUser()?.id]);
@@ -176,6 +192,7 @@ export class MainContentComponent {
     this.showNewMessage = true;
   }
 
+  // Closes the "new message" UI
   closeNewMessage(): void {
     this.showNewMessage = false;
   }

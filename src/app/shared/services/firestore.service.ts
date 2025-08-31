@@ -8,6 +8,7 @@ import { Channel } from '../../interfaces/channel.interface';
 export class FirestoreService {
   private firestore = inject(Firestore);
 
+  // Adds new members to an existing channel
   async addMembersToChannel(channelId: string, newMemberIds: string[]): Promise<void> {
     const channelRef = this.getChannelDocRef(channelId);
     const channelSnap = await getDoc(channelRef);
@@ -21,26 +22,31 @@ export class FirestoreService {
     await updateDoc(channelRef, { members: updatedMembers });
   }
 
+  // Fetch a user by their UID
   getUserById(uid: string) {
     const userDoc = doc(this.firestore, 'users', uid);
     return docData(userDoc, { idField: 'id' });
   }
 
+  // Fetch all channels
   getChannels(): Observable<any[]> {
     const ref = collection(this.firestore, 'channels');
     return collectionData(ref, { idField: 'id' });
   }
 
+  // Fetch all users
   getUsers(): Observable<any[]> {
     const ref = collection(this.firestore, 'users');
     return collectionData(ref, { idField: 'id' });
   }
 
+  // Fetch all conversations
   getConversations(): Observable<any[]> {
     const ref = collection(this.firestore, 'conversations');
     return collectionData(ref, { idField: 'id' });
   }
 
+  // Fetch conversations for a specific user
   getConversationsByUserId(userId: string): Observable<any[]> {
     const ref = collection(this.firestore, 'conversations');
     const q = query(ref, where('participants', 'array-contains', userId));
@@ -62,6 +68,7 @@ export class FirestoreService {
     );
   }
 
+  // Get a conversation between two users
   async getConversationBetweenUsers(userAId: string, userBId: string): Promise<any | null> {
     const ref = collection(this.firestore, 'conversations');
     const q = query(ref, where('participants', 'array-contains', userAId));
@@ -77,6 +84,7 @@ export class FirestoreService {
     return null;
   }
 
+  // Fetch self-conversation for a user (private note)
   getSelfConversation(userId: string): Promise<any | null> {
     const participantKey = `${userId}_${userId}`;
     const conversationsRef = collection(this.firestore, 'conversations');
@@ -95,47 +103,58 @@ export class FirestoreService {
     });
   }
 
+  // Create a new conversation
   async createConversation(conversation: any): Promise<void> {
     const conversationsRef = collection(this.firestore, 'conversations');
     await addDoc(conversationsRef, conversation);
   }
 
+  // Add a new channel
   addChannel(channel: Omit<Channel, 'channelId'>) {
     const channelCollection = collection(this.firestore, 'channels');
     return addDoc(channelCollection, channel);
   }
 
+  // Update an existing channel
   updateChannel(id: string, updateData: Partial<Channel>) {
     const channelDoc = doc(this.firestore, 'channels', id);
     return updateDoc(channelDoc, updateData);
   }
 
+  // Listen to user document changes in real-time
   synFirebase(uid: string) {
     return onSnapshot(doc(this.firestore, 'users', uid), (doc) => {
       console.log();
-    })
+    });
   }
 
+  // Get a reference to a user document
   getUserDocRef(uid: string) {
     return doc(this.firestore, 'users', uid);
   }
 
+  // Get a reference to a channel document
   getChannelDocRef(channelId: string) {
     return doc(this.firestore, 'channels', channelId);
   }
 
+  // Fetch members of a specific channel
   getChannelMembers(channelId: string): Observable<any[]> {
     const channelRef = this.getChannelDocRef(channelId);
     return docData(channelRef).pipe(
       map(channelData => channelData?.['members'] || [])
     );
   }
+
+  // Fetch users by an array of IDs
   getUsersByIds(userIds: string[]): Observable<any[]> {
     const userRefs = userIds.map(uid => doc(this.firestore, 'users', uid));
     return collectionData(collection(this.firestore, 'users'), { idField: 'id' }).pipe(
       map(users => users.filter(user => userIds.includes(user.id)))
     );
   }
+
+  // Delete all channels created by "Guest"
   async deleteGuestChannels(): Promise<void> {
     const channelsRef = collection(this.firestore, 'channels');
     const q = query(channelsRef, where('createdBy', '==', 'Guest'));
@@ -146,6 +165,7 @@ export class FirestoreService {
     await Promise.all(deletePromises);
   }
 
+  // Delete all conversations involving "Guest"
   async deleteGuestConversations(): Promise<void> {
     const conversationsRef = collection(this.firestore, 'conversations');
     const q = query(conversationsRef, where('participants', 'array-contains', 'Guest'));
@@ -156,7 +176,7 @@ export class FirestoreService {
     await Promise.all(deletePromises);
   }
 
-  /** Deletes all messages sent by "Guest" under all channels */
+  // Delete all messages sent by "Guest" under all channels
   async deleteGuestMessages(): Promise<void> {
     const channelsRef = collection(this.firestore, 'channels');
     const channelsSnap = await getDocs(channelsRef);
@@ -177,7 +197,7 @@ export class FirestoreService {
     }
   }
 
-  // Letzte N Nachrichten eines Channels (nur Text & Timestamp, reicht hier)
+  // Fetch last N messages from a channel
   getRecentMessagesForChannel(channelId: string, limitN = 200) {
     const col = collection(this.firestore, `channels/${channelId}/messages`);
     const q = query(col, orderBy('timestamp', 'desc'), limit(limitN));
@@ -187,7 +207,7 @@ export class FirestoreService {
     >;
   }
 
-  // Channels des Users (du hast bereits getChannels(); hier filtern wir clientseitig)
+  // Fetch all channels where a user is a member
   getMemberChannels(userId: string): Observable<Channel[]> {
     return this.getChannels().pipe(
       map(chs => chs.filter(c => Array.isArray(c.members) && c.members.includes(userId)))

@@ -20,9 +20,16 @@ import { ActivatedRoute } from '@angular/router';
   imports: [ChatTemplateComponent, CommonModule],
 })
 export class ChatTemplateContainerComponent implements OnInit {
+  // Flag to detect if the viewport is mobile-sized
   isMobile: boolean = window.innerWidth < 999;
+
+  // Observable tracking whether a thread is currently open
   threadIsOpen$: Observable<boolean>;
+
+  // Stores the currently active thread message ID
   activeThreadMessageId: string | null = null;
+
+  // Stores the chat ID from the route
   chatId: string | null = null;
 
   constructor(
@@ -32,23 +39,24 @@ export class ChatTemplateContainerComponent implements OnInit {
     this.threadIsOpen$ = this.chatService.isThread$;
   }
 
+  // Listen for window resize events to update mobile detection
   @HostListener('window:resize')
   onResize() {
     this.isMobile = window.innerWidth < 999;
   }
 
+  // Angular lifecycle hook: initialize component
   ngOnInit(): void {
-    this.onResize();
-
+    this.onResize(); 
     this.route.paramMap.subscribe((params) => {
       this.chatId = params.get('id');
     });
-
     this.chatService.activeThreadMessage$.subscribe((msg) => {
       this.activeThreadMessageId = msg?.id ?? null;
     });
   }
 
+  // Handles opening a thread message
   onOpenThread(messageId: string): void {
     this.activeThreadMessageId = messageId;
     if (!this.isMobile) {

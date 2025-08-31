@@ -43,16 +43,19 @@ import { Channel } from '../../interfaces/channel.interface';
   ],
 })
 export class MainMenuComponent implements OnInit, OnDestroy {
+  // Event emitters for communication with parent components
   @Output() chatSelected = new EventEmitter<string>();
   @Output() chatTypeSelected = new EventEmitter<'channel' | 'conversation'>();
   @Output() newMessage = new EventEmitter<void>();
   @Output() closeNewMessage = new EventEmitter<void>();
 
+  // Injected services
   readonly dialog = inject(MatDialog);
   readonly searchService = inject(SearchService);
   readonly channelDirectMessageData = inject(ChannelsDirectMessageService);
   readonly firestoreService = inject(FirestoreService);
 
+  // UI & state flags
   gastLogin = false;
   showChannels = true;
   showDirectMessages = true;
@@ -62,6 +65,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
   searchTerm = '';
   isSmallScreen = window.innerWidth < 800;
 
+  // Filtered data for search
   filteredChannels: any[] = [];
   filteredDirectMessages: any[] = [];
   filteredContentResults: Array<{
@@ -69,6 +73,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     hits: Array<{ id: string; text: string; timestamp: any }>;
   }> = [];
 
+  // Data storage
   channels: any[] = [];
   userChannels: any[] = [];
   users: any[] = [];
@@ -84,19 +89,22 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private directMessageService: DirectMessageService
   ) {
+    // Initializes user based on navigation state
     this.initializeUserFromNavigation();
   }
 
+  // Angular OnInit lifecycle: setup user session and load channels/users
   ngOnInit(): void {
     this.initCurrentUserSession();
     this.loadChannelsAndUsers();
   }
 
+  // Angular OnDestroy lifecycle: unsubscribe from snapshot listeners
   ngOnDestroy(): void {
     this.unsubCurrentUser?.();
   }
 
-  // Initialization Methods
+  // Initializes the user based on router navigation state
   initializeUserFromNavigation(): void {
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras.state as { loginEmail: string; loginId: string };
@@ -111,6 +119,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Initializes the current user session and ensures self-conversation exists
   async initCurrentUserSession(): Promise<void> {
     const sessionUser = this.userSession.getCurrentUser();
     if (!this.gastLogin && sessionUser && !this.currentLoginId) {
@@ -127,11 +136,13 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Loads login state into currentLoginId and currentLoginEmail
   loadUserData(state: { loginEmail: string; loginId: string }): void {
     this.currentLoginEmail = state.loginEmail ?? '';
     this.currentLoginId = state.loginId ?? '';
   }
 
+  // Sets up guest user object
   loadGuestData(): void {
     this.currentUser = {
       id: 'Guest',
@@ -142,6 +153,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     };
   }
 
+  // Loads the current user's data from Firestore
   async loadCurrentUserFromFirestore(): Promise<void> {
     this.userService.updateUserStatusTrue(this.currentLoginId);
     const userData = await firstValueFrom(
@@ -151,6 +163,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     this.userSession.setCurrentUser(this.currentUser);
   }
 
+  // Subscribes to changes in the current user's Firestore document
   subscribeToCurrentUser() {
     const currentUserDocRef = this.firestoreService.getUserDocRef(this.currentLoginId);
     return onSnapshot(currentUserDocRef, (snapshot) => {
@@ -162,7 +175,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Users & Channels
+  // Loads all channels and users relevant for the current user
   loadChannelsAndUsers(): void {
     if (this.gastLogin) return;
     this.firestoreService.getChannels().subscribe((channels) => {
@@ -182,6 +195,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     this.updateFilteredResults();
   }
 
+  // Loads all users from Firestore
   loadAllUsers(): void {
     this.firestoreService.getUsers().subscribe((users) => {
       this.users = users;
@@ -194,6 +208,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Filters direct messages to exclude current user and set other participants
   filterDirectMessageUsers(): void {
     const otherUserIds = this.directMessages
       .map((conv) => conv.participants.find((id: string) => id !== this.currentLoginId))
@@ -204,11 +219,12 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Search
+  // Checks if the search input has text
   get isSearchActive(): boolean {
     return this.searchTerm.trim().length > 0;
   }
 
+  // Updates filtered search results for channels, direct messages, and content
   async updateFilteredResults(): Promise<void> {
     const { channels, directMessages, contentResults } = await this.searchService.updateFilteredResults(
       this.searchTerm,
@@ -221,12 +237,13 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     this.filteredContentResults = contentResults;
   }
 
+  // Closes the search UI and resets results
   closeSearch(): void {
     this.searchTerm = '';
     this.updateFilteredResults();
   }
 
-  // Chat Selection
+  // Selects a channel and navigates or emits events
   selectChannel(channel: any): void {
     if (!channel?.channelId) {
       console.error('Channel oder channelId ist undefined:', channel);
@@ -242,6 +259,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Selects a direct message with a user
   selectDirectMessage(user: appUser): void {
     if (!user?.id || !this.currentUser?.id) {
       console.error('User oder currentUser is undefined', user, this.currentUser);
@@ -262,6 +280,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Finds a conversation between two users
   findConversationBetweenUsers(userId1: string, userId2: string): any | null {
     return this.directMessages.find((conv) => {
       const participants: string[] = conv.members || conv.participants;
@@ -271,6 +290,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     }) || null;
   }
 
+  // Selects a direct message for guest users
   selectDirectMessageGast(user: DirectMessage): void {
     if (!user) return;
     this.channelDirectMessageData.setSelectedDirectMessageGast(user);
@@ -281,6 +301,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Selects a guest channel
   selectGuestChannel(channel: Channel): void {
     this.channelDirectMessageData.setSelectedGuestChannel(channel);
     this.closeNewMessage.emit();
@@ -290,7 +311,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     }
   }
 
-  // New Message
+  // Opens the "new message" UI
   openNewMessage(): void {
     if (window.innerWidth < 800) {
       this.router.navigate(['/new-message', this.currentUser?.id]);
@@ -299,6 +320,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Opens the "add channel" dialog or navigates
   addChannel(): void {
     if (window.innerWidth < 800) {
       this.router.navigate(['/addChannelDialog']);
@@ -307,11 +329,12 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Utilities
+  // Utility getter: checks if current user is guest
   get isGuestUser(): boolean {
     return this.currentUser?.id === 'Guest';
   }
 
+  // Utility getter: sorts users with current user first
   get sortedUsers(): appUser[] {
     const currentUserId = this.currentUser?.id;
     if (!currentUserId) return this.users;

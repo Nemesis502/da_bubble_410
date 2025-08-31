@@ -69,10 +69,8 @@ export class ActivityService {
   }
 
   askStillThere() {
-    // Info-Stream für UI
     this._inactivity$.next(true);
 
-    // Marker für andere Tabs/Fenster
     localStorage.setItem('autoLoggedOut', '1');
   }
 

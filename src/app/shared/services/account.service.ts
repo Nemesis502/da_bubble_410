@@ -15,7 +15,6 @@ export class AccountService {
     if (userId === 'Guest') {
      this.currentUserSession.setBehaviorNull();
       this.router.navigate(['/']);
-      // window.location.replace("/");
     } else {
       try {
         await this.auth.logout();
@@ -25,7 +24,6 @@ export class AccountService {
       } finally {
         this.currentUserSession.setBehaviorNull();
         this.router.navigate(['/']);
-        // window.location.replace("/")
       }
     }
   }
