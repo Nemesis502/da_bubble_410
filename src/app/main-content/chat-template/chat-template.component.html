@@ -91,7 +91,7 @@
     <div class="chat-header-members">
       @if (chatIsChannel && !chatIsConversation) {
         <div class="member-display" (click)="openMemberDialog()">
-          @for (member of members; track member) {
+          @for (member of members.slice(0, 3); track member) {
             @if (member) {
               <img
                 class="member-avatar"
@@ -102,7 +102,7 @@
             }
           }
           @if (members.length > 3) {
-            <span class="member-count nuito18px700">+{{ members.length - 3 }}</span>
+            <span class="member-count nuito18px700">{{ members.length }}</span>
           }
         </div>
 
