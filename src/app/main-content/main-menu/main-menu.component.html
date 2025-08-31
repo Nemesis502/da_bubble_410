@@ -100,11 +100,12 @@
               <p class="nuito17px400">{{ channel.name }}</p>
             </div>
             }
-            }
+            }@if (userChannels.length < 0) {
             <div class="channel-item channel-item-add" (click)="addChannel()">
               <mat-icon fontIcon="add_circle_outline"></mat-icon>
               <p class="nuito17px400">Channel hinzufügen</p>
             </div>
+            }
           </div>
           }
         </section>
