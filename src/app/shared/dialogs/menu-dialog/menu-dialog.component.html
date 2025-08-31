@@ -88,7 +88,7 @@
                 (opened)="autocompleteOpened()" (closed)="autocompleteClosed()">
                 @if (searchTerm.length > 0) {
                 @for (user of filteredUsers(); track user.userName) {
-                <mat-option [value]="user">
+                <mat-option [value]="user.userName">
                     <div class="chip-avatar-wrapper">
                         <img [src]="'./assets/img/avatar/' + user.profilePic + '.png'"
                             alt="Avatar von {{ user.userName }}" />

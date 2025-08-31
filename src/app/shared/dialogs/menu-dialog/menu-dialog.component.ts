@@ -162,19 +162,25 @@ export class MenuDialogComponent implements OnInit {
   }
 
   filterUsers(): void {
-    const query = this.searchTerm.toLowerCase();
+    const query = (typeof this.searchTerm === 'string' ? this.searchTerm : '')
+      .toLowerCase()
+      .trim();
     const membersInChannel = this.channelMembers();
     this.filteredUsers.set(
       this.allUsers().filter(u =>
-        u.userName.toLowerCase().startsWith(query) &&
+        (u.userName ?? '').toLowerCase().startsWith(query) &&
         !this.peoples().some(p => p.userName === u.userName) &&
         !membersInChannel.includes(u.id!)
       )
     );
   }
 
-  selectUser(user: appUser): void {
-    if (!this.peoples().some(p => p.userName === user.userName) && !this.channelMembers().includes(user.id!)) {
+  selectUser(userName: string): void {
+    const user = this.allUsers().find(u => u.userName === userName);
+    if (!user) return;
+
+    if (!this.peoples().some(p => p.userName === user.userName) &&
+      !this.channelMembers().includes(user.id!)) {
       this.peoples.update(p => [...p, user]);
     }
     this.clearSearch();
@@ -184,8 +190,8 @@ export class MenuDialogComponent implements OnInit {
     const value = (event.value || '').trim();
     if (!value) return;
     const match = this.allUsers().find(u => u.userName.toLowerCase() === value.toLowerCase());
-    if (match) this.selectUser(match);
-    event.chipInput?.clear();
+    if (match) this.selectUser(match.userName);
+    this.clearSearch();
   }
 
   onInputBlur(): void { setTimeout(() => this.tryAddFromSearchTerm(), 150); }
@@ -193,10 +199,10 @@ export class MenuDialogComponent implements OnInit {
   autocompleteClosed(): void { this.autocompleteIsOpen = false; this.tryAddFromSearchTerm(); }
 
   tryAddFromSearchTerm(): void {
-    const val = this.searchTerm.trim();
+    const val = (typeof this.searchTerm === 'string' ? this.searchTerm : '').trim();
     if (!val) return;
-    const match = this.allUsers().find(u => u.userName.toLowerCase() === val.toLowerCase());
-    if (match) this.selectUser(match);
+    const match = this.allUsers().find(u => (u.userName ?? '').toLowerCase() === val.toLowerCase());
+    if (match) this.selectUser(match.userName);
   }
 
   remove(people: appUser): void {
@@ -241,7 +247,10 @@ export class MenuDialogComponent implements OnInit {
   clearSearch(): void {
     this.searchTerm = '';
     this.filteredUsers.set(this.allUsers());
-    setTimeout(() => this.inputField?.nativeElement.focus(), 0);
+    if (this.inputField?.nativeElement) {
+      this.inputField.nativeElement.value = '';
+      setTimeout(() => this.inputField.nativeElement.focus(), 0);
+    }
   }
 
   toggleActive(isActive: boolean): void {

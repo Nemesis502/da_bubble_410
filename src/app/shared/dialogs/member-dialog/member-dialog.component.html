@@ -66,7 +66,7 @@
             (closed)="autocompleteIsOpen = false" (optionSelected)="selectUser($event.option.value)">
             @if (searchTerm.length > 0) {
             @for (user of filteredUsers(); track user.id) {
-            <mat-option [value]="user">
+            <mat-option [value]="user.userName">
                 <div class="chip-avatar-wrapper">
                     <img [src]="'./assets/img/avatar/' + user.profilePic + '.png'"
                         alt="Avatar von {{ user.userName }}" />
