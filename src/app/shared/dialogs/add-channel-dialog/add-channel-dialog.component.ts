@@ -1,13 +1,13 @@
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { Component, HostListener, inject } from '@angular/core';
+import { Component, HostListener, Inject, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MenuDialogComponent } from '../menu-dialog/menu-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-add-channel-dialog',
@@ -38,6 +38,8 @@ export class AddChannelDialogComponent {
   screenWidth = window.innerWidth;
   isSmallScreen = this.screenWidth < 800;
 
+  constructor() {}
+
   @HostListener('window:resize', ['$event'])
   onResize(event: Event): void {
     this.updateScreenWidth((event.target as Window).innerWidth);
@@ -52,11 +54,6 @@ export class AddChannelDialogComponent {
     this.isSmallScreen
       ? this.openBottomDialog()
       : this.openMiddleDialog();
-  }
-
-  onChannelFocus(): void {
-    this.channelFocused = true;
-    if (!this.channelName) this.channelName = 'Office-Team';
   }
 
   updateScreenWidth(width: number): void {

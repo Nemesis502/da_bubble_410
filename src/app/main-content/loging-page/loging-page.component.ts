@@ -137,18 +137,17 @@ export class LogingPageComponent {
     });
   }
 
-loginGuest() {
-  const isSmallScreen = window.innerWidth < 1000;
-  const targetRoute = isSmallScreen ? 'main-menu' : 'main';
+  loginGuest() {
+    const isSmallScreen = window.innerWidth < 1000;
+    const targetRoute = isSmallScreen ? 'main-menu' : 'main';
 
-  this.router.navigate([targetRoute], {
-    state: {
-      loginEmail: 'email@beispiel.com',
-      loginId: 'Guest'
-    }
-  });
-}
-
+    this.router.navigate([targetRoute], {
+      state: {
+        loginEmail: 'email@beispiel.com',
+        loginId: 'Guest'
+      }
+    });
+  }
 
   updateErrorLogIn() {
     if (this.LogInError) {
