@@ -35,7 +35,7 @@ export class MainContentComponent {
   readonly searchService = inject(SearchService);
 
   // Holds the current logged-in user
-  currentUser = signal<appUser | null>(null); 
+  currentUser = signal<appUser | null>(null);
   channels: any[] = [];
   userChannels: any[] = [];
   currentChatId: string | null = null;
@@ -124,27 +124,15 @@ export class MainContentComponent {
       : [...channels];
 
     this.searchService.setFirestoreChannels(channels);
-    this.autoSelectFirstChannel();
+    this.showNewMessageOnLoad();
   }
 
-  // Automatically selects the first channel for desktop view or navigates for mobile
-  autoSelectFirstChannel(): void {
-    if (!this.userChannels.length) {
-      console.warn('Keine userChannels gefunden.');
+  // Automatically shows New Message on load 
+  showNewMessageOnLoad(): void {
+      this.showNewMessage = true;
       return;
     }
 
-    const firstId = this.userChannels[0].channelId ?? this.userChannels[0].id ?? null;
-    if (!firstId) return;
-
-    if (window.innerWidth >= 800) {
-      this.currentChatId = firstId;
-      this.showThread = false;
-      this.currentThreadId = null;
-    } else {
-      this.router.navigate(['/chat-container', firstId]);
-    }
-  }
 
   // Sets up guest user object
   loadGuestData(): void {
