@@ -6,48 +6,35 @@
     @if (!isSmallScreen) {
     <section class="devspace-header">
       <div>
-        <img src="./assets/img/workspace-logo.png" alt="" />
+        <img src="./assets/img/workspace-logo.png" alt="Workspace Logo" />
         <p class="nuito24px700">Devspace</p>
       </div>
-      <button
-        class="new-chat-btn-big"
-        aria-label="Neuen Chat starten"
-        (click)="openNewMessage()"
-      >
+      <button class="new-chat-btn-big" aria-label="Neuen Chat starten" (click)="openNewMessage()">
         <img src="./assets/img/menu/new-chat.png" alt="" />
       </button>
     </section>
     }
     <section class="menu-item">
-      @if (isSearchActive && isSmallScreen) {
+      @if (isSmallScreen) {
+      @if (isSearchActive) {
       <section class="search-header">
         <span class="nuito18px700">Suche</span>
-        <button
-          mat-icon-button
-          aria-label="Suche beenden"
-          (click)="closeSearch()"
-        >
+        <button mat-icon-button aria-label="Suche beenden" (click)="closeSearch()">
           <mat-icon fontIcon="close"></mat-icon>
         </button>
       </section>
-      } @if (isSmallScreen) {
+      }
       <form class="search-form" role="search">
         <mat-form-field appearance="fill" class="search-full-width">
-          <input
-            matInput
-            placeholder="Gehe zu..."
-            [(ngModel)]="searchTerm"
-            name="searchTerm"
-            aria-label="Suchfeld Gehe zu"
-            (ngModelChange)="updateFilteredResults()"
-          />
+          <input matInput placeholder="Gehe zu..." [(ngModel)]="searchTerm" name="searchTerm"
+            aria-label="Suchfeld Gehe zu" (ngModelChange)="updateFilteredResults()" />
           <mat-icon matSuffix aria-hidden="true">search</mat-icon>
         </mat-form-field>
       </form>
       }
       <section class="menu-list">
-        @if (isSearchActive && isSmallScreen) { @if (filteredChannels.length >
-        0) {
+        @if (isSearchActive && isSmallScreen) {
+        @if (filteredChannels.length > 0) {
         <section class="channels">
           <div class="channel-list search" id="channel-list">
             @for (channel of filteredChannels; track channel.channelId) {
@@ -58,76 +45,62 @@
             }
           </div>
         </section>
-        } @if (filteredDirectMessages.length > 0) {
+        }
+        @if (filteredDirectMessages.length > 0) {
         <section class="direct-message">
           <div class="message-list search" id="direct-messages">
-            @if (gastLogin) { @for (user of filteredDirectMessages; track
-            user.name) {
+            @if (gastLogin) {
+            @for (user of filteredDirectMessages; track user.name) {
             <div class="message-item">
-              <img
-                src="./assets/img/avatar/{{ user.img }}"
-                alt="Avatar von {{ user.name }}"
-              />
+              <img src="./assets/img/avatar/{{ user.img }}" alt="Avatar von {{ user.name }}" />
               <div class="status {{ user.status }}"></div>
               <p class="nuito17px400">{{ user.name }}</p>
             </div>
-            } } @else { @for (user of filteredDirectMessages; track user.id) {
+            }
+            } @else {
+            @for (user of filteredDirectMessages; track user.id) {
             <div class="message-item">
-              <img
-                src="./assets/img/avatar/{{ user.profilePic }}.png"
-                alt="Avatar von {{ user.userName }}"
-              />
-              <div
-                class="status {{ user.status ? 'online' : 'offline' }}"
-              ></div>
+              <img src="./assets/img/avatar/{{ user.profilePic }}.png" alt="Avatar von {{ user.userName }}" />
+              <div class="status {{ user.status ? 'online' : 'offline' }}"></div>
               <p class="nuito17px400">{{ user.userName }}</p>
             </div>
-            } }
+            }
+            }
           </div>
         </section>
-        } } @if (!isSearchActive) {
+        }
+        }
+        @if (!isSearchActive) {
         <section class="channels">
           <div class="header">
-            <button
-              type="button"
-              class="title"
-              (click)="showChannels = !showChannels"
-              [attr.aria-expanded]="showChannels"
-              aria-controls="channel-list"
-              aria-label="Channels ein- oder ausklappen"
-            >
-              <mat-icon
-                fontIcon="{{
-                  showChannels ? 'arrow_drop_down' : 'arrow_right'
-                }}"
-              ></mat-icon>
+            <button type="button" class="title" (click)="showChannels = !showChannels"
+              [attr.aria-expanded]="showChannels" aria-controls="channel-list"
+              aria-label="Channels ein- oder ausklappen">
+              <mat-icon fontIcon="{{ showChannels ? 'arrow_drop_down' : 'arrow_right' }}"></mat-icon>
               <mat-icon fontIcon="workspaces_outline"></mat-icon>
               <h2 class="nuito27px">Channels</h2>
             </button>
-            <button
-              class="add-btn"
-              matMiniFab
-              aria-label="Channel hinzufügen"
-              (click)="addChannel()"
-            >
+            <button class="add-btn" matMiniFab aria-label="Channel hinzufügen" (click)="addChannel()">
               <mat-icon mat-icon-button fontIcon="add"></mat-icon>
             </button>
           </div>
           @if (showChannels) {
           <div class="channel-list" id="channel-list">
-            @if (gastLogin) { @for (channel of
-            channelDirectMessageData.getChannels(); track channel) {
-
+            @if (gastLogin) {
+            @for (channel of channelDirectMessageData.getChannels(); track channel) {
             <div class="channel-item" (click)="selectGuestChannel(channel)">
               <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
               <p class="nuito17px400">{{ channel.name }}</p>
             </div>
-            } } @else { @for (channel of userChannels; track channel.id) {
+            }
+            } @else {
+            @for (channel of userChannels; track channel.id) {
             <div class="channel-item" (click)="selectChannel(channel)">
               <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
               <p class="nuito17px400">{{ channel.name }}</p>
             </div>
-            } }
+            }
+            }
             <div class="channel-item channel-item-add" (click)="addChannel()">
               <mat-icon fontIcon="add_circle_outline"></mat-icon>
               <p class="nuito17px400">Channel hinzufügen</p>
@@ -137,73 +110,44 @@
         </section>
         <section class="direct-message">
           <div class="header">
-            <button
-              type="button"
-              class="title"
-              (click)="showDirectMessages = !showDirectMessages"
-              [attr.aria-expanded]="showDirectMessages"
-              aria-controls="direct-messages"
-              aria-label="Direktnachrichten ein- oder ausklappen"
-            >
-              <mat-icon
-                fontIcon="{{
-                  showDirectMessages ? 'arrow_drop_down' : 'arrow_right'
-                }}"
-              ></mat-icon>
-              <mat-icon fontSet="material-icons-outlined"
-                >account_circle</mat-icon
-              >
+            <button type="button" class="title" (click)="showDirectMessages = !showDirectMessages"
+              [attr.aria-expanded]="showDirectMessages" aria-controls="direct-messages"
+              aria-label="Direktnachrichten ein- oder ausklappen">
+              <mat-icon fontIcon="{{ showDirectMessages ? 'arrow_drop_down' : 'arrow_right' }}"></mat-icon>
+              <mat-icon fontSet="material-icons-outlined">account_circle</mat-icon>
               <h2 class="nuito27px">Direktnachrichten</h2>
             </button>
           </div>
           @if (showDirectMessages) {
           <div class="message-list" id="direct-messages">
-            @if (isGuestUser) { @for (user of
-            channelDirectMessageData.getDirectMessagesForGast(); track
-            user.name) {
+            @if (isGuestUser) {
+            @for (user of channelDirectMessageData.getDirectMessagesForGast(); track user.name) {
             <div class="message-item" (click)="selectDirectMessageGast(user)">
-              <img
-                src="./assets/img/avatar/{{ user.img }}"
-                alt="Avatar von {{ user.name }}"
-              />
+              <img src="./assets/img/avatar/{{ user.img }}" alt="Avatar von {{ user.name }}" />
               <div class="status {{ user.status }}"></div>
-              <p class="nuito17px400">{{ user.name }}</p>
-              @if (currentUser?.id === user.id) {(Du)}
+              <p class="nuito17px400">{{ user.name }} @if(currentUser?.id === user.id) {(Du)}</p>
             </div>
-            } } @else { @for (user of allDirectMessages; track user.id) {
+            }
+            } @else {
+            @for (user of allDirectMessages; track user.id) {
             <div class="message-item" (click)="selectDirectMessage(user)">
-              <img
-                src="./assets/img/avatar/{{ user.profilePic }}.png"
-                alt="Avatar von {{ user.userName }}"
-              />
-              <div
-                class="status {{ user.status ? 'online' : 'offline' }}"
-              ></div>
-              <p class="nuito17px400">
-                {{ user.userName }}
-                @if (currentUser?.id === user.id) {(Du)}
-              </p>
+              <img src="./assets/img/avatar/{{ user.profilePic }}.png" alt="Avatar von {{ user.userName }}" />
+              <div class="status {{ user.status ? 'online' : 'offline' }}"></div>
+              <p class="nuito17px400">{{ user.userName }} @if(currentUser?.id === user.id) {(Du)}</p>
             </div>
-            } }
+            }
+            }
           </div>
           }
         </section>
-        } @if (isSmallScreen) {
-        <button
-          (click)="openNewMessage()"
-          class="new-chat-btn"
-          mat-icon-button
-          aria-label="Neuen Chat starten"
-        >
-          <img
-            src="./assets/img/menu/new-chat-white.png"
-            alt=""
-            aria-hidden="true"
-          />
-        </button>
         }
       </section>
     </section>
+    @if (isSmallScreen) {
+    <button (click)="openNewMessage()" class="new-chat-btn" mat-icon-button aria-label="Neuen Chat starten">
+      <img src="./assets/img/menu/new-chat-white.png" alt="" aria-hidden="true" />
+    </button>
+    }
   </section>
 </section>
 @if (isSmallScreen) {
