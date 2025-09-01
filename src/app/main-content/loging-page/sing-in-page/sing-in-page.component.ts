@@ -21,10 +21,9 @@ import { AuthService } from '../../../shared/services/auth.service';
   ],
 })
 export class SingInPageComponent {
-  strongPasswordRegx: RegExp =
-    /^(?=[^A-Z]*[A-Z])(?=[^a-z]*[a-z])(?=\D*\d).{8,}$/;
-  text = new FormControl('', [Validators.required]);
-  email = new FormControl('', [Validators.required, Validators.email]);
+  strongPasswordRegx: RegExp = /^.{6,}$/;
+  text = new FormControl('', [Validators.required, Validators.pattern(/^\S{6,}$/)]);
+  email = new FormControl('', [Validators.required, Validators.email, Validators.pattern(/^[^\s@]+@(?:[^\s@]+\.)+[A-Za-z]{2,}$/)]);
   password = new FormControl('', [Validators.required, Validators.pattern(this.strongPasswordRegx)]);
   hide = true;
   checkedPrivacy = false;
@@ -47,8 +46,8 @@ export class SingInPageComponent {
   }
 
   updateErrorMessageName() {
-    if (this.text.hasError('required')) {
-      this.errorMessageName = 'Bitte schreiben sie einen Namen.';
+    if (this.text.hasError('required') || this.text.hasError('pattern')) {
+      this.errorMessageName = 'Bitte schreiben sie Ihren Vor- und Nachnamen.';
     } else {
       this.errorMessageName = '';
     }
@@ -57,7 +56,7 @@ export class SingInPageComponent {
   updateErrorMessageEmail() {
     if (this.email.hasError('required')) {
       this.errorMessageEmail = 'Du musst eine E-Mail-Adresse eintragen';
-    } else if (this.email.hasError('email')) {
+    } else if (this.email.hasError('email') || this.email.hasError('pattern')) {
       this.errorMessageEmail = 'Keine gültige E-Mail-Adresse';
     } else if (this.email.hasError('emailExists')) {
       this.errorMessageEmail = 'Diese E-Mail ist bereits registriert.';
@@ -70,7 +69,7 @@ export class SingInPageComponent {
     if (this.password.hasError('required')) {
       this.errorMessagePassword = 'Bitte geben Sie ein Passwort ein';
     } else if (this.password.hasError('pattern')) {
-      this.errorMessagePassword = 'Passwort muss mindestens 8 Zeichen lang sein, eine Zahl, ein Groß- und Kleinbuchstaben enthalten';
+      this.errorMessagePassword = 'Passwort muss mindestens 6 Zeichen lang sein.';
     }
     else {
       this.errorMessagePassword = '';

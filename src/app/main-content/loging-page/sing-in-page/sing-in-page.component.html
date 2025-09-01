@@ -66,7 +66,7 @@
         />
         @if (email.hasError('required')) {
         <mat-error>Du musst eine E-Mail-Adresse eintragen</mat-error>
-        } @else if (email.hasError('email')) {
+        } @else if (email.hasError('email') || email.hasError('pattern')) {
         <mat-error>Keine gültige E-Mail-Adresse</mat-error>
         } @else if (email.hasError('emailExists')) {
         <mat-error>Diese E-Mail ist bereits registriert.</mat-error>
@@ -109,7 +109,7 @@
 
       <div class="button-container">
         <button
-          [disabled]="!checkedPrivacy"
+          [disabled]="!checkedPrivacy "
           (click)="checkFormular()"
           mat-flat-button
           class="nuito18px700 h49px login-button"
