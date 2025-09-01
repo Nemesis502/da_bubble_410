@@ -1,16 +1,13 @@
 @use "./../../../styles.scss" as *;
 
-// app-logo {
-//     width: 100%;
-// }
-
 .privacy-policy {
     display: flex;
     flex-direction: column;
-    max-width: 600px;
-    margin: 10% auto;
-    background-color: white;
-    border-radius: 30px;
+    max-width: 1440px;
+    margin: 75px 0;
+    padding: 0 75px;
+    box-sizing: border-box;
+
 
     h1 {
         font-size: 46px;
@@ -18,6 +15,10 @@
 
     h2 {
         font-size: 32px;
+    }
+
+    h3 {
+        font-size: 28px;
     }
 
     a {
@@ -31,9 +32,20 @@
     }
 
     p {
-        font-size: 20px;
+        font-size: 26px;
         font-weight: 400;
         margin-block: 16px;
+        line-height: normal;
+    }
+
+    li {
+        font-size: 26px;
+        margin-bottom: 8px;
+        line-height: normal;
+    }
+
+    ul {
+        word-break: break-word;
     }
 }
 
@@ -82,6 +94,8 @@
     flex-direction: column;
     padding: 40px;
     gap: 32px;
+    background-color: white;
+    border-radius: 30px;
 }
 
 .privacy-policy-section {
@@ -114,18 +128,19 @@
 
 @media (max-width: 630px) {
     .privacy-policy {
+        padding: 0;
         margin-inline: 5%;
 
         h1 {
-            font-size: 24px;
+            font-size: 28px;
         }
 
         h2 {
-            font-size: 20px;
+            font-size: 24px;
         }
 
         h3 {
-            font-size: 18px;
+            font-size: 22px;
         }
 
         a {
@@ -133,7 +148,12 @@
         }
 
         p {
-            font-size: 16px;
+            font-size: 24px;
+            word-break: break-word;
+        }
+
+        ul {
+            word-break: break-word;
         }
     }
 }
@@ -153,6 +173,8 @@
 
 @media (max-width: 350px) {
     .privacy-policy {
+        padding: 0;
+
         h1 {
             font-size: 20px;
         }
@@ -166,11 +188,17 @@
         }
 
         p {
-            font-size: 14px;
+            font-size: 20px;
+            word-break: break-word;
         }
 
         ul {
             padding-left: 15px;
+        }
+
+        li {
+            font-size: 24px;
+            word-break: break-word;
         }
     }
 }
