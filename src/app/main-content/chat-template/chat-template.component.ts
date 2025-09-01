@@ -6,6 +6,7 @@ import {
   HostListener,
   inject,
   Input,
+  NgZone,
   OnInit,
   Output,
   SimpleChanges,
@@ -101,7 +102,8 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
 
   constructor(
     private firestoreService: FirestoreService,
-    private hostEl: ElementRef
+    private hostEl: ElementRef,
+    private ngZone: NgZone
   ) {}
 
   // ----------------------- Lifecycle Hooks -----------------------
@@ -151,6 +153,9 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
       onPickerPosition: (val) => (this.pickerPosition = val),
     });
     this.chatUIService.fetchAllChannels();
+    setTimeout(() => {
+      this.scrollToBottom();
+    }, 500);
   }
 
   // ----------------------- Helper Methods -----------------------
@@ -164,12 +169,18 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
   // Handle @Input changes for chatId or chatType
   async ngOnChanges(changes: SimpleChanges) {
     this.fetchChannelMembers();
+
     if (changes['chatId'] && this.chatId) {
       await this.initializeChatBasedOnThreadOrChatId();
     }
+
     if (changes['chatType'] && this.chatType) {
       await this.initializeChatType();
     }
+
+    setTimeout(() => {
+      this.scrollToBottom();
+    }, 500);
   }
 
   // ----------------------- Initialization Helpers -----------------------
@@ -218,7 +229,7 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
     this.messages = [];
     this.chatIsConversation = isConversation;
     this.chatIsChannel = !isConversation;
-    this.chatUIService.scrollToBottom();
+    this.scrollToBottom();
   }
 
   // Update component state when a guest channel is selected
@@ -233,7 +244,7 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
     );
     this.members = this.guestService.mapChannelMembers(channel);
     this.chatIsChannel = true;
-    this.chatUIService.scrollToBottom();
+    this.scrollToBottom();
   }
 
   // ----------------------- Message Handling -----------------------
@@ -280,7 +291,7 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
       this.chatIsChannel = false;
       this.chatIsConversation = false;
       this.chatService.openThread(messageId);
-      this.chatUIService.scrollToBottom();
+      this.scrollToBottom();
     }
   }
 
@@ -290,7 +301,7 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
     if (this.isMobile) {
       this.chatService.closeThread();
       this.isThreadView = false;
-      this.chatUIService.scrollToBottom();
+      this.scrollToBottom();
     } else {
       this.threadClosed.emit();
     }
@@ -398,5 +409,26 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
       () => this.chatMessage,
       (msg) => (this.chatMessage = msg)
     );
+  }
+
+  /**
+   * Scrolls the chat container to the bottom.
+   * Ensures the latest messages are visible and focuses the input.
+   */
+  scrollToBottom(): void {
+    if (!this.chatBodyRef) return;
+    requestAnimationFrame(() => {
+      const container = this.chatBodyRef.nativeElement;
+      container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+      this.focusChatInput();
+    });
+  }
+
+  /**
+   * Focuses the chat input field.
+   * Useful after scrolling or inserting emojis/mentions.
+   */
+  focusChatInput() {
+    if (this.chatFieldRef) this.chatFieldRef.nativeElement.focus();
   }
 }

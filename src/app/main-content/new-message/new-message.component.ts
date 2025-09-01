@@ -137,7 +137,7 @@ export class NewMessageComponent implements OnInit {
     if (!this.canSendMessage()) return;
 
     const { user, channel } = this.getMessageTarget();
-    const senderId = this.currentUser!.id; // safe now because canSendMessage guarantees it's defined
+    const senderId = this.currentUser!.id; 
 
     await this.sendToTarget(senderId, user, channel);
     this.resetMessage();

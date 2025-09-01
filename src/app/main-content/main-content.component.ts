@@ -14,6 +14,7 @@ import { SessionService } from '../shared/services/currentUserSession.service';
 import { SearchService } from '../shared/services/search.service';
 import { FirestoreService } from '../shared/services/firestore.service';
 import { UserService } from '../shared/services/user.services';
+import { NewMessageSendingService } from '../shared/services/new-message-sending.service';
 
 @Component({
   selector: 'app-main-content',
@@ -54,11 +55,24 @@ export class MainContentComponent {
     private userSession: SessionService,
     private router: Router,
     private userService: UserService,
-    private firestoreService: FirestoreService
+    private firestoreService: FirestoreService,
+    private newMessageService: NewMessageSendingService
   ) {
     // Initializes login data from router state
     this.initializeLogin();
     this.handleResize();
+
+  this.newMessageService.chatSelected.subscribe((chatId) => {
+    this.onChatSelected(chatId);
+  });
+
+  this.newMessageService.chatTypeSelected.subscribe((type) => {
+    this.onChatTypeSelected(type);
+  });
+
+  this.newMessageService.closeNewMessage.subscribe(() => {
+    this.closeNewMessage();
+  });
   }
 
   // Sets up current user login info from router navigation state
@@ -88,7 +102,7 @@ export class MainContentComponent {
     this.handleResize();
   }
 
- // Listen for window resize events
+  // Listen for window resize events
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
     this.handleResize();
@@ -100,10 +114,8 @@ export class MainContentComponent {
     this.isSmallScreen = window.innerWidth < 800;
 
     if (this.isSmallScreen && !wasSmallScreen) {
-      // Switch to mobile route
       this.router.navigate(['/main-menu']);
     } else if (!this.isSmallScreen && wasSmallScreen) {
-      // Switch to desktop route
       this.router.navigate(['/main']);
     }
   }
@@ -177,10 +189,11 @@ export class MainContentComponent {
   // Sets the currently selected chat and resets thread view
   onChatSelected(chatId: string): void {
     this.currentChatId = chatId;
+    this.showNewMessage = false;
     this.showThread = false;
     this.currentThreadId = null;
+    console.log(this.currentChatId);
   }
-
   // Opens a thread for the given thread ID
   openThread(threadId: string): void {
     this.currentThreadId = threadId;

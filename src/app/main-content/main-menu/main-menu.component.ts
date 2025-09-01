@@ -146,10 +146,8 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     this.isSmallScreen = window.innerWidth < 800;
 
     if (this.isSmallScreen && !wasSmallScreen) {
-      // Switch to mobile route
       this.router.navigate(['/main-menu']);
     } else if (!this.isSmallScreen && wasSmallScreen) {
-      // Switch to desktop route
       this.router.navigate(['/main']);
     }
   }
