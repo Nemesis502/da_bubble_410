@@ -192,7 +192,7 @@ enrichMessage(contextId: string, message: any): Observable<EnrichedMessage> {
       ...message,
       formattedTime: this.formatTimestamp(message.timestamp),
       username: userDetails?.userName || 'Unknown User',
-      avatar: userDetails?.profilePic || 'default-avatar.png',
+      avatar: userDetails?.profilePic || '1',
       reactions: reactions,
       answersCount,
       lastAnswerTime: lastAnswer ? this.formatTimestamp(lastAnswer.timestamp) : null,

@@ -192,7 +192,6 @@ export class MainContentComponent {
     this.showNewMessage = false;
     this.showThread = false;
     this.currentThreadId = null;
-    console.log(this.currentChatId);
   }
   // Opens a thread for the given thread ID
   openThread(threadId: string): void {
