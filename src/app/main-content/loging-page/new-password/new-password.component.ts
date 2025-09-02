@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { confirmPasswordValidator } from '../../../shared/services/confirm-password.validator';
 import { AuthService } from '../../../shared/services/auth.service';
+import { ConfirmErrorStateMatcher } from './confirm-error-state.matcher';
 
 @Component({
   selector: 'app-new-password',
@@ -19,19 +20,18 @@ import { AuthService } from '../../../shared/services/auth.service';
   styleUrls: ['./new-password.component.scss', './new-password.componen-media-query.scss']
 })
 export class NewPasswordComponent {
-
+  private route = inject(ActivatedRoute);
   strongPasswordRegx: RegExp = /^.{6,}$/;
+  oobCode: string | null = null;
+  animation = false;
+  hide = true;
+
   passwordForm: FormGroup = new FormGroup({
     password: new FormControl<string>('', [Validators.required, Validators.pattern(this.strongPasswordRegx)]),
     passwordContoll: new FormControl<string>('', [Validators.required]),
-  },
-    { validators: confirmPasswordValidator }
-  );
-  private route = inject(ActivatedRoute);
-  oobCode: string | null = null;
-  errorMessagePassword = '';
-  animation = false;
-  hide = true;
+  }, { validators: confirmPasswordValidator });
+
+  confirmMatcher = new ConfirmErrorStateMatcher();
 
   constructor(private renderer: Renderer2, private router: Router, private authService: AuthService) {
     this.route.queryParamMap.subscribe(params => {
