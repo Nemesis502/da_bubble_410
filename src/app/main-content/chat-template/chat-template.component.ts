@@ -77,7 +77,7 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
   @ViewChild('chatBody') private chatBodyRef!: ElementRef;
 
   // ----------------------- Component State -----------------------
-  currentUser: appUser | null = null;
+  currentUser: appUser | null = this.userSession.getCurrentUser();
   otherUser: appUser | null = null;
   selectedChannel: any = null;
   chatMessage = '';
@@ -152,6 +152,9 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
       onEmojiPickerVisible: (val) => (this.emojiPickerVisible = val),
       onPickerPosition: (val) => (this.pickerPosition = val),
     });
+    this.userSession.currentUser$.subscribe((user) => {
+      this.currentUser = user;
+    });
     this.chatUIService.fetchAllChannels();
     setTimeout(() => {
       this.scrollToBottom();
@@ -162,7 +165,6 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
 
   /** Initialize current user and check if screen is mobile */
   private initializeUserAndScreen(): void {
-    this.currentUser = this.userSession.getCurrentUser();
     this.isMobile = this.width < 999;
   }
 

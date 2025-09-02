@@ -1,28 +1,30 @@
-import { Injectable } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
-import { appUser } from "../../interfaces/user.interface";
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+import { appUser } from '../../interfaces/user.interface';
 
 @Injectable({ providedIn: 'root' })
 export class SessionService {
-    currentUser: appUser | null = null;
-    private currentLogingUser = new BehaviorSubject<appUser | null>(null);
-    currentLogingUser$ = this.currentLogingUser.asObservable();
+  currentUser: appUser | null = null;
+  private currentLogingUser = new BehaviorSubject<appUser | null>(null);
+  currentLogingUser$ = this.currentLogingUser.asObservable();
+  currentUser$ = new BehaviorSubject<appUser | null>(null);
 
-    setCurrentUser(currentUser: appUser) {
-        this.currentLogingUser.next(currentUser);
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    }
+  setCurrentUser(currentUser: appUser) {
+    this.currentLogingUser.next(currentUser);
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    this.currentUser$.next(currentUser);
+  }
 
-    getCurrentUser(): appUser | null {
-        const local = localStorage.getItem('currentUser');
-        if (local && !this.currentLogingUser.value) {
-            this.currentLogingUser.next(JSON.parse(local));
-        }
-        return this.currentLogingUser.value;
+  getCurrentUser(): appUser | null {
+    const local = localStorage.getItem('currentUser');
+    if (local && !this.currentLogingUser.value) {
+      this.currentLogingUser.next(JSON.parse(local));
     }
+    return this.currentLogingUser.value;
+  }
 
-    setBehaviorNull() {
-        this.currentLogingUser.next(null);
-        localStorage.removeItem('currentUser');
-    }
+  setBehaviorNull() {
+    this.currentLogingUser.next(null);
+    localStorage.removeItem('currentUser');
+  }
 }
