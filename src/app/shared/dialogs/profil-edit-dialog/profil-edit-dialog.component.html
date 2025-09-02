@@ -22,7 +22,7 @@
     <button mat-button class="cancel btn" aria-label="Profil änderung schließen" (click)="closeDialog()">
       <span>Abbrechen</span>
     </button>
-    <button mat-button class="save btn" aria-label="Profil speichern" (click)="saveUserName()">
+    <button mat-button class="save btn" aria-label="Profil speichern" (click)="saveUserName()" [disabled]="!newName.trim()">
       <span>Speichern</span>
     </button>
   </mat-card-content>
