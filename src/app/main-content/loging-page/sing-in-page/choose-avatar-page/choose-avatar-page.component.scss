@@ -1,12 +1,20 @@
 @use "./../../../../../styles.scss" as *;
 
 .logIn-Section {
-    margin: 87px 16px 0 16px;
+    margin: 87px 0 0 0;
+    max-width: 1440px;
+    width: 100%;
+    padding: 0 16px;
+    box-sizing: border-box;
 }
 
 .header-desktop {
-    margin: 75px 75px 0 75px;
+    margin: 75px 0 0 0;
+    padding: 0 75px;
+    box-sizing: border-box;
     display: none;
+    max-width: 1440px;
+    width: 100%;
 }
 
 .logo-container-mobile {
@@ -266,7 +274,7 @@ form {
     }
 
     &:hover {
-        border-color: $LightPurple  !important;
+        border-color: $LightPurple !important;
         cursor: pointer;
 
         a {

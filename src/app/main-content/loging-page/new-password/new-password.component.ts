@@ -20,9 +20,7 @@ import { AuthService } from '../../../shared/services/auth.service';
 })
 export class NewPasswordComponent {
 
-  strongPasswordRegx: RegExp =
-    /^(?=[^A-Z]*[A-Z])(?=[^a-z]*[a-z])(?=\D*\d).{8,}$/;
-
+  strongPasswordRegx: RegExp = /^.{6,}$/;
   passwordForm: FormGroup = new FormGroup({
     password: new FormControl<string>('', [Validators.required, Validators.pattern(this.strongPasswordRegx)]),
     passwordContoll: new FormControl<string>('', [Validators.required]),
@@ -43,7 +41,6 @@ export class NewPasswordComponent {
 
   async sendNewPassword() {
     if (!this.oobCode) {
-      console.error('oobCode fehlt.');
       return;
     }
     let newPassword = this.passwordForm.value.password;

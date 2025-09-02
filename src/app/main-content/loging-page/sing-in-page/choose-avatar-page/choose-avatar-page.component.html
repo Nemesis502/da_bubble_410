@@ -1,90 +1,92 @@
-<header class="header-desktop">
-  <div class="logo-container-desktop">
-    <img src="./../../../assets/img/logo.png" alt="" />
-    <div>
-      <h1 class="nuito27px">DABubble</h1>
-    </div>
-  </div>
-</header>
-
-<section class="flex-collum-center logIn-Section">
-  <div class="logo-container-mobile">
-    <img src="./../../../assets/img/logo.png" alt="" />
-    <div class="nuito27px"><h1>DABubble</h1></div>
-  </div>
-
-  <section class="input-section">
-    <div class="flex-collum-center input-title">
-      <div class="input-headline">
-        <div class="arrow-img">
-          <img
-            class="default-arrows"
-            src="./../../../../assets/img/back.png"
-            alt=""
-          />
-          <img
-            class="hover-arrows"
-            (click)="previousPage()"
-            src="./../../../../assets/img/back_hover.png"
-            alt=""
-          />
-        </div>
-        <div class="input-h2">
-          <h2 class="nuito32px700">Wähle deinen Avatar</h2>
-        </div>
+<section class="flex-collum-center">
+  <header class="header-desktop">
+    <div class="logo-container-desktop">
+      <img src="./../../../assets/img/logo.png" alt="" />
+      <div>
+        <h1 class="nuito27px">DABubble</h1>
       </div>
     </div>
-    <form class="input-container">
-      <div class="flex-collum-center avatar-container">
-        <div class="choosed-avatar">
-          <img
-            src="./../../../../../assets/img/avatar/{{ imgId }}.png"
-            alt=""
-          />
-        </div>
-        <div class="flex-collum-center choose-container">
-          <h2 class="nuito32px700">{{ userName }}</h2>
-          <p>Aus der Liste wählen</p>
-          <div class="img-container">
-            @for (img of imgArray; track imgArray){
-            <div class="avatars">
-              <img
-                (click)="chooseImg(img.id)"
-                src="./../../../../../assets/img/avatar/{{ img.id }}.png"
-                alt=""
-              />
-            </div>
-            }
+  </header>
+
+  <section class="flex-collum-center logIn-Section">
+    <div class="logo-container-mobile">
+      <img src="./../../../assets/img/logo.png" alt="" />
+      <div class="nuito27px"><h1>DABubble</h1></div>
+    </div>
+
+    <section class="input-section">
+      <div class="flex-collum-center input-title">
+        <div class="input-headline">
+          <div class="arrow-img">
+            <img
+              class="default-arrows"
+              src="./../../../../assets/img/back.png"
+              alt=""
+            />
+            <img
+              class="hover-arrows"
+              (click)="previousPage()"
+              src="./../../../../assets/img/back_hover.png"
+              alt=""
+            />
+          </div>
+          <div class="input-h2">
+            <h2 class="nuito32px700">Wähle deinen Avatar</h2>
           </div>
         </div>
       </div>
-      <div class="button-container">
-        <a (click)="sendNewProfil()">
-          <button mat-flat-button class="nuito18px700 h49px login-button">
-            Weiter
-          </button>
-        </a>
+      <form class="input-container">
+        <div class="flex-collum-center avatar-container">
+          <div class="choosed-avatar">
+            <img
+              src="./../../../../../assets/img/avatar/{{ imgId }}.png"
+              alt=""
+            />
+          </div>
+          <div class="flex-collum-center choose-container">
+            <h2 class="nuito32px700">{{ userName }}</h2>
+            <p>Aus der Liste wählen</p>
+            <div class="img-container">
+              @for (img of imgArray; track imgArray){
+              <div class="avatars">
+                <img
+                  (click)="chooseImg(img.id)"
+                  src="./../../../../../assets/img/avatar/{{ img.id }}.png"
+                  alt=""
+                />
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="button-container">
+          <a (click)="sendNewProfil()">
+            <button mat-flat-button class="nuito18px700 h49px login-button">
+              Weiter
+            </button>
+          </a>
+        </div>
+      </form>
+    </section>
+    <footer class="footer-desktop">
+      <div class="link-container">
+        <a class="figtree18px400" routerLink="/legalNotice">Impressum</a>
       </div>
-    </form>
+      <div class="link-container">
+        <a class="figtree18px400" routerLink="/privacyPolicy">Datenschutz</a>
+      </div>
+    </footer>
+    @if (animation) {
+    <div class="overlay">
+      <div
+        [ngClass]="{ 'animation-RightToLeft': animation }"
+        class="creation-container"
+      >
+        <div class="creation-content flex-collum-center">
+          <h2>Konto erfolgreich erstellt!</h2>
+        </div>
+      </div>
+    </div>
+    }
   </section>
-  <footer class="footer-desktop">
-    <div class="link-container">
-      <a class="figtree18px400" routerLink="/legalNotice">Impressum</a>
-    </div>
-    <div class="link-container">
-      <a class="figtree18px400" routerLink="/privacyPolicy">Datenschutz</a>
-    </div>
-  </footer>
-  @if (animation) {
-  <div class="overlay">
-    <div
-      [ngClass]="{ 'animation-RightToLeft': animation }"
-      class="creation-container"
-    >
-      <div class="creation-content flex-collum-center">
-        <h2>Konto erfolgreich erstellt!</h2>
-      </div>
-    </div>
-  </div>
-  }
 </section>

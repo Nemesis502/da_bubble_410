@@ -131,7 +131,6 @@ export class LogingPageComponent {
         });
       }
     }).catch((error) => {
-      console.error("Login fehlgeschlagen:", error.message);
       this.LogInError = true;
       this.updateErrorLogIn();
     });

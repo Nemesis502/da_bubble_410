@@ -1,130 +1,132 @@
-<header class="header-desktop">
-  <div class="logo-container-desktop">
-    <img src="./../../../assets/img/logo.png" alt="" />
-    <div>
-      <h1 class="nuito27px">DABubble</h1>
-    </div>
-  </div>
-</header>
-
-<section class="flex-collum-center logIn-Section">
-  <div class="logo-container-mobile">
-    <img src="./../../../assets/img/logo.png" alt="" />
-    <div class="nuito27px"><h1>DABubble</h1></div>
-  </div>
-
-  <section class="input-section">
-    <div class="flex-collum-center input-title">
-      <div class="input-headline">
-        <div class="arrow-img">
-          <img
-            class="default-arrows"
-            src="./../../../../assets/img/back.png"
-            alt=""
-          />
-          <img
-            class="hover-arrows"
-            routerLink="/"
-            src="./../../../../assets/img/back_hover.png"
-            alt=""
-          />
-        </div>
-        <div class="input-h2">
-          <h2 class="nuito32px700">Konto erstellen</h2>
-        </div>
+<section class="flex-collum-center">
+  <header class="header-desktop">
+    <div class="logo-container-desktop">
+      <img src="./../../../assets/img/logo.png" alt="" />
+      <div>
+        <h1 class="nuito27px">DABubble</h1>
       </div>
-      <p class="nuito17px400">
-        Mit deinem Namen und deiner E-Mail-Adresse hast du dein neues
-        DABubble-Konto.
-      </p>
     </div>
-    <form class="input-container">
-      <mat-form-field>
-        <mat-label>Name und Nachname</mat-label>
-        <mat-icon matPrefix>person</mat-icon>
-        <input
-          class="inputfield"
-          matInput
-          [formControl]="text"
-          (blur)="updateErrorMessageName()"
-          required
-        />
-        @if (text.invalid) {
-        <mat-error>{{ errorMessageName }}</mat-error>
-        }
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Deine E-Mail-Adresse</mat-label>
-        <mat-icon matPrefix>mail</mat-icon>
-        <input
-          class="inputfield"
-          matInput
-          placeholder="beispielname@email.com"
-          [formControl]="email"
-          (blur)="updateErrorMessageEmail()"
-          required
-        />
-        @if (email.hasError('required')) {
-        <mat-error>Du musst eine E-Mail-Adresse eintragen</mat-error>
-        } @else if (email.hasError('email') || email.hasError('pattern')) {
-        <mat-error>Keine gültige E-Mail-Adresse</mat-error>
-        } @else if (email.hasError('emailExists')) {
-        <mat-error>Diese E-Mail ist bereits registriert.</mat-error>
-        }
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Passwort</mat-label>
-        <mat-icon matPrefix>lock</mat-icon>
-        <input
-          class="inputfield"
-          matInput
-          [type]="hide ? 'password' : 'text'"
-          [formControl]="password"
-          (blur)="updateErrorMessagePassword()"
-          required
-        />
-        @if (password.invalid) {
-        <mat-error>{{ errorMessagePassword }}</mat-error>
-        }
-      </mat-form-field>
-      <div class="checkbox-section">
-        <div class="checkbox-container">
-          <div>
-            <input (click)="acceptPrivacy()" type="checkbox" name="" id="" />
+  </header>
+
+  <section class="flex-collum-center logIn-Section">
+    <div class="logo-container-mobile">
+      <img src="./../../../assets/img/logo.png" alt="" />
+      <div class="nuito27px"><h1>DABubble</h1></div>
+    </div>
+
+    <section class="input-section">
+      <div class="flex-collum-center input-title">
+        <div class="input-headline">
+          <div class="arrow-img">
+            <img
+              class="default-arrows"
+              src="./../../../../assets/img/back.png"
+              alt=""
+            />
+            <img
+              class="hover-arrows"
+              routerLink="/"
+              src="./../../../../assets/img/back_hover.png"
+              alt=""
+            />
           </div>
-          <p class="openSans16px400">
-            Ich stimme der
-            <a class="figtree18px400" routerLink="/privacyPolicy"
-              >Datenschutzerklärung</a
-            >
-            zu.
-          </p>
+          <div class="input-h2">
+            <h2 class="nuito32px700">Konto erstellen</h2>
+          </div>
         </div>
-        @if (!checkedPrivacy && checkboxTouched) {
-        <mat-error
-          >Bitte stimme der Datenschutzerklärung zu um forzufahren!</mat-error
-        >
-        }
+        <p class="nuito17px400">
+          Mit deinem Namen und deiner E-Mail-Adresse hast du dein neues
+          DABubble-Konto.
+        </p>
       </div>
+      <form class="input-container">
+        <mat-form-field>
+          <mat-label>Name und Nachname</mat-label>
+          <mat-icon matPrefix>person</mat-icon>
+          <input
+            class="inputfield"
+            matInput
+            [formControl]="text"
+            (blur)="updateErrorMessageName()"
+            required
+          />
+          @if (text.invalid) {
+          <mat-error>{{ errorMessageName }}</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Deine E-Mail-Adresse</mat-label>
+          <mat-icon matPrefix>mail</mat-icon>
+          <input
+            class="inputfield"
+            matInput
+            placeholder="beispielname@email.com"
+            [formControl]="email"
+            (blur)="updateErrorMessageEmail()"
+            required
+          />
+          @if (email.hasError('required')) {
+          <mat-error>Du musst eine E-Mail-Adresse eintragen</mat-error>
+          } @else if (email.hasError('email') || email.hasError('pattern')) {
+          <mat-error>Keine gültige E-Mail-Adresse</mat-error>
+          } @else if (email.hasError('emailExists')) {
+          <mat-error>Diese E-Mail ist bereits registriert.</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Passwort</mat-label>
+          <mat-icon matPrefix>lock</mat-icon>
+          <input
+            class="inputfield"
+            matInput
+            [type]="hide ? 'password' : 'text'"
+            [formControl]="password"
+            (blur)="updateErrorMessagePassword()"
+            required
+          />
+          @if (password.invalid) {
+          <mat-error>{{ errorMessagePassword }}</mat-error>
+          }
+        </mat-form-field>
+        <div class="checkbox-section">
+          <div class="checkbox-container">
+            <div>
+              <input (click)="acceptPrivacy()" type="checkbox" name="" id="" />
+            </div>
+            <p class="openSans16px400">
+              Ich stimme der
+              <a class="figtree18px400" routerLink="/privacyPolicy"
+                >Datenschutzerklärung</a
+              >
+              zu.
+            </p>
+          </div>
+          @if (!checkedPrivacy && checkboxTouched) {
+          <mat-error
+            >Bitte stimme der Datenschutzerklärung zu um forzufahren!</mat-error
+          >
+          }
+        </div>
 
-      <div class="button-container">
-        <button
-          [disabled]="!checkedPrivacy "
-          (click)="checkFormular()"
-          mat-flat-button
-          class="nuito18px700 h49px login-button"
-        >
-          Weiter
-        </button>
+        <div class="button-container">
+          <button
+            [disabled]="!checkedPrivacy"
+            (click)="checkFormular()"
+            mat-flat-button
+            class="nuito18px700 h49px login-button"
+          >
+            Weiter
+          </button>
+        </div>
+      </form>
+    </section>
+    <footer class="footer-desktop">
+      <div class="link-container">
+        <a class="figtree18px400" routerLink="/legalNotice">Impressum</a>
       </div>
-    </form>
+      <div class="link-container">
+        <a class="figtree18px400" routerLink="/privacyPolicy">Datenschutz</a>
+      </div>
+    </footer>
   </section>
-  <footer class="footer-desktop">
-    <div class="link-container">
-      <a class="figtree18px400" routerLink="/legalNotice">Impressum</a>
-    </div>
-    <div class="link-container">
-      <a class="figtree18px400" routerLink="/privacyPolicy">Datenschutz</a>
-    </div>
-  </footer>
 </section>

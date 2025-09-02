@@ -22,7 +22,7 @@ import { AuthService } from '../../../shared/services/auth.service';
 })
 export class SingInPageComponent {
   strongPasswordRegx: RegExp = /^.{6,}$/;
-  text = new FormControl('', [Validators.required, Validators.pattern(/^\S{6,}$/)]);
+  text = new FormControl('', [Validators.required, Validators.pattern(/^.{6,}$/)]);
   email = new FormControl('', [Validators.required, Validators.email, Validators.pattern(/^[^\s@]+@(?:[^\s@]+\.)+[A-Za-z]{2,}$/)]);
   password = new FormControl('', [Validators.required, Validators.pattern(this.strongPasswordRegx)]);
   hide = true;

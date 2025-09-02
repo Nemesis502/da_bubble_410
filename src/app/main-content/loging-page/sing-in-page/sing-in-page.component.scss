@@ -14,12 +14,19 @@
 }
 
 .header-desktop {
-    margin: 75px 75px 0 75px;
+    margin: 75px 0 0 0;
+    padding: 0 75px;
+    box-sizing: border-box;
     display: none;
+    max-width: 1440px;
+    width: 100%;
 }
 
 .logIn-Section {
-    margin: 92px 16px 0 16px;
+    margin: 92px 0 0 0;
+    max-width: 1440px;
+    padding: 0 16px;
+    box-sizing: border-box;
 }
 
 .logo-container-mobile {
