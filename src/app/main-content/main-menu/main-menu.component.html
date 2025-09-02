@@ -78,7 +78,7 @@
               aria-label="Channels ein- oder ausklappen">
               <mat-icon fontIcon="{{ showChannels ? 'arrow_drop_down' : 'arrow_right' }}"></mat-icon>
               <mat-icon fontIcon="workspaces_outline"></mat-icon>
-              <h2 class="nuito27px">Channels</h2>
+              <h2 [ngClass]="{'nuito27px': isSmallScreen, 'nuito24px700': !isSmallScreen}">Channels</h2>
             </button>
             <button class="add-btn" matMiniFab aria-label="Channel hinzufügen" (click)="addChannel()">
               <mat-icon mat-icon-button fontIcon="add"></mat-icon>
@@ -115,8 +115,8 @@
               [attr.aria-expanded]="showDirectMessages" aria-controls="direct-messages"
               aria-label="Direktnachrichten ein- oder ausklappen">
               <mat-icon fontIcon="{{ showDirectMessages ? 'arrow_drop_down' : 'arrow_right' }}"></mat-icon>
-              <mat-icon fontSet="material-icons-outlined">account_circle</mat-icon>
-              <h2 class="nuito27px">Direktnachrichten</h2>
+              <mat-icon class="account-circle" fontSet="material-icons-outlined">account_circle</mat-icon>
+              <h2 [ngClass]="{'nuito27px': isSmallScreen, 'nuito24px700': !isSmallScreen}">Direktnachrichten</h2>
             </button>
           </div>
           @if (showDirectMessages) {
