@@ -288,6 +288,7 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
     if (!this.isMobile) {
       this.threadOpened.emit(messageId);
     } else {
+      console.log('opening for mobile')
       this.chatIsChannel = false;
       this.chatIsConversation = false;
       this.chatService.openThread(messageId);

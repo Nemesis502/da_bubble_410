@@ -2,20 +2,20 @@
   <section class="header">
     <button (click)="navigateToMain()" class="back-btn nuito18px700">
       <mat-icon class="mat-icon-top" fontIcon="arrow_back_ios_new"></mat-icon>
-      <img src="./assets/img/workspace-logo.png" />
+      <img src="assets/img/workspace-logo.png" />
       <p>Devspace</p>
     </button>
 
     <button class="profile-btn" (click)="openMenuDialog()">
       @if (currentUser?.profilePic) {
         <img
-          [src]="'./assets/img/avatar/' + currentUser?.profilePic + '.png'"
+          [src]="'assets/img/avatar/' + (currentUser?.profilePic || '1') + '.png'"
           alt="User Avatar"
           aria-hidden="true"
         />
       } @else {
         <img
-          src="./assets/img/avatar/0.png"
+          src="assets/img/avatar/0.png"
           alt="Default Avatar"
           aria-hidden="true"
         />
@@ -30,13 +30,13 @@
           <img
             (click)="openProfileDialogOtherUser()"
             class="other-user-avatar"
-            [src]="'./assets/img/avatar/' + otherUser?.profilePic + '.png'"
+            [src]="'assets/img/avatar/' + (otherUser?.profilePic || '1') + '.png'"
             alt="{{ otherUser?.userName }}'s avatar"
           />
         } @else {
           <img
             class="other-user-avatar"
-            src="./assets/img/avatar/0.png"
+            src="assets/img/avatar/0.png"
             alt="Default Avatar"
           />
         }
@@ -95,7 +95,7 @@
             @if (member) {
               <img
                 class="member-avatar"
-                [src]="'./assets/img/avatar/' + member.profilePic + '.png'"
+                [src]="'assets/img/avatar/' + (member?.profilePic || '1') + '.png'"
                 [alt]="member.userName + ' avatar'"
                 [title]="member.userName"
               />
@@ -156,7 +156,7 @@
       <div class="self-chat-placeholder">
         <div class="self-chat-info">
           <img
-            [src]="'./assets/img/avatar/' + currentUser?.profilePic + '.png'"
+             [src]="'assets/img/avatar/' + (currentUser?.profilePic || '1') + '.png'"
             alt="User Avatar"
             aria-hidden="true"
           />
@@ -177,7 +177,7 @@
       <div class="self-chat-placeholder">
         <div class="self-chat-info">
           <img
-            [src]="'./assets/img/avatar/' + otherUser?.profilePic + '.png'"
+            [src]="'assets/img/avatar/' + (otherUser?.profilePic || '1') + '.png'"
             alt="User Avatar"
             aria-hidden="true"
           />
@@ -220,7 +220,7 @@
             <div class="mention-user" (click)="selectMentionUser(user.userName)">
               <img
                 class="avatar"
-                [src]="'./../../../assets/img/avatar/' + user.profilePic + '.png'"
+                [src]="'assets/img/avatar/' + (user?.profilePic || '1') + '.png'"
                 alt="avatar"
               />
               <div
