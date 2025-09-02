@@ -2,10 +2,15 @@
   <!-- Thread header -->
   <section class="chat-header">
     <p class="channel-name nuito18px700">
-      Thread
-      <span class="channel-hash">#</span>
-      <span class="channel-name-thread">{{ selectedChannel?.name }}</span>
-    </p>
+  Thread
+  @if (chatService.isConversation) {
+    <span class="channel-hash">#</span>
+    <span class="channel-name-thread">{{ otherUser?.userName }}</span>
+  } @else {
+    <span class="channel-hash">#</span>
+    <span class="channel-name-thread">{{ selectedChannel?.name }}</span>
+  }
+</p>
     <button class="x-button" (click)="closeThreadView()" aria-label="Close Thread">
       <mat-icon fontIcon="close"></mat-icon>
     </button>

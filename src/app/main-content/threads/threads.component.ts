@@ -44,14 +44,14 @@ export class ThreadsComponent implements OnInit, OnChanges {
   @Input() threadId!: string | null;
   @Output() threadClosed = new EventEmitter<void>();
 
-  private chatService = inject(ChatService);
+  chatService = inject(ChatService);
   private threadUIService = inject(ThreadUIService);
   private userSession = inject(SessionService);
   private elementRef = inject(ElementRef);
 
   @ViewChild('chatFieldThread') chatFieldRef!: ElementRef<HTMLTextAreaElement>;
   @ViewChild('chatBody') chatBodyRef!: ElementRef;
-
+  otherUser: appUser | null = null;
   currentUser: appUser | null = null;
   selectedChannel: any = null;
   editedMessage: any = null;
@@ -91,6 +91,9 @@ export class ThreadsComponent implements OnInit, OnChanges {
     this.chatService.threadMessages$.subscribe(
       (msgs) => (this.threadMessages = msgs ?? [])
     );
+    this.chatService.otherUser$.subscribe((user) => {
+      this.otherUser = user;
+    });
   }
 
   /** Handles UI popup/mention/filter updates */
@@ -108,7 +111,6 @@ export class ThreadsComponent implements OnInit, OnChanges {
       (v) => (this.filteredChannels = v)
     );
   }
-
 
   /**
    * Reacts to @Input changes (e.g., when a new threadId is passed in).
@@ -154,16 +156,16 @@ export class ThreadsComponent implements OnInit, OnChanges {
         this.selectedChannel.channelId,
         this.threadId
       );
-    } catch (error) {
-    }
+    } catch (error) {}
   }
 
   /**
    * Sends a new message in the thread (or edits an existing one).
    */
-    async sendMessage(): Promise<void> {
+  async sendMessage(): Promise<void> {
     const text = this.chatMessage.trim();
-    if (!text || !this.selectedChannel?.channelId || !this.currentUser?.id) return;
+    if (!text || !this.selectedChannel?.channelId || !this.currentUser?.id)
+      return;
 
     await this.chatService.sendMessage(
       this.selectedChannel.channelId,

@@ -361,7 +361,6 @@ private async createNewMessage(
     if (forceThreadToggle) this._isThread.next(true);
     this.activeThreadMessageId = messageId;
     this.isChannel = false;
-    this.isConversation = false;
     const channelId = this._selectedChannel.getValue()?.channelId;
     if (!channelId) return;
 

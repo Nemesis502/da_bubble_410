@@ -351,7 +351,6 @@ ngOnChanges(changes: SimpleChanges): void {
 
   /** Emit event to parent to reply in thread */
   onReplyClick(message: any): void {
-    console.log('emitting')
     this.replyToMessage.emit(message.id || message.messageID);
   }
 
