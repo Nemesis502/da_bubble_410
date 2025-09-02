@@ -193,6 +193,7 @@ export class MainContentComponent {
     this.showThread = false;
     this.currentThreadId = null;
   }
+  
   // Opens a thread for the given thread ID
   openThread(threadId: string): void {
     this.currentThreadId = threadId;

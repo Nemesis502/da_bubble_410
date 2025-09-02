@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, inject, Input, Output } from '@angular/core';
 import { MenuDialogComponent } from '../dialogs/menu-dialog/menu-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { appUser } from '../../interfaces/user.interface';

@@ -1,6 +1,8 @@
-<app-header [currentUser]="currentUser()" (chatSelected)="onChatSelected($event)"
+@if(currentUser!){
+  <app-header [currentUser]="currentUser$ | async" (chatSelected)="onChatSelected($event)"
   (chatTypeSelected)="onChatTypeSelected($event)" (closeNewMessage)="closeNewMessage()">
 </app-header>
+}
 <section class="main">
   <button class="show-main-menu" (click)="showMainMenu = !showMainMenu">
     <p>
