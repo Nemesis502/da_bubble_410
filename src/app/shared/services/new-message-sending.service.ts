@@ -24,32 +24,34 @@ export class NewMessageSendingService {
   constructor(private firestore: Firestore, private router: Router) {}
 
   /** Send a direct message to a user, creating a conversation if needed */
-  async sendDirectMessage(
-    senderId: string,
-    recipientId: string,
-    text: string
-  ): Promise<string> {
-    const conversationId = await this.getOrCreateConversation(
-      senderId,
-      recipientId
-    );
+async sendDirectMessage(
+  senderId: string,
+  recipientId: string,
+  text: string,
+  navigate: boolean = true
+): Promise<string> {
+  const conversationId = await this.getOrCreateConversation(senderId, recipientId);
+  await this.addMessageToFirestore(
+    `conversations/${conversationId}/directMessages`,
+    {
+      senderID: senderId,
+      text,
+    }
+  );
 
-    await this.addMessageToFirestore(
-      `conversations/${conversationId}/directMessages`,
-      {
-        senderID: senderId,
-        text,
-      }
-    );
- if (window.innerWidth < 800) {
+  if (navigate) {
+    if (window.innerWidth < 800) {
       this.router.navigate([`/chat-container/conversation/${conversationId}`]);
     } else {
       this.chatSelected.emit(conversationId);
       this.chatTypeSelected.emit('conversation');
       this.closeNewMessage.emit();
     }
-    return conversationId;
   }
+
+  return conversationId;
+}
+
 
   /** Send a message to a channel */
   async sendChannelMessage(

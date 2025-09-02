@@ -133,4 +133,17 @@ export class MentionService {
 
     return term.toLowerCase();
   }
+
+  // Example: extract all mentions starting with '@' in the input string
+extractAllMentions(text: string): string[] {
+  const mentionRegex = /@([\wÀ-ÿ .'-]+)/g;
+  const mentions: string[] = [];
+  let match;
+  while ((match = mentionRegex.exec(text)) !== null) {
+    mentions.push(match[1].trim());
+  }
+  return mentions;
+}
+
+
 }

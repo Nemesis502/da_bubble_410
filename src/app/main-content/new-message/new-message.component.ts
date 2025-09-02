@@ -133,47 +133,36 @@ export class NewMessageComponent implements OnInit {
   }
 
   /** MESSAGE SENDING */
-  async sendMessage(): Promise<void> {
-    if (!this.canSendMessage()) return;
+async sendMessage(): Promise<void> {
+  if (!this.canSendMessage()) return;
+  const users = this.getTargetUsers();
+  const senderId = this.currentUser !.id;
 
-    const { user, channel } = this.getMessageTarget();
-    const senderId = this.currentUser!.id; 
-
-    await this.sendToTarget(senderId, user, channel);
-    this.resetMessage();
+  if (users.length > 0) {
+    for (let i = 0; i < users.length; i++) {
+      const user = users[i];
+      const navigate = i === 0; 
+      await this.messageService.sendDirectMessage(senderId, user.id, this.chatMessage, navigate);
+    }
+  } else {
+    const { channel } = this.getMessageTarget();
+    if (channel) {
+      await this.messageService.sendChannelMessage(senderId, channel.id, this.chatMessage);
+    }
   }
+
+  this.resetMessage();
+}
 
   // Validate if the message can be sent
   private canSendMessage(): this is {
     currentUser: { id: string };
   } & NewMessageComponent {
-    // Narrowing so TypeScript knows currentUser and its id are defined
     return (
       !!this.chatMessage.trim() &&
       !!this.searchInput.trim() &&
       !!this.currentUser?.id
     );
-  }
-
-  // Send message to user or channel
-  private async sendToTarget(
-    senderId: string,
-    user?: MentionUser,
-    channel?: MentionChannel
-  ): Promise<void> {
-    if (user) {
-      await this.messageService.sendDirectMessage(
-        senderId,
-        user.id,
-        this.chatMessage
-      );
-    } else if (channel) {
-      await this.messageService.sendChannelMessage(
-        senderId,
-        channel.id,
-        this.chatMessage
-      );
-    }
   }
 
 // Determine the target user or channel for the message
@@ -194,6 +183,16 @@ private getTargetUser(): MentionUser | undefined {
 
   return this.mentionableUsers.find(
     (u) => u.userName.toLowerCase() === mentionName.toLowerCase()
+  );
+}
+
+// Add this method to your component
+private getTargetUsers(): MentionUser [] {
+  const mentionNames = this.mentionService.extractAllMentions(this.searchInput);
+  if (!mentionNames || mentionNames.length === 0) return [];
+
+  return this.mentionableUsers.filter(u =>
+    mentionNames.some(name => name.toLowerCase().trim() === u.userName.toLowerCase().trim())
   );
 }
 
