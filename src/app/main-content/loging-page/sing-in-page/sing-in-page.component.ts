@@ -10,6 +10,7 @@ import { Router, RouterLink } from '@angular/router';
 import { merge } from 'rxjs';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AuthService } from '../../../shared/services/auth.service';
+import { ConfirmErrorStateMatcher } from '../new-password/confirm-error-state.matcher';
 
 @Component({
   selector: 'app-sing-in-page',
@@ -25,13 +26,17 @@ export class SingInPageComponent {
   text = new FormControl('', [Validators.required, Validators.pattern(/^.{6,}$/)]);
   email = new FormControl('', [Validators.required, Validators.email, Validators.pattern(/^[^\s@]+@(?:[^\s@]+\.)+[A-Za-z]{2,}$/)]);
   password = new FormControl('', [Validators.required, Validators.pattern(this.strongPasswordRegx)]);
+  passwordConfirm = new FormControl('', [Validators.required]);
+
   hide = true;
   checkedPrivacy = false;
   checkboxTouched = false;
+  confirmMatcher = new ConfirmErrorStateMatcher();
 
   errorMessageName = '';
   errorMessageEmail = '';
   errorMessagePassword = '';
+  errorMessagePasswordConfrim = '';
 
   constructor(private router: Router, private authService: AuthService) {
     merge(this.text.statusChanges, this.text.valueChanges)
@@ -39,10 +44,17 @@ export class SingInPageComponent {
       .subscribe(() => this.updateErrorMessageName());
     merge(this.email.statusChanges, this.email.valueChanges)
       .pipe(takeUntilDestroyed())
-      .subscribe(() => this.updateErrorMessageEmail());
+      .subscribe(() => {
+        this.updateErrorMessageEmail();
+        this.updateErrorMessagePasswordConfrim();
+      });
     merge(this.password.statusChanges, this.password.valueChanges)
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.updateErrorMessagePassword());
+
+    merge(this.passwordConfirm.statusChanges, this.passwordConfirm.valueChanges)
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.updateErrorMessagePasswordConfrim());
   }
 
   updateErrorMessageName() {
@@ -76,6 +88,22 @@ export class SingInPageComponent {
     }
   }
 
+  updateErrorMessagePasswordConfrim() {
+    let pwd = this.password.value ?? '';
+    let conf = this.passwordConfirm.value ?? '';
+    let mismatch = pwd !== '' && conf !== '' && pwd !== conf;
+
+    const errors = this.passwordConfirm.errors || {};
+    if (mismatch) {
+      this.passwordConfirm.setErrors({ ...errors, PasswordNoMatch: true });
+      this.errorMessagePasswordConfrim = 'Ihre Passwörter stimmen nicht überein.';
+    } else {
+      if ('PasswordNoMatch' in errors) delete (errors as any)['PasswordNoMatch'];
+      this.passwordConfirm.setErrors(Object.keys(errors).length ? errors : null);
+      this.errorMessagePasswordConfrim = '';
+    }
+  }
+
   async checkFormular() {
     this.markedInputs();
     this.updateErrorMessage();
@@ -100,12 +128,14 @@ export class SingInPageComponent {
     this.text.markAsTouched();
     this.email.markAsTouched();
     this.password.markAsTouched();
+    this.passwordConfirm.markAsTouched();
   }
 
   updateErrorMessage() {
     this.updateErrorMessageName();
     this.updateErrorMessageEmail();
     this.updateErrorMessagePassword();
+    this.updateErrorMessagePasswordConfrim()
   }
 
   nextPage(lowerCaseEmail: string | undefined) {

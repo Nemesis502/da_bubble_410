@@ -88,6 +88,24 @@
           <mat-error>{{ errorMessagePassword }}</mat-error>
           }
         </mat-form-field>
+        <mat-form-field>
+          <mat-label>Passwort bestätigen</mat-label>
+          <mat-icon matPrefix>lock</mat-icon>
+          <input
+            class="inputfield"
+            matInput
+            [type]="hide ? 'password' : 'text'"
+            [formControl]="passwordConfirm"
+            (blur)="updateErrorMessagePasswordConfrim()"
+            required
+          />
+          @if (passwordConfirm.touched && (passwordConfirm.hasError('required')
+          || passwordConfirm.hasError('PasswordNoMatch'))) {
+          <mat-error>{{
+            errorMessagePasswordConfrim || "Bitte bestätigen Sie Ihr Passwort."
+          }}</mat-error>
+          }
+        </mat-form-field>
         <div class="checkbox-section">
           <div class="checkbox-container">
             <div>
@@ -110,7 +128,13 @@
 
         <div class="button-container">
           <button
-            [disabled]="!checkedPrivacy"
+            [disabled]="
+              !checkedPrivacy ||
+              text.invalid ||
+              email.invalid ||
+              password.invalid ||
+              passwordConfirm.invalid
+            "
             (click)="checkFormular()"
             mat-flat-button
             class="nuito18px700 h49px login-button"
