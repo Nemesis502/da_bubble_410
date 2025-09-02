@@ -23,6 +23,7 @@ import {
   MessageParserService,
   TextPart,
 } from '../../shared/services/message-parse.service';
+import { appUser } from '../../interfaces/user.interface';
 
 @Component({
   selector: 'app-message-template',
@@ -43,7 +44,7 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
   @Input() chatIsThread: boolean = false;
   @Input() currentUser: string = '';
   @Input() currentChannelId: string | Channel | null = null;
-
+  @Input() currentUserObj: appUser | null = null;
   @Output() editMessage = new EventEmitter<any>();
   @Output() replyToMessage = new EventEmitter<string>();
   parsedMessages: { [id: string]: TextPart[] } = {};
@@ -72,22 +73,42 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
   }
 
   /** Reacts to input changes, e.g. when new messages arrive */
-ngOnChanges(changes: SimpleChanges): void {
-  if (changes['messages']) {
-    this.sortMessagesByTimestamp();
-    this.transformReactionsToEmoji();
-    this.addDateHeaders();
-    
-    this.messages.forEach(msg => {
-      this.parsedMessages[msg.id || msg.messageID] = this.getParsedMessage(msg.text);
-    });
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['messages'] || changes['currentUserObj']) {
+      this.refreshMessages();
+      this.sortMessagesByTimestamp();
+      this.transformReactionsToEmoji();
+      this.addDateHeaders();
+
+      this.messages.forEach((msg) => {
+        this.parsedMessages[msg.id || msg.messageID] = this.getParsedMessage(
+          msg.text
+        );
+      });
+    }
   }
-}
+
   /** Clean up listener when component is destroyed */
   ngOnDestroy(): void {
     if (this.clickListener) {
       this.clickListener();
     }
+  }
+
+  private refreshMessages() {
+    this.messages.forEach((msg) => {
+      if (msg.senderID === this.currentUserObj?.id) {
+        msg.username = this.currentUserObj?.userName;
+        msg.avatar = this.currentUserObj?.profilePic;
+      }
+    });
+
+    // Re-parse messages for mentions/hashtags
+    this.messages.forEach((msg) => {
+      this.parsedMessages[msg.id || msg.messageID] = this.getParsedMessage(
+        msg.text
+      );
+    });
   }
 
   /** ---------------- Message Display Helpers ---------------- */

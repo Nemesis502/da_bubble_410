@@ -119,7 +119,7 @@
         <app-message-template
           [chatIsThread]="chatIsThread"
           [messages]="[activeThreadMessage]"
-          [currentUser]="currentUser?.id || ''"
+          [currentUserObj]="currentUser"
           [currentChannelId]="selectedChannel?.channelId"
           (editMessage)="startEditingMessage($event)"
           (replyToMessage)="handleReplyToMessage($event)"
@@ -135,7 +135,7 @@
         <app-message-template
           [chatIsThread]="chatIsThread"
           [messages]="threadMessages"
-          [currentUser]="currentUser?.id || ''"
+          [currentUserObj]="currentUser"
           [currentChannelId]="selectedChannel?.channelId"
           (editMessage)="startEditingMessage($event)"
           (replyToMessage)="handleReplyToMessage($event)"
@@ -145,7 +145,7 @@
       <app-message-template
         [chatIsThread]="chatIsThread"
         [messages]="messages"
-        [currentUser]="currentUser?.id || ''"
+        [currentUserObj]="currentUser"
         [currentChannelId]="selectedChannel?.channelId"
         (editMessage)="startEditingMessage($event)"
         (replyToMessage)="handleReplyToMessage($event)"
