@@ -177,17 +177,17 @@
       <div class="self-chat-placeholder">
         <div class="self-chat-info">
           <img
-            [src]="'assets/img/avatar/' + (currentUser?.profilePic || '1') + '.png'"
+            [src]="'assets/img/avatar/' + (otherUser?.profilePic || '1') + '.png'"
             alt="User Avatar"
             aria-hidden="true"
           />
-          <p class="nuito18px700">{{ currentUser?.userName }}</p>
+          <p class="nuito18px700">{{ otherUser?.userName }}</p>
         </div>
         <div class="self-chat-text">
           <p class="nuito17px400">
             Diese Unterhaltung findet nur zwischen
             <button class="other-user-dm" (click)="openProfileDialogOtherUser()">
-              &#64;{{ currentUser?.userName }}
+              &#64;{{ otherUser?.userName }}
             </button>
             und dir statt.
           </p>
