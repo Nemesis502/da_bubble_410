@@ -23,7 +23,7 @@
       <app-message-template
         [chatIsThread]="true"
         [messages]="[activeThreadMessage]"
-        [currentUser]="currentUser?.id || ''"
+        [currentUserObj]="currentUser"
         [currentChannelId]="selectedChannel?.channelId"
         (editMessage)="startEditingMessage($event)"
       ></app-message-template>
@@ -38,7 +38,7 @@
       <app-message-template
         [chatIsThread]="true"
         [messages]="threadMessages"
-        [currentUser]="currentUser?.id || ''"
+        [currentUserObj]="currentUser"
         [currentChannelId]="selectedChannel?.channelId"
         (editMessage)="startEditingMessage($event)"
       ></app-message-template>

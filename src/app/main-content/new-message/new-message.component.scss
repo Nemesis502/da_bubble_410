@@ -295,3 +295,9 @@ img {
     border-radius: 30px;
 }  
 }
+
+@media (min-width: 1000px) {
+  .mention-popup {
+    max-height: 310px;
+  }
+}

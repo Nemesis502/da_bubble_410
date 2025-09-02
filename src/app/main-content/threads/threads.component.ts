@@ -52,7 +52,7 @@ export class ThreadsComponent implements OnInit, OnChanges {
   @ViewChild('chatFieldThread') chatFieldRef!: ElementRef<HTMLTextAreaElement>;
   @ViewChild('chatBody') chatBodyRef!: ElementRef;
   otherUser: appUser | null = null;
-  currentUser: appUser | null = null;
+  currentUser: appUser | null = this.userSession.getCurrentUser();
   selectedChannel: any = null;
   editedMessage: any = null;
   chatMessage = '';
@@ -67,7 +67,9 @@ export class ThreadsComponent implements OnInit, OnChanges {
   pickerPosition = { top: 0, left: 0 };
 
   async ngOnInit(): Promise<void> {
-    this.currentUser = this.userSession.getCurrentUser();
+    this.userSession.currentUser$.subscribe((user) => {
+      this.currentUser = user;
+    });
     this.initChannelSubscription();
     this.initMessageSubscriptions();
     this.initUIPopupSubscriptions();
