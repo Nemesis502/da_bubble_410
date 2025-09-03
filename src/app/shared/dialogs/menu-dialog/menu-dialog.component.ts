@@ -144,6 +144,7 @@ export class MenuDialogComponent implements OnInit {
       const docRef = await this.firestoreService.addChannel(baseChannel);
       await this.firestoreService.updateChannel(docRef.id, { channelId: docRef.id });
       this.closeDialog();
+      console.log("moin", this.screenSmall);
       if (this.screenSmall) {
         this.router.navigate(['/main']);
       } else {
