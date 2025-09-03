@@ -81,7 +81,11 @@ export class NewMessageComponent implements OnInit {
 
   // Load initial users and channels for mentions and hashtags
   private async loadInitialData(): Promise<void> {
-    this.allChannels = await this.mentionService.fetchAllChannels();
+    if (!this.currentUser?.id) return;
+
+    this.allChannels = await this.mentionService.fetchUserChannels(
+      this.currentUser.id
+    );
     this.mentionableUsers = await this.mentionService.fetchMentionableUsers(
       this.selectedChannel?.id || null
     );
@@ -133,26 +137,35 @@ export class NewMessageComponent implements OnInit {
   }
 
   /** MESSAGE SENDING */
-async sendMessage(): Promise<void> {
-  if (!this.canSendMessage()) return;
-  const users = this.getTargetUsers();
-  const senderId = this.currentUser !.id;
+  async sendMessage(): Promise<void> {
+    if (!this.canSendMessage()) return;
+    const users = this.getTargetUsers();
+    const senderId = this.currentUser!.id;
 
-  if (users.length > 0) {
-    for (let i = 0; i < users.length; i++) {
-      const user = users[i];
-      const navigate = i === 0; 
-      await this.messageService.sendDirectMessage(senderId, user.id, this.chatMessage, navigate);
+    if (users.length > 0) {
+      for (let i = 0; i < users.length; i++) {
+        const user = users[i];
+        const navigate = i === 0;
+        await this.messageService.sendDirectMessage(
+          senderId,
+          user.id,
+          this.chatMessage,
+          navigate
+        );
+      }
+    } else {
+      const { channel } = this.getMessageTarget();
+      if (channel) {
+        await this.messageService.sendChannelMessage(
+          senderId,
+          channel.id,
+          this.chatMessage
+        );
+      }
     }
-  } else {
-    const { channel } = this.getMessageTarget();
-    if (channel) {
-      await this.messageService.sendChannelMessage(senderId, channel.id, this.chatMessage);
-    }
+
+    this.resetMessage();
   }
-
-  this.resetMessage();
-}
 
   // Validate if the message can be sent
   private canSendMessage(): this is {
@@ -165,46 +178,50 @@ async sendMessage(): Promise<void> {
     );
   }
 
-// Determine the target user or channel for the message
-private getMessageTarget(): { user?: MentionUser; channel?: MentionChannel } {
-  const user = this.getTargetUser();
-  if (user) return { user };
+  // Determine the target user or channel for the message
+  private getMessageTarget(): { user?: MentionUser; channel?: MentionChannel } {
+    const user = this.getTargetUser();
+    if (user) return { user };
 
-  const channel = this.getTargetChannel();
-  if (channel) return { channel };
+    const channel = this.getTargetChannel();
+    if (channel) return { channel };
 
-  return {};
-}
+    return {};
+  }
 
-// Find the mentioned user in the search input
-private getTargetUser(): MentionUser | undefined {
-  const mentionName = this.mentionService.extractMention(this.searchInput);
-  if (!mentionName) return undefined;
+  // Find the mentioned user in the search input
+  private getTargetUser(): MentionUser | undefined {
+    const mentionName = this.mentionService.extractMention(this.searchInput);
+    if (!mentionName) return undefined;
 
-  return this.mentionableUsers.find(
-    (u) => u.userName.toLowerCase() === mentionName.toLowerCase()
-  );
-}
+    return this.mentionableUsers.find(
+      (u) => u.userName.toLowerCase() === mentionName.toLowerCase()
+    );
+  }
 
-// Add this method to your component
-private getTargetUsers(): MentionUser [] {
-  const mentionNames = this.mentionService.extractAllMentions(this.searchInput);
-  if (!mentionNames || mentionNames.length === 0) return [];
+  // Add this method to your component
+  private getTargetUsers(): MentionUser[] {
+    const mentionNames = this.mentionService.extractAllMentions(
+      this.searchInput
+    );
+    if (!mentionNames || mentionNames.length === 0) return [];
 
-  return this.mentionableUsers.filter(u =>
-    mentionNames.some(name => name.toLowerCase().trim() === u.userName.toLowerCase().trim())
-  );
-}
+    return this.mentionableUsers.filter((u) =>
+      mentionNames.some(
+        (name) => name.toLowerCase().trim() === u.userName.toLowerCase().trim()
+      )
+    );
+  }
 
-// Find the mentioned channel in the search input
-private getTargetChannel(): MentionChannel | undefined {
-  const channelName = this.mentionService.extractChannel(this.searchInput);
-  if (!channelName) return undefined;
+  // Find the mentioned channel in the search input
+  private getTargetChannel(): MentionChannel | undefined {
+    const channelName = this.mentionService.extractChannel(this.searchInput);
+    if (!channelName) return undefined;
 
-  return this.allChannels.find(
-    (c) => c.name.toLowerCase() === channelName.toLowerCase()
-  );
-}
+    return this.allChannels.find(
+      (c) => c.name.toLowerCase() === channelName.toLowerCase()
+    );
+  }
 
   // Reset chat input and search field
   private resetMessage(): void {
@@ -371,43 +388,49 @@ private getTargetChannel(): MentionChannel | undefined {
     }, 0);
   }
 
-/** MANUAL @ TRIGGER INSERTION */
-// Inserts or removes a manual @ in chat input
-triggerMention(): void {
-  const textarea = this.chatField?.nativeElement;
-  if (!textarea) return;
+  /** MANUAL @ TRIGGER INSERTION */
+  // Inserts or removes a manual @ in chat input
+  triggerMention(): void {
+    const textarea = this.chatField?.nativeElement;
+    if (!textarea) return;
 
-  const cursorPos = textarea.selectionStart;
-  const charBefore = this.chatMessage[cursorPos - 1];
+    const cursorPos = textarea.selectionStart;
+    const charBefore = this.chatMessage[cursorPos - 1];
 
-  if (charBefore === '@') {
-    this.removeAtSymbol(cursorPos, textarea);
-  } else {
-    this.insertAtSymbol(cursorPos, textarea);
+    if (charBefore === '@') {
+      this.removeAtSymbol(cursorPos, textarea);
+    } else {
+      this.insertAtSymbol(cursorPos, textarea);
+    }
+
+    textarea.focus();
   }
 
-  textarea.focus();
-}
+  // Remove '@' at the current cursor position
+  private removeAtSymbol(
+    cursorPos: number,
+    textarea: HTMLTextAreaElement
+  ): void {
+    this.chatMessage =
+      this.chatMessage.slice(0, cursorPos - 1) +
+      this.chatMessage.slice(cursorPos);
+    textarea.setSelectionRange(cursorPos - 1, cursorPos - 1);
+    this.mentionPopupVisible = false;
+  }
 
-// Remove '@' at the current cursor position
-private removeAtSymbol(cursorPos: number, textarea: HTMLTextAreaElement): void {
-  this.chatMessage =
-    this.chatMessage.slice(0, cursorPos - 1) +
-    this.chatMessage.slice(cursorPos);
-  textarea.setSelectionRange(cursorPos - 1, cursorPos - 1);
-  this.mentionPopupVisible = false;
-}
-
-// Insert '@' at the current cursor position
-private insertAtSymbol(cursorPos: number, textarea: HTMLTextAreaElement): void {
-  const { newText, newCursorPos } = this.autocompleteService.insertAtCursor(
-    '@',
-    '',
-    this.chatMessage,
-    cursorPos
-  );
-  this.chatMessage = newText;
-  textarea.setSelectionRange(newCursorPos, newCursorPos);
-  this.mentionPopupVisible = true;
-}
+  // Insert '@' at the current cursor position
+  private insertAtSymbol(
+    cursorPos: number,
+    textarea: HTMLTextAreaElement
+  ): void {
+    const { newText, newCursorPos } = this.autocompleteService.insertAtCursor(
+      '@',
+      '',
+      this.chatMessage,
+      cursorPos
+    );
+    this.chatMessage = newText;
+    textarea.setSelectionRange(newCursorPos, newCursorPos);
+    this.mentionPopupVisible = true;
+  }
 }

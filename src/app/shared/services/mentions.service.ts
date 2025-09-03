@@ -5,6 +5,8 @@ import {
   doc,
   getDoc,
   getDocs,
+  query,
+  where,
 } from '@angular/fire/firestore';
 
 export interface MentionUser {
@@ -145,5 +147,16 @@ extractAllMentions(text: string): string[] {
   return mentions;
 }
 
+  /** Fetch channels that the current user is a member of */
+  async fetchUserChannels(userId: string): Promise<MentionChannel[]> {
+    const channelsCol = collection(this.firestore, 'channels');
+    const q = query(channelsCol, where('members', 'array-contains', userId));
+    const snapshot = await getDocs(q);
+
+    return snapshot.docs.map((docSnap) => ({
+      id: docSnap.id,
+      name: docSnap.data()['name'] ?? 'Unnamed Channel',
+    }));
+  }
 
 }
