@@ -253,6 +253,12 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
 
   /** Sends a chat message with context (thread, conversation, edited) */
   async sendMessage(): Promise<void> {
+    const messageText = this.chatMessage.trim();
+    if (!messageText) return;
+    if (this.isGuestChat) {
+      await this.handleGuestMessage(messageText);
+      return;
+    }
     await this.chatActions.sendMessage(
       this.chatMessage,
       this.selectedChannel,
@@ -266,6 +272,28 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
     );
     this.chatMessage = reset.chatMessage;
     this.editedMessage = reset.editedMessage;
+  }
+
+  /** Sends a chat message with context if User is Guest-User (thread, conversation, edited) */
+  private async handleGuestMessage(messageText: string): Promise<void> {
+    if (this.chatIsConversation) {
+      const tempMessage = {
+        id: `guest-${Date.now()}`,
+        text: messageText,
+        senderID: 'Guest',
+        timestamp: new Date().toISOString(),
+        pending: false,
+      };
+      this.messages = [...this.messages, tempMessage];
+      this.scrollToBottom();
+    } else if (this.chatIsChannel && this.selectedChannel) {
+      await this.guestService.sendGuestChannelMessage(
+        this.selectedChannel.channelId,
+        messageText
+      );
+    }
+    this.chatMessage = '';
+    this.editedMessage = null;
   }
 
   /** Begins editing a message */

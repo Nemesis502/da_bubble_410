@@ -3,13 +3,14 @@ import { Observable, of } from 'rxjs';
 import { ChannelsDirectMessageService, DirectMessage } from '../../shared/services/channels-direct-message.service';
 import { appUser } from '../../interfaces/user.interface';
 import { Channel } from '../../interfaces/channel.interface';
+import { ChatService } from './chat.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatGuestService {
 
-  constructor(private channelDirectMessageData: ChannelsDirectMessageService) {}
+  constructor(private channelDirectMessageData: ChannelsDirectMessageService, private chatService: ChatService) {}
 
   /** Handles guest direct messages */
   subscribeToGuestDirectMessages(
@@ -56,5 +57,18 @@ export class ChatGuestService {
         status: true,
       })) || []
     );
+  }
+
+    async sendGuestChannelMessage(channelId: string, messageText: string) {
+    const tempMessage = {
+      id: `guest-${Date.now()}`,
+      text: messageText,
+      senderID: 'Guest',
+      timestamp: new Date().toISOString(),
+      pending: false,
+    };
+
+    const currentMessages = this.chatService._messages.getValue();
+    this.chatService._messages.next([...currentMessages, tempMessage]);
   }
 }
