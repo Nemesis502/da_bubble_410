@@ -1,145 +1,148 @@
 @use "./../../../../styles.scss" as *;
 
 :host ::ng-deep .mat-mdc-form-field .mdc-line-ripple {
-    display: none !important;
+  display: none !important;
 }
 
 :host ::ng-deep .mat-mdc-form-field-subscript-wrapper,
 :host ::ng-deep .mat-mdc-form-field-bottom-align::before {
-    display: none !important;
+  display: none !important;
 }
 
 ::ng-deep .mat-mdc-text-field-wrapper {
-    background-color: transparent !important;
+  background-color: transparent !important;
 }
 
 ::ng-deep .mat-mdc-input-element::placeholder {
-    font-family: 'Nunito' !important;
-    font-size: 18px !important;
-    color: $TextGray !important;
-    opacity: 1 !important;
+  font-family: "Nunito" !important;
+  font-size: 18px !important;
+  color: $TextGray !important;
+  opacity: 1 !important;
 }
 
 ::ng-deep .middle-dialog-panel .mat-mdc-dialog-surface.mdc-dialog__surface {
-    border-top-left-radius: 30px;
-    border-top-right-radius: 30px;
-    border-bottom-left-radius: 30px;
-    border-bottom-right-radius: 30px;
-    box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.18) !important;
-    overflow: hidden;
-    padding: 0;
-    background: white !important;
+  border-top-left-radius: 30px;
+  border-top-right-radius: 30px;
+  border-bottom-left-radius: 30px;
+  border-bottom-right-radius: 30px;
+  box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.18) !important;
+  overflow: hidden;
+  padding: 0;
+  background: white !important;
 }
 
 ::ng-deep .mat-mdc-input-element {
-    color: black !important;
+  color: black !important;
 }
 
 .text-form.focused ::ng-deep .mat-mdc-form-field-flex {
-    border-color: $purple1 !important;
+  border-color: $purple1 !important;
 }
 
 input,
 textarea {
-    font-family: 'Nunito';
-    font-size: 18px;
+  font-family: "Nunito";
+  font-size: 18px;
 }
 
 .text-form.focused,
 .text-form:focus-within {
-    border-color: $purple1 !important;
+  border-color: $purple1 !important;
 }
 
 textarea.focused {
-    border-color: $purple1 !important;
+  border-color: $purple1 !important;
 }
 
 .add-channel-dialog {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 40px 20px 40px 20px;
-    width: calc(100% - 40px);
-    height: calc(100% - 80px);
-    background-color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 40px 20px 40px 20px;
+  width: calc(100% - 40px);
+  height: calc(100% - 80px);
+  background-color: white;
 
-    .nuito17px400,
-    .nuito18px700 {
-        text-align: unset !important;
-    }
+  .nuito17px400,
+  .nuito18px700 {
+    text-align: unset !important;
+  }
 }
 
 .add-channel-header {
-    display: flex;
-    justify-content: space-between;
+  display: flex;
+  justify-content: space-between;
 
-    mat-icon {
-        color: black;
-    }
+  mat-icon {
+    color: black;
+  }
 }
 
 .text-form {
-    margin-block: 16px;
-    border: 1px solid;
-    border-color: $LightPurple;
-    border-radius: 42px;
-    transition: border-color 0.2s;
+  margin-block: 16px;
+  border: 1px solid;
+  border-color: $LightPurple;
+  border-radius: 42px;
+  transition: border-color 0.2s;
 
-    &.focused {
-        border-color: $purple1 !important;
+  &.focused {
+    border-color: $purple1 !important;
+  }
+
+  .text-full-width {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: calc(100% - 24px);
+    height: 60px;
+
+    mat-icon {
+      color: $TextGray;
     }
-
-    .text-full-width {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        width: calc(100% - 24px);
-        height: 60px;
-
-        mat-icon {
-            color: $TextGray;
-        }
-    }
+  }
 }
 
 .new-channel-description {
-    .optional {
-        color: $TextGray;
-        font-weight: 400;
-    }
+  .optional {
+    color: $TextGray;
+    font-weight: 400;
+  }
 
-    textarea {
-        border: 1px solid;
-        border-color: $LightPurple;
-        border-radius: 42px;
-        padding: 20px;
-        width: calc(99.5% - 40px);
-        height: 24px;
+  textarea {
+    border: 1px solid;
+    border-color: $LightPurple;
+    border-radius: 42px;
+    padding: 20px;
+    width: calc(99.5% - 40px);
+    height: 24px;
 
-        &:focus-visible {
-            border-color: $purple1 !important;
-            outline: none;
-        }
+    &:focus-visible {
+      border-color: $purple1 !important;
+      outline: none;
     }
+  }
 }
 
 .create-new-channel {
-    display: flex;
-    justify-content: end;
+  display: flex;
+  justify-content: end;
 
-    .create-channel-button {
-        width: 125px;
-        height: 49px;
-        background-color: $purple1;
-        border-radius: 30px;
-        font-family: 'Nunito';
-        font-size: 18px;
-        font-weight: 700;
-        color: white;
+  .create-channel-button {
+    width: 125px;
+    height: 49px;
+    background-color: $purple1;
+    border-radius: 30px;
+    font-family: "Nunito";
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
 
-        &:disabled {
-            background-color: $TextGray;
-        }
-
+    &:disabled {
+      background-color: $TextGray;
     }
+  }
+}
+
+.warning {
+  color: #d32f2f;
 }

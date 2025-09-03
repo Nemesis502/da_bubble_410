@@ -8,6 +8,14 @@ import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MenuDialogComponent } from '../menu-dialog/menu-dialog.component';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import {
+  Firestore,
+  collection,
+  query,
+  where,
+  getDocs,
+} from '@angular/fire/firestore';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-add-channel-dialog',
@@ -19,26 +27,33 @@ import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
     MatIconModule,
     MatInputModule,
     RouterModule,
-    CdkTextareaAutosize
+    CdkTextareaAutosize,
   ],
   templateUrl: './add-channel-dialog.component.html',
   styleUrls: [
     './add-channel-dialog.component.scss',
-    './add-channel-dialog.media-query.component.scss'
-  ]
+    './add-channel-dialog.media-query.component.scss',
+  ],
 })
 export class AddChannelDialogComponent {
   readonly dialog = inject(MatDialog);
   readonly document = inject(DOCUMENT);
   readonly router = inject(Router);
+  readonly firestore = inject(Firestore);
 
   channelName = '';
   channelFocused = false;
   channelDescription = '';
   screenWidth = window.innerWidth;
   isSmallScreen = this.screenWidth < 800;
-
-  constructor() {}
+  channelNameTaken = false;
+  nameInput$ = new Subject<string>();
+  
+  constructor() {
+    this.nameInput$
+      .pipe(debounceTime(400), distinctUntilChanged())
+      .subscribe((name) => this.checkChannelName(name));
+  }
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event): void {
@@ -51,9 +66,7 @@ export class AddChannelDialogComponent {
   }
 
   openAddPeopleMenu(): void {
-    this.isSmallScreen
-      ? this.openBottomDialog()
-      : this.openMiddleDialog();
+    this.isSmallScreen ? this.openBottomDialog() : this.openMiddleDialog();
   }
 
   updateScreenWidth(width: number): void {
@@ -79,7 +92,7 @@ export class AddChannelDialogComponent {
   switchToDesktop(): void {
     this.router.navigate(['/main']);
     this.dialog.open(AddChannelDialogComponent, {
-      panelClass: 'middle-dialog-panel'
+      panelClass: 'middle-dialog-panel',
     });
   }
 
@@ -89,14 +102,14 @@ export class AddChannelDialogComponent {
       maxWidth: '100vw',
       width: '100vw',
       panelClass: 'bottom-dialog-panel',
-      data: this.getDialogData()
+      data: this.getDialogData(),
     });
   }
 
   openMiddleDialog(): void {
     this.dialog.open(MenuDialogComponent, {
       panelClass: 'middle-dialog-panel',
-      data: this.getDialogData()
+      data: this.getDialogData(),
     });
   }
 
@@ -104,7 +117,23 @@ export class AddChannelDialogComponent {
     return {
       source: 'add-channel',
       channelName: this.channelName,
-      channelDescription: this.channelDescription
+      channelDescription: this.channelDescription,
     };
+  }
+
+  onChannelNameChange(name: string) {
+    this.nameInput$.next(name.trim());
+  }
+
+  async checkChannelName(name: string) {
+    if (!name) {
+      this.channelNameTaken = false;
+      return;
+    }
+
+    const channelsRef = collection(this.firestore, 'channels');
+    const q = query(channelsRef, where('name', '==', name));
+    const querySnapshot = await getDocs(q);
+    this.channelNameTaken = !querySnapshot.empty;
   }
 }
