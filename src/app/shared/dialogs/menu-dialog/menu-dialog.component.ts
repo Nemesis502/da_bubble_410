@@ -1,5 +1,5 @@
 import { Component, Inject, inject, signal, OnInit, ViewChild, ElementRef, HostListener, Injectable } from '@angular/core';
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,10 +10,8 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ProfilDialogComponent } from '../../../shared/dialogs/profil-dialog/profil-dialog.component';
-import { AuthService } from '../../../shared/services/auth.service';
 import { SessionService } from '../../../shared/services/currentUserSession.service';
 import { appUser } from '../../../interfaces/user.interface';
-import { UserService } from '../../../shared/services/user.services';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { firstValueFrom } from 'rxjs';
 import { FirestoreService } from '../../../shared/services/firestore.service';
@@ -144,11 +142,10 @@ export class MenuDialogComponent implements OnInit {
       const docRef = await this.firestoreService.addChannel(baseChannel);
       await this.firestoreService.updateChannel(docRef.id, { channelId: docRef.id });
       this.closeDialog();
-      console.log("moin", this.screenSmall);
       if (this.screenSmall) {
-        this.router.navigate(['/main']);
-      } else {
         this.router.navigate(['/main-menu']);
+      } else {
+        this.router.navigate(['/main']);
       }
     } catch (error) {
       console.error('Fehler beim Speichern des Channels:', error);
