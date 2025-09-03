@@ -151,6 +151,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
       this.router.navigate(['/main']);
     }
   }
+  
   // Initializes the current user session and ensures self-conversation exists
   async initCurrentUserSession(): Promise<void> {
     const sessionUser = this.userSession.getCurrentUser();

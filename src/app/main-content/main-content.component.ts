@@ -159,7 +159,9 @@ export class MainContentComponent {
       : [...channels];
 
     this.searchService.setFirestoreChannels(channels);
-    this.showNewMessageOnLoad();
+     if (!this.currentChatId) {
+        this.showNewMessageOnLoad();
+    }
   }
 
   // Automatically shows New Message on load
