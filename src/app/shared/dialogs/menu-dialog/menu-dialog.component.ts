@@ -139,16 +139,24 @@ export class MenuDialogComponent implements OnInit {
     this.closeDialog();
   }
 
-  async uploadChannel(baseChannel: Channel): Promise<void> {
-    try {
-      const docRef = await this.firestoreService.addChannel(baseChannel);
-      await this.firestoreService.updateChannel(docRef.id, { channelId: docRef.id });
-      this.closeDialog();
+async uploadChannel(baseChannel: Channel): Promise<void> {
+  try {
+    const docRef = await this.firestoreService.addChannel(baseChannel);
+    await this.firestoreService.updateChannel(docRef.id, { channelId: docRef.id });
+    this.closeDialog();
+
+    // Navigate based on screen width
+    const isSmallScreen = window.innerWidth < 999;
+    if (isSmallScreen) {
+      this.router.navigate(['/main-menu']);
+    } else {
       this.router.navigate(['/main']);
-    } catch (error) {
-      console.error('Fehler beim Speichern des Channels:', error);
     }
+  } catch (error) {
+    console.error('Fehler beim Speichern des Channels:', error);
   }
+}
+
 
   async addMembers(): Promise<void> {
     if (this.isGastLogin || !this.currentUser) return;
