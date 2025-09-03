@@ -55,6 +55,7 @@ export class ChannelInfoComponent implements OnChanges {
   creatorName = '';
   editName = false;
   editDescription = false;
+  screenSmall: any;
 
   constructor() {
     this.currentUser = this.userSession.getCurrentUser();
@@ -159,7 +160,11 @@ export class ChannelInfoComponent implements OnChanges {
     if (!this.channel || !this.currentUser?.id) return;
     const updatedMembers = this.channel.members.filter(id => id !== this.currentUser!.id);
     await updateDoc(this.firestoreService.getChannelDocRef(this.channelId), { members: updatedMembers });
-    this.router.navigate(['/main']);
+    if (!this.isMobile) {
+      this.router.navigate(['/main']);
+    } else {
+      this.router.navigate(['/main-menu']);
+    } 
     this.close();
   }
 
