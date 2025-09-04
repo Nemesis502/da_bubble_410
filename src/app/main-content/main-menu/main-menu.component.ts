@@ -103,6 +103,8 @@ export class MainMenuComponent implements OnInit, OnDestroy {
   ) {
     // Initializes user based on navigation state
     this.initializeUserFromNavigation();
+    console.log(this.gastLogin);
+    
   }
 
   // Angular OnInit lifecycle: setup user session and load channels/users
@@ -378,7 +380,10 @@ export class MainMenuComponent implements OnInit, OnDestroy {
 
   // Selects a guest channel
   selectGuestChannel(channel: Channel): void {
+    debugger
     this.channelDirectMessageData.setSelectedGuestChannel(channel);
+    console.log(channel.channelId);
+    
     this.closeNewMessage.emit();
     this.chatTypeSelected.emit('channel');
     if (window.innerWidth < 800 && channel.channelId) {

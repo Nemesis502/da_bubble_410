@@ -84,6 +84,8 @@ export class MemberDialogComponent {
   initSession(): void {
     this.currentUser = this.session.getCurrentUser();
     this.isGuestLogin = this.currentUser?.id === 'Guest';
+    console.log(this.isGuestLogin);
+    
     this.channelId = this.data.channelId;
   }
 

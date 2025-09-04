@@ -84,27 +84,29 @@ export class MenuDialogComponent implements OnInit {
     private userSession: SessionService,
     private account: AccountService
   ) {
-    this.isGastLogin = !!data.gastLogin;
     this.currentUser = this.userSession.getCurrentUser();
+    if (this.currentUser?.id == "Guest") {
+      this.isGastLogin = true;
+    }
   }
 
-@HostListener('window:resize', ['$event'])
-onResize(event: Event): void {
-  this.screenWidth = (event.target as Window).innerWidth;
-  const small = this.screenWidth < 800;
-  if (small !== this.screenSmall) {
-    this.screenSmall = small;  
-    this.updateDialogPosition(small);
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event): void {
+    this.screenWidth = (event.target as Window).innerWidth;
+    const small = this.screenWidth < 800;
+    if (small !== this.screenSmall) {
+      this.screenSmall = small;
+      this.updateDialogPosition(small);
+    }
   }
-}
 
 
-ngOnInit(): void {
-  this.screenWidth = window.innerWidth;
-  this.screenSmall = this.screenWidth < 800;
-  this.initDialogData();
-  this.loadUsers();
-}
+  ngOnInit(): void {
+    this.screenWidth = window.innerWidth;
+    this.screenSmall = this.screenWidth < 800;
+    this.initDialogData();
+    this.loadUsers();
+  }
 
   initDialogData(): void {
     if (this.data.source === 'add-channel') {
@@ -122,16 +124,16 @@ ngOnInit(): void {
     this.dialog.closeAll();
     const config = small
       ? {
-          position: { bottom: '0' },
-          width: '100vw',
-          panelClass: 'bottom-dialog-panel',
-        }
+        position: { bottom: '0' },
+        width: '100vw',
+        panelClass: 'bottom-dialog-panel',
+      }
       : {
-          position: { top: '80px', right: '16px' },
-          maxWidth: '282px',
-          maxHeight: '181px',
-          panelClass: 'top-right-dialog-panel',
-        };
+        position: { top: '80px', right: '16px' },
+        maxWidth: '282px',
+        maxHeight: '181px',
+        panelClass: 'top-right-dialog-panel',
+      };
     this.dialog.open(MenuDialogComponent, { ...config, data: this.data });
   }
 
@@ -155,9 +157,12 @@ ngOnInit(): void {
   }
 
   async createNewChannel(): Promise<void> {
-    if (!this.currentUser && !this.isGastLogin)
-      return console.error('Kein eingeloggter User.');
+    if (this.isActive) {
+      this.peoples.set(this.allUsers());
+    }
     const baseChannel = this.buildChannelData();
+    console.log(baseChannel);
+
     this.isGastLogin
       ? this.addGuestChannel(baseChannel)
       : await this.uploadChannel(baseChannel);
