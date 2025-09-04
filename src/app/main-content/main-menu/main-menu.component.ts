@@ -380,7 +380,6 @@ export class MainMenuComponent implements OnInit, OnDestroy {
 
   // Selects a guest channel
   selectGuestChannel(channel: Channel): void {
-    debugger
     this.channelDirectMessageData.setSelectedGuestChannel(channel);
     console.log(channel.channelId);
     
