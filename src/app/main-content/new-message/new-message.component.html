@@ -32,7 +32,7 @@
         <div class="mention-popup mention-popup-top" (click)="$event.stopPropagation()">
           @for (user of searchMentionUsers;track user) {
             <div class="mention-user" (click)="insertMentionInSearch(user.userName)">
-              <img class="avatar" [src]="'./../../../assets/img/avatar/' + user.profilePic + '.png'" alt="avatar" />
+              <img class="avatar" [src]="'./assets/img/avatar/' + user.profilePic + '.png'" alt="avatar" />
               <div class="status-dot" [ngClass]="{ online: user.status, offline: !user.status }"></div>
               <span class="mention-name nuito17px400">
                 {{ user.userName }}
@@ -79,7 +79,7 @@
         <div class="mention-popup">
           @for (user of searchMentionUsers; track user) {
             <div class="mention-user" (click)="selectMentionUser(user.userName)">
-              <img class="avatar" [src]="'./../../../assets/img/avatar/' + user.profilePic + '.png'" alt="avatar" />
+              <img class="avatar" [src]="'./assets/img/avatar/' + user.profilePic + '.png'" alt="avatar" />
               <div class="status-dot" [ngClass]="{ online: user.status, offline: !user.status }"></div>
               <span class="mention-name nuito17px400">
                 {{ user.userName }}
