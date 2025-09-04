@@ -381,8 +381,6 @@ export class MainMenuComponent implements OnInit, OnDestroy {
   // Selects a guest channel
   selectGuestChannel(channel: Channel): void {
     this.channelDirectMessageData.setSelectedGuestChannel(channel);
-    console.log(channel.channelId);
-    
     this.closeNewMessage.emit();
     this.chatTypeSelected.emit('channel');
     if (window.innerWidth < 800 && channel.channelId) {
