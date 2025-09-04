@@ -1,4 +1,14 @@
-import { Component, Inject, inject, signal, OnInit, ViewChild, ElementRef, HostListener, Injectable } from '@angular/core';
+import {
+  Component,
+  Inject,
+  inject,
+  signal,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  HostListener,
+  Injectable,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,7 +17,11 @@ import { MatChipsModule, MatChipInputEvent } from '@angular/material/chips';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { FormsModule } from '@angular/forms';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ProfilDialogComponent } from '../../../shared/dialogs/profil-dialog/profil-dialog.component';
 import { SessionService } from '../../../shared/services/currentUserSession.service';
@@ -23,9 +37,13 @@ import { AccountService } from '../../services/account.service';
   selector: 'app-menu-dialog',
   standalone: true,
   imports: [
-    CommonModule, FormsModule,
-    MatCardModule, MatIconModule, MatFormFieldModule,
-    MatChipsModule, MatAutocompleteModule,
+    CommonModule,
+    FormsModule,
+    MatCardModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatChipsModule,
+    MatAutocompleteModule,
   ],
   templateUrl: './menu-dialog.component.html',
   styleUrls: [
@@ -70,17 +88,23 @@ export class MenuDialogComponent implements OnInit {
     this.currentUser = this.userSession.getCurrentUser();
   }
 
-  @HostListener('window:resize', ['$event'])
-  onResize(event: Event): void {
-    this.screenWidth = (event.target as Window).innerWidth;
-    const small = this.screenWidth < 800;
-    if (small !== this.screenSmall) this.updateDialogPosition(small);
+@HostListener('window:resize', ['$event'])
+onResize(event: Event): void {
+  this.screenWidth = (event.target as Window).innerWidth;
+  const small = this.screenWidth < 800;
+  if (small !== this.screenSmall) {
+    this.screenSmall = small;  
+    this.updateDialogPosition(small);
   }
+}
 
-  ngOnInit(): void {
-    this.initDialogData();
-    this.loadUsers();
-  }
+
+ngOnInit(): void {
+  this.screenWidth = window.innerWidth;
+  this.screenSmall = this.screenWidth < 800;
+  this.initDialogData();
+  this.loadUsers();
+}
 
   initDialogData(): void {
     if (this.data.source === 'add-channel') {
@@ -97,17 +121,31 @@ export class MenuDialogComponent implements OnInit {
     this.screenSmall = small;
     this.dialog.closeAll();
     const config = small
-      ? { position: { bottom: '0' }, width: '100vw', panelClass: 'bottom-dialog-panel' }
-      : { position: { top: '80px', right: '16px' }, maxWidth: '282px', maxHeight: '181px', panelClass: 'top-right-dialog-panel' };
+      ? {
+          position: { bottom: '0' },
+          width: '100vw',
+          panelClass: 'bottom-dialog-panel',
+        }
+      : {
+          position: { top: '80px', right: '16px' },
+          maxWidth: '282px',
+          maxHeight: '181px',
+          panelClass: 'top-right-dialog-panel',
+        };
     this.dialog.open(MenuDialogComponent, { ...config, data: this.data });
   }
 
   openProfileDialog(): void {
     this.closeDialog();
     this.dialog.open(ProfilDialogComponent, {
-      maxWidth: '398px', maxHeight: '600px',
+      maxWidth: '398px',
+      maxHeight: '600px',
       panelClass: 'bottom-dialog-panel',
-      data: { user: this.currentUser, loggedUser: this.currentUser?.id, isUser: true },
+      data: {
+        user: this.currentUser,
+        loggedUser: this.currentUser?.id,
+        isUser: true,
+      },
     });
   }
 
@@ -117,9 +155,12 @@ export class MenuDialogComponent implements OnInit {
   }
 
   async createNewChannel(): Promise<void> {
-    if (!this.currentUser && !this.isGastLogin) return console.error('Kein eingeloggter User.');
+    if (!this.currentUser && !this.isGastLogin)
+      return console.error('Kein eingeloggter User.');
     const baseChannel = this.buildChannelData();
-    this.isGastLogin ? this.addGuestChannel(baseChannel) : await this.uploadChannel(baseChannel);
+    this.isGastLogin
+      ? this.addGuestChannel(baseChannel)
+      : await this.uploadChannel(baseChannel);
   }
 
   buildChannelData(): Omit<Channel, 'channelId'> {
@@ -127,20 +168,27 @@ export class MenuDialogComponent implements OnInit {
       name: this.channelName,
       description: this.channelDescription,
       createdBy: this.currentUser!.id!,
-      members: Array.from(new Set([...this.peoples(), this.currentUser!].map(u => u.id!))),
+      members: Array.from(
+        new Set([...this.peoples(), this.currentUser!].map((u) => u.id!))
+      ),
       messages: [],
     };
   }
 
   addGuestChannel(baseChannel: Channel): void {
-    this.channelsDirectMessageService.channels.push({ ...baseChannel, channelId: 'sJuCZwfLcDL9vhADHGB0' });
+    this.channelsDirectMessageService.channels.push({
+      ...baseChannel,
+      channelId: 'sJuCZwfLcDL9vhADHGB0',
+    });
     this.closeDialog();
   }
 
   async uploadChannel(baseChannel: Channel): Promise<void> {
     try {
       const docRef = await this.firestoreService.addChannel(baseChannel);
-      await this.firestoreService.updateChannel(docRef.id, { channelId: docRef.id });
+      await this.firestoreService.updateChannel(docRef.id, {
+        channelId: docRef.id,
+      });
       this.closeDialog();
       if (this.screenSmall) {
         this.router.navigate(['/main-menu']);
@@ -154,9 +202,12 @@ export class MenuDialogComponent implements OnInit {
 
   async addMembers(): Promise<void> {
     if (this.isGastLogin || !this.currentUser) return;
-    const membersToAdd = this.peoples().map(u => u.id!);
+    const membersToAdd = this.peoples().map((u) => u.id!);
     try {
-      await this.firestoreService.addMembersToChannel(this.channelId, membersToAdd);
+      await this.firestoreService.addMembersToChannel(
+        this.channelId,
+        membersToAdd
+      );
       this.dialogRef.close({ membersAdded: true });
     } catch (error) {
       console.error('Fehler beim Hinzufügen der Mitglieder:', error);
@@ -169,21 +220,24 @@ export class MenuDialogComponent implements OnInit {
       .trim();
     const membersInChannel = this.channelMembers();
     this.filteredUsers.set(
-      this.allUsers().filter(u =>
-        (u.userName ?? '').toLowerCase().startsWith(query) &&
-        !this.peoples().some(p => p.userName === u.userName) &&
-        !membersInChannel.includes(u.id!)
+      this.allUsers().filter(
+        (u) =>
+          (u.userName ?? '').toLowerCase().startsWith(query) &&
+          !this.peoples().some((p) => p.userName === u.userName) &&
+          !membersInChannel.includes(u.id!)
       )
     );
   }
 
   selectUser(userName: string): void {
-    const user = this.allUsers().find(u => u.userName === userName);
+    const user = this.allUsers().find((u) => u.userName === userName);
     if (!user) return;
 
-    if (!this.peoples().some(p => p.userName === user.userName) &&
-      !this.channelMembers().includes(user.id!)) {
-      this.peoples.update(p => [...p, user]);
+    if (
+      !this.peoples().some((p) => p.userName === user.userName) &&
+      !this.channelMembers().includes(user.id!)
+    ) {
+      this.peoples.update((p) => [...p, user]);
     }
     this.clearSearch();
   }
@@ -191,28 +245,43 @@ export class MenuDialogComponent implements OnInit {
   addFromText(event: MatChipInputEvent): void {
     const value = (event.value || '').trim();
     if (!value) return;
-    const match = this.allUsers().find(u => u.userName.toLowerCase() === value.toLowerCase());
+    const match = this.allUsers().find(
+      (u) => u.userName.toLowerCase() === value.toLowerCase()
+    );
     if (match) this.selectUser(match.userName);
     this.clearSearch();
   }
 
-  onInputBlur(): void { setTimeout(() => this.tryAddFromSearchTerm(), 150); }
-  autocompleteOpened(): void { this.autocompleteIsOpen = true; }
-  autocompleteClosed(): void { this.autocompleteIsOpen = false; this.tryAddFromSearchTerm(); }
+  onInputBlur(): void {
+    setTimeout(() => this.tryAddFromSearchTerm(), 150);
+  }
+  autocompleteOpened(): void {
+    this.autocompleteIsOpen = true;
+  }
+  autocompleteClosed(): void {
+    this.autocompleteIsOpen = false;
+    this.tryAddFromSearchTerm();
+  }
 
   tryAddFromSearchTerm(): void {
-    const val = (typeof this.searchTerm === 'string' ? this.searchTerm : '').trim();
+    const val = (
+      typeof this.searchTerm === 'string' ? this.searchTerm : ''
+    ).trim();
     if (!val) return;
-    const match = this.allUsers().find(u => (u.userName ?? '').toLowerCase() === val.toLowerCase());
+    const match = this.allUsers().find(
+      (u) => (u.userName ?? '').toLowerCase() === val.toLowerCase()
+    );
     if (match) this.selectUser(match.userName);
   }
 
   remove(people: appUser): void {
-    this.peoples.update(p => p.filter(u => u !== people));
+    this.peoples.update((p) => p.filter((u) => u !== people));
     this.announcer.announce(`Removed ${people.userName}`);
   }
 
-  closeDialog(): void { this.dialogRef.close(); }
+  closeDialog(): void {
+    this.dialogRef.close();
+  }
 
   async loadUsers(): Promise<void> {
     if (this.isGastLogin) this.loadGuestUsers();
@@ -220,21 +289,29 @@ export class MenuDialogComponent implements OnInit {
   }
 
   loadGuestUsers(): void {
-    const users = this.channelsDirectMessageService.getDirectMessagesForGast().map(dm => ({
-      id: dm.id,
-      userName: dm.name,
-      profilePic: parseInt(dm.img.replace('.png', ''), 10) || 0,
-      status: dm.status === 'online',
-      email: '',
-    }));
+    const users = this.channelsDirectMessageService
+      .getDirectMessagesForGast()
+      .map((dm) => ({
+        id: dm.id,
+        userName: dm.name,
+        profilePic: parseInt(dm.img.replace('.png', ''), 10) || 0,
+        status: dm.status === 'online',
+        email: '',
+      }));
     this.allUsers.set(users);
     this.filteredUsers.set(users);
   }
 
   async loadLiveUsers(): Promise<void> {
-    const usersFromFirestore = await firstValueFrom(this.firestoreService.getUsers());
+    const usersFromFirestore = await firstValueFrom(
+      this.firestoreService.getUsers()
+    );
     const users: appUser[] = usersFromFirestore.map((u: any) => ({
-      id: u.id, userName: u.userName, profilePic: u.profilePic, status: u.status, email: u.email,
+      id: u.id,
+      userName: u.userName,
+      profilePic: u.profilePic,
+      status: u.status,
+      email: u.email,
     }));
     this.allUsers.set(users);
     this.filteredUsers.set(users);
@@ -242,7 +319,7 @@ export class MenuDialogComponent implements OnInit {
 
   async loadChannelMembers(): Promise<void> {
     const channels = await firstValueFrom(this.firestoreService.getChannels());
-    const channel = channels.find(c => c.channelId === this.channelId);
+    const channel = channels.find((c) => c.channelId === this.channelId);
     if (channel) this.channelMembers.set(channel.members);
   }
 

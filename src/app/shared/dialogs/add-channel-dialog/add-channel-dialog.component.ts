@@ -7,7 +7,11 @@ import { MatInputModule } from '@angular/material/input';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MenuDialogComponent } from '../menu-dialog/menu-dialog.component';
-import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import {
   Firestore,
   collection,
@@ -16,6 +20,7 @@ import {
   getDocs,
 } from '@angular/fire/firestore';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { Optional } from '@angular/core';
 
 @Component({
   selector: 'app-add-channel-dialog',
@@ -37,6 +42,9 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 })
 export class AddChannelDialogComponent {
   readonly dialog = inject(MatDialog);
+  readonly dialogRef = inject(MatDialogRef<AddChannelDialogComponent>, {
+    optional: true,
+  });
   readonly document = inject(DOCUMENT);
   readonly router = inject(Router);
   readonly firestore = inject(Firestore);
@@ -48,7 +56,7 @@ export class AddChannelDialogComponent {
   isSmallScreen = this.screenWidth < 800;
   channelNameTaken = false;
   nameInput$ = new Subject<string>();
-  
+
   constructor() {
     this.nameInput$
       .pipe(debounceTime(400), distinctUntilChanged())
@@ -79,6 +87,13 @@ export class AddChannelDialogComponent {
     }
   }
 
+closeDialog(): void {
+  if (this.dialogRef) {
+    this.dialogRef.close();
+  } else {
+    this.router.navigate(['/main-menu']);
+  }
+}
   handleScreenChange(): void {
     this.dialog.closeAll();
     this.isSmallScreen ? this.switchToMobile() : this.switchToDesktop();
@@ -107,6 +122,7 @@ export class AddChannelDialogComponent {
   }
 
   openMiddleDialog(): void {
+    this.closeDialog();
     this.dialog.open(MenuDialogComponent, {
       panelClass: 'middle-dialog-panel',
       data: this.getDialogData(),
