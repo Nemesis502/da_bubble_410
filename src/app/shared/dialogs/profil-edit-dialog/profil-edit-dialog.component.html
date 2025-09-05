@@ -14,7 +14,7 @@
   </mat-card-header>
   <mat-card-content class="profil-image">
     <img
-      src="./assets/img/profil/{{ currentUser?.profilePic }}.png"
+      [src]="'./assets/img/profil/' + selectedAvatar + '.png'"
       alt="Avatar von Frederik Beck (Du)"
     />
   </mat-card-content>

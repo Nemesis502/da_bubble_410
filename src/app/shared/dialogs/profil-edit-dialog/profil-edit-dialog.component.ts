@@ -33,7 +33,7 @@ export class ProfilEditDialogComponent {
   newName = '';
   currentUser: appUser | null;
   avatars: number[] = [1,2,3,4,5,6];
-  selectedAvatar: number = 0; // keep as number
+  selectedAvatar: number = 0; 
   constructor(
     private dialogRef: MatDialogRef<ProfilEditDialogComponent>,
     private userSession: SessionService,
@@ -59,7 +59,7 @@ async saveUserName(): Promise<void> {
     const updatedUser: appUser = {
       ...this.currentUser,
       userName: this.newName.trim() || this.currentUser.userName,
-      profilePic: this.selectedAvatar, // keep as number
+      profilePic: this.selectedAvatar, 
     };
 
     if (!this.isGuestUser()) {
