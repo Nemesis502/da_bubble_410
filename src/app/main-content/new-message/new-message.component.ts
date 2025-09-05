@@ -21,6 +21,7 @@ import {
 } from '../../shared/services/mentions.service';
 import { NewMessageSendingService } from '../../shared/services/new-message-sending.service';
 import { AutocompleteService } from '../../shared/services/autocomplete.service';
+import { ChannelsDirectMessageService } from '../../shared/services/channels-direct-message.service';
 
 interface PickerPosition {
   top: number;
@@ -70,26 +71,47 @@ export class NewMessageComponent implements OnInit {
     private mentionService: MentionService,
     private autocompleteService: AutocompleteService,
     private router: Router,
-    private elementRef: ElementRef
+    private elementRef: ElementRef,
+    private guestService: ChannelsDirectMessageService
   ) {}
 
   // Component initialization
   async ngOnInit(): Promise<void> {
     this.currentUser = this.userSession.getCurrentUser();
+    console.log(this.currentUser);
     await this.loadInitialData();
   }
 
   // Load initial users and channels for mentions and hashtags
-  private async loadInitialData(): Promise<void> {
-    if (!this.currentUser?.id) return;
+private async loadInitialData(): Promise<void> {
+  if (!this.currentUser?.id) return;
 
-    this.allChannels = await this.mentionService.fetchUserChannels(
-      this.currentUser.id
-    );
+  this.allChannels = await this.mentionService.fetchUserChannels(
+    this.currentUser.id
+  );
+
+  if (this.currentUser.id === 'Guest') {
+    this.mentionableUsers = this.getGuestMentionableUsers();
+  } else {
     this.mentionableUsers = await this.mentionService.fetchMentionableUsers(
       this.selectedChannel?.id || null
     );
   }
+}
+
+/** Helper function to transform Guest users into mentionable format */
+private getGuestMentionableUsers() {
+  return this.guestService.directMessagesForGast.map((u) => {
+    const picNumber = u.img.replace('.png', ''); // strip file extension
+    return {
+      userName: u.name,
+      id: u.id || u.name,
+      profilePic: picNumber,
+      status: u.status === 'online',
+    };
+  });
+}
+
 
   // Navigate back to main menu
   navigateToMain(): void {
@@ -274,12 +296,17 @@ export class NewMessageComponent implements OnInit {
 
   // Update mention and hashtag lists based on current text
   private updateAutocompleteLists(): void {
-    this.searchMentionUsers = this.autocompleteService.filterMentions(
-      this.chatMessage,
-      this.mentionableUsers
-    );
+    if (this.currentUser?.id === 'Guest') {
+      this.searchMentionUsers = this.mentionableUsers.filter((u) =>
+        this.chatMessage.includes(u.userName)
+      );
+    } else {
+      this.searchMentionUsers = this.autocompleteService.filterMentions(
+        this.chatMessage,
+        this.mentionableUsers
+      );
+    }
     this.mentionPopupVisible = this.chatMessage.includes('@');
-
     this.searchHashtagChannels = this.autocompleteService.filterHashtags(
       this.chatMessage,
       this.allChannels
