@@ -101,10 +101,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private directMessageService: DirectMessageService
   ) {
-    // Initializes user based on navigation state
     this.initializeUserFromNavigation();
-    console.log(this.gastLogin);
-    
   }
 
   // Angular OnInit lifecycle: setup user session and load channels/users

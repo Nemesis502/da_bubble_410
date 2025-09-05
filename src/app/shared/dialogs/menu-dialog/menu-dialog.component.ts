@@ -161,8 +161,6 @@ export class MenuDialogComponent implements OnInit {
       this.peoples.set(this.allUsers());
     }
     const baseChannel = this.buildChannelData();
-    console.log(baseChannel);
-
     this.isGastLogin
       ? this.addGuestChannel(baseChannel)
       : await this.uploadChannel(baseChannel);
