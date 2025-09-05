@@ -245,19 +245,21 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
   }
 
   // Update component state when a guest channel is selected
-  private async setGuestChannelState(channel: Channel) {
-    this.otherUser = null;
-    this.chatIsConversation = false;
-    this.chatIsThread = false;
-    this.selectedChannel = channel;
-    await this.chatService.initializeChat(
-      channel.channelId!,
-      this.currentUser!.id
-    );
-    this.members = this.guestService.mapChannelMembers(channel);
-    this.chatIsChannel = true;
-    this.scrollToBottom();
-  }
+private async setGuestChannelState(channel: Channel) {
+  this.otherUser = null;
+  this.chatIsConversation = false;
+  this.chatIsThread = false;
+  this.selectedChannel = channel;
+  await this.chatService.initializeChat(channel.channelId!, this.currentUser!.id);
+  const guestMembers = this.guestService.mapChannelMembers(channel);
+  const existingMemberIds = new Set(this.members.map(m => m.id));
+  this.members = [
+    ...this.members.filter(m => existingMemberIds.has(m.id)),  
+    ...guestMembers.filter(m => !existingMemberIds.has(m.id))  
+  ];
+  this.chatIsChannel = true;
+  this.scrollToBottom();
+}
 
   // ----------------------- Message Handling -----------------------
 
