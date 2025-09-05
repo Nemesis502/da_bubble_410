@@ -86,24 +86,29 @@
     }
 
     <div class="chat-header-members">
-      @if (chatIsChannel && !chatIsConversation) {
-      <div class="member-display" (click)="openMemberDialog()">
-        @for (member of members.slice(0, 3); track member) { @if (member) {
+  <!-- Only show member avatars on desktop -->
+  @if (chatIsChannel && !chatIsConversation && !isMobile) {
+    <div class="member-display" (click)="openMemberDialog()">
+      @for (member of members.slice(0, 3); track member) { @if (member) {
         <img
           class="member-avatar"
           [src]="'assets/img/avatar/' + (member?.profilePic || '1') + '.png'"
           [alt]="member.userName + ' avatar'"
           [title]="member.userName"
         />
-        } }
-        <span class="member-count nuito18px700">{{ members.length }}</span>
-      </div>
-
-      <button class="add-user-button" (click)="openAddPeopleDialog()">
-        <mat-icon class="mat-icon-top" fontIcon="person_add_alt"></mat-icon>
-      </button>
-      }
+      } }
+      <span class="member-count nuito18px700">{{ members.length }}</span>
     </div>
+  }
+
+  <!-- Add user button always visible -->
+  @if (chatIsChannel && !chatIsConversation) {
+    <button class="add-user-button" (click)="openAddPeopleDialog()">
+      <mat-icon class="mat-icon-top" fontIcon="person_add_alt"></mat-icon>
+    </button>
+  }
+</div>
+
   </section>
 
   <section class="chat-body" #chatBody>
