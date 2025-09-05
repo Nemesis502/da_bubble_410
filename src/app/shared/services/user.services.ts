@@ -58,4 +58,21 @@ export class UserService {
             email: obj.email || "",
         };
     }
+
+    async updateUser(currentLoginId: string, updatedUser: Partial<appUser>) {
+  const currentUserDocRef = doc(this.firestore, 'users', currentLoginId);
+  const updateData: Partial<appUser> = {};
+
+  if (updatedUser.userName !== undefined) {
+    updateData.userName = updatedUser.userName;
+  }
+
+  if (updatedUser.profilePic !== undefined) {
+    updateData.profilePic = updatedUser.profilePic;
+  }
+
+  await updateDoc(currentUserDocRef, updateData)
+    .catch(err => console.error('Fehler beim Aktualisieren des Benutzers:', err));
+}
+
 }

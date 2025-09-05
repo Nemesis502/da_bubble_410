@@ -36,7 +36,6 @@ export class ProfilDialogComponent {
   isUser: boolean;
   loggedInUserId: string | null;
 
-
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: ProfilDialogData,
     private directMessageService: DirectMessageService,
@@ -60,32 +59,28 @@ export class ProfilDialogComponent {
     });
   }
 
-openDirectMessage(): void {
-  const senderId = this.loggedInUserId;
-  const receiverId = this.currentUser?.id;
-
-  if (!senderId || !receiverId) {
-    console.error('Cannot open conversation: missing user IDs');
-    return;
+  openDirectMessage(): void {
+    const senderId = this.loggedInUserId;
+    const receiverId = this.currentUser?.id;
+    if (!senderId || !receiverId) {
+      return;
+    }
+    this.directMessageService
+      .findAndOpenConversation(senderId, receiverId, {
+        onConversationOpened: (conversationId: string) => {
+          if (window.innerWidth < 800) {
+            this.router.navigate([
+              '/chat-container/conversation',
+              conversationId,
+            ]);
+          } else {
+            this.newMessageService.selectChat(conversationId, 'conversation');
+          }
+        },
+      })
+      .then(() => this.closeDialog())
+      .catch((err) => console.error('Failed to open conversation:', err));
   }
-
-  this.directMessageService
-    .findAndOpenConversation(senderId, receiverId, {
-      onConversationOpened: (conversationId: string) => {
-        if (window.innerWidth < 800) {
-          // 🔹 Small screen → navigate
-          this.router.navigate([
-            '/chat-container/conversation',
-            conversationId,
-          ]);
-        } else {
-          this.newMessageService.selectChat(conversationId, 'conversation');
-        }
-      },
-    })
-    .then(() => this.closeDialog())
-    .catch((err) => console.error('Failed to open conversation:', err));
-}
 
   canOpenConversation(): boolean {
     return !!this.loggedInUserId && !!this.currentUser?.id;

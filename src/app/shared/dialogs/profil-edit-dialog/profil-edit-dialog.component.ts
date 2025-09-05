@@ -21,42 +21,55 @@ import { appUser } from '../../../interfaces/user.interface';
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
-    FormsModule
+    FormsModule,
   ],
   templateUrl: './profil-edit-dialog.component.html',
   styleUrls: [
     './profil-edit-dialog.component.scss',
-    './profil-edit-dialog.media-query.component.scss'
-  ]
+    './profil-edit-dialog.media-query.component.scss',
+  ],
 })
 export class ProfilEditDialogComponent {
   newName = '';
   currentUser: appUser | null;
-
+  avatars: number[] = [1,2,3,4,5,6];
+  selectedAvatar: number = 0; // keep as number
   constructor(
     private dialogRef: MatDialogRef<ProfilEditDialogComponent>,
     private userSession: SessionService,
     private userService: UserService
   ) {
-    this.currentUser = this.userSession.getCurrentUser();
+     this.currentUser = this.userSession.getCurrentUser();
+        this.selectedAvatar = this.currentUser?.profilePic ?? 0; 
   }
 
   closeDialog(): void {
     this.dialogRef.close();
   }
 
-  async saveUserName(): Promise<void> {
+
+  selectAvatar(avatar: number): void {
+    this.selectedAvatar = avatar;
+  }
+
+
+async saveUserName(): Promise<void> {
     if (!this.currentUser) return;
 
-    const updatedUser = this.buildUpdatedUser();
+    const updatedUser: appUser = {
+      ...this.currentUser,
+      userName: this.newName.trim() || this.currentUser.userName,
+      profilePic: this.selectedAvatar, // keep as number
+    };
 
     if (!this.isGuestUser()) {
-      await this.updateUserNameInService();
+      await this.userService.updateUser(this.currentUser.id!, updatedUser);
     }
 
-    this.userSession.setCurrentUser(updatedUser);
+    this.userSession.setCurrentUser(updatedUser); // ✅ types now match
     this.dialogRef.close(updatedUser);
   }
+
 
   buildUpdatedUser(): appUser {
     return { ...this.currentUser!, userName: this.newName };
