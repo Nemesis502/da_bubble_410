@@ -50,6 +50,7 @@ export class MainContentComponent {
   currentUser$ = this.userSession.currentLogingUser$;
   currentChatType: 'channel' | 'conversation' | null = null;
   isSmallScreen = window.innerWidth < 800;
+  private firstLoad = true;
 
   constructor(
     private userSession: SessionService,
@@ -100,6 +101,10 @@ export class MainContentComponent {
     await this.loadCurrentUser();
     this.loadAllChannels();
     this.handleResize();
+      if (!this.currentChatId && this.firstLoad) {
+    this.showNewMessage = true;
+    this.firstLoad = false;
+  }
   }
 
   // Listen for window resize events
@@ -159,9 +164,6 @@ export class MainContentComponent {
       : [...channels];
 
     this.searchService.setFirestoreChannels(channels);
-     if (!this.currentChatId) {
-        this.showNewMessageOnLoad();
-    }
   }
 
   // Automatically shows New Message on load
@@ -189,13 +191,13 @@ export class MainContentComponent {
   }
 
   // Sets the currently selected chat and resets thread view
-  onChatSelected(chatId: string): void {
-    this.currentChatId = chatId;
-    this.showNewMessage = false;
-    this.showThread = false;
-    this.currentThreadId = null;
-  }
-  
+onChatSelected(chatId: string): void {
+  this.currentChatId = chatId;
+  this.showNewMessage = false;
+  this.showThread = false;
+  this.currentThreadId = null;
+}
+
   // Opens a thread for the given thread ID
   openThread(threadId: string): void {
     this.currentThreadId = threadId;

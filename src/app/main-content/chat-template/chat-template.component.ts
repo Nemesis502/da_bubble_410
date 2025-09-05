@@ -196,9 +196,19 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
   // Initialize chat data based on threadId or chatId
   private async initializeChatBasedOnThreadOrChatId(): Promise<void> {
     const id = this.threadId ?? this.chatId;
-    if (!id) return;
+    if (!id || !this.currentUser) return;
+
     this.isThreadView = !!this.threadId;
-    await this.chatService.initializeChat(id, this.currentUser?.id);
+
+    // Normal subscription setup
+    if (this.currentUser.id === 'Guest') {
+      this.setupGuestSubscriptions();
+    }
+
+    // Initialize chat for this ID
+    await this.chatService.initializeChat(id, this.currentUser.id);
+
+    console.log('Chat initialized for ID:', id);
   }
 
   // ----------------------- Guest Subscriptions -----------------------

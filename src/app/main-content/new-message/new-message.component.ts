@@ -78,7 +78,6 @@ export class NewMessageComponent implements OnInit {
   // Component initialization
   async ngOnInit(): Promise<void> {
     this.currentUser = this.userSession.getCurrentUser();
-    console.log(this.currentUser);
     await this.loadInitialData();
   }
 
@@ -111,7 +110,6 @@ private getGuestMentionableUsers() {
     };
   });
 }
-
 
   // Navigate back to main menu
   navigateToMain(): void {
