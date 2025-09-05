@@ -46,7 +46,6 @@ export class MentionService {
 
   /** Guest users come from directMessagesForGast */
   private getGuestMentionableUsers(): MentionUser[] {
-    console.log('triggered for Guest')
     return this.guestService.directMessagesForGast.map((u) => {
       const picNumber = u.img.replace('.png', '');
       return {
