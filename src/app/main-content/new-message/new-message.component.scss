@@ -216,11 +216,11 @@ img {
   }
 
   .online {
-    background-color: #2ecc71;
+    background-color: $onlineGreen;
   }
 
   .offline {
-    background-color: #bdc3c7;
+    background-color: $TextGray;
   }
 
   .mention-name {
