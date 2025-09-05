@@ -1,4 +1,13 @@
-import { Component, EventEmitter, inject, Input, OnChanges, Output, signal, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  OnChanges,
+  Output,
+  signal,
+  SimpleChanges,
+} from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,7 +23,10 @@ import { TextFieldModule } from '@angular/cdk/text-field';
 import { MatDialog } from '@angular/material/dialog';
 import { SessionService } from '../../shared/services/currentUserSession.service';
 import { MenuDialogComponent } from '../../shared/dialogs/menu-dialog/menu-dialog.component';
-import { ChannelsDirectMessageService, DirectMessage } from '../../shared/services/channels-direct-message.service';
+import {
+  ChannelsDirectMessageService,
+  DirectMessage,
+} from '../../shared/services/channels-direct-message.service';
 
 @Component({
   selector: 'app-channel-info',
@@ -25,7 +37,7 @@ import { ChannelsDirectMessageService, DirectMessage } from '../../shared/servic
     MatButtonModule,
     MatIconModule,
     FormsModule,
-    TextFieldModule
+    TextFieldModule,
   ],
   templateUrl: './channel-info.component.html',
   styleUrls: ['./channel-info.component.scss'],
@@ -41,7 +53,7 @@ export class ChannelInfoComponent implements OnChanges {
 
   @Input() channelId = '';
   @Output() closeChannelInfo = new EventEmitter<void>();
-
+  @Output() nameChanged = new EventEmitter<string>();
   channel: Channel | null = null;
   members = signal<appUser[]>([]);
   currentUser: appUser | null = null;
@@ -71,7 +83,7 @@ export class ChannelInfoComponent implements OnChanges {
 
   async loadChannel(): Promise<void> {
     const channels = await this.getChannels();
-    const found = channels.find(c => c.channelId === this.channelId);
+    const found = channels.find((c) => c.channelId === this.channelId);
     if (!found) return;
 
     this.channel = found;
@@ -81,7 +93,8 @@ export class ChannelInfoComponent implements OnChanges {
   }
 
   async getChannels(): Promise<Channel[]> {
-    if (this.isGastLogin) return this.channelsDirectMessageService.getChannels();
+    if (this.isGastLogin)
+      return this.channelsDirectMessageService.getChannels();
     return await firstValueFrom(this.firestoreService.getChannels());
   }
 
@@ -94,10 +107,14 @@ export class ChannelInfoComponent implements OnChanges {
   async getCreator(userId: string): Promise<appUser | null> {
     if (!userId) return null;
     if (this.isGastLogin) {
-      const dm = this.channelsDirectMessageService.getDirectMessagesForGast().find(u => u.id === userId || u.name === userId);
+      const dm = this.channelsDirectMessageService
+        .getDirectMessagesForGast()
+        .find((u) => u.id === userId || u.name === userId);
       return dm ? this.convertDmToAppUser(dm) : null;
     }
-    return (await firstValueFrom(this.firestoreService.getUserById(userId))) as appUser;
+    return (await firstValueFrom(
+      this.firestoreService.getUserById(userId)
+    )) as appUser;
   }
 
   convertDmToAppUser(dm: DirectMessage): appUser {
@@ -112,29 +129,45 @@ export class ChannelInfoComponent implements OnChanges {
 
   async loadMembers(): Promise<void> {
     const users = await this.getUsers();
-    const memberList = users.filter(u => this.channel?.members.includes(u.id!));
-    const sorted = memberList.sort((a, b) => (a.id === this.currentUser?.id ? -1 : b.id === this.currentUser?.id ? 1 : 0));
+    const memberList = users.filter((u) =>
+      this.channel?.members.includes(u.id!)
+    );
+    const sorted = memberList.sort((a, b) =>
+      a.id === this.currentUser?.id ? -1 : b.id === this.currentUser?.id ? 1 : 0
+    );
     this.members.set(sorted);
   }
 
   async getUsers(): Promise<appUser[]> {
-    if (this.isGastLogin) return this.channelsDirectMessageService.getDirectMessagesForGast().map(this.convertDmToAppUser.bind(this));
+    if (this.isGastLogin)
+      return this.channelsDirectMessageService
+        .getDirectMessagesForGast()
+        .map(this.convertDmToAppUser.bind(this));
     return await firstValueFrom(this.firestoreService.getUsers());
   }
 
-  async saveName(): Promise<void> {
-    if (!this.channelId || !this.newChannelName.trim()) return;
-    this.channelNameInput = this.newChannelName.trim();
-    await updateDoc(this.firestoreService.getChannelDocRef(this.channelId), { name: this.channelNameInput });
-    this.editName = false;
-    this.newChannelName = '';
-    await this.loadChannel();
-  }
+async saveName(): Promise<void> {
+  if (!this.channelId || !this.newChannelName.trim()) return;
+
+  const trimmedName = this.newChannelName.trim();
+  await updateDoc(this.firestoreService.getChannelDocRef(this.channelId), { name: trimmedName });
+
+  // Update local channel
+  this.channelNameInput = trimmedName;
+  this.channel!.name = trimmedName;
+  this.newChannelName = '';
+  this.editName = false;
+
+  // Emit the new name to parent
+  this.nameChanged.emit(trimmedName);
+}
 
   async saveDescription(): Promise<void> {
     if (!this.channelId || !this.newChannelDescription.trim()) return;
     this.channelDescriptionInput = this.newChannelDescription.trim();
-    await updateDoc(this.firestoreService.getChannelDocRef(this.channelId), { description: this.channelDescriptionInput });
+    await updateDoc(this.firestoreService.getChannelDocRef(this.channelId), {
+      description: this.channelDescriptionInput,
+    });
     this.editDescription = false;
     this.newChannelDescription = '';
     await this.loadChannel();
@@ -147,7 +180,11 @@ export class ChannelInfoComponent implements OnChanges {
       width: '100vw',
       height: '50vh',
       panelClass: 'bottom-dialog-panel',
-      data: { source: 'channel-info', channelId: this.channelId, currentUser: this.currentUser },
+      data: {
+        source: 'channel-info',
+        channelId: this.channelId,
+        currentUser: this.currentUser,
+      },
     });
 
     dialogRef.afterClosed().subscribe(async () => {
@@ -158,13 +195,17 @@ export class ChannelInfoComponent implements OnChanges {
 
   async leaveChannel(): Promise<void> {
     if (!this.channel || !this.currentUser?.id) return;
-    const updatedMembers = this.channel.members.filter(id => id !== this.currentUser!.id);
-    await updateDoc(this.firestoreService.getChannelDocRef(this.channelId), { members: updatedMembers });
+    const updatedMembers = this.channel.members.filter(
+      (id) => id !== this.currentUser!.id
+    );
+    await updateDoc(this.firestoreService.getChannelDocRef(this.channelId), {
+      members: updatedMembers,
+    });
     if (!this.isMobile) {
       this.router.navigate(['/main']);
     } else {
       this.router.navigate(['/main-menu']);
-    } 
+    }
     this.close();
   }
 

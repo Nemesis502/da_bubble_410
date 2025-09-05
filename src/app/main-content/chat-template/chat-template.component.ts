@@ -197,18 +197,11 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
   private async initializeChatBasedOnThreadOrChatId(): Promise<void> {
     const id = this.threadId ?? this.chatId;
     if (!id || !this.currentUser) return;
-
     this.isThreadView = !!this.threadId;
-
-    // Normal subscription setup
     if (this.currentUser.id === 'Guest') {
       this.setupGuestSubscriptions();
     }
-
-    // Initialize chat for this ID
     await this.chatService.initializeChat(id, this.currentUser.id);
-
-    console.log('Chat initialized for ID:', id);
   }
 
   // ----------------------- Guest Subscriptions -----------------------
@@ -378,6 +371,12 @@ private async setGuestChannelState(channel: Channel) {
   openChannelInfo(): void {
     this.isChannelInfoOpen = true;
   }
+
+  updateChannelName(newName: string) {
+  if (this.selectedChannel) {
+    this.selectedChannel.name = newName;
+  }
+}
   // ----------------------- Mentions & Hashtags -----------------------
 
   /** Checks if a mention should be triggered based on keyboard input */
