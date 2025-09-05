@@ -85,30 +85,14 @@ export class NewMessageComponent implements OnInit {
 private async loadInitialData(): Promise<void> {
   if (!this.currentUser?.id) return;
 
-  this.allChannels = await this.mentionService.fetchUserChannels(
-    this.currentUser.id
-  );
+  this.allChannels = await this.mentionService.fetchUserChannels(this.currentUser.id);
 
-  if (this.currentUser.id === 'Guest') {
-    this.mentionableUsers = this.getGuestMentionableUsers();
+  // If no channel is selected (new message view), fetch global mentionable users
+  if (this.selectedChannel?.id) {
+    this.mentionableUsers = await this.mentionService.fetchMentionableUsers(this.selectedChannel.id);
   } else {
-    this.mentionableUsers = await this.mentionService.fetchMentionableUsers(
-      this.selectedChannel?.id || null
-    );
+    this.mentionableUsers = await this.mentionService.fetchAllUsers(); // ✅ implement in MentionService
   }
-}
-
-/** Helper function to transform Guest users into mentionable format */
-private getGuestMentionableUsers() {
-  return this.guestService.directMessagesForGast.map((u) => {
-    const picNumber = u.img.replace('.png', ''); // strip file extension
-    return {
-      userName: u.name,
-      id: u.id || u.name,
-      profilePic: picNumber,
-      status: u.status === 'online',
-    };
-  });
 }
 
   // Navigate back to main menu
@@ -293,24 +277,26 @@ private getGuestMentionableUsers() {
   }
 
   // Update mention and hashtag lists based on current text
-  private updateAutocompleteLists(): void {
-    if (this.currentUser?.id === 'Guest') {
-      this.searchMentionUsers = this.mentionableUsers.filter((u) =>
-        this.chatMessage.includes(u.userName)
-      );
-    } else {
-      this.searchMentionUsers = this.autocompleteService.filterMentions(
-        this.chatMessage,
-        this.mentionableUsers
-      );
-    }
-    this.mentionPopupVisible = this.chatMessage.includes('@');
-    this.searchHashtagChannels = this.autocompleteService.filterHashtags(
-      this.chatMessage,
-      this.allChannels
+private updateAutocompleteLists(): void {
+  if (this.currentUser?.id === 'Guest') {
+    const match = this.chatMessage.match(/@(\w*)$/); 
+    const query = match ? match[1].toLowerCase() : '';
+    this.searchMentionUsers = this.mentionableUsers.filter((u) =>
+      u.userName.toLowerCase().includes(query)
     );
-    this.hashtagPopupVisible = this.chatMessage.includes('#');
+  } else {
+    this.searchMentionUsers = this.autocompleteService.filterMentions(
+      this.chatMessage,
+      this.mentionableUsers
+    );
   }
+  this.mentionPopupVisible = this.chatMessage.includes('@');
+  this.searchHashtagChannels = this.autocompleteService.filterHashtags(
+    this.chatMessage,
+    this.allChannels
+  );
+  this.hashtagPopupVisible = this.chatMessage.includes('#');
+}
 
   /** INSERTING MENTION OR HASHTAG */
   // Insert selected user mention into chat

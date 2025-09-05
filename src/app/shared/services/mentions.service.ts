@@ -8,6 +8,8 @@ import {
   query,
   where,
 } from '@angular/fire/firestore';
+import { ChannelsDirectMessageService } from './channels-direct-message.service';
+import { SessionService } from './currentUserSession.service';
 
 export interface MentionUser {
   id: string;
@@ -23,10 +25,15 @@ export interface MentionChannel {
 
 @Injectable({ providedIn: 'root' })
 export class MentionService {
-  constructor(private firestore: Firestore) {}
+  constructor(private firestore: Firestore,private guestService: ChannelsDirectMessageService,private sessionService: SessionService ) {}
 
   /** Fetch users for a channel, fallback to all users */
   async fetchMentionableUsers(channelId: string | null): Promise<MentionUser[]> {
+    const currentUser = this.sessionService.getCurrentUser();
+    if (currentUser?.id === 'Guest') {
+      return this.getGuestMentionableUsers();
+    }
+
     if (!channelId) return this.fetchAllUsers();
 
     const channelSnap = await getDoc(doc(this.firestore, `channels/${channelId}`));
@@ -35,6 +42,20 @@ export class MentionService {
     const memberIds: string[] = channelSnap.data()?.['members'] || [];
     const users = await Promise.all(memberIds.map((id) => this.fetchUserById(id)));
     return users.filter(Boolean) as MentionUser[];
+  }
+
+  /** Guest users come from directMessagesForGast */
+  private getGuestMentionableUsers(): MentionUser[] {
+    console.log('triggered for Guest')
+    return this.guestService.directMessagesForGast.map((u) => {
+      const picNumber = u.img.replace('.png', '');
+      return {
+        id: u.id || u.name,
+        userName: u.name,
+        profilePic: picNumber,
+        status: u.status === 'online',
+      };
+    });
   }
 
   /** Fetch single user by ID */
@@ -52,7 +73,7 @@ export class MentionService {
   }
 
   /** Fetch all users */
-  private async fetchAllUsers(): Promise<MentionUser[]> {
+ async fetchAllUsers(): Promise<MentionUser[]> {
     const usersCollectionRef = collection(this.firestore, 'users');
     const querySnapshot = await getDocs(usersCollectionRef);
 
