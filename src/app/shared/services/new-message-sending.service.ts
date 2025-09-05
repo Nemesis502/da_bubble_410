@@ -66,7 +66,7 @@ async sendDirectMessage(
     });
 
       if (window.innerWidth < 800) {
-      this.router.navigate([`/chat-container/chat/${channelId}`]);
+      this.router.navigate([`/chat-container/channel/${channelId}`]);
     } else {
       this.chatSelected.emit(channelId);
       this.chatTypeSelected.emit('channel');
