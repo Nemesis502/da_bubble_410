@@ -379,7 +379,9 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
   openUserProfileDialog(message: any): void {
     const loggedUserId = this.currentUser;
     const userId = message.senderID;
-
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
     this.firestoreService
       .getUserById(userId)
       .pipe(take(1))
