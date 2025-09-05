@@ -199,7 +199,17 @@ export class SearchComponent {
   }
 
   selectDirectMessageGast(user: DirectMessage): void {
-    this.router.navigate(['/chat', user.name]);
+    this.channelDirectMessageData.setSelectedDirectMessageGast(user);
+    this.closeNewMessage.emit();
+
+    if (window.innerWidth < 800) {
+      this.router.navigate(['/chat-container', 'conversation', 'guest', encodeURIComponent(user.name)]);
+    } else {
+      this.chatTypeSelected.emit('conversation');
+      this.chatSelected.emit(user.name);
+    }
+
+    this.searchTerm = '';
   }
 
   selectDirectMessageGastFromAppUser(user: appUser): void {
