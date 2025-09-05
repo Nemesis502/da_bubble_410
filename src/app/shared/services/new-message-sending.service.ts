@@ -102,4 +102,9 @@ async sendDirectMessage(
     const newConv = await addDoc(convRef, { participants: [userA, userB] });
     return newConv.id;
   }
+
+    selectChat(chatId: string, type: 'channel' | 'conversation') {
+    this.chatTypeSelected.next(type);
+    this.chatSelected.next(chatId);
+  }
 }

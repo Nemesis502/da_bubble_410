@@ -109,6 +109,12 @@ export class FirestoreService {
     await addDoc(conversationsRef, conversation);
   }
 
+  async createConversationAndReturnId(conversation: any): Promise<{ id: string }> {
+  const conversationsRef = collection(this.firestore, 'conversations');
+  const docRef = await addDoc(conversationsRef, conversation);
+  return { id: docRef.id };
+}
+
   // Add a new channel
   addChannel(channel: Omit<Channel, 'channelId'>) {
     const channelCollection = collection(this.firestore, 'channels');

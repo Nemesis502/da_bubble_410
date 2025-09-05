@@ -1,13 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Inject } from '@angular/core';
+import { Component, EventEmitter, inject, Inject, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+  MatDialog,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { ProfilEditDialogComponent } from '../profil-edit-dialog/profil-edit-dialog.component';
 import { appUser } from '../../../interfaces/user.interface';
 import { DirectMessageService } from '../../services/direct-message.service';
+import { NewMessageSendingService } from '../../services/new-message-sending.service';
 
 interface ProfilDialogData {
   user: appUser;
@@ -20,7 +25,10 @@ interface ProfilDialogData {
   standalone: true,
   imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule],
   templateUrl: './profil-dialog.component.html',
-  styleUrls: ['./profil-dialog.component.scss', './profil-dialog.media-query.component.scss'],
+  styleUrls: [
+    './profil-dialog.component.scss',
+    './profil-dialog.media-query.component.scss',
+  ],
 })
 export class ProfilDialogComponent {
   private readonly dialog = inject(MatDialog);
@@ -28,11 +36,13 @@ export class ProfilDialogComponent {
   isUser: boolean;
   loggedInUserId: string | null;
 
+
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: ProfilDialogData,
     private directMessageService: DirectMessageService,
     private router: Router,
-    private dialogRef: MatDialogRef<ProfilDialogComponent>
+    private dialogRef: MatDialogRef<ProfilDialogComponent>,
+    private newMessageService: NewMessageSendingService
   ) {
     this.currentUser = data.user;
     this.loggedInUserId = data.loggedUser;
@@ -45,23 +55,37 @@ export class ProfilDialogComponent {
 
   openEditProfilDialog(): void {
     this.closeDialog();
-    this.dialog.open(ProfilEditDialogComponent, { panelClass: 'middle-dialog-panel' });
+    this.dialog.open(ProfilEditDialogComponent, {
+      panelClass: 'middle-dialog-panel',
+    });
   }
 
-  openDirectMessage(): void {
-    const senderId = this.loggedInUserId;
-    const receiverId = this.currentUser?.id;
+openDirectMessage(): void {
+  const senderId = this.loggedInUserId;
+  const receiverId = this.currentUser?.id;
 
-    if (!senderId || !receiverId) {
-      console.error('Cannot open conversation: missing user IDs');
-      return;
-    }
-
-    this.directMessageService
-      .findAndOpenConversation(senderId, receiverId)
-      .then(() => this.closeDialog())
-      .catch(err => console.error('Failed to open conversation:', err));
+  if (!senderId || !receiverId) {
+    console.error('Cannot open conversation: missing user IDs');
+    return;
   }
+
+  this.directMessageService
+    .findAndOpenConversation(senderId, receiverId, {
+      onConversationOpened: (conversationId: string) => {
+        if (window.innerWidth < 800) {
+          // 🔹 Small screen → navigate
+          this.router.navigate([
+            '/chat-container/conversation',
+            conversationId,
+          ]);
+        } else {
+          this.newMessageService.selectChat(conversationId, 'conversation');
+        }
+      },
+    })
+    .then(() => this.closeDialog())
+    .catch((err) => console.error('Failed to open conversation:', err));
+}
 
   canOpenConversation(): boolean {
     return !!this.loggedInUserId && !!this.currentUser?.id;
