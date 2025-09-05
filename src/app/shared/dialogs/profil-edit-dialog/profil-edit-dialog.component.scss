@@ -129,14 +129,14 @@
 .avatar-button {
   width: 48px;
   height: 48px;
-  border-radius: 50%; // ensures circle
-  padding: 0; // remove padding
+  border-radius: 50%;
+  padding: 0;
   margin-bottom: 20px;
-  display: flex; // center the image
+  display: flex;
   align-items: center;
   justify-content: center;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-    margin-bottom: 30px;
+  margin-bottom: 30px;
   &.selected {
     transform: scale(1.3);
     z-index: 1;
@@ -146,11 +146,10 @@
   img {
     width: 100%;
     height: 100%;
-    border-radius: 50%; 
+    border-radius: 50%;
     display: block;
   }
 }
-
 
 .profil-avatars {
   max-width: 290px;
@@ -175,3 +174,19 @@
   padding: 3px 0 0 20px;
   padding-bottom: 20px;
 }
+
+@media (max-width: 1000px) {
+  .profil-avatars {
+    .avatars-container {
+      padding-left: 0px;
+    }
+  }
+}
+
+@media (max-width: 667px) {
+::ng-deep .middle-dialog-panel,
+::ng-deep .mat-mdc-dialog-surface.mdc-dialog__surface {
+  overflow: scroll;
+}
+}
+
