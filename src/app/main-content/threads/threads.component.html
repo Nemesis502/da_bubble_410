@@ -2,16 +2,19 @@
   <!-- Thread header -->
   <section class="chat-header">
     <p class="channel-name nuito18px700">
-  Thread
-  @if (chatService.isConversation) {
-    <span class="channel-hash">#</span>
-    <span class="channel-name-thread">{{ otherUser?.userName }}</span>
-  } @else {
-    <span class="channel-hash">#</span>
-    <span class="channel-name-thread">{{ selectedChannel?.name }}</span>
-  }
-</p>
-    <button class="x-button" (click)="closeThreadView()" aria-label="Close Thread">
+      Thread @if (chatService.isConversation) {
+      <span class="channel-hash">#</span>
+      <span class="channel-name-thread">{{ otherUser?.userName }}</span>
+      } @else {
+      <span class="channel-hash">#</span>
+      <span class="channel-name-thread">{{ selectedChannel?.name }}</span>
+      }
+    </p>
+    <button
+      class="x-button"
+      (click)="closeThreadView()"
+      aria-label="Close Thread"
+    >
       <mat-icon fontIcon="close"></mat-icon>
     </button>
   </section>
@@ -20,28 +23,30 @@
   <section class="chat-body" #chatBody>
     <!-- Parent message -->
     @if (activeThreadMessage) {
-      <app-message-template
-        [chatIsThread]="true"
-        [messages]="[activeThreadMessage]"
-        [currentUserObj]="currentUser"
-        [currentChannelId]="selectedChannel?.channelId"
-        (editMessage)="startEditingMessage($event)"
-      ></app-message-template>
+    <app-message-template
+      [chatIsThread]="true"
+      [messages]="[activeThreadMessage]"
+      [currentUser]="currentUser?.id || ''"
+      [currentUserObj]="currentUser"
+      [currentChannelId]="selectedChannel?.channelId"
+      (editMessage)="startEditingMessage($event)"
+    ></app-message-template>
     }
 
     <!-- Replies -->
     @if (threadMessages.length > 0) {
-      <div class="msg-header">
-        <p>{{ threadMessages.length }} Antworten</p>
-        <span></span>
-      </div>
-      <app-message-template
-        [chatIsThread]="true"
-        [messages]="threadMessages"
-        [currentUserObj]="currentUser"
-        [currentChannelId]="selectedChannel?.channelId"
-        (editMessage)="startEditingMessage($event)"
-      ></app-message-template>
+    <div class="msg-header">
+      <p>{{ threadMessages.length }} Antworten</p>
+      <span></span>
+    </div>
+    <app-message-template
+      [chatIsThread]="true"
+      [messages]="threadMessages"
+      [currentUser]="currentUser?.id || ''"
+      [currentUserObj]="currentUser"
+      [currentChannelId]="selectedChannel?.channelId"
+      (editMessage)="startEditingMessage($event)"
+    ></app-message-template>
     }
   </section>
 
@@ -49,8 +54,8 @@
   <section class="chat-interface">
     <mat-card class="chat-card" appearance="outlined">
       <textarea
-      (keydown)="checkMentionTriggerThread($event)"
-       (focus)="setActiveChatField()"
+        (keydown)="checkMentionTriggerThread($event)"
+        (focus)="setActiveChatField()"
         [(ngModel)]="chatMessage"
         #chatFieldThread
         placeholder="Antworten..."
@@ -58,38 +63,38 @@
 
       <!-- Mention popup -->
       @if (mentionPopupVisible) {
-        <div class="mention-popup">
-          @for (user of filteredMentionableUsers; track user) {
-            <div class="mention-user" (click)="selectMentionUser(user.userName)">
-              <img
-                class="avatar"
-                [src]="'./assets/img/avatar/' + user.profilePic + '.png'"
-                alt="avatar"
-              />
-              <div
-                class="status-dot"
-                [ngClass]="{ online: user.status, offline: !user.status }"
-              ></div>
-              <span class="mention-name nuito17px400">
-                {{ user.userName }}
-                @if(user.userName === currentUser?.userName) { (Du) }
-              </span>
-            </div>
-          }
+      <div class="mention-popup">
+        @for (user of filteredMentionableUsers; track user) {
+        <div class="mention-user" (click)="selectMentionUser(user.userName)">
+          <img
+            class="avatar"
+            [src]="'./assets/img/avatar/' + user.profilePic + '.png'"
+            alt="avatar"
+          />
+          <div
+            class="status-dot"
+            [ngClass]="{ online: user.status, offline: !user.status }"
+          ></div>
+          <span class="mention-name nuito17px400">
+            {{ user.userName }}
+            @if(user.userName === currentUser?.userName) { (Du) }
+          </span>
         </div>
+        }
+      </div>
       }
 
       <!-- Hashtag popup -->
       @if (hashtagPopupVisible) {
-        <div class="mention-popup">
-          @for (channel of filteredChannels; track channel) {
-            <div class="hashtag-item" (click)="selectHashtagChannel(channel.name)">
-              <span class="hashtag-name nuito17px400">
-                <span class="hashtag">#</span>{{ channel.name }}
-              </span>
-            </div>
-          }
+      <div class="mention-popup">
+        @for (channel of filteredChannels; track channel) {
+        <div class="hashtag-item" (click)="selectHashtagChannel(channel.name)">
+          <span class="hashtag-name nuito17px400">
+            <span class="hashtag">#</span>{{ channel.name }}
+          </span>
         </div>
+        }
+      </div>
       }
 
       <mat-card-actions class="chat-buttons">
@@ -105,10 +110,13 @@
           @if(!editedMessage){
           <button (click)="sendMessage()">
             <mat-icon fontIcon="send"></mat-icon></button
-          >} 
-          @if (editedMessage){
-            <button class="nuito18px700 abr-button" (click)="stopEditing()">Abbrechen</button>
-            <button class="nuito18px700 save-button" (click)="sendMessage()">Speichern</button>
+          >} @if (editedMessage){
+          <button class="nuito18px700 abr-button" (click)="stopEditing()">
+            Abbrechen
+          </button>
+          <button class="nuito18px700 save-button" (click)="sendMessage()">
+            Speichern
+          </button>
           }
         </div>
       </mat-card-actions>
@@ -116,11 +124,11 @@
 
     <!-- Emoji picker -->
     @if (emojiPickerVisible) {
-      <app-emoji-picker
-        [pickerPosition]="pickerPosition"
-        (emojiSelected)="addEmoji($event)"
-        (pickerClosed)="onPickerClosed()"
-      ></app-emoji-picker>
+    <app-emoji-picker
+      [pickerPosition]="pickerPosition"
+      (emojiSelected)="addEmoji($event)"
+      (pickerClosed)="onPickerClosed()"
+    ></app-emoji-picker>
     }
   </section>
 </div>

@@ -272,6 +272,7 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
   async selectReaction(reaction: string, message: any): Promise<void> {
     const channelId = this.resolveChannelId(this.currentChannelId);
     try {
+      console.log(channelId, reaction, message,'this:', this.currentUser)
       await this.directMessageService.toggleReaction(
         channelId,
         message.messageID || message.id,
