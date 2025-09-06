@@ -72,6 +72,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
   showChannels = true;
   showDirectMessages = true;
   showNewMessage = false;
+  wordBreak = false;
   currentLoginId = '';
   currentLoginEmail = '';
   searchTerm = '';
@@ -137,10 +138,11 @@ export class MainMenuComponent implements OnInit, OnDestroy {
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
     this.handleResize();
+    this.checkScreenSize();
   }
 
   // Switch routes based on screen width
-  private handleResize(): void {
+  handleResize(): void {
     const wasSmallScreen = this.isSmallScreen;
     this.isSmallScreen = window.innerWidth < 800;
 
@@ -149,6 +151,11 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     } else if (!this.isSmallScreen && wasSmallScreen) {
       this.router.navigate(['/main']);
     }
+  }
+
+  checkScreenSize(): void {
+    const width = window.innerWidth;
+    this.wordBreak = width < 1740;
   }
   
   // Initializes the current user session and ensures self-conversation exists
