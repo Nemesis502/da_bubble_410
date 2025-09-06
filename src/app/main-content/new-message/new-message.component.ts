@@ -88,11 +88,10 @@ private async loadInitialData(): Promise<void> {
   this.allChannels = await this.mentionService.fetchUserChannels(this.currentUser.id);
 
   // If no channel is selected (new message view), fetch global mentionable users
-  if (this.selectedChannel?.id) {
-    this.mentionableUsers = await this.mentionService.fetchMentionableUsers(this.selectedChannel.id);
-  } else {
-    this.mentionableUsers = await this.mentionService.fetchAllUsers(); // ✅ implement in MentionService
-  }
+this.mentionableUsers = await this.mentionService.fetchMentionableUsers(
+  this.selectedChannel?.id ?? null
+);
+
 }
 
   // Navigate back to main menu

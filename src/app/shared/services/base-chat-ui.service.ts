@@ -146,7 +146,6 @@ export class BaseChatUIService {
 
   // Fetch mentionable users for a channel and update observable
   async fetchMentionableUsers(channelId: string) {
-    if (!channelId) return;
     try {
       this.mentionableUsers = await this.mentionService.fetchMentionableUsers(
         channelId
