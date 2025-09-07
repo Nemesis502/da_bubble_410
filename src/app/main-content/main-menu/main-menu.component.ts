@@ -76,7 +76,8 @@ export class MainMenuComponent implements OnInit, OnDestroy {
   currentLoginId = '';
   currentLoginEmail = '';
   searchTerm = '';
-  isSmallScreen = window.innerWidth < 800;
+  width = window.innerWidth;
+  isSmallScreen = this.width < 800;
 
   // Filtered data for search
   filteredChannels: any[] = [];
@@ -134,6 +135,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
       this.unsubCurrentUser = this.subscribeToCurrentUser();
     }
   }
+
   // Listen to window resize events
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
@@ -154,10 +156,9 @@ export class MainMenuComponent implements OnInit, OnDestroy {
   }
 
   checkScreenSize(): void {
-    const width = window.innerWidth;
-    this.wordBreak = width < 1740;
+    this.wordBreak = this.width < 1740;
   }
-  
+
   // Initializes the current user session and ensures self-conversation exists
   async initCurrentUserSession(): Promise<void> {
     const sessionUser = this.userSession.getCurrentUser();

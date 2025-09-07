@@ -6,7 +6,7 @@
     @if (!isSmallScreen) {
     <section class="devspace-header">
       <div>
-        <img src="./assets/img/workspace-logo.png" alt="Workspace Logo" />
+        <img class="workspace-logo" src="./assets/img/workspace-logo.png" alt="Workspace Logo" />
         <p class="nuito24px700">Devspace</p>
       </div>
       <button class="new-chat-btn-big" aria-label="Neuen Chat starten" (click)="openNewMessage()">
@@ -76,9 +76,11 @@
             <button type="button" class="title" (click)="showChannels = !showChannels"
               [attr.aria-expanded]="showChannels" aria-controls="channel-list"
               aria-label="Channels ein- oder ausklappen">
-              <mat-icon fontIcon="{{ showChannels ? 'arrow_drop_down' : 'arrow_right' }}"></mat-icon>
-              <mat-icon fontIcon="workspaces_outline"></mat-icon>
-              <h2 class="" [ngClass]="{'nuito27px': isSmallScreen, 'nuito24px700': !isSmallScreen}">Channels</h2>
+              <div class="header-icons">
+                <mat-icon fontIcon="{{ showChannels ? 'arrow_drop_down' : 'arrow_right' }}"></mat-icon>
+                <mat-icon fontIcon="workspaces_outline"></mat-icon>
+              </div>
+              <h2 [ngClass]="{'nuito27px': isSmallScreen, 'nuito24px700': !isSmallScreen}">Channels</h2>
             </button>
             <button class="add-btn" matMiniFab aria-label="Channel hinzufügen" (click)="addChannel()">
               <mat-icon mat-icon-button fontIcon="add"></mat-icon>
@@ -89,7 +91,7 @@
             @if (gastLogin) {
             @for (channel of channelDirectMessageData.getChannels(); track channel) {
             <div class="channel-item" (click)="selectGuestChannel(channel)">
-              <mat-icon fontIcon="numbers" aria-hidden="true"></mat-icon>
+              <mat-icon  fontIcon="numbers" aria-hidden="true"></mat-icon>
               <p class="nuito17px400">{{ channel.name }}</p>
             </div>
             }
@@ -113,8 +115,10 @@
             <button type="button" class="title" (click)="showDirectMessages = !showDirectMessages"
               [attr.aria-expanded]="showDirectMessages" aria-controls="direct-messages"
               aria-label="Direktnachrichten ein- oder ausklappen">
-              <mat-icon fontIcon="{{ showDirectMessages ? 'arrow_drop_down' : 'arrow_right' }}"></mat-icon>
-              <mat-icon class="account-circle" fontSet="material-icons-outlined">account_circle</mat-icon>
+              <div class="header-icons">
+                <mat-icon fontIcon="{{ showDirectMessages ? 'arrow_drop_down' : 'arrow_right' }}"></mat-icon>
+                <mat-icon class="account-circle" fontSet="material-icons-outlined">account_circle</mat-icon>
+              </div>
               @if (!wordBreak) {
               <h2 [ngClass]="{'nuito27px': isSmallScreen, 'nuito24px700': !isSmallScreen}">
                 Direktnachrichten

@@ -1,5 +1,55 @@
 @use "./../../../styles.scss" as *;
 
+@media screen and (max-width: 1415px) {
+    .workspace-logo {
+        width: 45px;
+    }
+
+    .nuito24px700 {
+        font-size: 20px !important;
+    }
+}
+
+@media screen and (max-width: 1160px) {
+    .header {
+        justify-content: center;
+
+        .title {
+            flex-direction: column;
+        }
+    }
+}
+
+@media screen and (max-width: 1030px) {
+    .devspace-header {
+        p {
+            display: none;
+        }
+    }
+
+    .channel-item {
+        mat-icon {
+            display: none;
+        }
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .header {
+        justify-content: space-between;
+
+        .title {
+            flex-direction: unset;
+        }
+    }
+
+    .channel-item {
+        mat-icon {
+            display: unset;
+        }
+    }
+}
+
 @media screen and (min-height: 840px) {
     .menu {
         border-radius: 30px;
