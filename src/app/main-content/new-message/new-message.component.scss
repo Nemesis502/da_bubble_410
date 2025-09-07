@@ -1,11 +1,14 @@
 @use "./../../../styles.scss" as *;
+
 .comp-body {
   display: flex;
   flex-direction: column;
   height: 100vh;
   margin: 0;
+  max-height: 1482px;
   background-color: white !important;
 }
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -14,6 +17,7 @@
   padding-right: 16px;
   height: 80px;
   background-color: $Bg;
+
   button {
     border: 0;
     background-color: transparent;
@@ -26,10 +30,12 @@
 .back-btn {
   display: flex;
   align-items: center;
+
   p {
     margin-bottom: 0px;
     margin-left: 10px;
   }
+
   img {
     height: 50px;
     width: 50px;
@@ -65,6 +71,7 @@ img {
     height: 145px;
     border: 1px solid $LightPurple;
     transition: border-color 0.3s ease;
+
     &:hover,
     &:focus-within {
       border-color: $purple1;
@@ -100,26 +107,32 @@ img {
     padding-left: 20px;
     padding-right: 20px;
     justify-content: space-between;
+
     button {
       border: 0;
       cursor: pointer;
       background-color: transparent;
     }
+
     .buttons-left {
       font-size: 24px !important;
+
       .mat-icon {
         color: gray;
         border-radius: 50%;
         padding: 6px;
+
         &:hover {
           background-color: lightgray;
           color: $purple1;
         }
       }
     }
+
     .button-right {
       .mat-icon {
         color: $purple1;
+
         &:hover {
           color: $purple2;
         }
@@ -148,12 +161,14 @@ img {
   padding: 6px 10px;
   cursor: pointer;
   border-radius: 12px;
-  white-space: nowrap; 
+  white-space: nowrap;
   transition: background-color 0.2s;
+
   &:hover {
     background-color: $Bg;
-     .hashtag {
-      color: $purple3; 
+
+    .hashtag {
+      color: $purple3;
     }
   }
 }
@@ -243,6 +258,7 @@ img {
   height: 40px;
   border: 1px solid $LightPurple;
   transition: border-color 0.3s ease;
+
   &:hover,
   &:focus-within {
     border-color: $purple1;
@@ -254,7 +270,7 @@ img {
     margin-top: 5px;
     margin-left: 15px;
     margin-right: 15px;
-   margin-bottom: 5px;
+    margin-bottom: 5px;
     font-family: "Nunito" !important;
     font-size: 16px;
     border: none;
@@ -278,8 +294,8 @@ img {
 }
 
 .mention-popup-top {
-  bottom: auto;   
-  top: 108%;      
+  bottom: auto;
+  top: 108%;
   left: 40px;
   border-bottom-left-radius: 20px !important;
   border-top-left-radius: 0px !important;
@@ -290,10 +306,11 @@ img {
     display: none;
   }
 
-.comp-body{
+  .comp-body {
     height: calc(100vh - 130px);
     border-radius: 30px;
-}  
+
+  }
 }
 
 @media (min-width: 1000px) {

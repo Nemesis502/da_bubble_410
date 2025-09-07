@@ -1,5 +1,17 @@
 @use "./../../styles.scss" as *;
 
+.section-main {
+    display: flex;
+    flex-direction: column;
+    max-width: 1440px;
+    align-items: center;
+    margin: 0 auto;
+}
+
+app-header {
+    width: 100%;
+}
+
 .header {
     display: flex;
     justify-content: space-between;
@@ -10,6 +22,7 @@
 .main {
     display: flex;
     align-items: stretch;
+    width: 100%;
 }
 
 .show-main-menu {
@@ -92,6 +105,7 @@
     flex: 0 0 30%;
     max-width: 20%;
     border-radius: 30px;
+
     &.menu-closed {
         transform: translateX(-100%);
         flex-basis: 0;
