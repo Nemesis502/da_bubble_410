@@ -1,5 +1,16 @@
 @use "./../../../styles.scss" as *;
 
+.content-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+app-logo{
+    width: 100%;
+    max-width: 1440px;
+}
+
 .privacy-policy {
     display: flex;
     flex-direction: column;
