@@ -35,6 +35,7 @@ export class ProfilDialogComponent {
   currentUser: appUser | null;
   isUser: boolean;
   loggedInUserId: string | null;
+  screenWidth = window.innerWidth;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: ProfilDialogData,
@@ -54,8 +55,38 @@ export class ProfilDialogComponent {
 
   openEditProfilDialog(): void {
     this.closeDialog();
+    if (this.screenWidth < 800) {
+      this.forSmallScreen();
+    } else {
+      this.forBigScreen();
+    }
+    // this.dialog.open(ProfilEditDialogComponent, {
+    //   panelClass: 'middle-dialog-panel',
+    // });
+  }
+  
+  forSmallScreen(): void {
+    this.closeDialog();
     this.dialog.open(ProfilEditDialogComponent, {
       panelClass: 'middle-dialog-panel',
+      data: {
+        user: this.currentUser,
+        loggedUser: this.currentUser?.id,
+        isUser: true,
+      },
+    });
+  }
+
+  forBigScreen(): void {
+    this.closeDialog();
+    this.dialog.open(ProfilEditDialogComponent, {
+      position: { top: '100px', right: '20px' },
+      panelClass: 'top-right-dialog-panel',
+      data: {
+        user: this.currentUser,
+        loggedUser: this.currentUser?.id,
+        isUser: true,
+      },
     });
   }
 

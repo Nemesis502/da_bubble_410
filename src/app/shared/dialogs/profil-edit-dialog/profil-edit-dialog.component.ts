@@ -32,15 +32,15 @@ import { appUser } from '../../../interfaces/user.interface';
 export class ProfilEditDialogComponent {
   newName = '';
   currentUser: appUser | null;
-  avatars: number[] = [1,2,3,4,5,6];
-  selectedAvatar: number = 0; 
+  avatars: number[] = [1, 2, 3, 4, 5, 6];
+  selectedAvatar: number = 0;
   constructor(
     private dialogRef: MatDialogRef<ProfilEditDialogComponent>,
     private userSession: SessionService,
     private userService: UserService
   ) {
-     this.currentUser = this.userSession.getCurrentUser();
-        this.selectedAvatar = this.currentUser?.profilePic ?? 0; 
+    this.currentUser = this.userSession.getCurrentUser();
+    this.selectedAvatar = this.currentUser?.profilePic ?? 0;
   }
 
   closeDialog(): void {
@@ -53,13 +53,13 @@ export class ProfilEditDialogComponent {
   }
 
 
-async saveUserName(): Promise<void> {
+  async saveUserName(): Promise<void> {
     if (!this.currentUser) return;
 
     const updatedUser: appUser = {
       ...this.currentUser,
       userName: this.newName.trim() || this.currentUser.userName,
-      profilePic: this.selectedAvatar, 
+      profilePic: this.selectedAvatar,
     };
 
     if (!this.isGuestUser()) {
