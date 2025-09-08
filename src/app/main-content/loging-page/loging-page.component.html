@@ -102,6 +102,7 @@
       </div>
       <div class="button-container">
         <button
+          [disabled]="!email.valid || !password.valid"
           (click)="checkValideLogIn()"
           mat-flat-button
           class="nuito18px700 h49px login-button"
