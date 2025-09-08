@@ -55,7 +55,7 @@ export class HeaderComponent {
   // Opens a small top-right positioned dialog for larger screens
   private openTopRightMenuDialog(): void {
     this.dialog.open(MenuDialogComponent, {
-      position: { top: '80px', right: '16px' },
+      position: { top: '100px', right: '20px' },
       maxWidth: '282px',
       maxHeight: '181px',
       panelClass: 'top-right-dialog-panel',

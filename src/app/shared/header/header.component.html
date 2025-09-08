@@ -8,8 +8,10 @@
     <button aria-label="Menü öffnen" (click)="openMenuDialog()">
         @if (!screenSmall) {
         <p class="nuito32px700">{{ currentUser?.userName }}</p>
-        <mat-icon fontIcon="keyboard_arrow_down"></mat-icon>
         }
         <img src="./assets/img/avatar/{{currentUser?.profilePic}}.png" alt="" aria-hidden="true" />
+        @if (!screenSmall) {
+        <mat-icon fontIcon="keyboard_arrow_down"></mat-icon>
+        }
     </button>
 </section>

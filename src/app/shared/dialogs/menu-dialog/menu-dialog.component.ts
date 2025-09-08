@@ -96,10 +96,9 @@ export class MenuDialogComponent implements OnInit {
     const small = this.screenWidth < 800;
     if (small !== this.screenSmall) {
       this.screenSmall = small;
-      this.updateDialogPosition(small);
+      this.updatePositionFromMenuDialog(small);
     }
   }
-
 
   ngOnInit(): void {
     this.screenWidth = window.innerWidth;
@@ -119,7 +118,7 @@ export class MenuDialogComponent implements OnInit {
     }
   }
 
-  updateDialogPosition(small: boolean): void {
+  updatePositionFromMenuDialog(small: boolean): void {
     this.screenSmall = small;
     this.dialog.closeAll();
     const config = small
@@ -129,7 +128,7 @@ export class MenuDialogComponent implements OnInit {
         panelClass: 'bottom-dialog-panel',
       }
       : {
-        position: { top: '80px', right: '16px' },
+        position: { top: '100px', right: '20px' },
         maxWidth: '282px',
         maxHeight: '181px',
         panelClass: 'top-right-dialog-panel',
@@ -138,11 +137,34 @@ export class MenuDialogComponent implements OnInit {
   }
 
   openProfileDialog(): void {
+    if (this.screenWidth < 800) {
+      this.forSmallScreen();
+    } else {
+      this.forBigScreen();
+    }
+  }
+
+  forSmallScreen(): void {
     this.closeDialog();
     this.dialog.open(ProfilDialogComponent, {
       maxWidth: '398px',
       maxHeight: '600px',
-      panelClass: 'bottom-dialog-panel',
+      panelClass: 'middle-dialog-panel',
+      data: {
+        user: this.currentUser,
+        loggedUser: this.currentUser?.id,
+        isUser: true,
+      },
+    });
+  }
+
+  forBigScreen(): void {
+    this.closeDialog();
+    this.dialog.open(ProfilDialogComponent, {
+      position: { top: '100px', right: '20px' },
+      maxWidth: '398px',
+      maxHeight: '600px',
+      panelClass: 'top-right-dialog-panel',
       data: {
         user: this.currentUser,
         loggedUser: this.currentUser?.id,

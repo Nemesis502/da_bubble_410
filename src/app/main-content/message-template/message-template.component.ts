@@ -393,7 +393,7 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
             loggedUser: loggedUserId,
             isUser: user.id === loggedUserId,
           },
-          panelClass: 'bottom-dialog-panel',
+          panelClass: 'middle-dialog-panel',
         });
       });
   }
