@@ -1,14 +1,14 @@
 @media (min-width: 650px) {
   .popup-menu {
     bottom: 65%;
-    left: 62%;
+    left: 50%;
     transform: translateX(-10%);
   }
 
   .popup-menu-own {
-    bottom: 65%;
-    right: 55%;
-    transform: translateX(10%);
+    bottom: 65% !important;
+    right: 35% !important;
+    transform: translateX(10%) !important;
   }
 }
 
