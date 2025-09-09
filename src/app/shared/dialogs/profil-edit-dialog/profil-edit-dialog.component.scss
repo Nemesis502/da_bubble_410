@@ -48,6 +48,7 @@
   padding: 0px 16px;
   width: calc(398px - 72px);
   padding-bottom: 38px;
+
   mat-icon {
     font-weight: 700;
   }
@@ -57,14 +58,25 @@
   display: flex;
   justify-content: center;
   padding-bottom: 38px;
+
   img {
     width: 200px;
     border-radius: 100%;
   }
 }
 
+.mdc-icon-button {
+  transition: ease-out 100ms;
+
+  &:hover {
+    background-color: $Bg;
+    color: $purple3;
+  }
+}
+
 .profil-name {
   padding-bottom: 38px;
+
   .profil-name-headline {
     display: flex;
     align-items: center;
@@ -81,13 +93,15 @@
   .profil-name-field {
     width: calc(100% - 16px);
     position: relative;
-      .name-error {
-    position: absolute;
-    bottom: -20px; 
-    left: 16px;
-    font-size: 14px;
-    color: red;
-  }
+
+    .name-error {
+      position: absolute;
+      bottom: -20px;
+      left: 16px;
+      font-size: 14px;
+      color: #e01c72;
+    }
+
     input {
       font-family: "Nunito";
       font-size: 18px;
@@ -110,6 +124,12 @@
     background-color: white;
     color: $purple1;
     border: 1px solid $purple1;
+    transition: ease-out 100ms;
+
+    &:hover {
+      color: white !important;
+      background-color: $purple1 !important;
+    }
   }
 
   .save {
@@ -117,6 +137,11 @@
     height: 49px;
     background-color: $purple1;
     color: white;
+    transition: ease-out 100ms;
+
+    &:hover {
+      background-color: $purple2 !important;
+    }
   }
 
   .btn {
@@ -195,7 +220,7 @@
 }
 
 .name-error {
-  color: red;
+  color: #e01c72;
   margin-top: 12px !important;
 }
 
@@ -208,6 +233,7 @@
 }
 
 @media (max-width: 667px) {
+
   ::ng-deep .middle-dialog-panel,
   ::ng-deep .mat-mdc-dialog-surface.mdc-dialog__surface {
     overflow: scroll;

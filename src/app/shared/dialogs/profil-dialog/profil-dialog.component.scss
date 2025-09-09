@@ -40,6 +40,15 @@
     }
 }
 
+.mdc-icon-button {
+    transition: ease-out 100ms;
+
+    &:hover {
+        background-color: $Bg;
+        color: $purple3;
+    }
+}
+
 .profil-image {
     display: flex;
     justify-content: center;
