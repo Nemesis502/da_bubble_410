@@ -40,13 +40,25 @@
       <mat-icon fontSet="material-icons-outlined">account_circle</mat-icon>
       <span>Vollständiger Name</span>
     </span>
-    <mat-form-field appearance="fill" class="profil-name-field">
-      <input
-        matInput
-        [(ngModel)]="newName"
-        placeholder="{{ currentUser?.userName }}"
-      />
-    </mat-form-field>
+    <div class="profil-name-field">
+      <mat-form-field appearance="fill" class="profil-name-field">
+        <input
+          matInput
+          [(ngModel)]="newName"
+          name="userName"
+          required
+          minlength="5"
+          pattern="^\s*\S+\s+\S+.*$"
+          #nameInput="ngModel"
+          placeholder="{{ currentUser?.userName }}"
+        />
+      </mat-form-field>
+      @if(nameInput.invalid){
+      <span class="name-error">
+        Bitte schreiben Sie Ihren Vor- und Nachnamen (min. 5 Zeichen).
+      </span>
+      }
+    </div>
   </mat-card-content>
   <mat-card-content class="cancel-save-btn">
     <button
@@ -62,7 +74,7 @@
       class="save btn"
       aria-label="Profil speichern"
       (click)="saveUserName()"
-      [disabled]="!newName.trim()"
+      [disabled]="nameInput.invalid"
     >
       <span>Speichern</span>
     </button>

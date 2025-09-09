@@ -41,6 +41,7 @@ export class ProfilEditDialogComponent {
   ) {
     this.currentUser = this.userSession.getCurrentUser();
     this.selectedAvatar = this.currentUser?.profilePic ?? 0;
+    this.newName = this.currentUser?.userName || '';
   }
 
   closeDialog(): void {
@@ -66,7 +67,7 @@ export class ProfilEditDialogComponent {
       await this.userService.updateUser(this.currentUser.id!, updatedUser);
     }
 
-    this.userSession.setCurrentUser(updatedUser); // ✅ types now match
+    this.userSession.setCurrentUser(updatedUser); 
     this.dialogRef.close(updatedUser);
   }
 
