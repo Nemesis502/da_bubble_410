@@ -24,7 +24,7 @@ import { User } from 'firebase/auth';
   encapsulation: ViewEncapsulation.None
 })
 export class LogingPageComponent {
-  email = new FormControl('', [Validators.required, Validators.email]);
+  email = new FormControl('', [Validators.required, Validators.email, Validators.pattern(/^[^\s@]+@(?:[^\s@]+\.)+[A-Za-z]{2,}$/)]);
   password = new FormControl('', Validators.required);
   hide = true;
   LogInError = false;
@@ -60,12 +60,13 @@ export class LogingPageComponent {
   updateErrorMessage() {
     if (this.email.hasError('required')) {
       this.errorMessage = 'Du musst eine E-Mail-Adresse eintragen';
-    } else if (this.email.hasError('email')) {
+    } else if (this.email.hasError('email') || this.email.hasError('pattern')) {
       this.errorMessage = 'Keine gültige E-Mail-Adresse';
     } else {
       this.errorMessage = '';
     }
   }
+
 
   updateErrorMessagePassword() {
     if (this.password.hasError('required')) {
