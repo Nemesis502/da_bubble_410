@@ -3,39 +3,16 @@
 
   <main class="legal-notice">
     <section class="content-wrapper">
-      <div class="arrow-container">
-        <div class="arrow-img">
-          <img class="default-arrows" src="./assets/img/back.png" alt="" />
-          <img
-            class="hover-arrows"
-            (click)="goBack()"
-            src="./assets/img/back_hover.png"
-            alt=""
-          />
-        </div>
-      </div>
+      <button mat-icon-button (click)="goBack()">
+        <mat-icon fontIcon="arrow_back"></mat-icon>
+      </button>
 
       <section class="imprent-container">
         <h1 class="headline">Impressum</h1>
         <p>
-          <a
-            href="https://bastianklawes.de/"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Bastian Klawes</a
-          ><br />
-          <a
-            href="https://www.niklas-lampe.de/"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Niklas Lampe</a
-          ><br />
-          <a
-            href="https://erik-michel.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Erik Michel</a
-          ><br />
+          <a href="https://bastianklawes.de/" target="_blank" rel="noopener noreferrer">Bastian Klawes</a><br />
+          <a href="https://www.niklas-lampe.de/" target="_blank" rel="noopener noreferrer">Niklas Lampe</a><br />
+          <a href="https://erik-michel.com/" target="_blank" rel="noopener noreferrer">Erik Michel</a><br />
           <br />
           Radeland 55d<br />
           24558 Henstedt-Ulzburg<br />
@@ -46,9 +23,7 @@
         <h2 class="headline">Kontakt:</h2>
         <p>
           E-Mail:
-          <a href="mailto:erik-michel@outlook.com"
-            >erik-michel&#64;outlook.com</a
-          >
+          <a href="mailto:erik-michel@outlook.com">erik-michel&#64;outlook.com</a>
         </p>
       </section>
     </section>

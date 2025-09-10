@@ -50,25 +50,18 @@ app-logo {
     max-width: 1440px;
 }
 
-.arrow-container {
-    height: 40px;
-    width: 40px;
-}
-
-.arrow-img {
-    img {
-        height: 40px;
-        width: 40px;
+.mat-mdc-icon-button {
+    mat-icon {
+        width: 24px;
+        height: 24px;
+        font-weight: 600;
     }
 
     &:hover {
-        .default-arrows {
-            display: none;
-        }
+        background-color: $Bg !important;
 
-        .hover-arrows {
-            display: block;
-            cursor: pointer;
+        mat-icon {
+            color: $purple3;
         }
     }
 }

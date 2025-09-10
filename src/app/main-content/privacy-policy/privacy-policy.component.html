@@ -3,17 +3,9 @@
 
   <main class="privacy-policy scroll-container">
     <section class="content-wrapper">
-      <div class="arrow-container">
-        <div class="arrow-img">
-          <img class="default-arrows" src="./assets/img/back.png" alt="" />
-          <img
-            class="hover-arrows"
-            (click)="goBack()"
-            src="./assets/img/back_hover.png"
-            alt=""
-          />
-        </div>
-      </div>
+      <button mat-icon-button (click)="goBack()">
+        <mat-icon fontIcon="arrow_back"></mat-icon>
+      </button>
 
       <section class="privacy-policy-section">
         <h1 class="headline">Datenschutzerklärung</h1>

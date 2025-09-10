@@ -6,9 +6,25 @@
     align-items: center;
 }
 
-app-logo{
+app-logo {
     width: 100%;
     max-width: 1440px;
+}
+
+.mat-mdc-icon-button {
+    mat-icon {
+        width: 24px;
+        height: 24px;
+        font-weight: 600;
+    }
+
+    &:hover {
+        background-color: $Bg !important;
+
+        mat-icon {
+            color: $purple3;
+        }
+    }
 }
 
 .privacy-policy {
