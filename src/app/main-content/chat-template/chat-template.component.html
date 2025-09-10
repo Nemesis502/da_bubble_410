@@ -297,6 +297,7 @@
       [channelId]="selectedChannel?.channelId"
       (closeChannelInfo)="isChannelInfoOpen = false"
       (nameChanged)="updateChannelName($event)"
+      (channelLeft)="onChannelLeft()"
     ></app-channel-info>
   </section>
   }

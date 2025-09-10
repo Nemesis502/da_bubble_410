@@ -38,6 +38,7 @@
         [chatType]="currentChatType"
         (threadOpened)="openThread($event)"
         [hidden]="showNewMessage"
+         (channelLeft)="handleChannelLeft()"
       >
       </app-chat-template>
       @if (showNewMessage) {

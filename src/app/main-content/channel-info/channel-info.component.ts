@@ -50,7 +50,7 @@ export class ChannelInfoComponent implements OnChanges {
   readonly dialog = inject(MatDialog);
   readonly userSession = inject(SessionService);
   readonly channelsDirectMessageService = inject(ChannelsDirectMessageService);
-
+  @Output() channelLeft = new EventEmitter<void>();
   @Input() channelId = '';
   @Output() closeChannelInfo = new EventEmitter<void>();
   @Output() nameChanged = new EventEmitter<string>();
@@ -146,21 +146,20 @@ export class ChannelInfoComponent implements OnChanges {
     return await firstValueFrom(this.firestoreService.getUsers());
   }
 
-async saveName(): Promise<void> {
-  if (!this.channelId || !this.newChannelName.trim()) return;
+  async saveName(): Promise<void> {
+    if (!this.channelId || !this.newChannelName.trim()) return;
 
-  const trimmedName = this.newChannelName.trim();
-  await updateDoc(this.firestoreService.getChannelDocRef(this.channelId), { name: trimmedName });
+    const trimmedName = this.newChannelName.trim();
+    await updateDoc(this.firestoreService.getChannelDocRef(this.channelId), {
+      name: trimmedName,
+    });
+    this.channelNameInput = trimmedName;
+    this.channel!.name = trimmedName;
+    this.newChannelName = '';
+    this.editName = false;
 
-  // Update local channel
-  this.channelNameInput = trimmedName;
-  this.channel!.name = trimmedName;
-  this.newChannelName = '';
-  this.editName = false;
-
-  // Emit the new name to parent
-  this.nameChanged.emit(trimmedName);
-}
+    this.nameChanged.emit(trimmedName);
+  }
 
   async saveDescription(): Promise<void> {
     if (!this.channelId || !this.newChannelDescription.trim()) return;
@@ -203,6 +202,7 @@ async saveName(): Promise<void> {
     });
     if (!this.isMobile) {
       this.router.navigate(['/main']);
+      this.channelLeft.emit();
     } else {
       this.router.navigate(['/main-menu']);
     }

@@ -223,4 +223,11 @@ onChatSelected(chatId: string): void {
   closeNewMessage(): void {
     this.showNewMessage = false;
   }
+
+  handleChannelLeft(): void {
+  if (!this.isSmallScreen) {
+    this.showNewMessage = true; // trigger New Message view
+    this.currentChatId = null;   // optional: clear selected chat
+  }
+}
 }

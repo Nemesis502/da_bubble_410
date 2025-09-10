@@ -62,7 +62,7 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
   @Input() chatType: 'channel' | 'conversation' | null = null;
   @Output() threadOpened = new EventEmitter<string>();
   @Output() threadClosed = new EventEmitter<void>();
-
+  @Output() channelLeft = new EventEmitter<void>();
   // ----------------------- Injected Services -----------------------
   private userSession = inject(SessionService);
   private chatService = inject(ChatService);
@@ -102,8 +102,7 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
 
   constructor(
     private firestoreService: FirestoreService,
-    private hostEl: ElementRef,
-    private ngZone: NgZone
+    private hostEl: ElementRef
   ) {}
 
   // ----------------------- Lifecycle Hooks -----------------------
@@ -238,21 +237,24 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
   }
 
   // Update component state when a guest channel is selected
-private async setGuestChannelState(channel: Channel) {
-  this.otherUser = null;
-  this.chatIsConversation = false;
-  this.chatIsThread = false;
-  this.selectedChannel = channel;
-  await this.chatService.initializeChat(channel.channelId!, this.currentUser!.id);
-  const guestMembers = this.guestService.mapChannelMembers(channel);
-  const existingMemberIds = new Set(this.members.map(m => m.id));
-  this.members = [
-    ...this.members.filter(m => existingMemberIds.has(m.id)),  
-    ...guestMembers.filter(m => !existingMemberIds.has(m.id))  
-  ];
-  this.chatIsChannel = true;
-  this.scrollToBottom();
-}
+  private async setGuestChannelState(channel: Channel) {
+    this.otherUser = null;
+    this.chatIsConversation = false;
+    this.chatIsThread = false;
+    this.selectedChannel = channel;
+    await this.chatService.initializeChat(
+      channel.channelId!,
+      this.currentUser!.id
+    );
+    const guestMembers = this.guestService.mapChannelMembers(channel);
+    const existingMemberIds = new Set(this.members.map((m) => m.id));
+    this.members = [
+      ...this.members.filter((m) => existingMemberIds.has(m.id)),
+      ...guestMembers.filter((m) => !existingMemberIds.has(m.id)),
+    ];
+    this.chatIsChannel = true;
+    this.scrollToBottom();
+  }
 
   // ----------------------- Message Handling -----------------------
 
@@ -373,10 +375,10 @@ private async setGuestChannelState(channel: Channel) {
   }
 
   updateChannelName(newName: string) {
-  if (this.selectedChannel) {
-    this.selectedChannel.name = newName;
+    if (this.selectedChannel) {
+      this.selectedChannel.name = newName;
+    }
   }
-}
   // ----------------------- Mentions & Hashtags -----------------------
 
   /** Checks if a mention should be triggered based on keyboard input */
@@ -471,4 +473,8 @@ private async setGuestChannelState(channel: Channel) {
   focusChatInput() {
     if (this.chatFieldRef) this.chatFieldRef.nativeElement.focus();
   }
+
+  onChannelLeft(): void {
+  this.channelLeft.emit(); 
+}
 }

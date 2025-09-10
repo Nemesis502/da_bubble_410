@@ -269,20 +269,25 @@ export class MessageTemplateComponent implements OnDestroy, OnChanges {
 
   /** Add or remove a reaction for the current user */
   /** Select a reaction emoji for a message */
-  async selectReaction(reaction: string, message: any): Promise<void> {
-    const channelId = this.resolveChannelId(this.currentChannelId);
-    try {
-      await this.directMessageService.toggleReaction(
-        channelId,
-        message.messageID || message.id,
-        reaction,
-        this.currentUser
-      );
-    } catch {
-      // Optional error handling
-    }
-    this.closeAllReactionPickers();
+async selectReaction(reaction: string, message: any): Promise<void> {
+  const channelId = this.resolveChannelId(this.currentChannelId);
+  await this.directMessageService.toggleReaction(
+    channelId,
+    message.messageID || message.id,
+    reaction,
+    this.currentUser
+  );
+  if (typeof this.currentChannelId === 'string') {
+    this.directMessageService.getEnrichedMessages(this.currentChannelId)
+      .pipe(take(1))
+      .subscribe((msgs) => {
+        this.messages = msgs;
+        this.ngOnChanges({ messages: { currentValue: msgs, previousValue: [], firstChange: false, isFirstChange: () => false }});
+      });
   }
+  this.closeAllReactionPickers();
+}
+
 
   /** Resolve the channel ID from string or Channel object */
   private resolveChannelId(channel: string | Channel | null): string {
