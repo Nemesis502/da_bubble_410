@@ -151,3 +151,41 @@ input {
     display: flex;
     align-items: center;
 }
+
+@media screen and (max-width: 1100px) {
+    :host ::ng-deep .mat-mdc-input-element::placeholder {
+        font-size: 20px !important; 
+    }
+    input{
+        padding-left: 10px;
+    }
+    .search-form {
+    .search-full-width {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        min-width: 30vw;
+        max-width: 50vw;
+        height: 60px;
+
+        .mat-icon {
+            padding-right: 24px;
+            font-size: 24px;
+            width: 24px;
+            height: 24px;
+            color: $TextGray;
+        }
+    }
+}
+}
+
+@media screen and (max-width: 970px) {
+    :host ::ng-deep .mat-mdc-input-element::placeholder {
+        font-size: 18px !important; 
+    }
+    input{
+        padding-left: 0px;
+        display: flex;
+        padding-bottom: 5px;
+    }
+}
