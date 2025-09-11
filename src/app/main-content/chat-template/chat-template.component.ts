@@ -347,6 +347,7 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
   /** Navigates to the main menu */
   navigateToMain(): void {
     this.router.navigate(['/main-menu']);
+    this.closeThreadView()
   }
 
   /** Opens the main menu dialog */

@@ -16,10 +16,7 @@
       class="msg-own-body"
     >
       <div class="msg-avatar">
-        <img
-          src="./assets/img/avatar/{{ message.avatar }}.png"
-          alt=""
-        />
+        <img src="./assets/img/avatar/{{ message.avatar }}.png" alt="" />
       </div>
 
       <div class="msg-own-main">
@@ -101,6 +98,7 @@
       </div>
 
       <!-- Popup Menus -->
+      @if (activeReactionPickerId !== message.id) {
       <div class="popup-menu-own" [class.active]="selectedMessage === message">
         @for (reaction of getLastTwoReactions(message); track reaction) {
         <button (click)="selectReaction(reaction, message)">
@@ -127,8 +125,7 @@
         </div>
         }
       </div>
-
-      @if (activeReactionPickerId === message.id) {
+      } @if (activeReactionPickerId === message.id) {
       <app-reaction-picker
         (reactionSelected)="selectReaction($event, message)"
       ></app-reaction-picker>
@@ -144,10 +141,7 @@
       class="msg-body"
     >
       <div class="msg-avatar">
-        <img
-          src="./assets/img/avatar/{{ message.avatar }}.png"
-          alt=""
-        />
+        <img src="./assets/img/avatar/{{ message.avatar }}.png" alt="" />
       </div>
 
       <div class="msg-main">
@@ -229,6 +223,7 @@
       </div>
 
       <!-- Popup Menu -->
+      @if (activeReactionPickerId !== message.id) {
       <div class="popup-menu" [class.active]="selectedMessage === message">
         @for (reaction of getLastTwoReactions(message); track reaction) {
         <button (click)="selectReaction(reaction, message)">
@@ -244,8 +239,7 @@
         </button>
         }
       </div>
-
-      @if (activeReactionPickerId === message.id) {
+      } @if (activeReactionPickerId === message.id) {
       <app-reaction-picker
         (reactionSelected)="selectReaction($event, message)"
       ></app-reaction-picker>
