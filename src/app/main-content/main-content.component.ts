@@ -114,16 +114,23 @@ export class MainContentComponent {
   }
 
   // Switch route based on screen size
-  private handleResize(): void {
-    const wasSmallScreen = this.isSmallScreen;
-    this.isSmallScreen = window.innerWidth < 800;
+private handleResize(): void {
+  const wasSmallScreen = this.isSmallScreen;
+  this.isSmallScreen = window.innerWidth < 800;
 
-    if (this.isSmallScreen && !wasSmallScreen) {
-      this.router.navigate(['/main-menu']);
-    } else if (!this.isSmallScreen && wasSmallScreen) {
-      this.router.navigate(['/main']);
-    }
+  // Only navigate for small screen entry/exit if needed
+  if (this.isSmallScreen && !wasSmallScreen) {
+    this.router.navigate(['/main-menu']);
+  } else if (!this.isSmallScreen && wasSmallScreen) {
+    this.router.navigate(['/main']);
   }
+
+  // On large screens, always show the thread if a thread is selected
+  if (!this.isSmallScreen && this.currentThreadId) {
+    this.showThread = true;
+  }
+}
+
 
   // Removes all guest channels, conversations, and messages from Firestore
   async cleanupGuestData(): Promise<void> {

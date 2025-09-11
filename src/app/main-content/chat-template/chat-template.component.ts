@@ -124,7 +124,7 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
 
   // Initialize current user, detect screen, setup subscriptions
   async ngOnInit() {
-    this.initializeUserAndScreen();
+    this.updateIsMobile();
     await this.initializeChatType();
     this.setupGuestSubscriptions();
     await this.initializeChatBasedOnThreadOrChatId();
@@ -163,8 +163,13 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
   // ----------------------- Helper Methods -----------------------
 
   /** Initialize current user and check if screen is mobile */
-  private initializeUserAndScreen(): void {
-    this.isMobile = this.width < 999;
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.updateIsMobile();
+  }
+
+  private updateIsMobile() {
+    this.isMobile = window.innerWidth < 999;
   }
 
   // Handle @Input changes for chatId or chatType
@@ -347,7 +352,7 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
   /** Navigates to the main menu */
   navigateToMain(): void {
     this.router.navigate(['/main-menu']);
-    this.closeThreadView()
+    this.closeThreadView();
   }
 
   /** Opens the main menu dialog */
@@ -476,6 +481,6 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
   }
 
   onChannelLeft(): void {
-  this.channelLeft.emit(); 
-}
+    this.channelLeft.emit();
+  }
 }
