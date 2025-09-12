@@ -277,17 +277,39 @@ async selectReaction(reaction: string, message: any): Promise<void> {
     reaction,
     this.currentUser
   );
-  if (typeof this.currentChannelId === 'string') {
-    this.directMessageService.getEnrichedMessages(this.currentChannelId)
+  if (this.chatIsThread) {
+    this.directMessageService.getEnrichedThreadMessages(channelId, message.id)
       .pipe(take(1))
-      .subscribe((msgs) => {
-        this.messages = msgs;
-        this.ngOnChanges({ messages: { currentValue: msgs, previousValue: [], firstChange: false, isFirstChange: () => false }});
-      });
+      .subscribe(msgs => this.refreshMessageList(msgs));
+  } else {
+    const contextType = await this.directMessageService['getContextType'](channelId);
+    if (contextType === 'channel') {
+      this.directMessageService.getEnrichedMessages(channelId)
+        .pipe(take(1))
+        .subscribe(msgs => this.refreshMessageList(msgs));
+    } else if (contextType === 'conversation') {
+      this.directMessageService.getEnrichedConversationMessages(channelId)
+        .pipe(take(1))
+        .subscribe(msgs => this.refreshMessageList(msgs));
+    }
   }
   this.closeAllReactionPickers();
 }
 
+// ✅ Centralized helper for refreshing message lists safely
+private refreshMessageList(msgs: any[]): void {
+  if (Array.isArray(msgs) && msgs.length > 0) {
+    this.messages = msgs;
+    this.ngOnChanges({
+      messages: {
+        currentValue: msgs,
+        previousValue: [],
+        firstChange: false,
+        isFirstChange: () => false,
+      },
+    });
+  }
+}
 
   /** Resolve the channel ID from string or Channel object */
   private resolveChannelId(channel: string | Channel | null): string {
