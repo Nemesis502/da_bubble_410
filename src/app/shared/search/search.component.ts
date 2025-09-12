@@ -1,14 +1,28 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, EventEmitter, inject, Output } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  inject,
+  Output,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { DocumentData, DocumentReference, onSnapshot, Timestamp } from 'firebase/firestore';
+import {
+  DocumentData,
+  DocumentReference,
+  onSnapshot,
+  Timestamp,
+} from 'firebase/firestore';
 
 import { SearchService } from '../services/search.service';
-import { ChannelsDirectMessageService, DirectMessage } from '../services/channels-direct-message.service';
+import {
+  ChannelsDirectMessageService,
+  DirectMessage,
+} from '../services/channels-direct-message.service';
 import { FirestoreService } from '../services/firestore.service';
 import { UserService } from '../services/user.services';
 import { SessionService } from '../services/currentUserSession.service';
@@ -21,9 +35,15 @@ import { MatDialog } from '@angular/material/dialog';
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatFormFieldModule, MatInputModule, MatIconModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+  ],
   templateUrl: './search.component.html',
-  styleUrls: ['./search.component.scss']
+  styleUrls: ['./search.component.scss'],
 })
 export class SearchComponent {
   @Output() closeNewMessage = new EventEmitter<void>();
@@ -44,8 +64,15 @@ export class SearchComponent {
   filteredChannels: Channel[] = [];
   filteredDirectMessagesUsers: appUser[] = [];
   filteredDirectMessagesGuests: DirectMessage[] = [];
-  filteredMessagesFromChannels: Array<{ channel: Channel; hits: Array<{ id: string; text: string; timestamp: Timestamp }> }> = [];
-  filteredMessagesFromDirectMessages: Array<{ conversationId: string; user: appUser; hits: Array<{ id: string; text: string; timestamp: any }> }> = [];
+  filteredMessagesFromChannels: Array<{
+    channel: Channel;
+    hits: Array<{ id: string; text: string; timestamp: Timestamp }>;
+  }> = [];
+  filteredMessagesFromDirectMessages: Array<{
+    conversationId: string;
+    user: appUser;
+    hits: Array<{ id: string; text: string; timestamp: any }>;
+  }> = [];
 
   users: appUser[] = [];
   directMessages: any[] = [];
@@ -62,7 +89,10 @@ export class SearchComponent {
   }
 
   initLoginState(): void {
-    const navState = this.router.getCurrentNavigation()?.extras.state as { loginEmail: string; loginId: string };
+    const navState = this.router.getCurrentNavigation()?.extras.state as {
+      loginEmail: string;
+      loginId: string;
+    };
     if (!navState) return;
 
     if (navState.loginId === 'Guest') this.gastLogin = true;
@@ -87,7 +117,13 @@ export class SearchComponent {
   }
 
   loadGuestData(): void {
-    this.currentUser = { id: 'Guest', userName: 'Frederik Beck', profilePic: 3, status: true, email: 'email@beispiel.com' };
+    this.currentUser = {
+      id: 'Guest',
+      userName: 'Frederik Beck',
+      profilePic: 3,
+      status: true,
+      email: 'email@beispiel.com',
+    };
   }
 
   async initializeLoggedInUser(user: appUser) {
@@ -98,14 +134,19 @@ export class SearchComponent {
     await this.directMessageService.ensureSelfConversationExists();
     this.searchService.setCurrentUserId(this.currentLoginId);
 
-    this.firestoreService.getChannels().subscribe(channels => this.setChannels(channels));
+    this.firestoreService
+      .getChannels()
+      .subscribe((channels) => this.setChannels(channels));
     this.getAllUsers();
-    this.firestoreService.getConversationsByUserId(this.currentLoginId)
-      .subscribe(conv => this.setDirectMessages(conv));
+    this.firestoreService
+      .getConversationsByUserId(this.currentLoginId)
+      .subscribe((conv) => this.setDirectMessages(conv));
   }
 
   setChannels(channels: Channel[]): void {
-    this.filteredChannels = channels.filter(ch => ch.members.includes(this.currentLoginId));
+    this.filteredChannels = channels.filter((ch) =>
+      ch.members.includes(this.currentLoginId)
+    );
     this.searchService.setFirestoreChannels(channels);
   }
 
@@ -117,7 +158,8 @@ export class SearchComponent {
   }
 
   private subCurrentUser() {
-    const ref: DocumentReference<DocumentData> = this.firestoreService.getUserDocRef(this.currentLoginId);
+    const ref: DocumentReference<DocumentData> =
+      this.firestoreService.getUserDocRef(this.currentLoginId);
 
     if (!ref) return;
 
@@ -125,14 +167,17 @@ export class SearchComponent {
       const userData = userDoc.data();
       if (!userData) return;
 
-      this.currentUser = this.userService.setUserObject(userData, this.currentLoginId);
+      this.currentUser = this.userService.setUserObject(
+        userData,
+        this.currentLoginId
+      );
       this.getAllUsers();
       this.cdr.detectChanges();
     });
   }
 
   getAllUsers(): void {
-    this.firestoreService.getUsers().subscribe(u => {
+    this.firestoreService.getUsers().subscribe((u) => {
       this.users = u;
       this.searchService.setFirestoreUsers(u);
       if (!this.gastLogin) this.filterDirectMessageUsers();
@@ -141,26 +186,70 @@ export class SearchComponent {
 
   filterDirectMessageUsers(): void {
     const otherIds = this.directMessages
-      .map(c => c.participants.find((id: string) => id !== this.currentLoginId))
+      .map((c) =>
+        c.participants.find((id: string) => id !== this.currentLoginId)
+      )
       .filter(Boolean) as string[];
 
-    this.filteredDirectMessagesUsers = this.users.filter(u => u.id && otherIds.includes(u.id));
+    this.filteredDirectMessagesUsers = this.users.filter(
+      (u) => u.id && otherIds.includes(u.id)
+    );
 
-    if (this.currentUser && !this.filteredDirectMessagesUsers.some(u => u.id === this.currentUser?.id)) {
+    if (
+      this.currentUser &&
+      !this.filteredDirectMessagesUsers.some(
+        (u) => u.id === this.currentUser?.id
+      )
+    ) {
       this.filteredDirectMessagesUsers.unshift(this.currentUser);
     }
   }
 
   async updateFilteredResults(): Promise<void> {
+    if (this.gastLogin) {
+      await this.handleGuestSearch();
+      return;
+    }
+
+    if (this.searchTerm.startsWith('@')) {
+      this.handleChannelMentionSearch();
+      return;
+    }
+
+    await this.handleRegularSearch();
+  }
+
+  private async handleGuestSearch(): Promise<void> {
     const results = await this.searchService.updateFilteredResults(
-      this.searchTerm, this.gastLogin, this.directMessages, this.currentLoginId
+      this.searchTerm,
+      this.gastLogin,
+      this.directMessages,
+      this.currentLoginId
+    );
+    this.filteredDirectMessagesGuests =
+      results.directMessages as DirectMessage[];
+    this.filteredChannels = results.channels;
+    this.filteredMessagesFromChannels = results.contentResults;
+    this.filteredMessagesFromDirectMessages = results.directMessageResults;
+  }
+
+  private handleChannelMentionSearch(): void {
+    this.filteredDirectMessagesUsers = this.getUsersFromSharedChannels();
+    this.filteredDirectMessagesGuests = [];
+    this.filteredChannels = [];
+    this.filteredMessagesFromChannels = [];
+    this.filteredMessagesFromDirectMessages = [];
+  }
+
+  private async handleRegularSearch(): Promise<void> {
+    const results = await this.searchService.updateFilteredResults(
+      this.searchTerm,
+      this.gastLogin,
+      this.directMessages,
+      this.currentLoginId
     );
     this.filteredChannels = results.channels;
-    if (this.gastLogin) {
-      this.filteredDirectMessagesGuests = results.directMessages as DirectMessage[];
-    } else {
-      this.filteredDirectMessagesUsers = results.directMessages as appUser[];
-    }
+    this.filteredDirectMessagesUsers = results.directMessages as appUser[];
     this.filteredMessagesFromChannels = results.contentResults;
     this.filteredMessagesFromDirectMessages = results.directMessageResults;
   }
@@ -185,17 +274,23 @@ export class SearchComponent {
     this.channelDirectMessageData.setSelectedDirectMessage(user);
     this.closeNewMessage.emit();
 
-    if (window.innerWidth < 800) this.router.navigate(['/chat-container', 'conversation', conv.id]);
-    else { this.chatTypeSelected.emit('conversation'); this.chatSelected.emit(conv.id); }
+    if (window.innerWidth < 800)
+      this.router.navigate(['/chat-container', 'conversation', conv.id]);
+    else {
+      this.chatTypeSelected.emit('conversation');
+      this.chatSelected.emit(conv.id);
+    }
 
     this.searchTerm = '';
   }
 
   findConversation(userId1: string, userId2: string) {
-    return this.directMessages.find(conv => {
-      const participants: string[] = conv.members || conv.participants;
-      return participants.sort().join() === [userId1, userId2].sort().join();
-    }) || null;
+    return (
+      this.directMessages.find((conv) => {
+        const participants: string[] = conv.members || conv.participants;
+        return participants.sort().join() === [userId1, userId2].sort().join();
+      }) || null
+    );
   }
 
   selectDirectMessageGast(user: DirectMessage): void {
@@ -203,7 +298,12 @@ export class SearchComponent {
     this.closeNewMessage.emit();
 
     if (window.innerWidth < 800) {
-      this.router.navigate(['/chat-container', 'conversation', 'guest', encodeURIComponent(user.name)]);
+      this.router.navigate([
+        '/chat-container',
+        'conversation',
+        'guest',
+        encodeURIComponent(user.name),
+      ]);
     } else {
       this.chatTypeSelected.emit('conversation');
       this.chatSelected.emit(user.name);
@@ -216,15 +316,28 @@ export class SearchComponent {
     const dm: DirectMessage = {
       name: user.userName as string,
       img: user.profilePic!.toString(),
-      status: user.status ? 'online' : 'offline'
+      status: user.status ? 'online' : 'offline',
     };
     this.selectDirectMessageGast(dm);
   }
 
-
-  get isSearchActive(): boolean { return this.searchTerm.trim().length > 0; }
+  get isSearchActive(): boolean {
+    return this.searchTerm.trim().length > 0;
+  }
 
   ngOnDestroy(): void {
     this.unsubCurrentUser?.();
+  }
+
+  private getUsersFromSharedChannels(): appUser[] {
+    if (!this.currentLoginId) return [];
+
+    const memberIds = new Set<string>();
+    this.filteredChannels.forEach((ch) => {
+      ch.members
+        .filter((id) => id !== this.currentLoginId)
+        .forEach((id) => memberIds.add(id));
+    });
+    return this.users.filter((u) => u.id && memberIds.has(u.id));
   }
 }
