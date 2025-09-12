@@ -17,15 +17,9 @@
     <section class="input-section">
       <div class="flex-collum-center input-title">
         <div class="input-headline">
-          <div class="arrow-img">
-            <img class="default-arrows" src="./assets/img/back.png" alt="" />
-            <img
-              class="hover-arrows"
-              routerLink="/"
-              src="./assets/img/back_hover.png"
-              alt=""
-            />
-          </div>
+          <button mat-icon-button routerLink="/">
+            <mat-icon fontIcon="arrow_back"></mat-icon>
+          </button>
           <div class="input-h2">
             <h2 class="nuito32px700">Konto erstellen</h2>
           </div>
@@ -129,7 +123,8 @@
               text.invalid ||
               email.invalid ||
               password.invalid ||
-              passwordConfirm.invalid"
+              passwordConfirm.invalid
+            "
             (click)="checkFormular()"
             mat-flat-button
             class="nuito18px700 h49px login-button"

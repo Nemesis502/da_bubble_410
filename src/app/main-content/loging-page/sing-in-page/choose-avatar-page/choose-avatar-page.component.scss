@@ -70,21 +70,18 @@
     width: 100%;
 }
 
-.arrow-img {
-    img {
-        height: 40px;
-        width: 40px;
-        transition: ease-out 100ms;
+.mat-mdc-icon-button {
+    mat-icon {
+        width: 24px;
+        height: 24px;
+        font-weight: 600;
     }
 
     &:hover {
-        .default-arrows {
-            display: none;
-        }
+        background-color: $Bg !important;
 
-        .hover-arrows {
-            display: block;
-            cursor: pointer;
+        mat-icon {
+            color: $purple3;
         }
     }
 }

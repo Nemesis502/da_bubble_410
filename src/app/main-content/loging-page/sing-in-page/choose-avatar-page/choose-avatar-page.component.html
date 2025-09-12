@@ -17,19 +17,9 @@
     <section class="input-section">
       <div class="flex-collum-center input-title">
         <div class="input-headline">
-          <div class="arrow-img">
-            <img
-              class="default-arrows"
-              src="./assets/img/back.png"
-              alt=""
-            />
-            <img
-              class="hover-arrows"
-              (click)="previousPage()"
-              src="./assets/img/back_hover.png"
-              alt=""
-            />
-          </div>
+          <button mat-icon-button (click)="previousPage()">
+            <mat-icon fontIcon="arrow_back"></mat-icon>
+          </button>
           <div class="input-h2">
             <h2 class="nuito32px700">Wähle deinen Avatar</h2>
           </div>
@@ -38,10 +28,7 @@
       <form class="input-container">
         <div class="flex-collum-center avatar-container">
           <div class="choosed-avatar">
-            <img
-              src="./assets/img/avatar/{{ imgId }}.png"
-              alt=""
-            />
+            <img src="./assets/img/avatar/{{ imgId }}.png" alt="" />
           </div>
           <div class="flex-collum-center choose-container">
             <h2 class="nuito32px700">{{ userName }}</h2>

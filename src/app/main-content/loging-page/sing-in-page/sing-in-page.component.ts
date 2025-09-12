@@ -11,6 +11,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { merge } from 'rxjs';
 import { AuthService } from '../../../shared/services/auth.service';
+import { Location } from '@angular/common';
 
 import { AbstractControl, ValidationErrors, ValidatorFn, FormControl as NgFormControl } from '@angular/forms';
 function matchConfirmValidator(passwordCtrl: NgFormControl): ValidatorFn {
