@@ -10,7 +10,7 @@
     }
 }
 
-@media screen and (max-width: 1030px) {
+@media screen and (max-width: 1300px) {
     .devspace-header {
         p {
             display: none;
@@ -34,7 +34,7 @@
     }
 }
 
-@media screen and (min-height: 840px) {
+@media screen and (min-height: 950px) and (min-width: 1300px) {
     .menu {
         border-radius: 30px;
         padding-bottom: 42px;
