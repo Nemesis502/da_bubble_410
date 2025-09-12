@@ -116,7 +116,7 @@ export class LogingPageComponent {
     const email = this.email.value?.trim().toLowerCase() || '';
     const password = this.password.value || '';
     this.authService.login(email, password).then((userCredential) => {
-      if (window.innerWidth < 800) {
+      if (window.innerWidth < 1300) {
         this.router.navigate(['main-menu'], {
           state: {
             loginEmail: userCredential.user.email,
@@ -138,7 +138,7 @@ export class LogingPageComponent {
   }
 
   loginGuest() {
-    const isSmallScreen = window.innerWidth < 1000;
+    const isSmallScreen = window.innerWidth < 1300;
     const targetRoute = isSmallScreen ? 'main-menu' : 'main';
 
     this.router.navigate([targetRoute], {

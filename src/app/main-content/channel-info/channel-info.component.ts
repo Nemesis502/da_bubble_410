@@ -58,7 +58,7 @@ export class ChannelInfoComponent implements OnChanges {
   members = signal<appUser[]>([]);
   currentUser: appUser | null = null;
   isGastLogin = false;
-  isMobile = window.innerWidth < 999;
+  isMobile = window.innerWidth < 1300;
 
   channelNameInput = '';
   newChannelName = '';

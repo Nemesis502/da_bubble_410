@@ -21,7 +21,7 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class ChatTemplateContainerComponent implements OnInit {
   // Flag to detect if the viewport is mobile-sized
-  isMobile: boolean = window.innerWidth < 999;
+  isMobile: boolean = window.innerWidth < 1300;
 
   // Observable tracking whether a thread is currently open
   threadIsOpen$: Observable<boolean>;
@@ -42,7 +42,7 @@ export class ChatTemplateContainerComponent implements OnInit {
   // Listen for window resize events to update mobile detection
   @HostListener('window:resize')
   onResize() {
-    this.isMobile = window.innerWidth < 999;
+    this.isMobile = window.innerWidth < 1300;
   }
 
   // Angular lifecycle hook: initialize component

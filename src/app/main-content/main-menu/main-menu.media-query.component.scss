@@ -10,25 +10,9 @@
     }
 }
 
-@media screen and (max-width: 1160px) {
-    .header {
-        justify-content: center;
-
-        .title {
-            flex-direction: column;
-        }
-    }
-}
-
 @media screen and (max-width: 1030px) {
     .devspace-header {
         p {
-            display: none;
-        }
-    }
-
-    .channel-item {
-        mat-icon {
             display: none;
         }
     }

@@ -49,7 +49,7 @@ export class MainContentComponent {
   showThread = false;
   currentUser$ = this.userSession.currentLogingUser$;
   currentChatType: 'channel' | 'conversation' | null = null;
-  isSmallScreen = window.innerWidth < 800;
+  isSmallScreen = window.innerWidth < 1300;
   private firstLoad = true;
 
   constructor(
@@ -116,7 +116,7 @@ export class MainContentComponent {
   // Switch route based on screen size
 private handleResize(): void {
   const wasSmallScreen = this.isSmallScreen;
-  this.isSmallScreen = window.innerWidth < 800;
+  this.isSmallScreen = window.innerWidth < 1300;
 
   // Only navigate for small screen entry/exit if needed
   if (this.isSmallScreen && !wasSmallScreen) {
@@ -219,7 +219,7 @@ onChatSelected(chatId: string): void {
 
   // Opens the "new message" UI, navigates for mobile
   openNewMessage(): void {
-    if (window.innerWidth < 800) {
+    if (window.innerWidth < 1300) {
       this.router.navigate(['/new-message', this.currentUser()?.id]);
       return;
     }

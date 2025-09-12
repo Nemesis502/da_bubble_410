@@ -93,7 +93,7 @@ export class MenuDialogComponent implements OnInit {
   @HostListener('window:resize', ['$event'])
   onResize(event: Event): void {
     this.screenWidth = (event.target as Window).innerWidth;
-    const small = this.screenWidth < 800;
+    const small = this.screenWidth < 1300;
     if (small !== this.screenSmall) {
       this.screenSmall = small;
       this.updatePositionFromMenuDialog(small);
@@ -102,7 +102,7 @@ export class MenuDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.screenWidth = window.innerWidth;
-    this.screenSmall = this.screenWidth < 800;
+    this.screenSmall = this.screenWidth < 1300;
     this.initDialogData();
     this.loadUsers();
   }
@@ -137,7 +137,7 @@ export class MenuDialogComponent implements OnInit {
   }
 
   openProfileDialog(): void {
-    if (this.screenWidth < 800) {
+    if (this.screenWidth < 1300) {
       this.forSmallScreen();
     } else {
       this.forBigScreen();

@@ -40,7 +40,7 @@ async sendDirectMessage(
   );
 
   if (navigate) {
-    if (window.innerWidth < 800) {
+    if (window.innerWidth < 1300) {
       this.router.navigate([`/chat-container/conversation/${conversationId}`]);
     } else {
       this.chatSelected.emit(conversationId);
@@ -65,7 +65,7 @@ async sendDirectMessage(
       text,
     });
 
-      if (window.innerWidth < 800) {
+      if (window.innerWidth < 1300) {
       this.router.navigate([`/chat-container/channel/${channelId}`]);
     } else {
       this.chatSelected.emit(channelId);

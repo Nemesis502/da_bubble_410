@@ -258,7 +258,7 @@ export class SearchComponent {
     if (!channel?.channelId) return;
     this.channelDirectMessageData.setSelectedChannel(channel);
     this.closeNewMessage.emit();
-    if (window.innerWidth < 800 || !this.chatSelected.observers.length) {
+    if (window.innerWidth < 1300 || !this.chatSelected.observers.length) {
       this.router.navigate(['/chat-container', 'channel', channel.channelId]);
       return;
     }
@@ -274,7 +274,7 @@ export class SearchComponent {
     this.channelDirectMessageData.setSelectedDirectMessage(user);
     this.closeNewMessage.emit();
 
-    if (window.innerWidth < 800)
+    if (window.innerWidth < 1300)
       this.router.navigate(['/chat-container', 'conversation', conv.id]);
     else {
       this.chatTypeSelected.emit('conversation');
@@ -297,7 +297,7 @@ export class SearchComponent {
     this.channelDirectMessageData.setSelectedDirectMessageGast(user);
     this.closeNewMessage.emit();
 
-    if (window.innerWidth < 800) {
+    if (window.innerWidth < 1300) {
       this.router.navigate([
         '/chat-container',
         'conversation',

@@ -83,7 +83,7 @@ export class BaseChatUIService {
   // ------------------- Dialogs -------------------
   // Opens the main menu dialog, positioned differently for mobile vs desktop
   openMenuDialog(): void {
-    const isMobile = window.innerWidth < 800;
+    const isMobile = window.innerWidth < 1300;
 
     const config = {
       position: isMobile ? { bottom: '0' } : { top: '80px', right: '16px' },
@@ -103,7 +103,7 @@ export class BaseChatUIService {
     source: 'channel-chat' | 'add-members' = 'channel-chat',
     positionOffset?: { top: string; right: string }
   ) {
-    const isMobile = window.innerWidth < 1000;
+    const isMobile = window.innerWidth < 1300;
     this.dialog.open(MemberDialogComponent, {
       width: '415px',
       maxHeight: '75vh',

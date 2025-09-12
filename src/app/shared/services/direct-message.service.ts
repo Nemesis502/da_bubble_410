@@ -76,7 +76,7 @@ private handleConversationOpen(
   conversationId: string,
   opts?: { onConversationOpened?: (conversationId: string) => void }
 ): void {
-  if (window.innerWidth < 800) {
+  if (window.innerWidth < 1300) {
     this.router.navigate(['/chat-container/conversation', conversationId]);
   } else {
     opts?.onConversationOpened?.(conversationId);

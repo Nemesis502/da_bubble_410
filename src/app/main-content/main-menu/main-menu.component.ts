@@ -77,7 +77,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
   currentLoginEmail = '';
   searchTerm = '';
   width = window.innerWidth;
-  isSmallScreen = this.width < 800;
+  isSmallScreen = this.width < 1300;
 
   // Filtered data for search
   filteredChannels: any[] = [];
@@ -146,7 +146,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
   // Switch routes based on screen width
   handleResize(): void {
     const wasSmallScreen = this.isSmallScreen;
-    this.isSmallScreen = window.innerWidth < 800;
+    this.isSmallScreen = window.innerWidth < 1300;
 
     if (this.isSmallScreen && !wasSmallScreen) {
       this.router.navigate(['/main-menu']);
@@ -312,7 +312,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     }
     this.channelDirectMessageData.setSelectedChannel(channel);
     this.closeNewMessage.emit();
-    if (window.innerWidth < 800) {
+    if (window.innerWidth < 1300) {
       this.router.navigate(['/chat-container', 'channel', channel.channelId]);
     } else {
       this.chatSelected.emit(channel.channelId);
@@ -340,7 +340,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     }
     this.channelDirectMessageData.setSelectedDirectMessage(user);
     this.closeNewMessage.emit();
-    if (window.innerWidth < 800) {
+    if (window.innerWidth < 1300) {
       this.router.navigate([
         '/chat-container',
         'conversation',
@@ -372,7 +372,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     if (!user) return;
     this.channelDirectMessageData.setSelectedDirectMessageGast(user);
     this.closeNewMessage.emit();
-    if (window.innerWidth < 800) {
+    if (window.innerWidth < 1300) {
       this.router.navigate([
         '/chat-container',
         'conversation',
@@ -388,14 +388,14 @@ export class MainMenuComponent implements OnInit, OnDestroy {
     this.channelDirectMessageData.setSelectedGuestChannel(channel);
     this.closeNewMessage.emit();
     this.chatTypeSelected.emit('channel');
-    if (window.innerWidth < 800 && channel.channelId) {
+    if (window.innerWidth < 1300 && channel.channelId) {
       this.router.navigate(['/chat-container', 'channel', channel.channelId]);
     }
   }
 
   // Opens the "new message" UI
   openNewMessage(): void {
-    if (window.innerWidth < 800) {
+    if (window.innerWidth < 1300) {
       this.router.navigate(['/new-message', this.currentUser?.id]);
     } else {
       this.newMessage.emit();
@@ -404,7 +404,7 @@ export class MainMenuComponent implements OnInit, OnDestroy {
 
   // Opens the "add channel" dialog or navigates
   addChannel(): void {
-    if (window.innerWidth < 800) {
+    if (window.innerWidth < 1300) {
       this.router.navigate(['/addChannelDialog']);
     } else {
       this.dialog.open(AddChannelDialogComponent, {

@@ -53,7 +53,7 @@ export class AddChannelDialogComponent {
   channelFocused = false;
   channelDescription = '';
   screenWidth = window.innerWidth;
-  isSmallScreen = this.screenWidth < 800;
+  isSmallScreen = this.screenWidth < 1300;
   channelNameTaken = false;
   nameInput$ = new Subject<string>();
 
@@ -80,7 +80,7 @@ export class AddChannelDialogComponent {
   updateScreenWidth(width: number): void {
     const wasSmall = this.isSmallScreen;
     this.screenWidth = width;
-    this.isSmallScreen = width < 800;
+    this.isSmallScreen = width < 1300;
 
     if (wasSmall !== this.isSmallScreen) {
       this.handleScreenChange();

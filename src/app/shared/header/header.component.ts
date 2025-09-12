@@ -30,7 +30,7 @@ export class HeaderComponent {
   readonly dialog = inject(MatDialog);
 
   // Tracks whether the screen width is small (for responsive behavior)
-  screenSmall = window.innerWidth < 800;
+  screenSmall = window.innerWidth < 1300;
 
   // Determines which menu dialog to open based on screen size
   openMenuDialog(): void {

@@ -55,7 +55,7 @@ export class ProfilDialogComponent {
 
   openEditProfilDialog(): void {
     this.closeDialog();
-    if (this.screenWidth < 800) {
+    if (this.screenWidth < 1300) {
       this.forSmallScreen();
     } else {
       this.forBigScreen();
@@ -99,7 +99,7 @@ export class ProfilDialogComponent {
     this.directMessageService
       .findAndOpenConversation(senderId, receiverId, {
         onConversationOpened: (conversationId: string) => {
-          if (window.innerWidth < 800) {
+          if (window.innerWidth < 1300) {
             this.router.navigate([
               '/chat-container/conversation',
               conversationId,

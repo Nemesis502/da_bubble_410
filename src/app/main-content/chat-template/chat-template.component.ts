@@ -169,7 +169,7 @@ export class ChatTemplateComponent implements AfterViewInit, OnInit {
   }
 
   private updateIsMobile() {
-    this.isMobile = window.innerWidth < 999;
+    this.isMobile = window.innerWidth < 1300;
   }
 
   // Handle @Input changes for chatId or chatType
